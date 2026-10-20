@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+:root {
+  --font-sans: var(--font-jakarta), system-ui, -apple-system, sans-serif;
+  --color-brand-navy: #0F2854;
+  --color-brand-primary: #1C4D8D;
+  --color-brand-accent: #4988C4;
+  --color-brand-ice: #BDE8F5;
+  --color-brand-ice-soft: #F0F9FD;
+  --color-brand-primary-light: #EBF4FC;
+  --dash-bg: #F8FAFC;
+  --dash-surface: #FFFFFF;
+  --dash-border: #E2E8F0;
+  --dash-text: #0F2854;
+  --dash-text-muted: #64748B;
+  --dash-card-shadow: 0px 1px 3px rgba(15, 40, 84, 0.08);
+}
+
+[data-theme="night"] {
+  --dash-bg: #071326;
+  --dash-surface: #0F203C;
+  --dash-border: #1C355E;
+  --dash-text: #F1F5F9;
+  --dash-text-muted: #94A3B8;
+  --dash-card-shadow: 0px 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+html, body {
+  font-family: var(--font-sans);
+  background-color: var(--dash-bg);
+  color: var(--dash-text);
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+/* ================= Typography System ================= */
+.h1-bold { font-size: 32px; line-height: 120%; font-weight: 700; letter-spacing: -0.02em; }
+.h2-bold { font-size: 28px; line-height: 125%; font-weight: 700; letter-spacing: -0.01em; }
+.h3-semibold { font-size: 24px; line-height: 130%; font-weight: 600; }
+.h4-semibold { font-size: 20px; line-height: 135%; font-weight: 600; }
+.h5-medium { font-size: 18px; line-height: 140%; font-weight: 500; }
+.h6-medium { font-size: 16px; line-height: 140%; font-weight: 500; }
+
+.title-medium { font-size: 20px; line-height: 130%; font-weight: 500; }
+.title-sm { font-size: 15px; line-height: 135%; font-weight: 600; }
+
+.body-l-medium { font-size: 18px; line-height: 140%; font-weight: 500; }
+.body-l-regular { font-size: 18px; line-height: 150%; font-weight: 400; }
+
+.body-medium { font-size: 16px; line-height: 150%; font-weight: 500; }
+.body-regular { font-size: 16px; line-height: 160%; font-weight: 400; }
+
+.body-sm-medium { font-size: 14px; line-height: 20px; font-weight: 500; }
+.body-sm-regular { font-size: 14px; line-height: 20px; font-weight: 400; }
+
+.body-xsm-medium { font-size: 12px; line-height: 16px; font-weight: 500; }
+.body-xsm-regular { font-size: 12px; line-height: 16px; font-weight: 400; }
+
+/* ================= Color Tokens ================= */
+.text-brand-navy { color: var(--color-brand-navy); }
+.text-brand-primary { color: var(--color-brand-primary); }
+.text-brand-accent { color: var(--color-brand-accent); }
+.text-brand-ice { color: var(--color-brand-ice); }
+.text-muted { color: var(--dash-text-muted); }
+
+.bg-brand-navy { background-color: var(--color-brand-navy); }
+.bg-brand-primary { background-color: var(--color-brand-primary); }
+.bg-brand-accent { background-color: var(--color-brand-accent); }
+.bg-brand-ice { background-color: var(--color-brand-ice); }
+.bg-brand-ice-soft { background-color: var(--color-brand-ice-soft); }
+.bg-brand-primary-light { background-color: var(--color-brand-primary-light); }
+
+.border-brand-navy { border-color: var(--color-brand-navy); }
+.border-brand-primary { border-color: var(--color-brand-primary); }
+.border-brand-accent { border-color: var(--color-brand-accent); }
+.border-brand-ice { border-color: var(--color-brand-ice); }
+.border-dash { border-color: var(--dash-border); }
+
+.dashboard-card {
+  background-color: var(--dash-surface);
+  border: 1px solid var(--dash-border);
+  box-shadow: var(--dash-card-shadow);
+  border-radius: 12px;
+}
