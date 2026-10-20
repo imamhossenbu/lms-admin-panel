@@ -11,6 +11,7 @@ import { CoursesStats } from "./CoursesStats";
 import { CoursesFilterToolbar } from "./CoursesFilterToolbar";
 import { CourseTableView } from "./CourseTableView";
 import { DeleteCourseModal } from "./DeleteCourseModal";
+import { CategoryManagementModal } from "@/components/categories/CategoryManagementModal";
 import { Pagination } from "@/components/ui/Pagination";
 import PrimaryButton from "@/components/ui/primary-button";
 import { AdminCourseItem } from "@/lib/types";
@@ -32,6 +33,8 @@ export function CoursesGridClient({
   setIsCreateModalOpen: propSetCreateOpen,
   isAiModalOpen: propAiOpen,
   setIsAiModalOpen: propSetAiOpen,
+  isCategoryModalOpen: propCategoryOpen,
+  setIsCategoryModalOpen: propSetCategoryOpen,
 }: CoursesGridClientProps = {}) {
   const [courses, setCourses] = useState<AdminCourseItem[]>(INITIAL_COURSES);
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
@@ -46,12 +49,16 @@ export function CoursesGridClient({
   // Local modal states (fallbacks when not provided by parent)
   const [localCreateOpen, setLocalCreateOpen] = useState(false);
   const [localAiOpen, setLocalAiOpen] = useState(false);
+  const [localCategoryOpen, setLocalCategoryOpen] = useState(false);
 
   const isCreateOpen = propCreateOpen !== undefined ? propCreateOpen : localCreateOpen;
   const setCreateOpen = propSetCreateOpen || setLocalCreateOpen;
 
   const isAiOpen = propAiOpen !== undefined ? propAiOpen : localAiOpen;
   const setAiOpen = propSetAiOpen || setLocalAiOpen;
+
+  const isCategoryOpen = propCategoryOpen !== undefined ? propCategoryOpen : localCategoryOpen;
+  const setCategoryOpen = propSetCategoryOpen || setLocalCategoryOpen;
 
   const [selectedCourseForDetails, setSelectedCourseForDetails] = useState<AdminCourseItem | null>(null);
   const [selectedCourseForAi, setSelectedCourseForAi] = useState<AdminCourseItem | null>(null);
@@ -159,25 +166,6 @@ export function CoursesGridClient({
 
   return (
     <div className="space-y-6 text-left">
-      {/* Top Action Bar */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="title-md text-primary-500 font-bold">
-            Curriculum & Courses Management
-          </h1>
-          <p className="body-sm-regular subtext-500 mt-0.5">
-            Coursera & Udemy style catalog management with Gemini AI syllabus orchestration
-          </p>
-        </div>
-
-        <PrimaryButton
-          onClick={() => setCreateOpen(true)}
-          icon={<Plus className="w-4 h-4" />}
-        >
-          Create New Course
-        </PrimaryButton>
-      </div>
-
       {/* KPI Stats Overview */}
       <CoursesStats courses={courses} />
 
@@ -311,6 +299,15 @@ export function CoursesGridClient({
         course={selectedCourseForCurriculum}
         onCurriculumUpdated={() => {
           fetchCourses();
+        }}
+      />
+
+      {/* Category Management Hub Modal */}
+      <CategoryManagementModal
+        isOpen={isCategoryOpen}
+        onClose={() => setCategoryOpen(false)}
+        onCategoryCreated={() => {
+          fetchCategories();
         }}
       />
 
