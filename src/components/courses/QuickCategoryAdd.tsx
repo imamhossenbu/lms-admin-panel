@@ -102,21 +102,19 @@ export function QuickCategoryAdd({
 
       <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
         <div className="sm:col-span-3">
-          <label className="body-xsm-medium text-primary-400 block mb-1">
-            Icon / Emoji
-          </label>
-          <input
-            type="text"
-            value={icon}
-            onChange={(e) => setIcon(e.target.value)}
-            className="w-full h-10 px-3 text-center text-lg rounded-[8px] border border-[#EDEDED] bg-white focus:outline-none focus:border-[#1C4D8D]"
+          <InputField
+            label="Icon / Emoji"
+            className="text-center text-lg"
             placeholder="📚"
             maxLength={4}
+            value={icon}
+            onChange={(e) => setIcon(e.target.value)}
           />
         </div>
         <div className="sm:col-span-9">
           <InputField
             label="Category Name"
+            required
             placeholder="e.g. Mobile App Development"
             value={name}
             onChange={(e) => setName(e.target.value)}

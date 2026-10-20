@@ -16,6 +16,7 @@ export type DropdownSelectOptionInput = string | DropdownSelectOption;
 export interface DropdownSelectProps {
   label?: string;
   fieldLabel?: string;
+  required?: boolean;
   placeholder?: string;
   options: DropdownSelectOptionInput[];
   value: string | null;
@@ -30,6 +31,7 @@ export interface DropdownSelectProps {
 export function DropdownSelect({
   label,
   fieldLabel,
+  required = false,
   placeholder = "Select an option",
   options,
   value,
@@ -50,7 +52,8 @@ export function DropdownSelect({
   );
 
   const selectedOption = normalizedOptions.find((opt) => opt.value === value);
-  const displayLabel = selectedOption?.label ?? placeholder ?? label;
+  const effectiveLabel = fieldLabel || label;
+  const displayLabel = selectedOption?.label ?? placeholder;
 
   useEffect(() => {
     if (!open) return;
@@ -79,12 +82,13 @@ export function DropdownSelect({
 
   return (
     <div ref={containerRef} className={cn("relative w-full", className)}>
-      {fieldLabel && (
+      {effectiveLabel && (
         <label
           htmlFor={id}
           className="block body-sm-regular text-primary-400 mb-2 select-none"
         >
-          {fieldLabel}
+          {effectiveLabel}
+          {required && <span className="text-[#F04438] ml-0.5">*</span>}
         </label>
       )}
 

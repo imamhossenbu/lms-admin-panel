@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import { ModalShell } from "@/components/ui/ModalShell";
 import { PrimaryButton } from "@/components/ui/primary-button";
+import { InputField } from "@/components/ui/InputField";
+import { DropdownSelect } from "@/components/ui/DropdownSelect";
 import { aiApi } from "@/lib/api";
 import { toast } from "sonner";
 import {
@@ -195,40 +197,34 @@ export function AiSyllabusModal({
       <div className="space-y-6 text-left">
         {/* Form Inputs */}
         <form onSubmit={handleGenerate} className="space-y-4">
-          <div className="space-y-1.5">
-            <label className="body-xsm-medium uppercase tracking-wider text-primary-500 block">
-              Curriculum Title / Topic
-            </label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Advanced Cloud DevOps & Kubernetes"
-              className="w-full h-[40px] px-3.5 rounded-[8px] border border-[#EDEDED] text-primary-500 body-sm-regular focus:border-[#1C4D8D] focus:outline-none transition-colors"
-            />
-          </div>
+          <InputField
+            label="Curriculum Title / Topic"
+            required
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="e.g. Advanced Cloud DevOps & Kubernetes"
+          />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <label className="body-sm-regular text-primary-400 block">
-                Target Proficiency
-              </label>
-              <select
-                value={level}
-                onChange={(e) => setLevel(e.target.value)}
-                className="w-full h-[40px] px-3.5 rounded-[8px] border border-[#EDEDED] text-primary-500 body-sm-regular focus:border-[#1C4D8D] focus:outline-none transition-colors bg-white"
-              >
-                <option value="BEGINNER">Beginner (Foundations)</option>
-                <option value="INTERMEDIATE">Intermediate (Core Practice)</option>
-                <option value="ADVANCED">Advanced (Enterprise Mastery)</option>
-              </select>
-            </div>
+            <DropdownSelect
+              fieldLabel="Target Proficiency"
+              options={[
+                { value: "BEGINNER", label: "Beginner (Foundations)" },
+                { value: "INTERMEDIATE", label: "Intermediate (Core Practice)" },
+                { value: "ADVANCED", label: "Advanced (Enterprise Mastery)" },
+              ]}
+              value={level}
+              onChange={(val) => setLevel(val)}
+            />
 
-            <div className="space-y-1.5">
-              <label className="body-sm-regular text-primary-400 block">
-                Target Model
-              </label>
-              <div className="h-[40px] px-3.5 rounded-[8px] bg-[#F8F9FA] border border-[#EDEDED] flex items-center justify-between body-sm-medium text-primary-500">
+            <div>
+              <span className="block body-sm-regular text-primary-400 mb-2 select-none">
+                Synthesis Engine
+              </span>
+              <div
+                className="h-[40px] px-3.5 rounded-[8px] bg-[#F8F9FA] border border-[#EDEDED] flex items-center justify-between body-sm-medium text-primary-500"
+                style={{ boxShadow: "0px 1px 2px 0px rgba(13, 13, 18, 0.05)" }}
+              >
                 <span className="flex items-center gap-1.5">
                   <Zap className="w-3.5 h-3.5 text-[#1C4D8D]" />
                   Gemini 3.8 Flash
@@ -240,8 +236,8 @@ export function AiSyllabusModal({
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <label className="body-sm-regular text-primary-400 block">
+          <div>
+            <label className="block body-sm-regular text-primary-400 mb-2 select-none">
               Curriculum Goals & Notes
             </label>
             <textarea
@@ -249,6 +245,7 @@ export function AiSyllabusModal({
               onChange={(e) => setDescription(e.target.value)}
               rows={2}
               className="w-full p-3 rounded-[8px] border border-[#EDEDED] text-primary-500 body-sm-regular focus:border-[#1C4D8D] focus:outline-none transition-colors"
+              style={{ boxShadow: "0px 1px 2px 0px rgba(13, 13, 18, 0.05)" }}
               placeholder="Provide context, required tools, or target learning outcomes..."
             />
           </div>

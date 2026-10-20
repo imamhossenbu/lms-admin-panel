@@ -236,7 +236,7 @@ export function CurriculumLessonModal({
 
           <div className="sm:col-span-4">
             <DropdownSelect
-              label="Format / Type"
+              fieldLabel="Format / Type"
               options={typeOptions}
               value={type}
               onChange={(val) => setType(val)}
@@ -244,7 +244,7 @@ export function CurriculumLessonModal({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <InputField
             label="Duration (Minutes)"
             type="number"
@@ -253,19 +253,25 @@ export function CurriculumLessonModal({
             placeholder="15"
           />
 
-          <div className="flex items-center gap-2 pt-5">
-            <input
-              type="checkbox"
-              id="lessonIsPreview"
-              checked={isPreview}
-              onChange={(e) => setIsPreview(e.target.checked)}
-              className="w-4 h-4 rounded border-gray-300 text-[#1C4D8D] focus:ring-[#1C4D8D] cursor-pointer"
-            />
+          <div>
+            <span className="block body-sm-regular text-primary-400 mb-2 select-none">
+              Access Permissions
+            </span>
             <label
               htmlFor="lessonIsPreview"
-              className="body-sm-medium text-primary-500 cursor-pointer select-none"
+              className="flex h-[40px] items-center gap-2.5 px-3.5 rounded-[8px] border border-[#EDEDED] bg-white cursor-pointer hover:bg-slate-50 transition-colors select-none"
+              style={{ boxShadow: "0px 1px 2px 0px rgba(13, 13, 18, 0.05)" }}
             >
-              Allow Free Preview (Unauthenticated learners can access)
+              <input
+                type="checkbox"
+                id="lessonIsPreview"
+                checked={isPreview}
+                onChange={(e) => setIsPreview(e.target.checked)}
+                className="w-4 h-4 rounded border-gray-300 text-[#1C4D8D] focus:ring-[#1C4D8D] cursor-pointer"
+              />
+              <span className="body-sm-regular text-primary-500">
+                Allow Free Preview (Open to all learners)
+              </span>
             </label>
           </div>
         </div>
@@ -474,19 +480,13 @@ export function CurriculumLessonModal({
         </div>
 
         {/* ================= 4. DOWNLOADABLE ATTACHMENTS & RESOURCES ================= */}
-        <div className="space-y-1.5 pt-1">
-          <label className="body-sm-medium text-primary-500 font-semibold flex items-center gap-1.5">
-            <Paperclip className="w-3.5 h-3.5 text-[#1C4D8D]" />
-            <span>Downloadable Attachments / GitHub Repo (Optional)</span>
-          </label>
-          <input
-            type="text"
-            placeholder="e.g. https://github.com/org/repo or https://res.cloudinary.com/.../slides.pdf"
-            value={resources}
-            onChange={(e) => setResources(e.target.value)}
-            className="w-full h-10 px-3 rounded-[8px] border border-[#EDEDED] bg-white body-sm-regular text-primary-500 placeholder:text-primary-300 focus:outline-none focus:border-[#1C4D8D]"
-          />
-        </div>
+        <InputField
+          label="Downloadable Attachments / GitHub Repo (Optional)"
+          leftElement={<Paperclip className="w-4 h-4" />}
+          placeholder="e.g. https://github.com/org/repo or https://res.cloudinary.com/.../slides.pdf"
+          value={resources}
+          onChange={(e) => setResources(e.target.value)}
+        />
       </form>
     </ModalShell>
   );

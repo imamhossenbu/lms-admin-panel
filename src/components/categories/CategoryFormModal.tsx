@@ -258,7 +258,7 @@ export function CategoryFormModal({
         />
 
         <DropdownSelect
-          label="Category Status"
+          fieldLabel="Category Status"
           options={statusOptions}
           value={status}
           onChange={(val) => setStatus(val as any)}

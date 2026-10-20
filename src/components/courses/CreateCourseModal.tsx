@@ -259,7 +259,7 @@ export function CreateCourseModal({
         </div>
 
         {/* Pricing & Free Toggle */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <InputField
             label="Course Price ($ USD)"
             type="number"
@@ -269,16 +269,25 @@ export function CreateCourseModal({
             placeholder="99"
           />
 
-          <div className="flex items-center gap-2.5 pb-2">
-            <input
-              type="checkbox"
-              id="isFree"
-              checked={isFree}
-              onChange={(e) => setIsFree(e.target.checked)}
-              className="w-4 h-4 rounded border-gray-300 text-[#1C4D8D] focus:ring-[#1C4D8D] cursor-pointer"
-            />
-            <label htmlFor="isFree" className="body-sm-medium text-primary-500 cursor-pointer">
-              Offer as Free Open-Access Course
+          <div>
+            <span className="block body-sm-regular text-primary-400 mb-2 select-none">
+              Enrollment Access
+            </span>
+            <label
+              htmlFor="isFree"
+              className="flex h-[40px] items-center gap-2.5 px-3.5 rounded-[8px] border border-[#EDEDED] bg-white cursor-pointer hover:bg-slate-50 transition-colors select-none"
+              style={{ boxShadow: "0px 1px 2px 0px rgba(13, 13, 18, 0.05)" }}
+            >
+              <input
+                type="checkbox"
+                id="isFree"
+                checked={isFree}
+                onChange={(e) => setIsFree(e.target.checked)}
+                className="w-4 h-4 rounded border-gray-300 text-[#1C4D8D] focus:ring-[#1C4D8D] cursor-pointer"
+              />
+              <span className="body-sm-regular text-primary-500">
+                Offer as Free Open-Access Course
+              </span>
             </label>
           </div>
         </div>

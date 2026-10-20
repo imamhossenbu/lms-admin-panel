@@ -26,11 +26,11 @@ export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
     ref
   ) => {
     return (
-      <div className={containerClassName}>
+      <div className={`w-full ${containerClassName}`}>
         {label && (
           <label
             htmlFor={id}
-            className="block body-sm-regular text-primary-400 mb-2"
+            className="block body-sm-regular text-primary-400 mb-2 select-none"
           >
             {label}
             {required && <span className="text-[#F04438] ml-0.5">*</span>}
