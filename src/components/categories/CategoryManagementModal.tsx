@@ -9,6 +9,7 @@ import { TagBadge } from "@/components/ui/TagBadge";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 import { categoriesApi } from "@/lib/api";
 import { AdminCategoryItem } from "@/lib/types";
+import { CategoryIcon } from "@/components/ui/CategoryIcon";
 import { toast } from "sonner";
 import {
   FolderPlus,
@@ -337,9 +338,7 @@ export function CategoryManagementModal({
                 className="p-3.5 flex items-center justify-between gap-4 hover:bg-gray-50/60 transition-colors"
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 rounded-[10px] bg-[#EBF4FC] border border-[#BDE8F5]/60 flex items-center justify-center text-xl shrink-0">
-                    {cat.icon || "📚"}
-                  </div>
+                  <CategoryIcon icon={cat.icon} className="w-10 h-10 text-xl" />
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
                       <span className="body-sm-medium text-primary-500 font-semibold truncate">

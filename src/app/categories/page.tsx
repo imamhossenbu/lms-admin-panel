@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
+import Image from "next/image";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 import { TagBadge } from "@/components/ui/TagBadge";
@@ -8,9 +9,7 @@ import PrimaryButton from "@/components/ui/primary-button";
 import SecondaryButton from "@/components/ui/secondary-button";
 import { InputField } from "@/components/ui/InputField";
 import { ModalShell } from "@/components/ui/ModalShell";
-import { RowActionButton } from "@/components/ui/RowActionButton";
-import { DropdownMenu } from "@/components/ui/DropdownMenu";
-import { categoriesApi } from "@/lib/api";
+import { categoriesApi, coursesApi } from "@/lib/api";
 import { AdminCategoryItem } from "@/lib/types";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -30,7 +29,57 @@ import {
   Check,
   TrendingUp,
   AlertTriangle,
+  UploadCloud,
+  Loader2,
+  X,
 } from "lucide-react";
+
+export function CategoryIcon({
+  icon,
+  className = "w-12 h-12 text-2xl",
+  imgClassName = "object-contain p-1",
+}: {
+  icon?: string | null;
+  className?: string;
+  imgClassName?: string;
+}) {
+  const isImageUrl = Boolean(
+    icon &&
+      (icon.startsWith("http://") ||
+        icon.startsWith("https://") ||
+        icon.startsWith("/") ||
+        icon.includes("cloudinary.com") ||
+        icon.includes("/avatars/") ||
+        icon.includes("/upload/"))
+  );
+
+  if (isImageUrl) {
+    return (
+      <div
+        className={`relative rounded-[10px] overflow-hidden bg-[#F8F9FA] border border-[#EDEDED] shrink-0 flex items-center justify-center ${className}`}
+      >
+        <Image
+          src={icon!}
+          alt="Category Icon"
+          fill
+          unoptimized
+          className={imgClassName}
+          sizes="48px"
+        />
+      </div>
+    );
+  }
+
+  const displayEmoji = icon && icon.length <= 8 && !icon.includes("/") ? icon : "📚";
+
+  return (
+    <div
+      className={`rounded-[10px] bg-[#F8F9FA] border border-[#EDEDED] flex items-center justify-center shrink-0 select-none ${className}`}
+    >
+      <span>{displayEmoji}</span>
+    </div>
+  );
+}
 
 const EMOJI_OPTIONS = [
   "🤖", "💻", "☁️", "⚡", "🛡️", "📱", "🎨", "📊", "🧠", "🌐", "🔬", "🚀", "🎯", "⚙️"
@@ -102,6 +151,10 @@ export default function CategoriesManagementPage() {
   const [formStatus, setFormStatus] = useState<"ACTIVE" | "INACTIVE">("ACTIVE");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Icon upload state
+  const iconInputRef = useRef<HTMLInputElement>(null);
+  const [isUploadingIcon, setIsUploadingIcon] = useState(false);
+
   // Delete Confirm State
   const [deletingCategory, setDeletingCategory] = useState<AdminCategoryItem | null>(null);
 
@@ -122,7 +175,6 @@ export default function CategoriesManagementPage() {
           },
         }));
 
-        // Merge with defaults to ensure robust initial display
         const map = new Map<string, AdminCategoryItem>();
         DEFAULT_CATEGORIES.forEach((cat) => map.set(cat.name, cat));
         formatted.forEach((cat) => map.set(cat.name, cat));
@@ -177,6 +229,33 @@ export default function CategoriesManagementPage() {
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/^-+|-+$/g, "");
       setFormSlug(genSlug);
+    }
+  };
+
+  const handleUploadIcon = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file (PNG, JPG, WebP)");
+      return;
+    }
+
+    setIsUploadingIcon(true);
+    const toastId = toast.loading("Uploading category icon to Cloudinary...");
+    try {
+      const res = await coursesApi.uploadThumbnail(file);
+      if (res && res.url) {
+        setFormIcon(res.url);
+        toast.success("Icon uploaded to Cloudinary!", { id: toastId });
+      }
+    } catch (err: any) {
+      console.warn("Upload fallback to local preview:", err);
+      const localUrl = URL.createObjectURL(file);
+      setFormIcon(localUrl);
+      toast.info("Using local preview", { id: toastId });
+    } finally {
+      setIsUploadingIcon(false);
     }
   };
 
@@ -248,7 +327,6 @@ export default function CategoriesManagementPage() {
       setIsModalOpen(false);
     } catch (err: any) {
       console.error("Failed to save category:", err);
-      // Optimistic fallback for frontend UX
       if (!editingCategory) {
         const localCat: AdminCategoryItem = {
           id: `cat-local-${Date.now()}`,
@@ -501,7 +579,7 @@ export default function CategoriesManagementPage() {
           </PrimaryButton>
         </div>
       ) : viewMode === "grid" ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           <AnimatePresence>
             {filteredCategories.map((cat) => (
               <motion.div
@@ -511,26 +589,27 @@ export default function CategoriesManagementPage() {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.98 }}
                 transition={{ duration: 0.2 }}
-                className="p-5 rounded-[14px] border border-[#EDEDED] bg-white flex flex-col justify-between hover:border-[#1C4D8D]/40 hover:shadow-md transition-all group relative"
+                className="p-5 rounded-[14px] border border-[#EDEDED] bg-white flex flex-col justify-between hover:border-[#1C4D8D]/40 hover:shadow-md transition-all group relative overflow-hidden"
               >
-                <div>
-                  {/* Top Row: Icon + Status + Actions */}
-                  <div className="flex items-start justify-between gap-3 mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-[10px] bg-[#F8F9FA] border border-[#EDEDED] flex items-center justify-center text-2xl shrink-0 group-hover:scale-105 transition-transform">
-                        {cat.icon || "📚"}
-                      </div>
-                      <div>
-                        <h4 className="title-medium text-primary-500 font-bold group-hover:text-[#1C4D8D] transition-colors">
+                <div className="space-y-3">
+                  {/* Top Row: Icon + Name & Slug + Status & Actions */}
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <CategoryIcon
+                        icon={cat.icon}
+                        className="w-12 h-12 text-2xl"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <h4 className="title-medium text-primary-500 font-bold group-hover:text-[#1C4D8D] transition-colors truncate">
                           {cat.name}
                         </h4>
-                        <span className="body-xsm-regular subtext-500 block">
+                        <span className="body-xsm-regular subtext-500 block truncate">
                           /{cat.slug}
                         </span>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1.5 shrink-0">
                       <ToneBadge
                         tone={cat.status === "INACTIVE" ? "neutral" : "green"}
                         size="sm"
@@ -558,13 +637,13 @@ export default function CategoriesManagementPage() {
                   </div>
 
                   {/* Description */}
-                  <p className="body-sm-regular subtext-500 line-clamp-2 mb-4">
+                  <p className="body-sm-regular subtext-500 line-clamp-2 break-words">
                     {cat.description || "Instructional subject area and course classification."}
                   </p>
                 </div>
 
                 {/* Bottom Row: Metrics & Tag */}
-                <div className="pt-3 border-t border-[#EDEDED] flex items-center justify-between">
+                <div className="pt-3 mt-3 border-t border-[#EDEDED] flex items-center justify-between">
                   <div className="flex items-center gap-1.5 body-xsm-medium text-primary-500 font-semibold">
                     <BookOpen className="w-3.5 h-3.5 text-[#1C4D8D]" />
                     <span>{cat._count?.courses ?? 0} Courses Registered</span>
@@ -597,8 +676,8 @@ export default function CategoriesManagementPage() {
                 <tr key={cat.id} className="hover:bg-[#F8F9FA]/60 transition-colors">
                   <td className="py-3.5 px-4">
                     <div className="flex items-center gap-3">
-                      <span className="text-xl">{cat.icon || "📚"}</span>
-                      <span className="body-sm-medium text-primary-500 font-bold">
+                      <CategoryIcon icon={cat.icon} className="w-8 h-8 text-base" />
+                      <span className="body-sm-medium text-primary-500 font-bold truncate max-w-[200px]">
                         {cat.name}
                       </span>
                     </div>
@@ -677,26 +756,61 @@ export default function CategoriesManagementPage() {
         }
       >
         <form id="category-form" onSubmit={handleSubmit} className="space-y-4 text-left">
-          {/* Emoji / Icon Selector */}
-          <div>
-            <label className="body-sm-medium text-primary-500 font-semibold block mb-1.5">
-              Discipline Emoji / Icon
-            </label>
-            <div className="flex flex-wrap gap-2 p-2.5 rounded-[8px] bg-[#F8F9FA] border border-[#EDEDED]">
+          {/* Icon & Live Preview */}
+          <div className="p-3.5 rounded-[10px] bg-[#F8F9FA] border border-[#EDEDED] space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="body-sm-medium text-primary-500 font-semibold block">
+                Discipline Icon / Emoji
+              </label>
+              <div className="flex items-center gap-2">
+                <span className="body-xsm-regular subtext-500">Live Preview:</span>
+                <CategoryIcon icon={formIcon} className="w-9 h-9 text-lg" />
+              </div>
+            </div>
+
+            {/* Quick Emoji Presets */}
+            <div className="flex flex-wrap gap-1.5">
               {EMOJI_OPTIONS.map((emoji) => (
                 <button
                   key={emoji}
                   type="button"
                   onClick={() => setFormIcon(emoji)}
-                  className={`w-9 h-9 rounded-[6px] text-lg flex items-center justify-center transition-all cursor-pointer ${
+                  className={`w-8 h-8 rounded-[6px] text-base flex items-center justify-center transition-all cursor-pointer ${
                     formIcon === emoji
-                      ? "bg-white border-2 border-[#1C4D8D] shadow-xs scale-110"
+                      ? "bg-white border-2 border-[#1C4D8D] shadow-xs scale-105"
                       : "hover:bg-white border border-transparent"
                   }`}
                 >
                   {emoji}
                 </button>
               ))}
+            </div>
+
+            {/* Device Image Upload Option */}
+            <div className="pt-2 border-t border-[#EDEDED] flex items-center justify-between">
+              <input
+                ref={iconInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleUploadIcon}
+                className="hidden"
+              />
+              <span className="body-xsm-regular subtext-500">
+                Or upload custom logo/icon from device:
+              </span>
+              <button
+                type="button"
+                onClick={() => iconInputRef.current?.click()}
+                disabled={isUploadingIcon}
+                className="px-2.5 h-[30px] rounded-[6px] border border-[#EDEDED] bg-white hover:bg-[#F8F9FA] text-primary-500 body-xsm-medium font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+              >
+                {isUploadingIcon ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-[#1C4D8D]" />
+                ) : (
+                  <UploadCloud className="w-3.5 h-3.5 text-[#1C4D8D]" />
+                )}
+                <span>{isUploadingIcon ? "Uploading..." : "Browse Icon"}</span>
+              </button>
             </div>
           </div>
 
