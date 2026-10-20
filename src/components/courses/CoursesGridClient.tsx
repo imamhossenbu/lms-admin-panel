@@ -19,6 +19,8 @@ import { coursesApi, categoriesApi } from "@/lib/api";
 import { toast } from "sonner";
 import { CoursesSkeleton } from "./CoursesSkeleton";
 
+import { useRouter } from "next/navigation";
+
 export interface CoursesGridClientProps {
   isCreateModalOpen?: boolean;
   setIsCreateModalOpen?: (open: boolean) => void;
@@ -38,6 +40,7 @@ export function CoursesGridClient({
   setIsCategoryModalOpen: propSetCategoryOpen,
   refreshTrigger,
 }: CoursesGridClientProps = {}) {
+  const router = useRouter();
   const [courses, setCourses] = useState<AdminCourseItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
@@ -316,7 +319,7 @@ export function CoursesGridClient({
             </p>
           </div>
           <PrimaryButton
-            onClick={() => setCreateOpen(true)}
+            onClick={() => router.push("/courses/create")}
             icon={<Plus className="w-4 h-4" />}
           >
             Create Course
@@ -329,12 +332,12 @@ export function CoursesGridClient({
               key={course.id}
               course={course}
               onViewDetails={setSelectedCourseForDetails}
-              onEdit={(c) => setSelectedCourseForCurriculum(c)}
+              onEdit={(c) => router.push(`/courses/${c.id}/edit`)}
               onGenerateOutline={(c) => {
                 setSelectedCourseForAi(c);
                 setAiOpen(true);
               }}
-              onManageCurriculum={setSelectedCourseForCurriculum}
+              onManageCurriculum={(c) => router.push(`/courses/${c.id}/edit`)}
               onDelete={(id) => {
                 const found = courses.find((item) => item.id === id);
                 if (found) setDeletingCourse(found);
@@ -346,8 +349,8 @@ export function CoursesGridClient({
         <CourseTableView
           courses={paginatedCourses}
           onViewDetails={setSelectedCourseForDetails}
-          onEditCourse={(c) => setSelectedCourseForCurriculum(c)}
-          onManageCurriculum={setSelectedCourseForCurriculum}
+          onEditCourse={(c) => router.push(`/courses/${c.id}/edit`)}
+          onManageCurriculum={(c) => router.push(`/courses/${c.id}/edit`)}
           onOpenAiOutline={(c) => {
             setSelectedCourseForAi(c);
             setAiOpen(true);

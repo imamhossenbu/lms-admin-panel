@@ -11,12 +11,13 @@ import SecondaryButton from "@/components/ui/secondary-button";
 import { RotateCw, Sparkles, Plus, FolderPlus } from "lucide-react";
 import { toast } from "sonner";
 
+import { useRouter } from "next/navigation";
+
 export default function CoursesManagementPage() {
+  const router = useRouter();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isAiOpen, setIsAiOpen] = useState(false);
-  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
 
   const handleRefresh = () => {
     setIsRefreshing(true);
@@ -63,7 +64,7 @@ export default function CoursesManagementPage() {
 
         <SecondaryButton
           leftIcon={<FolderPlus className="w-4 h-4 text-[#1C4D8D]" />}
-          onClick={() => setIsCategoryOpen(true)}
+          onClick={() => router.push("/categories")}
         >
           Categories
         </SecondaryButton>
@@ -77,19 +78,15 @@ export default function CoursesManagementPage() {
 
         <PrimaryButton
           leftIcon={<Plus className="w-4 h-4" />}
-          onClick={() => setIsCreateOpen(true)}
+          onClick={() => router.push("/courses/create")}
         >
           Add New Course
         </PrimaryButton>
       </PageHeader>
 
       <CoursesGridClient
-        isCreateModalOpen={isCreateOpen}
-        setIsCreateModalOpen={setIsCreateOpen}
         isAiModalOpen={isAiOpen}
         setIsAiModalOpen={setIsAiOpen}
-        isCategoryModalOpen={isCategoryOpen}
-        setIsCategoryModalOpen={setIsCategoryOpen}
         refreshTrigger={refreshTrigger}
       />
     </motion.div>

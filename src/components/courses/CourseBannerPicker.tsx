@@ -19,27 +19,34 @@ import {
 interface CourseBannerPickerProps {
   thumbnail: string;
   onThumbnailChange: (url: string) => void;
-  title: string;
-  selectedCategoryName: string;
-  level: string;
-  selectedFileName: string | null;
-  onSelectedFileNameChange: (name: string | null) => void;
-  isUploadingImage: boolean;
-  onIsUploadingChange: (isUploading: boolean) => void;
+  title?: string;
+  selectedCategoryName?: string;
+  level?: string;
+  selectedFileName?: string | null;
+  onSelectedFileNameChange?: (name: string | null) => void;
+  isUploadingImage?: boolean;
+  onIsUploadingChange?: (isUploading: boolean) => void;
 }
 
 export function CourseBannerPicker({
   thumbnail,
   onThumbnailChange,
-  title,
-  selectedCategoryName,
-  level,
+  title = "Course Title",
+  selectedCategoryName = "General",
+  level = "INTERMEDIATE",
   selectedFileName,
   onSelectedFileNameChange,
   isUploadingImage,
   onIsUploadingChange,
 }: CourseBannerPickerProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [localFileName, setLocalFileName] = React.useState<string | null>(null);
+  const [localIsUploading, setLocalIsUploading] = React.useState(false);
+
+  const activeFileName = selectedFileName !== undefined ? selectedFileName : localFileName;
+  const setActiveFileName = onSelectedFileNameChange || setLocalFileName;
+  const activeIsUploading = isUploadingImage !== undefined ? isUploadingImage : localIsUploading;
+  const setActiveIsUploading = onIsUploadingChange || setLocalIsUploading;
 
   const handleDeviceImageChange = async (
     e: React.ChangeEvent<HTMLInputElement>
@@ -61,13 +68,13 @@ export function CourseBannerPicker({
       return;
     }
 
-    onSelectedFileNameChange(file.name);
+    setActiveFileName(file.name);
     // Instant local preview
     const previewUrl = URL.createObjectURL(file);
     onThumbnailChange(previewUrl);
 
     // Upload to Cloudinary via backend
-    onIsUploadingChange(true);
+    setActiveIsUploading(true);
     const toastId = toast.loading("Uploading to Cloudinary Cloud CDN...", {
       description: `Optimizing and uploading ${file.name}`,
     });
@@ -89,7 +96,7 @@ export function CourseBannerPicker({
         description: "Image loaded locally and will be synchronized.",
       });
     } finally {
-      onIsUploadingChange(false);
+      setActiveIsUploading(false);
     }
   };
 

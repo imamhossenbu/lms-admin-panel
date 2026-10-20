@@ -15,14 +15,15 @@ import {
   LayoutGrid,
   List,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { DEFAULT_CATEGORIES } from "@/components/categories/constants";
 import { CategoryStats } from "@/components/categories/CategoryStats";
 import { CategoryGrid } from "@/components/categories/CategoryGrid";
 import { CategoryTable } from "@/components/categories/CategoryTable";
-import { CategoryFormModal } from "@/components/categories/CategoryFormModal";
 import { DeleteCategoryModal } from "@/components/categories/DeleteCategoryModal";
 
 export default function CategoriesManagementPage() {
+  const router = useRouter();
   const [categories, setCategories] = useState<AdminCategoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -30,9 +31,7 @@ export default function CategoriesManagementPage() {
   const [statusFilter, setStatusFilter] = useState<"ALL" | "ACTIVE" | "INACTIVE">("ALL");
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
 
-  // Modal States
-  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<AdminCategoryItem | null>(null);
+  // Deleting modal state
   const [deletingCategory, setDeletingCategory] = useState<AdminCategoryItem | null>(null);
 
   // Load backend categories
@@ -77,75 +76,15 @@ export default function CategoriesManagementPage() {
   };
 
   const handleOpenCreate = () => {
-    setEditingCategory(null);
-    setIsFormModalOpen(true);
+    router.push("/categories/create");
   };
 
   const handleOpenEdit = (cat: AdminCategoryItem) => {
-    setEditingCategory(cat);
-    setIsFormModalOpen(true);
+    router.push(`/categories/${cat.id}/edit`);
   };
 
   const handleOpenDelete = (cat: AdminCategoryItem) => {
     setDeletingCategory(cat);
-  };
-
-  const handleSaveCategory = async (catData: {
-    name: string;
-    slug: string;
-    description?: string;
-    icon?: string;
-    status: "ACTIVE" | "INACTIVE";
-  }) => {
-    if (editingCategory) {
-      try {
-        await categoriesApi.update(editingCategory.id, catData);
-        setCategories((prev) =>
-          prev.map((c) =>
-            c.id === editingCategory.id ? { ...c, ...catData } : c
-          )
-        );
-        toast.success("Category Updated", {
-          description: `"${catData.name}" has been updated.`,
-        });
-      } catch {
-        setCategories((prev) =>
-          prev.map((c) =>
-            c.id === editingCategory.id ? { ...c, ...catData } : c
-          )
-        );
-        toast.success("Category Updated (Local Sync)");
-      }
-    } else {
-      try {
-        const created = await categoriesApi.create(catData);
-        const newCat: AdminCategoryItem = {
-          id: created?.id || `cat-${Date.now()}`,
-          name: catData.name,
-          slug: catData.slug,
-          description: catData.description || "",
-          icon: catData.icon || "⚡",
-          status: catData.status,
-          _count: { courses: 0 },
-        };
-        setCategories((prev) => [newCat, ...prev]);
-        toast.success("Category Created", {
-          description: `"${newCat.name}" is now live in catalog.`,
-        });
-      } catch {
-        const localCat: AdminCategoryItem = {
-          id: `cat-${Date.now()}`,
-          name: catData.name,
-          slug: catData.slug,
-          description: catData.description || "",
-          icon: catData.icon || "⚡",
-          status: catData.status,
-          _count: { courses: 0 },
-        };
-        setCategories((prev) => [localCat, ...prev]);
-        toast.success("Category Created (Local Demo)");
-      }
-    }
   };
 
   const handleConfirmDelete = async (cat: AdminCategoryItem) => {
@@ -339,14 +278,6 @@ export default function CategoriesManagementPage() {
           onDelete={handleOpenDelete}
         />
       )}
-
-      {/* Add / Edit Category Modal */}
-      <CategoryFormModal
-        isOpen={isFormModalOpen}
-        onClose={() => setIsFormModalOpen(false)}
-        category={editingCategory}
-        onSave={handleSaveCategory}
-      />
 
       {/* Delete Confirmation Modal */}
       <DeleteCategoryModal
