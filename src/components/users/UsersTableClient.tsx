@@ -49,8 +49,8 @@ export function UsersTableClient() {
         <div className="flex items-center gap-3">
           <Avatar name={u.name} size="md" />
           <div className="flex flex-col">
-            <span className="font-semibold text-brand-navy">{u.name}</span>
-            <span className="body-xsm-regular text-muted">{u.email}</span>
+            <span className="body-sm-medium text-primary-500 font-semibold">{u.name}</span>
+            <span className="body-xsm-regular subtext-500">{u.email}</span>
           </div>
         </div>
       ),
@@ -74,12 +74,12 @@ export function UsersTableClient() {
     {
       header: "Phone",
       accessorKey: "phone",
-      cell: (u) => <span className="body-xsm-regular">{u.phone || "—"}</span>,
+      cell: (u) => <span className="body-sm-regular text-primary-500">{u.phone || "—"}</span>,
     },
     {
       header: "Joined",
       accessorKey: "createdAt",
-      cell: (u) => <span className="body-xsm-regular text-muted">{u.createdAt}</span>,
+      cell: (u) => <span className="body-xsm-regular subtext-500">{u.createdAt}</span>,
     },
     {
       header: "Actions",
@@ -87,14 +87,14 @@ export function UsersTableClient() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setEditingUser(u)}
-            className="p-1.5 rounded-md hover:bg-slate-100 text-brand-primary transition-colors"
+            className="p-1.5 rounded-[6px] hover:bg-[#F3F4F6] text-[#1C4D8D] transition-colors cursor-pointer"
             title="Edit User"
           >
             <Edit3 className="w-4 h-4" />
           </button>
           <button
             onClick={() => handleToggleStatus(u)}
-            className="p-1.5 rounded-md hover:bg-slate-100 transition-colors"
+            className="p-1.5 rounded-[6px] hover:bg-[#F3F4F6] transition-colors cursor-pointer"
             title={u.status === "ACTIVE" ? "Block User" : "Activate User"}
           >
             {u.status === "ACTIVE" ? (
@@ -109,7 +109,7 @@ export function UsersTableClient() {
   ];
 
   return (
-    <div className="dashboard-card p-5 space-y-4">
+    <div className="rounded-[12px] border border-[#EDEDED] bg-white p-5 space-y-4">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <PillTabs
           activeTab={selectedRole}
@@ -122,14 +122,14 @@ export function UsersTableClient() {
           ]}
         />
 
-        <div className="relative w-full md:w-72">
-          <Search className="w-4 h-4 text-muted absolute left-3 top-1/2 -translate-y-1/2" />
+        <div className="relative w-full md:w-80">
+          <Search className="w-4 h-4 text-primary-300 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             placeholder="Search by name, email or phone..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full h-9 pl-9 pr-3 rounded-lg border border-dash body-sm-regular focus:outline-none focus:ring-2 focus:ring-brand-accent/30"
+            className="w-full h-[40px] pl-10 pr-3.5 rounded-[8px] border border-[#EDEDED] body-sm-regular text-primary-500 bg-white placeholder:text-[#969696] focus:outline-none focus:border-[#1C4D8D]"
           />
         </div>
       </div>

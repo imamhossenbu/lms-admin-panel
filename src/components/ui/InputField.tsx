@@ -1,60 +1,75 @@
-import React, { forwardRef } from "react";
-import { cn } from "@/lib/cn";
+import React, { forwardRef, type InputHTMLAttributes, type ReactNode } from "react";
 
 export interface InputFieldProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {
-  label?: string;
+  extends InputHTMLAttributes<HTMLInputElement> {
+  label?: ReactNode;
+  required?: boolean;
   error?: string;
-  hint?: string;
-  leftIcon?: React.ReactNode;
-  rightIcon?: React.ReactNode;
+  leftElement?: ReactNode;
+  rightElement?: ReactNode;
+  containerClassName?: string;
 }
 
 export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
   (
-    { label, error, hint, leftIcon, rightIcon, className, id, ...props },
+    {
+      label,
+      required,
+      error,
+      leftElement,
+      rightElement,
+      id,
+      className = "",
+      containerClassName = "",
+      ...props
+    },
     ref
   ) => {
-    const inputId = id || (label ? label.toLowerCase().replace(/\s+/g, "-") : undefined);
-
     return (
-      <div className="w-full flex flex-col gap-1.5 text-left">
+      <div className={containerClassName}>
         {label && (
-          <label htmlFor={inputId} className="body-sm-medium text-brand-navy">
+          <label
+            htmlFor={id}
+            className="block body-sm-regular text-primary-400 mb-2"
+          >
             {label}
+            {required && <span className="text-[#F04438] ml-0.5">*</span>}
           </label>
         )}
-        <div className="relative flex items-center">
-          {leftIcon && (
-            <span className="absolute left-3 text-muted pointer-events-none">
-              {leftIcon}
-            </span>
-          )}
+        <div className="relative">
           <input
-            id={inputId}
             ref={ref}
-            className={cn(
-              "w-full h-10 px-3 rounded-lg border border-dash bg-white text-brand-navy body-sm-regular transition-all",
-              "focus:outline-none focus:ring-2 focus:ring-brand-accent/30 focus:border-brand-primary",
-              leftIcon && "pl-10",
-              rightIcon && "pr-10",
-              error && "border-rose-500 focus:ring-rose-200 focus:border-rose-500",
-              className
-            )}
+            id={id}
+            className={`h-[40px] w-full rounded-[8px] border body-sm-regular text-primary-500 outline-none transition-all placeholder:text-[#969696] focus:border-[#1C4D8D] focus:bg-white ${
+              error
+                ? "border-[#d92d20] bg-[#fef3f2]"
+                : "border-[#EDEDED] bg-white"
+            } ${leftElement ? "pl-10" : "pl-3.5"} ${
+              rightElement ? "pr-10" : "pr-3.5"
+            } py-2 ${className}`}
+            style={{
+              boxShadow: "0px 1px 2px 0px rgba(13, 13, 18, 0.06)",
+            }}
             {...props}
           />
-          {rightIcon && (
-            <span className="absolute right-3 text-muted">{rightIcon}</span>
+          {leftElement && (
+            <div className="absolute left-0 top-0 h-full flex items-center justify-center pl-3 text-primary-300 pointer-events-none">
+              {leftElement}
+            </div>
+          )}
+          {rightElement && (
+            <div className="absolute right-0 top-0 h-full flex items-center justify-center pr-3 text-primary-300">
+              {rightElement}
+            </div>
           )}
         </div>
-        {error ? (
-          <span className="body-xsm-regular text-rose-500">{error}</span>
-        ) : hint ? (
-          <span className="body-xsm-regular text-muted">{hint}</span>
-        ) : null}
+        {error && (
+          <p className="mt-1.5 text-[12.5px] text-[#d92d20]">{error}</p>
+        )}
       </div>
     );
   }
 );
 
 InputField.displayName = "InputField";
+export default InputField;

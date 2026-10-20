@@ -2,34 +2,49 @@ import React from "react";
 import { cn } from "@/lib/cn";
 
 export interface SectionCardProps {
-  title?: string;
-  description?: string;
+  title: string;
+  description?: React.ReactNode;
   action?: React.ReactNode;
-  children: React.ReactNode;
+  id?: string;
+  divider?: boolean;
   className?: string;
+  children: React.ReactNode;
 }
 
 export function SectionCard({
   title,
   description,
   action,
-  children,
+  id,
+  divider = false,
   className,
+  children,
 }: SectionCardProps) {
   return (
-    <div className={cn("dashboard-card p-6 flex flex-col gap-4 text-left", className)}>
-      {(title || action) && (
-        <div className="flex items-center justify-between pb-3 border-b border-dash">
-          <div>
-            {title && <h3 className="h5-medium text-brand-navy">{title}</h3>}
-            {description && (
-              <p className="body-xsm-regular text-muted mt-0.5">{description}</p>
-            )}
-          </div>
-          {action && <div>{action}</div>}
-        </div>
+    <section
+      id={id}
+      className={cn(
+        "scroll-mt-6 rounded-xl border border-[#EDEDED] bg-white p-5",
+        className
       )}
-      <div>{children}</div>
-    </div>
+    >
+      <div
+        className={cn(
+          "mb-4 flex items-start justify-between gap-3",
+          divider && "border-b border-[#F0F0F0] pb-4"
+        )}
+      >
+        <div>
+          <h2 className="body-medium text-primary-500 font-semibold">{title}</h2>
+          {description && (
+            <p className="body-sm-regular subtext-500 mt-0.5">{description}</p>
+          )}
+        </div>
+        {action}
+      </div>
+      {children}
+    </section>
   );
 }
+
+export default SectionCard;

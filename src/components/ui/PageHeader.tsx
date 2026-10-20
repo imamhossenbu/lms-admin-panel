@@ -1,38 +1,54 @@
-import React from "react";
+"use client";
+
+import { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
-export interface PageHeaderProps {
-  title: string;
+interface PageHeaderProps {
+  title: ReactNode;
+  subtitle?: string;
   description?: string;
-  badge?: React.ReactNode;
-  action?: React.ReactNode;
+  badge?: ReactNode;
+  children?: ReactNode;
+  action?: ReactNode;
   className?: string;
 }
 
 export function PageHeader({
   title,
+  subtitle,
   description,
   badge,
+  children,
   action,
   className,
 }: PageHeaderProps) {
+  const effectiveSubtitle = subtitle || description;
+  const effectiveActions = children || action;
+
   return (
     <div
       className={cn(
-        "flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-6 mb-6 border-b border-dash",
-        className
+        "flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 w-full mb-[20px]",
+        className,
       )}
     >
-      <div className="flex flex-col gap-1 text-left">
-        <div className="flex items-center gap-3">
-          <h1 className="h3-semibold text-brand-navy">{title}</h1>
+      {/* Left: Title & Subtitle */}
+      <div className="flex flex-col gap-1">
+        <div className="flex items-center gap-2.5">
+          <h1 className="h6-medium text-primary-500">{title}</h1>
           {badge}
         </div>
-        {description && (
-          <p className="body-sm-regular text-muted">{description}</p>
+        {effectiveSubtitle && (
+          <p className="body-sm-regular subtext-500">{effectiveSubtitle}</p>
         )}
       </div>
-      {action && <div className="flex items-center gap-3">{action}</div>}
+
+      {/* Right: Optional Action Button or Children */}
+      {effectiveActions && (
+        <div className="flex items-center gap-3 shrink-0">{effectiveActions}</div>
+      )}
     </div>
   );
 }
+
+export default PageHeader;

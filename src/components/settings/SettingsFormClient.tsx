@@ -56,7 +56,7 @@ export function SettingsFormClient() {
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#1C4D8D] border border-dash shrink-0" />
+            <div className="w-10 h-10 rounded-lg bg-[#1C4D8D] border border-[#EDEDED] shrink-0" />
             <InputField
               label="Primary Brand Color"
               {...register("primaryColor")}
@@ -64,7 +64,7 @@ export function SettingsFormClient() {
             />
           </div>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#4988C4] border border-dash shrink-0" />
+            <div className="w-10 h-10 rounded-lg bg-[#4988C4] border border-[#EDEDED] shrink-0" />
             <InputField
               label="Accent Brand Color"
               {...register("secondaryColor")}
@@ -78,10 +78,10 @@ export function SettingsFormClient() {
         title="System Maintenance"
         description="Temporarily redirect student traffic during scheduled updates."
       >
-        <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 border border-dash">
+        <div className="flex items-center justify-between p-3 rounded-lg bg-[#F8F9FA] border border-[#EDEDED]">
           <div>
-            <span className="body-sm-medium text-brand-navy">Maintenance Lockdown</span>
-            <p className="body-xsm-regular text-muted">Only administrators can authenticate</p>
+            <span className="body-sm-medium text-primary-500 font-semibold">Maintenance Lockdown</span>
+            <p className="body-xsm-regular subtext-500">Only administrators can authenticate</p>
           </div>
           <input
             type="checkbox"

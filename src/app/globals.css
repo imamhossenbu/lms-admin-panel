@@ -1,102 +1,469 @@
 @import "tailwindcss";
 
-:root {
+@theme {
   --font-sans: var(--font-jakarta), system-ui, -apple-system, sans-serif;
-  --color-brand-navy: #0F2854;
+  --font-aeonik: var(--font-jakarta), system-ui, -apple-system, sans-serif;
+  --font-inter: var(--font-jakarta), system-ui, -apple-system, sans-serif;
+
+  --breakpoint-xxl: 1400px;
+  --breakpoint-2xl: 1400px;
+  --breakpoint-3xl: 1600px;
+
   --color-brand-primary: #1C4D8D;
+  --color-brand-navy: #0F2854;
   --color-brand-accent: #4988C4;
   --color-brand-ice: #BDE8F5;
   --color-brand-ice-soft: #F0F9FD;
   --color-brand-primary-light: #EBF4FC;
-  --dash-bg: #F8FAFC;
+
+  --color-primary-500: #0e2038;
+  --color-primary-400: #3e4d60;
+  --color-primary-300: #5e6a7a;
+  --color-blue: #2570fc;
+  --color-blue-14: #2570fc14;
+  --color-green-bg: #e6ffee;
+  --color-green: #0dc34a;
+  --color-red-14: #df1c4114;
+  --color-red: #df1c41;
+  --color-red-dark: #be1c23;
+  --color-purple-14: #c218fb14;
+  --color-purple: #c218fb;
+}
+
+:root {
+  --font-sans: var(--font-jakarta), system-ui, -apple-system, sans-serif;
+  --font-aeonik: var(--font-jakarta), system-ui, -apple-system, sans-serif;
+
+  /* User's Own Brand Palette */
+  --color-brand-primary: #1C4D8D;
+  --color-brand-navy: #0F2854;
+  --color-brand-accent: #4988C4;
+  --color-brand-ice: #BDE8F5;
+  --color-brand-ice-soft: #F0F9FD;
+  --color-brand-primary-light: #EBF4FC;
+
+  /* Typography / Text Palette */
+  --color-primary-text-500: #0e2038;
+  --color-primary-text-400: #3e4d60;
+  --color-primary-text-300: #5e6a7a;
+  --color-blue: #2570fc;
+  --color-blue-14: #2570fc14;
+  --color-green-bg: #e6ffee;
+  --color-green: #0dc34a;
+  --color-red-14: #df1c4114;
+  --color-red: #df1c41;
+  --color-red-dark: #be1c23;
+  --color-purple-14: #c218fb14;
+  --color-purple: #c218fb;
+
+  /* PURE WHITE Background */
+  --dash-bg: #FFFFFF;
   --dash-surface: #FFFFFF;
-  --dash-border: #E2E8F0;
-  --dash-text: #0F2854;
-  --dash-text-muted: #64748B;
-  --dash-card-shadow: 0px 1px 3px rgba(15, 40, 84, 0.08);
+  --dash-border: #EDEDED;
+  --dash-text: #0E2038;
+  --dash-muted: #5E6A7A;
 }
 
-[data-theme="night"] {
-  --dash-bg: #071326;
-  --dash-surface: #0F203C;
-  --dash-border: #1C355E;
-  --dash-text: #F1F5F9;
-  --dash-text-muted: #94A3B8;
-  --dash-card-shadow: 0px 2px 6px rgba(0, 0, 0, 0.4);
-}
-
-html, body {
+html,
+body {
   font-family: var(--font-sans);
-  background-color: var(--dash-bg);
+  background-color: #FFFFFF !important;
   color: var(--dash-text);
   margin: 0;
   padding: 0;
   min-height: 100vh;
+  max-width: 100%;
+  overflow-x: clip;
 }
 
-/* ================= Typography System ================= */
-.h1-bold { font-size: 32px; line-height: 120%; font-weight: 700; letter-spacing: -0.02em; }
-.h2-bold { font-size: 28px; line-height: 125%; font-weight: 700; letter-spacing: -0.01em; }
-.h3-semibold { font-size: 24px; line-height: 130%; font-weight: 600; }
-.h4-semibold { font-size: 20px; line-height: 135%; font-weight: 600; }
-.h5-medium { font-size: 18px; line-height: 140%; font-weight: 500; }
-.h6-medium { font-size: 16px; line-height: 140%; font-weight: 500; }
-
-.title-medium { font-size: 20px; line-height: 130%; font-weight: 500; }
-.title-sm { font-size: 15px; line-height: 135%; font-weight: 600; }
-
-.body-l-medium { font-size: 18px; line-height: 140%; font-weight: 500; }
-.body-l-regular { font-size: 18px; line-height: 150%; font-weight: 400; }
-
-.body-medium { font-size: 16px; line-height: 150%; font-weight: 500; }
-.body-regular { font-size: 16px; line-height: 160%; font-weight: 400; }
-
-.body-sm-medium { font-size: 14px; line-height: 20px; font-weight: 500; }
-.body-sm-regular { font-size: 14px; line-height: 20px; font-weight: 400; }
-
-.body-xsm-medium { font-size: 12px; line-height: 16px; font-weight: 500; }
-.body-xsm-regular { font-size: 12px; line-height: 16px; font-weight: 400; }
-
-/* ================= Color Tokens ================= */
-.text-brand-navy { color: var(--color-brand-navy); }
-.text-brand-primary { color: var(--color-brand-primary); }
-.text-brand-accent { color: var(--color-brand-accent); }
-.text-brand-ice { color: var(--color-brand-ice); }
-.text-brand-ice-soft { color: var(--color-brand-ice-soft); }
-.text-brand-primary-light { color: var(--color-brand-primary-light); }
-.text-muted { color: var(--dash-text-muted); }
-
-.bg-brand-navy { background-color: var(--color-brand-navy); }
-.bg-brand-primary { background-color: var(--color-brand-primary); }
-.bg-brand-accent { background-color: var(--color-brand-accent); }
-.bg-brand-ice { background-color: var(--color-brand-ice); }
-.bg-brand-ice-soft { background-color: var(--color-brand-ice-soft); }
-.bg-brand-primary-light { background-color: var(--color-brand-primary-light); }
-
-.border-brand-navy { border-color: var(--color-brand-navy); }
-.border-brand-primary { border-color: var(--color-brand-primary); }
-.border-brand-accent { border-color: var(--color-brand-accent); }
-.border-brand-ice { border-color: var(--color-brand-ice); }
-.border-dash { border-color: var(--dash-border); }
-
-.dashboard-card {
-  background-color: var(--dash-surface);
-  border: 1px solid var(--dash-border);
-  box-shadow: var(--dash-card-shadow);
-  border-radius: 12px;
+*,
+::before,
+::after {
+  border-color: #EDEDED;
 }
 
-.glass-card-dark {
-  background: rgba(255, 255, 255, 0.07);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(189, 232, 245, 0.2);
-  box-shadow: 0 8px 32px 0 rgba(7, 19, 38, 0.35);
+/* ==========================================
+   Color Utility Classes (Matching Metabari Agency)
+   ========================================== */
+.text-primary-500 { color: #0e2038; }
+.text-primary-400 { color: #3e4d60; }
+.text-primary-300 { color: #5e6a7a; }
+.text-primary-text-500 { color: #0e2038; }
+.text-brand-primary { color: #1C4D8D; }
+.text-brand-navy { color: #0F2854; }
+.text-brand-accent { color: #4988C4; }
+.text-blue { color: #2570fc; }
+.text-green { color: #0dc34a; }
+.text-red { color: #df1c41; }
+.text-red-dark { color: #be1c23; }
+.text-purple { color: #c218fb; }
+.subtext-500 { color: #7F8482; }
+
+.bg-brand-primary { background-color: #1C4D8D; }
+.bg-brand-navy { background-color: #0F2854; }
+.bg-brand-accent { background-color: #4988C4; }
+.bg-brand-light { background-color: #EBF4FC; }
+.bg-blue-14 { background-color: #2570fc14; }
+.bg-green-bg { background-color: #e6ffee; }
+.bg-red-14 { background-color: #df1c4114; }
+.bg-purple-14 { background-color: #c218fb14; }
+
+/* ==========================================
+   Typography Classes (Exact Metabari Agency Spec)
+   ========================================== */
+
+/* Body-sm/body-sm-medium */
+.body-sm-medium {
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0%;
+  vertical-align: bottom;
 }
 
-.glass-card-light {
-  background: #ffffff;
-  border: 1px solid var(--dash-border);
-  box-shadow: 0 16px 36px -10px rgba(15, 40, 84, 0.09), 0 0 0 1px rgba(15, 40, 84, 0.03);
+/* Body/body-medium */
+.body-medium {
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 140%;
+  letter-spacing: 0%;
 }
 
+/* Heading/h6/medium */
+.h6-medium,
+.heading-h6-medium {
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 120%;
+  letter-spacing: 0%;
+}
+
+/* Body-sm/body-sm-regular */
+.body-sm-regular {
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 150%;
+  letter-spacing: -1%;
+}
+
+/* Body-L/body-l-medium */
+.body-l-medium {
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 140%;
+  letter-spacing: 0%;
+}
+
+/* Body-L/body-l-regular */
+.body-l-regular {
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 140%;
+  letter-spacing: 0%;
+}
+
+/* Body-xsm/body-xsm-regular */
+.body-xsm-regular {
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 150%;
+  letter-spacing: 0%;
+}
+
+/* Body-xsm/body-xsm-medium */
+.body-xsm-medium {
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 150%;
+  letter-spacing: 0%;
+}
+
+/* Title/title-medium */
+.title-medium {
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 120%;
+  letter-spacing: 0%;
+}
+
+/* Body/body-regular */
+.body-regular {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 160%;
+  letter-spacing: 0%;
+}
+
+/* Body/medium/medium (Inter) */
+.body-medium-inter {
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 145%;
+  letter-spacing: 0%;
+  text-align: center;
+}
+
+/* Body-xsm/body-xsm-medium (Inter) */
+.body-xsm-medium-inter {
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 150%;
+  letter-spacing: 0%;
+}
+
+/* ==========================================
+   Responsive Typography Breakpoints (Metabari Agency)
+   ========================================== */
+
+/* Large Desktop Devices (min-width: 1400px) */
+@media (min-width: 1400px) {
+  .h6-medium,
+  .heading-h6-medium {
+    font-size: 26px;
+    line-height: 125%;
+  }
+
+  .title-medium {
+    font-size: 22px;
+    line-height: 125%;
+  }
+
+  .body-l-medium {
+    font-size: 19px;
+    line-height: 140%;
+  }
+
+  .body-medium,
+  .body-regular {
+    font-size: 17px;
+    line-height: 155%;
+  }
+
+  .body-sm-medium {
+    font-size: 15px;
+    line-height: 22px;
+  }
+
+  .body-sm-regular {
+    font-size: 15px;
+    line-height: 150%;
+  }
+
+  .body-medium-inter {
+    font-size: 15px;
+    line-height: 145%;
+  }
+
+  .body-xsm-regular,
+  .body-xsm-medium,
+  .body-xsm-medium-inter {
+    font-size: 13px;
+    line-height: 150%;
+  }
+}
+
+/* Extra Large Screens (min-width: 1600px) */
+@media (min-width: 1600px) {
+  .h6-medium,
+  .heading-h6-medium {
+    font-size: 28px;
+    line-height: 125%;
+  }
+
+  .title-medium {
+    font-size: 24px;
+    line-height: 125%;
+  }
+
+  .body-l-medium {
+    font-size: 20px;
+    line-height: 140%;
+  }
+
+  .body-medium,
+  .body-regular {
+    font-size: 18px;
+    line-height: 160%;
+  }
+
+  .body-sm-medium {
+    font-size: 16px;
+    line-height: 24px;
+  }
+
+  .body-sm-regular {
+    font-size: 16px;
+    line-height: 150%;
+  }
+
+  .body-xsm-regular,
+  .body-xsm-medium,
+  .body-xsm-medium-inter {
+    font-size: 14px;
+    line-height: 150%;
+  }
+}
+
+/* Tablet / Medium Device (max-width: 1024px) */
+@media (max-width: 1024px) {
+  .h6-medium,
+  .heading-h6-medium {
+    font-size: 22px;
+    line-height: 120%;
+  }
+
+  .title-medium {
+    font-size: 18px;
+    line-height: 120%;
+  }
+
+  .body-l-medium {
+    font-size: 16px;
+    line-height: 140%;
+  }
+
+  .body-medium,
+  .body-regular {
+    font-size: 15px;
+    line-height: 140%;
+  }
+
+  .body-sm-medium {
+    font-size: 13px;
+    line-height: 19px;
+  }
+
+  .body-sm-regular {
+    font-size: 13px;
+    line-height: 150%;
+  }
+}
+
+/* Mobile Device (max-width: 640px) */
+@media (max-width: 640px) {
+  .h6-medium,
+  .heading-h6-medium {
+    font-size: 20px;
+    line-height: 120%;
+  }
+
+  .title-medium {
+    font-size: 16px;
+    line-height: 120%;
+  }
+
+  .body-l-medium {
+    font-size: 15px;
+    line-height: 140%;
+  }
+
+  .body-medium,
+  .body-regular {
+    font-size: 14px;
+    line-height: 140%;
+  }
+
+  .body-sm-medium {
+    font-size: 13px;
+    line-height: 18px;
+  }
+
+  .body-sm-regular {
+    font-size: 13px;
+    line-height: 150%;
+  }
+
+  .body-medium-inter {
+    font-size: 13px;
+    line-height: 145%;
+  }
+}
+
+/* Extra Small Mobile (max-width: 380px) */
+@media (max-width: 380px) {
+  .h6-medium,
+  .heading-h6-medium {
+    font-size: 18px;
+    line-height: 120%;
+  }
+
+  .title-medium {
+    font-size: 15px;
+    line-height: 120%;
+  }
+
+  .body-l-medium {
+    font-size: 14px;
+    line-height: 140%;
+  }
+
+  .body-medium,
+  .body-regular {
+    font-size: 13px;
+    line-height: 140%;
+  }
+
+  .body-sm-medium {
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  .body-sm-regular {
+    font-size: 12px;
+    line-height: 150%;
+  }
+
+  .body-medium-inter {
+    font-size: 12px;
+    line-height: 145%;
+  }
+
+  .body-xsm-regular,
+  .body-xsm-medium,
+  .body-xsm-medium-inter {
+    font-size: 11px;
+    line-height: 150%;
+  }
+}
+
+/* ==========================================
+   Animations
+   ========================================== */
+@keyframes tabFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-tab-content {
+  animation: tabFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.animate-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.animate-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.6) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: shimmer 1.5s infinite;
+}

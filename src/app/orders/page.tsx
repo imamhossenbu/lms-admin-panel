@@ -1,4 +1,7 @@
+"use client";
+
 import React from "react";
+import { motion } from "framer-motion";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { RecentOrdersTable } from "@/components/dashboard/RecentOrdersTable";
 import { ToneBadge } from "@/components/ui/ToneBadge";
@@ -10,7 +13,7 @@ export default function OrdersManagementPage() {
     {
       label: "Total Collected",
       value: "$148,250",
-      icon: <DollarSign className="w-5 h-5" />,
+      icon: <DollarSign className="w-5 h-5 text-[#1C4D8D]" />,
       trend: { direction: "up" as const, value: "18.3%", comparisonLabel: "vs last month" },
     },
     {
@@ -34,7 +37,12 @@ export default function OrdersManagementPage() {
   ];
 
   return (
-    <div className="space-y-6">
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.28, ease: "easeOut" }}
+      className="space-y-6 text-left bg-white"
+    >
       <PageHeader
         title="Orders & Transaction Telemetry"
         description="Audit student checkout events, automated PDF invoice receipts, and SSLCommerz payment states."
@@ -44,6 +52,6 @@ export default function OrdersManagementPage() {
       <StatGroupCard stats={financialStats} columns={4} />
 
       <RecentOrdersTable />
-    </div>
+    </motion.div>
   );
 }

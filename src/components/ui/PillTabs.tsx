@@ -1,5 +1,7 @@
+"use client";
+
 import React from "react";
-import { cn } from "@/lib/cn";
+import { motion } from "framer-motion";
 
 export interface PillTabItem {
   id: string;
@@ -7,49 +9,55 @@ export interface PillTabItem {
   count?: number;
 }
 
-interface PillTabsProps {
+export interface PillTabsProps {
   tabs: PillTabItem[];
-  activeTab: string;
+  activeId?: string;
+  activeTab?: string;
   onChange: (id: string) => void;
   className?: string;
 }
 
 export function PillTabs({
   tabs,
+  activeId,
   activeTab,
   onChange,
-  className,
+  className = "",
 }: PillTabsProps) {
+  const currentActive = activeId ?? activeTab ?? tabs[0]?.id;
+
   return (
     <div
-      className={cn(
-        "inline-flex items-center p-1 bg-slate-100 rounded-lg gap-1 border border-dash",
-        className
-      )}
+      className={`flex items-center gap-1 bg-[#F3F4F6] rounded-[8px] p-1 w-fit overflow-x-auto max-w-full ${className}`}
     >
       {tabs.map((tab) => {
-        const isActive = activeTab === tab.id;
+        const isActive = tab.id === currentActive;
         return (
           <button
             key={tab.id}
             type="button"
             onClick={() => onChange(tab.id)}
-            className={cn(
-              "px-3 py-1.5 rounded-md body-sm-medium transition-all select-none flex items-center gap-1.5",
+            className={`relative whitespace-nowrap px-3 py-1.5 rounded-[6px] body-xsm-medium transition-colors duration-150 cursor-pointer flex items-center shrink-0 z-10 ${
               isActive
-                ? "bg-white text-brand-navy shadow-xs border border-dash font-semibold"
-                : "text-muted hover:text-brand-navy hover:bg-slate-200/50"
-            )}
+                ? "text-[#1C4D8D] font-semibold"
+                : "text-primary-300 hover:text-primary-500"
+            }`}
           >
+            {isActive && (
+              <motion.div
+                layoutId="activeTabPill"
+                className="absolute inset-0 bg-white rounded-[6px] shadow-2xs -z-10"
+                transition={{ type: "spring", stiffness: 450, damping: 35 }}
+              />
+            )}
             <span>{tab.label}</span>
-            {tab.count !== undefined && (
+            {typeof tab.count === "number" && (
               <span
-                className={cn(
-                  "px-1.5 py-0.2 rounded-full text-[11px]",
+                className={`ml-1.5 rounded-full px-1.5 py-0.5 body-xsm-medium font-semibold leading-none ${
                   isActive
-                    ? "bg-brand-primary/10 text-brand-primary"
-                    : "bg-slate-200 text-slate-600"
-                )}
+                    ? "bg-[#EBF4FC] text-[#1C4D8D]"
+                    : "bg-[#E5E7EB] text-primary-400"
+                }`}
               >
                 {tab.count}
               </span>
@@ -60,3 +68,5 @@ export function PillTabs({
     </div>
   );
 }
+
+export default PillTabs;

@@ -1,4 +1,7 @@
+"use client";
+
 import React from "react";
+import { motion } from "framer-motion";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { RevenueChart } from "@/components/dashboard/RevenueChart";
 import { StudentEngagementChart } from "@/components/analytics/StudentEngagementChart";
@@ -7,7 +10,12 @@ import { OverviewStats } from "@/components/dashboard/OverviewStats";
 
 export default function AnalyticsDashboardPage() {
   return (
-    <div className="space-y-6">
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.28, ease: "easeOut" }}
+      className="space-y-6 text-left bg-white"
+    >
       <PageHeader
         title="Predictive & Platform Analytics"
         description="Course completion velocities, student retention rates, and revenue trends."
@@ -20,6 +28,6 @@ export default function AnalyticsDashboardPage() {
         <RevenueChart />
         <StudentEngagementChart />
       </div>
-    </div>
+    </motion.div>
   );
 }

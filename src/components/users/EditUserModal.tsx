@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { editUserSchema, EditUserInput } from "@/validations/userSchema";
 import { ModalShell } from "@/components/ui/ModalShell";
 import { InputField } from "@/components/ui/InputField";
-import { SelectField } from "@/components/ui/SelectField";
+import { DropdownSelect } from "@/components/ui/DropdownSelect";
 import { PrimaryButton } from "@/components/ui/primary-button";
 import { OutlineButton } from "@/components/ui/outline-button";
 import { AdminUserItem } from "@/lib/types";
@@ -23,6 +23,8 @@ export function EditUserModal({ user, isOpen, onClose, onSave }: EditUserModalPr
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors, isSubmitting },
     reset,
   } = useForm<EditUserInput>({
@@ -77,10 +79,10 @@ export function EditUserModal({ user, isOpen, onClose, onSave }: EditUserModalPr
         />
 
         <div className="grid grid-cols-2 gap-4">
-          <SelectField
-            label="System Role"
-            {...register("role")}
-            error={errors.role?.message}
+          <DropdownSelect
+            fieldLabel="System Role"
+            value={watch("role")}
+            onChange={(val) => setValue("role", val as any, { shouldValidate: true })}
             options={[
               { value: "STUDENT", label: "Student" },
               { value: "TEACHER", label: "Instructor" },
@@ -88,10 +90,10 @@ export function EditUserModal({ user, isOpen, onClose, onSave }: EditUserModalPr
             ]}
           />
 
-          <SelectField
-            label="Account Status"
-            {...register("status")}
-            error={errors.status?.message}
+          <DropdownSelect
+            fieldLabel="Account Status"
+            value={watch("status")}
+            onChange={(val) => setValue("status", val as any, { shouldValidate: true })}
             options={[
               { value: "ACTIVE", label: "Active" },
               { value: "BLOCKED", label: "Blocked" },
@@ -100,7 +102,7 @@ export function EditUserModal({ user, isOpen, onClose, onSave }: EditUserModalPr
           />
         </div>
 
-        <div className="flex items-center justify-end gap-3 pt-4 border-t border-dash">
+        <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#EDEDED]">
           <OutlineButton onClick={onClose} type="button">
             Cancel
           </OutlineButton>

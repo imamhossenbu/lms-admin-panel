@@ -1,52 +1,76 @@
+"use client";
+
 import React from "react";
+import Image from "next/image";
+import { User } from "lucide-react";
 import { cn } from "@/lib/cn";
 
 export interface AvatarProps {
   src?: string | null;
-  name: string;
-  size?: "sm" | "md" | "lg";
+  name?: string;
+  alt?: string;
+  size?: number | "sm" | "md" | "lg";
   className?: string;
+  iconClassName?: string;
 }
 
-export function Avatar({ src, name, size = "md", className }: AvatarProps) {
-  const sizeStyles = {
-    sm: "w-8 h-8 text-xs",
-    md: "w-10 h-10 text-sm",
-    lg: "w-14 h-14 text-base",
-  };
+export function Avatar({
+  src,
+  name = "",
+  alt = "",
+  size = 28,
+  className,
+  iconClassName,
+}: AvatarProps) {
+  const pixelSize =
+    typeof size === "number"
+      ? size
+      : size === "sm"
+      ? 28
+      : size === "lg"
+      ? 40
+      : 32;
 
-  const getInitials = (n: string) => {
-    return n
-      .split(" ")
-      .map((part) => part[0])
-      .slice(0, 2)
-      .join("")
-      .toUpperCase();
-  };
+  const hasImage = Boolean(src && src.trim());
 
-  if (src) {
-    return (
-      <img
-        src={src}
-        alt={name}
-        className={cn(
-          "rounded-full object-cover border border-dash",
-          sizeStyles[size],
-          className
-        )}
-      />
-    );
-  }
+  const getInitials = (str: string) => {
+    if (!str) return "";
+    const parts = str.trim().split(/\s+/);
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  };
 
   return (
-    <div
+    <span
       className={cn(
-        "rounded-full bg-brand-primary/10 text-brand-primary font-semibold flex items-center justify-center border border-brand-accent/20 select-none",
-        sizeStyles[size],
+        "relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#F5F5F5]",
         className
       )}
+      style={{ width: pixelSize, height: pixelSize }}
     >
-      {getInitials(name)}
-    </div>
+      {hasImage ? (
+        <Image
+          src={src!}
+          alt={alt || name}
+          fill
+          sizes={`${pixelSize}px`}
+          className="object-cover"
+        />
+      ) : name ? (
+        <span className="body-xsm-medium font-semibold text-primary-500 select-none">
+          {getInitials(name)}
+        </span>
+      ) : (
+        <User
+          className={cn("text-[#8C95A3]", iconClassName)}
+          style={{
+            width: pixelSize * 0.5,
+            height: pixelSize * 0.5,
+          }}
+        />
+      )}
+    </span>
   );
 }
+
+export default Avatar;

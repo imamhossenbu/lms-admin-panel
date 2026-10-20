@@ -1,6 +1,8 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useId, useRef } from "react";
+import { createPortal } from "react-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { cn } from "@/lib/cn";
 
@@ -8,75 +10,144 @@ export interface ModalShellProps {
   isOpen: boolean;
   onClose: () => void;
   title: string;
-  description?: string;
+  subtitle?: string;
+  description?: string; // backwards compatibility
   children: React.ReactNode;
   footer?: React.ReactNode;
-  maxWidth?: "sm" | "md" | "lg" | "xl";
+  className?: string;
+  bodyClassName?: string;
+  footerClassName?: string;
+  headerActions?: React.ReactNode;
+  maxWidth?: "sm" | "md" | "lg" | "xl" | "2xl"; // backwards compatibility
 }
 
 export function ModalShell({
   isOpen,
   onClose,
   title,
+  subtitle,
   description,
   children,
   footer,
-  maxWidth = "md",
+  className,
+  bodyClassName,
+  footerClassName,
+  headerActions,
+  maxWidth,
 }: ModalShellProps) {
+  const titleId = useId();
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const onCloseRef = useRef(onClose);
+  const effectiveSubtitle = subtitle || description;
+
+  const maxWidthClass = {
+    sm: "max-w-md",
+    md: "max-w-lg",
+    lg: "max-w-2xl",
+    xl: "max-w-4xl",
+    "2xl": "max-w-6xl",
+  }[maxWidth || "lg"];
+
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+    onCloseRef.current = onClose;
+  });
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    dialogRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onCloseRef.current();
     };
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-      window.addEventListener("keydown", handleKeyDown);
-    }
+    document.addEventListener("keydown", handleKeyDown);
+
     return () => {
-      document.body.style.overflow = "unset";
-      window.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", handleKeyDown);
+      previouslyFocused?.focus?.();
     };
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
-  if (!isOpen) return null;
+  if (!isOpen || typeof document === "undefined") return null;
 
-  const widthMap = {
-    sm: "max-w-sm",
-    md: "max-w-md",
-    lg: "max-w-lg",
-    xl: "max-w-xl",
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-      <div
-        className={cn(
-          "w-full bg-white rounded-xl shadow-xl border border-dash flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150 text-left",
-          widthMap[maxWidth]
-        )}
-      >
-        <div className="flex items-center justify-between p-5 border-b border-dash">
-          <div>
-            <h3 className="h4-semibold text-brand-navy">{title}</h3>
-            {description && (
-              <p className="body-sm-regular text-muted mt-0.5">{description}</p>
+  return createPortal(
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.18 }}
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4 backdrop-blur-[2px]"
+          onMouseDown={(event: React.MouseEvent<HTMLDivElement>) => {
+            if (event.target === event.currentTarget) onClose();
+          }}
+        >
+          <motion.div
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={titleId}
+            tabIndex={-1}
+            initial={{ opacity: 0, scale: 0.96, y: 12 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.96, y: 12 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className={cn(
+              "flex max-h-[90vh] w-full flex-col overflow-hidden rounded-2xl bg-white shadow-2xl outline-none border border-[#EDEDED]",
+              maxWidthClass,
+              className
             )}
-          </div>
-          <button
-            onClick={onClose}
-            className="p-1 rounded-lg text-muted hover:text-brand-navy hover:bg-slate-100 transition-colors"
           >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+            <div className="flex shrink-0 items-start justify-between gap-4 border-b border-[#F5F5F5] px-6 py-4">
+              <div className="min-w-0">
+                <h2 id={titleId} className="h6-medium text-primary-500">
+                  {title}
+                </h2>
+                {effectiveSubtitle && (
+                  <p className="body-sm-regular subtext-500 mt-0.5">
+                    {effectiveSubtitle}
+                  </p>
+                )}
+              </div>
 
-        <div className="p-5 overflow-y-auto max-h-[75vh]">{children}</div>
+              <div className="flex items-center gap-3">
+                {headerActions}
+                <button
+                  type="button"
+                  onClick={onClose}
+                  aria-label="Close"
+                  className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-[#E9E9E9] text-[#969696] transition-colors hover:bg-gray-100 hover:text-primary-500"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
 
-        {footer && (
-          <div className="p-4 border-t border-dash bg-slate-50/50 flex items-center justify-end gap-2">
-            {footer}
-          </div>
-        )}
-      </div>
-    </div>
+            <div className={cn("min-h-0 flex-1 overflow-y-auto p-6 bg-white", bodyClassName)}>
+              {children}
+            </div>
+
+            {footer && (
+              <div
+                className={cn(
+                  "flex shrink-0 items-center justify-end gap-3 border-t border-[#F5F5F5] px-6 py-4 bg-white",
+                  footerClassName
+                )}
+              >
+                {footer}
+              </div>
+            )}
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>,
+    document.body
   );
 }
+
+export default ModalShell;

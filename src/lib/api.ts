@@ -69,3 +69,48 @@ export const authApi = {
     return res.data;
   },
 };
+
+export const analyticsApi = {
+  getAdminOverview: async () => {
+    const res = await apiClient.get("/analytics/admin");
+    return res.data;
+  },
+};
+
+export const ordersApi = {
+  getAll: async () => {
+    const res = await apiClient.get("/orders/all");
+    return res.data;
+  },
+};
+
+export const coursesApi = {
+  getAll: async () => {
+    const res = await apiClient.get("/courses");
+    return res.data;
+  },
+  create: async (data: any) => {
+    const res = await apiClient.post("/courses", data);
+    return res.data;
+  },
+  delete: async (id: string) => {
+    const res = await apiClient.delete(`/courses/${id}`);
+    return res.data;
+  },
+};
+
+export const categoriesApi = {
+  getAll: async () => {
+    const res = await apiClient.get("/categories");
+    return res.data;
+  },
+};
+
+export const aiApi = {
+  generateCourseOutline: async (payload: { title: string; description?: string; level?: string }) => {
+    const res = await apiClient.post("/ai/generate-course-outline", payload);
+    return res.data;
+  },
+};
+
+

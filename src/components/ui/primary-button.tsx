@@ -1,8 +1,10 @@
+"use client";
+
 import React from "react";
-import { cn } from "@/lib/cn";
+import { motion, type HTMLMotionProps } from "framer-motion";
 
 export interface PrimaryButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  extends Omit<HTMLMotionProps<"button">, "children"> {
   children?: React.ReactNode;
   icon?: React.ReactNode;
   leftIcon?: React.ReactNode;
@@ -36,47 +38,91 @@ export const PrimaryButton = React.forwardRef<
   ) => {
     const effectiveLeftIcon = leftIcon || icon;
 
-    const variantStyles = {
+    // User's Own Brand Palette (#1C4D8D) instead of agency's orange
+    const variantStyles: Record<string, string> = {
       primary:
-        "bg-brand-primary hover:bg-[#163e72] active:bg-[#0F2854] text-white shadow-sm border border-transparent",
+        "bg-[#1C4D8D] hover:bg-[#0F2854] active:bg-[#0B1F3A] text-white shadow-sm border border-transparent",
       secondary:
-        "bg-[#BDE8F5]/30 hover:bg-[#BDE8F5]/50 active:bg-[#BDE8F5]/70 text-brand-navy border border-brand-accent/30",
+        "bg-[#EBF4FC] hover:bg-[#D8EBF9] active:bg-[#C5E1F6] text-[#1C4D8D] border border-[#1C4D8D]/20",
       outline:
-        "bg-transparent hover:bg-slate-50 active:bg-slate-100 text-brand-navy border border-dash",
+        "bg-white hover:bg-[#F8FAFC] active:bg-[#F1F5F9] text-[#0E2038] border border-[#E5E7EB]",
       ghost:
-        "bg-transparent hover:bg-slate-100 active:bg-slate-200 text-brand-navy border border-transparent",
+        "bg-transparent hover:bg-[#F1F5F9] active:bg-[#E2E8F0] text-[#0E2038] border border-transparent",
     };
 
-    const sizeStyles = {
-      sm: "h-[32px] px-3 py-1.5 body-xsm-medium rounded-[6px] gap-1.5",
+    // Unified Button Heights: Default md is 40px
+    const sizeStyles: Record<string, string> = {
+      sm: "h-[34px] px-3 py-1.5 body-xsm-medium rounded-[8px] gap-1.5",
       md: "h-[40px] px-4 py-[10px] body-sm-medium rounded-[8px] gap-2",
-      lg: "h-[48px] px-6 py-3 body-medium rounded-[10px] gap-2.5",
+      lg: "h-[44px] px-5 py-2.5 body-medium rounded-[10px] gap-2.5",
     };
 
     return (
-      <button
+      <motion.button
         ref={ref}
         type={type}
         disabled={disabled || isLoading}
-        className={cn(
-          "inline-flex items-center justify-center transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed select-none",
-          variantStyles[variant],
-          sizeStyles[size],
-          fullWidth && "w-full",
-          className
-        )}
+        whileTap={{ scale: disabled || isLoading ? 1 : 0.98 }}
+        whileHover={{ scale: disabled || isLoading ? 1 : 1.01 }}
+        transition={{ duration: 0.12 }}
+        className={`
+          inline-flex items-center justify-center whitespace-nowrap
+          select-none cursor-pointer disabled:cursor-not-allowed disabled:opacity-50
+          focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1C4D8D] focus-visible:ring-offset-2
+          transition-colors duration-150
+          ${variantStyles[variant]}
+          ${sizeStyles[size]}
+          ${fullWidth ? "w-full" : "w-auto min-w-fit"}
+          ${className}
+        `}
         {...props}
       >
-        {isLoading ? (
-          <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-        ) : (
-          effectiveLeftIcon
+        {/* Loading Spinner */}
+        {isLoading && (
+          <svg
+            className="animate-spin w-4 h-4 shrink-0"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            />
+          </svg>
         )}
+
+        {/* Left Icon (18px x 18px) */}
+        {!isLoading && effectiveLeftIcon && (
+          <span className="w-[18px] h-[18px] flex items-center justify-center shrink-0 [&>svg]:w-[18px] [&>svg]:h-[18px]">
+            {effectiveLeftIcon}
+          </span>
+        )}
+
+        {/* Button Text */}
         {children && <span>{children}</span>}
-        {!isLoading && rightIcon}
-      </button>
+
+        {/* Right Icon (18px x 18px) */}
+        {!isLoading && rightIcon && (
+          <span className="w-[18px] h-[18px] flex items-center justify-center shrink-0 [&>svg]:w-[18px] [&>svg]:h-[18px]">
+            {rightIcon}
+          </span>
+        )}
+      </motion.button>
     );
   }
 );
 
 PrimaryButton.displayName = "PrimaryButton";
+
+export { PrimaryButton as Button };
+export default PrimaryButton;

@@ -1,40 +1,59 @@
 import React from "react";
 import { cn } from "@/lib/cn";
 
+export type Tone =
+  | "green"
+  | "blue"
+  | "red"
+  | "orange"
+  | "gray"
+  | "primary"
+  | "success"
+  | "warning"
+  | "danger"
+  | "neutral"
+  | "ice"
+  | "navy"
+  | "indigo"
+  | "purple";
+
+const TONE_CLASS: Record<string, string> = {
+  green: "bg-green-bg text-green",
+  success: "bg-green-bg text-green",
+  blue: "bg-blue-14 text-blue",
+  primary: "bg-[#EBF4FC] text-[#1C4D8D]",
+  red: "bg-red-14 text-red",
+  danger: "bg-red-14 text-red",
+  orange: "bg-[#FFF7ED] text-[#EA580C]",
+  warning: "bg-[#FFFBEB] text-[#D97706]",
+  gray: "bg-[#F0F1F3] text-primary-300",
+  neutral: "bg-[#F0F1F3] text-primary-300",
+  ice: "bg-[#EBF4FC] text-[#1C4D8D]",
+  navy: "bg-[#0E203814] text-[#0E2038]",
+  indigo: "bg-[#EEF2FF] text-[#4F46E5]",
+  purple: "bg-[#F5F3FF] text-[#7C3AED]",
+};
+
+const SIZE_CLASS: Record<string, string> = {
+  sm: "px-2 py-0.5",
+  md: "px-2.5 py-1",
+  lg: "px-3 py-1.5",
+};
+
 export interface ToneBadgeProps {
+  tone: Tone;
   children: React.ReactNode;
-  tone?: "primary" | "navy" | "ice" | "success" | "warning" | "danger" | "neutral";
-  size?: "sm" | "md";
   className?: string;
+  size?: "sm" | "md" | "lg";
 }
 
-export function ToneBadge({
-  children,
-  tone = "primary",
-  size = "md",
-  className,
-}: ToneBadgeProps) {
-  const toneStyles = {
-    primary: "bg-brand-primary/10 text-brand-primary border border-brand-primary/20",
-    navy: "bg-brand-navy/10 text-brand-navy border border-brand-navy/20",
-    ice: "bg-[#BDE8F5]/40 text-[#0F2854] border border-[#BDE8F5]",
-    success: "bg-emerald-50 text-emerald-700 border border-emerald-200",
-    warning: "bg-amber-50 text-amber-700 border border-amber-200",
-    danger: "bg-rose-50 text-rose-700 border border-rose-200",
-    neutral: "bg-slate-100 text-slate-700 border border-slate-200",
-  };
-
-  const sizeStyles = {
-    sm: "px-2 py-0.5 body-xsm-medium rounded-full",
-    md: "px-2.5 py-1 body-xsm-medium rounded-md",
-  };
-
+export function ToneBadge({ tone, children, className, size = "md" }: ToneBadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 font-medium whitespace-nowrap",
-        toneStyles[tone],
-        sizeStyles[size],
+        "body-xsm-medium inline-flex items-center whitespace-nowrap rounded-[6px] transition-colors",
+        SIZE_CLASS[size] || SIZE_CLASS.md,
+        TONE_CLASS[tone] || TONE_CLASS.gray,
         className
       )}
     >
@@ -42,3 +61,5 @@ export function ToneBadge({
     </span>
   );
 }
+
+export default ToneBadge;
