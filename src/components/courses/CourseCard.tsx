@@ -32,6 +32,12 @@ interface CourseCardProps {
 }
 
 // Fallback banner mapping based on category or slug
+const DEFAULT_FALLBACK_BANNER =
+  "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=800&auto=format&fit=crop";
+
+const SVG_FALLBACK =
+  "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='450' viewBox='0 0 800 450'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%231C4D8D'/%3E%3Cstop offset='100%25' stop-color='%230F2854'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='800' height='450' fill='url(%23g)'/%3E%3Ctext x='50%25' y='50%25' fill='white' font-family='sans-serif' font-size='26' font-weight='600' text-anchor='middle' dy='.3em'%3ECourse Curriculum%3C/text%3E%3C/svg%3E";
+
 const FALLBACK_BANNERS: Record<string, string> = {
   "Artificial Intelligence":
     "https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=800&auto=format&fit=crop",
@@ -111,8 +117,11 @@ export function CourseCard({
             unoptimized
             onError={(e) => {
               const target = e.currentTarget as HTMLImageElement;
-              target.src =
-                "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=800&auto=format&fit=crop";
+              if (target.src !== DEFAULT_FALLBACK_BANNER) {
+                target.src = DEFAULT_FALLBACK_BANNER;
+              } else {
+                target.src = SVG_FALLBACK;
+              }
             }}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="object-cover transition-transform duration-500 group-hover:scale-105"

@@ -158,6 +158,9 @@ export function CourseDetailsModal({
   );
   const formattedHours = `${Math.floor(totalDurationMinutes / 60)}h ${totalDurationMinutes % 60}m`;
 
+  const SVG_FALLBACK =
+    "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='450' viewBox='0 0 800 450'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%231C4D8D'/%3E%3Cstop offset='100%25' stop-color='%230F2854'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='800' height='450' fill='url(%23g)'/%3E%3Ctext x='50%25' y='50%25' fill='white' font-family='sans-serif' font-size='26' font-weight='600' text-anchor='middle' dy='.3em'%3ECourse Curriculum%3C/text%3E%3C/svg%3E";
+
   const fallbackBanner =
     course.thumbnail ||
     "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1200&auto=format&fit=crop";
@@ -181,6 +184,10 @@ export function CourseDetailsModal({
                 alt={course.title}
                 fill
                 unoptimized
+                onError={(e) => {
+                  const target = e.currentTarget as HTMLImageElement;
+                  target.src = SVG_FALLBACK;
+                }}
                 sizes="(max-width: 768px) 100vw, 400px"
                 className="object-cover transition-transform duration-500 hover:scale-105"
               />
