@@ -105,12 +105,85 @@ export const coursesApi = {
     const res = await apiClient.delete(`/courses/${id}`);
     return res.data;
   },
-  createModule: async (courseId: string, data: { title: string; description?: string; order: number }) => {
+  uploadThumbnail: async (file: File): Promise<{ url: string }> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await apiClient.post<{ url: string }>("/courses/upload-thumbnail", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return res.data;
+  },
+  // Modules CRUD
+  getModules: async (courseId: string) => {
+    const res = await apiClient.get(`/courses/${courseId}/modules`);
+    return res.data;
+  },
+  createModule: async (
+    courseId: string,
+    data: { title: string; description?: string; order: number; isLocked?: boolean }
+  ) => {
     const res = await apiClient.post(`/courses/${courseId}/modules`, data);
     return res.data;
   },
-  createLesson: async (courseId: string, moduleId: string, data: any) => {
+  updateModule: async (
+    courseId: string,
+    moduleId: string,
+    data: { title?: string; description?: string; order?: number; isLocked?: boolean }
+  ) => {
+    const res = await apiClient.patch(`/courses/${courseId}/modules/${moduleId}`, data);
+    return res.data;
+  },
+  deleteModule: async (courseId: string, moduleId: string) => {
+    const res = await apiClient.delete(`/courses/${courseId}/modules/${moduleId}`);
+    return res.data;
+  },
+  // Lessons CRUD
+  getLessons: async (courseId: string, moduleId: string) => {
+    const res = await apiClient.get(`/courses/${courseId}/modules/${moduleId}/lessons`);
+    return res.data;
+  },
+  createLesson: async (
+    courseId: string,
+    moduleId: string,
+    data: {
+      title: string;
+      type: string;
+      durationMinutes: number;
+      order: number;
+      content?: string;
+      videoUrl?: string;
+      isPreview?: boolean;
+    }
+  ) => {
     const res = await apiClient.post(`/courses/${courseId}/modules/${moduleId}/lessons`, data);
+    return res.data;
+  },
+  updateLesson: async (
+    courseId: string,
+    moduleId: string,
+    lessonId: string,
+    data: {
+      title?: string;
+      type?: string;
+      durationMinutes?: number;
+      order?: number;
+      content?: string;
+      videoUrl?: string;
+      isPreview?: boolean;
+    }
+  ) => {
+    const res = await apiClient.patch(
+      `/courses/${courseId}/modules/${moduleId}/lessons/${lessonId}`,
+      data
+    );
+    return res.data;
+  },
+  deleteLesson: async (courseId: string, moduleId: string, lessonId: string) => {
+    const res = await apiClient.delete(
+      `/courses/${courseId}/modules/${moduleId}/lessons/${lessonId}`
+    );
     return res.data;
   },
 };

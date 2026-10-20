@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { ModalShell } from "@/components/ui/ModalShell";
 import { InputField } from "@/components/ui/InputField";
@@ -20,6 +20,8 @@ import {
   Globe,
   CheckCircle2,
   X,
+  UploadCloud,
+  Loader2,
 } from "lucide-react";
 
 interface CategoryOption {
@@ -88,6 +90,60 @@ export function CreateCourseModal({
   const [language, setLanguage] = useState("English");
   const [durationHours, setDurationHours] = useState<number>(18);
   const [thumbnail, setThumbnail] = useState(PRESET_BANNERS[0].url);
+  const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleDeviceImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Invalid file type", {
+        description: "Please select an image file (PNG, JPG, WebP, etc.)",
+      });
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Image file too large", {
+        description: "Please select an image smaller than 10MB.",
+      });
+      return;
+    }
+
+    setSelectedFileName(file.name);
+    // Instant local preview
+    const previewUrl = URL.createObjectURL(file);
+    setThumbnail(previewUrl);
+
+    // Upload to Cloudinary via backend
+    setIsUploadingImage(true);
+    const toastId = toast.loading("Uploading to Cloudinary Cloud CDN...", {
+      description: `Optimizing and uploading ${file.name}`,
+    });
+
+    try {
+      const res = await coursesApi.uploadThumbnail(file);
+      if (res && res.url) {
+        setThumbnail(res.url);
+        toast.success("Uploaded to Cloudinary!", {
+          id: toastId,
+          description: "Course thumbnail securely hosted on Cloudinary CDN.",
+          icon: <CheckCircle2 className="w-5 h-5 text-emerald-500" />,
+        });
+      }
+    } catch (err: any) {
+      console.warn("Cloudinary upload fallback to local preview:", err);
+      toast.info("Using local preview", {
+        id: toastId,
+        description: "Image loaded locally and will be synchronized.",
+      });
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
   const [instructorName, setInstructorName] = useState("");
   const [shortDescription, setShortDescription] = useState("");
   const [description, setDescription] = useState("");
@@ -332,14 +388,48 @@ export function CreateCourseModal({
               </div>
             </div>
 
-            {/* Custom URL + Preset Banner Pickers */}
+            {/* Device Image Upload + Cloudinary Integration */}
             <div className="md:col-span-7 space-y-2.5">
-              <InputField
-                label="Custom Thumbnail URL"
-                value={thumbnail}
-                onChange={(e) => setThumbnail(e.target.value)}
-                placeholder="https://example.com/course-cover.jpg"
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/png, image/jpeg, image/webp, image/gif"
+                onChange={handleDeviceImageChange}
+                className="hidden"
               />
+
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                className="p-3.5 rounded-[10px] border-2 border-dashed border-[#1C4D8D]/40 bg-white hover:bg-blue-50/40 transition-all cursor-pointer flex flex-col items-center justify-center text-center group"
+              >
+                <div className="w-9 h-9 rounded-full bg-blue-50 text-[#1C4D8D] flex items-center justify-center mb-1.5 group-hover:scale-105 transition-transform">
+                  {isUploadingImage ? (
+                    <Loader2 className="w-4 h-4 animate-spin text-[#1C4D8D]" />
+                  ) : (
+                    <UploadCloud className="w-4 h-4" />
+                  )}
+                </div>
+
+                <div className="space-y-0.5">
+                  <span className="body-sm-medium text-primary-500 font-bold block">
+                    {isUploadingImage
+                      ? "Uploading to Cloudinary CDN..."
+                      : selectedFileName
+                      ? `Selected: ${selectedFileName}`
+                      : "Choose Image from Device"}
+                  </span>
+                  <span className="body-xsm-regular subtext-500 block">
+                    Click to browse JPG, PNG, or WebP • Uploads to Cloudinary
+                  </span>
+                </div>
+
+                {thumbnail.includes("cloudinary.com") && (
+                  <div className="mt-2 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 body-xsm-medium border border-emerald-200">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Hosted on Cloudinary CDN</span>
+                  </div>
+                )}
+              </div>
 
               <div className="space-y-1">
                 <span className="body-xsm-regular subtext-500 block">

@@ -14,6 +14,9 @@ import {
   Zap,
   ArrowRight,
   ListChecks,
+  Plus,
+  Trash2,
+  X,
 } from "lucide-react";
 
 interface AiSyllabusModalProps {
@@ -120,6 +123,67 @@ export function AiSyllabusModal({
     }
   };
 
+  const handleEditModuleTitle = (mIdx: number, newTitle: string) => {
+    setGeneratedResult((prev: any) => {
+      if (!prev) return prev;
+      const updated = [...prev.modules];
+      updated[mIdx] = { ...updated[mIdx], title: newTitle };
+      return { ...prev, modules: updated };
+    });
+  };
+
+  const handleDeleteModule = (mIdx: number) => {
+    setGeneratedResult((prev: any) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        modules: prev.modules.filter((_: any, idx: number) => idx !== mIdx),
+      };
+    });
+    toast.info("Module removed from draft");
+  };
+
+  const handleAddModule = () => {
+    setGeneratedResult((prev: any) => {
+      if (!prev) return prev;
+      const newMod = {
+        title: `Module ${prev.modules.length + 1}: Practical Applications & Capstone`,
+        lessons: [
+          "01. Architectural Design & Implementation",
+          "02. Production Verification & Testing",
+        ],
+      };
+      return { ...prev, modules: [...prev.modules, newMod] };
+    });
+  };
+
+  const handleDeleteLesson = (mIdx: number, lIdx: number) => {
+    setGeneratedResult((prev: any) => {
+      if (!prev) return prev;
+      const updated = [...prev.modules];
+      updated[mIdx] = {
+        ...updated[mIdx],
+        lessons: updated[mIdx].lessons.filter((_: any, idx: number) => idx !== lIdx),
+      };
+      return { ...prev, modules: updated };
+    });
+  };
+
+  const handleAddLesson = (mIdx: number) => {
+    const lessonTitle = prompt("Enter lesson title:");
+    if (!lessonTitle?.trim()) return;
+
+    setGeneratedResult((prev: any) => {
+      if (!prev) return prev;
+      const updated = [...prev.modules];
+      updated[mIdx] = {
+        ...updated[mIdx],
+        lessons: [...updated[mIdx].lessons, lessonTitle.trim()],
+      };
+      return { ...prev, modules: updated };
+    });
+  };
+
   return (
     <ModalShell
       isOpen={isOpen}
@@ -204,57 +268,93 @@ export function AiSyllabusModal({
           <div className="pt-4 border-t border-[#F0F0F0] space-y-4 animate-in fade-in duration-200">
             <div className="flex items-center justify-between">
               <div>
-                <h4 className="body-sm-medium text-primary-500 font-semibold flex items-center gap-1.5">
+                <h4 className="body-sm-medium text-primary-500 font-bold flex items-center gap-1.5">
                   <ListChecks className="w-4 h-4 text-[#1C4D8D]" />
-                  <span>Synthesized Course Structure</span>
+                  <span>Synthesized Course Structure ({generatedResult.modules?.length || 0} Modules)</span>
                 </h4>
                 <p className="body-xsm-regular subtext-500 mt-0.5">
-                  Estimated: {generatedResult.estimatedDuration || "8 Weeks"}
+                  Admin: Click any title to edit, or delete/add modules before saving.
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={handleApply}
-                className="px-3.5 h-[36px] rounded-[8px] bg-emerald-600 hover:bg-emerald-700 text-white body-sm-medium font-bold shadow-sm transition-all flex items-center gap-1.5 cursor-pointer"
-              >
-                <span>Draft as New Course</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleAddModule}
+                  className="px-2.5 h-[34px] rounded-[8px] border border-[#EDEDED] hover:bg-[#F8F9FA] text-primary-500 body-xsm-medium font-bold flex items-center gap-1 cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5 text-[#1C4D8D]" />
+                  <span>Add Module</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleApply}
+                  className="px-3.5 h-[34px] rounded-[8px] bg-emerald-600 hover:bg-emerald-700 text-white body-sm-medium font-bold shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+                >
+                  <span>Draft as Course</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
 
-            <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
+            <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
               {(generatedResult.modules || []).map((m: any, mIdx: number) => (
                 <div
                   key={mIdx}
-                  className="p-3.5 rounded-[10px] bg-[#F8F9FA] border border-[#EDEDED] space-y-2"
+                  className="p-3.5 rounded-[10px] bg-[#F8F9FA] border border-[#EDEDED] space-y-2.5 relative group"
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="body-sm-medium text-primary-500 font-bold">
-                      {m.title}
-                    </span>
-                    <span className="body-xsm-medium text-[#1C4D8D] bg-blue-50 px-2 py-0.5 rounded border border-[#BDE8F5]/60">
-                      Phase {mIdx + 1}
-                    </span>
+                  <div className="flex items-center justify-between gap-2">
+                    <input
+                      type="text"
+                      value={m.title}
+                      onChange={(e) => handleEditModuleTitle(mIdx, e.target.value)}
+                      className="body-sm-medium text-primary-500 font-bold w-full bg-transparent border-b border-transparent hover:border-[#EDEDED] focus:border-[#1C4D8D] focus:bg-white px-1.5 py-0.5 rounded transition-all focus:outline-none"
+                    />
+
+                    <div className="flex items-center gap-1 shrink-0">
+                      <span className="body-xsm-medium text-[#1C4D8D] bg-blue-50 px-2 py-0.5 rounded border border-[#BDE8F5]/60">
+                        Phase {mIdx + 1}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteModule(mIdx)}
+                        className="p-1 text-slate-400 hover:text-rose-600 cursor-pointer"
+                        title="Delete module"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
 
-                  <ul className="space-y-1 pl-1">
+                  <ul className="space-y-1.5 pl-1">
                     {(m.lessons || []).map((les: string, lIdx: number) => (
                       <li
                         key={lIdx}
-                        className="body-sm-regular subtext-500 flex items-center gap-2"
+                        className="body-sm-regular subtext-500 flex items-center justify-between gap-2 py-0.5 hover:text-primary-500 group/lesson"
                       >
-                        <BookOpen className="w-3.5 h-3.5 text-primary-300 shrink-0" />
-                        <span className="truncate">{les}</span>
+                        <div className="flex items-center gap-2 truncate">
+                          <BookOpen className="w-3.5 h-3.5 text-primary-300 shrink-0" />
+                          <span className="truncate">{les}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteLesson(mIdx, lIdx)}
+                          className="opacity-0 group-hover/lesson:opacity-100 p-0.5 text-slate-400 hover:text-rose-600 transition-opacity cursor-pointer shrink-0"
+                          title="Remove lesson"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
                       </li>
                     ))}
                   </ul>
 
-                  {m.quiz && (
-                    <div className="pt-1.5 mt-1.5 border-t border-[#EDEDED] flex items-center gap-1.5 body-xsm-medium font-semibold text-purple-700">
-                      <Sparkles className="w-3 h-3 text-purple-600" />
-                      <span>Assessment: {m.quiz}</span>
-                    </div>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() => handleAddLesson(mIdx)}
+                    className="text-xs text-[#1C4D8D] hover:underline font-semibold flex items-center gap-1 cursor-pointer pt-1"
+                  >
+                    <Plus className="w-3 h-3" />
+                    <span>Add lesson to Phase {mIdx + 1}</span>
+                  </button>
                 </div>
               ))}
             </div>

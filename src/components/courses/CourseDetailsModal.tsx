@@ -38,6 +38,7 @@ interface CourseDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
   onOpenAiOutline?: (course: AdminCourseItem) => void;
+  onManageCurriculum?: (course: AdminCourseItem) => void;
 }
 
 export function CourseDetailsModal({
@@ -45,6 +46,7 @@ export function CourseDetailsModal({
   isOpen,
   onClose,
   onOpenAiOutline,
+  onManageCurriculum,
 }: CourseDetailsModalProps) {
   const [activeTab, setActiveTab] = useState("syllabus");
   const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>({
@@ -261,13 +263,25 @@ export function CourseDetailsModal({
                   </div>
                 </div>
 
-                <SecondaryButton
-                  size="sm"
-                  leftIcon={<Sparkles className="w-3.5 h-3.5 text-purple-600" />}
-                  onClick={() => onOpenAiOutline?.(course)}
-                >
-                  AI Syllabus
-                </SecondaryButton>
+                <div className="flex items-center gap-2">
+                  <SecondaryButton
+                    size="sm"
+                    leftIcon={<Layers className="w-3.5 h-3.5 text-[#1C4D8D]" />}
+                    onClick={() => {
+                      onClose();
+                      onManageCurriculum?.(course);
+                    }}
+                  >
+                    Edit Curriculum
+                  </SecondaryButton>
+                  <SecondaryButton
+                    size="sm"
+                    leftIcon={<Sparkles className="w-3.5 h-3.5 text-purple-600" />}
+                    onClick={() => onOpenAiOutline?.(course)}
+                  >
+                    AI Syllabus
+                  </SecondaryButton>
+                </div>
               </div>
             </div>
           </div>

@@ -13,6 +13,7 @@ import {
   GraduationCap,
   ChevronLeft,
   ChevronRight,
+  FolderTree,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { toggleSidebar } from "@/store/slices/uiSlice";
@@ -22,6 +23,7 @@ const NAV_ITEMS = [
   { href: "/", label: "Overview", icon: LayoutDashboard },
   { href: "/users", label: "Users", icon: Users },
   { href: "/courses", label: "Courses", icon: BookOpen },
+  { href: "/categories", label: "Categories", icon: FolderTree },
   { href: "/orders", label: "Orders & Sales", icon: CreditCard },
   { href: "/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/settings", label: "Settings", icon: Settings },

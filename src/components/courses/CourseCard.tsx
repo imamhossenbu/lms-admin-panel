@@ -28,6 +28,7 @@ interface CourseCardProps {
   onDelete?: (id: string) => void;
   onGenerateOutline?: (course: AdminCourseItem) => void;
   onViewDetails?: (course: AdminCourseItem) => void;
+  onManageCurriculum?: (course: AdminCourseItem) => void;
 }
 
 // Fallback banner mapping based on category or slug
@@ -50,6 +51,7 @@ export function CourseCard({
   onDelete,
   onGenerateOutline,
   onViewDetails,
+  onManageCurriculum,
 }: CourseCardProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -61,8 +63,14 @@ export function CourseCard({
 
   const menuItems = [
     {
-      label: "View Syllabus & Details",
+      label: "Manage Curriculum & Lessons",
       icon: <Layers className="w-4 h-4 text-[#1C4D8D]" />,
+      onClick: () => onManageCurriculum?.(course),
+      className: "font-bold text-[#1C4D8D] bg-blue-50/50",
+    },
+    {
+      label: "View Syllabus & Details",
+      icon: <PlayCircle className="w-4 h-4 text-primary-400" />,
       onClick: () => onViewDetails?.(course),
     },
     {

@@ -25,6 +25,7 @@ import { CourseCard } from "./CourseCard";
 import { CreateCourseModal } from "./CreateCourseModal";
 import { AiSyllabusModal } from "./AiSyllabusModal";
 import { CourseDetailsModal } from "./CourseDetailsModal";
+import { CurriculumBuilderModal } from "./CurriculumBuilderModal";
 import { CategoryManagementModal } from "@/components/categories/CategoryManagementModal";
 import { StatGroupCard } from "@/components/ui/StatGroupCard";
 import { StatItem } from "@/components/ui/StatCard";
@@ -230,6 +231,10 @@ export function CoursesGridClient({
 
   // Selected course for full Coursera / Udemy Syllabus & Details Inspector
   const [selectedCourseForDetails, setSelectedCourseForDetails] =
+    useState<AdminCourseItem | null>(null);
+
+  // Selected course for Curriculum & Lessons Builder
+  const [selectedCourseForCurriculum, setSelectedCourseForCurriculum] =
     useState<AdminCourseItem | null>(null);
 
   // Active action menu anchor for table view
@@ -514,8 +519,16 @@ export function CoursesGridClient({
 
   const tableMenuItems = [
     {
-      label: "View Syllabus & Details",
+      label: "Manage Curriculum & Lessons",
       icon: <Layers className="w-4 h-4 text-[#1C4D8D]" />,
+      onClick: () => {
+        if (activeMenuCourse) setSelectedCourseForCurriculum(activeMenuCourse);
+      },
+      className: "font-bold text-[#1C4D8D] bg-blue-50/40",
+    },
+    {
+      label: "View Syllabus & Details",
+      icon: <BookOpen className="w-4 h-4 text-primary-400" />,
       onClick: () => {
         if (activeMenuCourse) setSelectedCourseForDetails(activeMenuCourse);
       },
@@ -709,6 +722,7 @@ export function CoursesGridClient({
               onDelete={handleDeleteCourse}
               onGenerateOutline={handleOpenAiOutline}
               onViewDetails={(c) => setSelectedCourseForDetails(c)}
+              onManageCurriculum={(c) => setSelectedCourseForCurriculum(c)}
             />
           ))}
         </motion.div>
@@ -790,6 +804,17 @@ export function CoursesGridClient({
         onOpenAiOutline={(c) => {
           setSelectedCourseForDetails(null);
           handleOpenAiOutline(c);
+        }}
+        onManageCurriculum={(c) => setSelectedCourseForCurriculum(c)}
+      />
+
+      {/* Curriculum & Lesson Builder Modal */}
+      <CurriculumBuilderModal
+        course={selectedCourseForCurriculum}
+        isOpen={Boolean(selectedCourseForCurriculum)}
+        onClose={() => setSelectedCourseForCurriculum(null)}
+        onCurriculumUpdated={() => {
+          // Refresh course list if needed
         }}
       />
     </div>
