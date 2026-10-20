@@ -1,16 +1,22 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { ReduxProvider } from "./ReduxProvider";
 import { QueryProvider } from "./QueryProvider";
 import { Toaster } from "sonner";
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
     <ReduxProvider>
       <QueryProvider>
         {children}
-        <Toaster position="top-right" richColors />
+        {mounted && <Toaster position="top-right" richColors />}
       </QueryProvider>
     </ReduxProvider>
   );

@@ -431,6 +431,7 @@ export function CoursesGridClient({
               }
               alt={row.title}
               fill
+              unoptimized
               className="object-cover"
               sizes="64px"
             />

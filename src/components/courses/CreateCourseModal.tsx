@@ -317,6 +317,7 @@ export function CreateCourseModal({
                 src={thumbnail}
                 alt="Course banner preview"
                 fill
+                unoptimized
                 sizes="(max-width: 768px) 100vw, 300px"
                 className="object-cover"
               />
@@ -361,6 +362,7 @@ export function CreateCourseModal({
                         src={preset.url}
                         alt={preset.name}
                         fill
+                        unoptimized
                         sizes="100px"
                         className="object-cover"
                       />

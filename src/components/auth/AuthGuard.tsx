@@ -74,24 +74,13 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
   }
 
-  // On protected routes during SSR or before hydration:
-  // If user has token in localStorage, render children immediately (which uses native OverviewSkeleton)
-  // NEVER show the dark full-screen authentication splash card!
-  if (!isClientReady) {
-    if (typeof window !== "undefined") {
-      const hasToken = !!localStorage.getItem("admin_token");
-      if (hasToken) {
-        return <>{children}</>;
-      }
-    }
-    // Minimal empty fallback while redirecting unauthenticated users to /login
+  // Once client check completes and user is confirmed unauthenticated on protected route,
+  // hide content while router redirects to /login
+  if (isClientReady && !isAuthenticated && pathname !== "/login") {
     return null;
   }
 
-  // If client ready and not authenticated on a protected route, redirect to login
-  if (!isAuthenticated && pathname !== "/login") {
-    return null;
-  }
-
+  // Both SSR and initial client hydration render children consistently:
+  // Zero hydration mismatch, zero flash of ugly authentication splash card!
   return <>{children}</>;
 }

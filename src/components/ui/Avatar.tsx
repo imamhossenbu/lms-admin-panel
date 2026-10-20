@@ -53,6 +53,7 @@ export function Avatar({
           src={src!}
           alt={alt || name}
           fill
+          unoptimized
           sizes={`${pixelSize}px`}
           className="object-cover"
         />
