@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
+import { motion } from "framer-motion";
 import {
   Plus,
   Search,
@@ -14,12 +15,17 @@ import {
   List,
   X,
   RotateCcw,
-  Edit3,
   Trash2,
+  FolderPlus,
+  Layers,
+  ArrowRight,
+  Clock,
 } from "lucide-react";
 import { CourseCard } from "./CourseCard";
 import { CreateCourseModal } from "./CreateCourseModal";
 import { AiSyllabusModal } from "./AiSyllabusModal";
+import { CourseDetailsModal } from "./CourseDetailsModal";
+import { CategoryManagementModal } from "@/components/categories/CategoryManagementModal";
 import { StatGroupCard } from "@/components/ui/StatGroupCard";
 import { StatItem } from "@/components/ui/StatCard";
 import { DataTable, ColumnDef } from "@/components/ui/Datatable";
@@ -43,9 +49,17 @@ const INITIAL_COURSES: AdminCourseItem[] = [
     id: "crs-1",
     title: "Mastering Next.js 16 & Enterprise Architecture",
     slug: "nextjs-16-enterprise",
+    thumbnail:
+      "https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=800&auto=format&fit=crop",
+    shortDescription:
+      "Master React 19 Server Components, Turbopack, and microservices architecture.",
     price: 99,
     isFree: false,
     status: "PUBLISHED",
+    level: "ADVANCED",
+    language: "English",
+    durationMinutes: 1080,
+    totalDuration: "18 Hours",
     category: { id: "c1", name: "Fullstack Web" },
     totalStudents: 2840,
     ratingAverage: 4.9,
@@ -55,9 +69,17 @@ const INITIAL_COURSES: AdminCourseItem[] = [
     id: "crs-2",
     title: "Advanced Gemini 3.8 & AI Agent Architecture",
     slug: "gemini-ai-agent-engineering",
+    thumbnail:
+      "https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=800&auto=format&fit=crop",
+    shortDescription:
+      "Build autonomous agents with Gemini 3.8 Flash SDK and sub-second Groq pipelines.",
     price: 129,
     isFree: false,
     status: "PUBLISHED",
+    level: "INTERMEDIATE",
+    language: "English",
+    durationMinutes: 840,
+    totalDuration: "14 Hours",
     category: { id: "c2", name: "Artificial Intelligence" },
     totalStudents: 1950,
     ratingAverage: 4.95,
@@ -67,9 +89,17 @@ const INITIAL_COURSES: AdminCourseItem[] = [
     id: "crs-3",
     title: "Foundations of TypeScript 6 & Clean Code",
     slug: "typescript-foundations",
+    thumbnail:
+      "https://images.unsplash.com/photo-1516116211227-bbc07b22a087?q=80&w=800&auto=format&fit=crop",
+    shortDescription:
+      "Type safety, generics, decorators, and clean domain-driven architecture.",
     price: 0,
     isFree: true,
     status: "PUBLISHED",
+    level: "BEGINNER",
+    language: "English",
+    durationMinutes: 540,
+    totalDuration: "9 Hours",
     category: { id: "c3", name: "Software Engineering" },
     totalStudents: 4890,
     ratingAverage: 4.8,
@@ -79,9 +109,17 @@ const INITIAL_COURSES: AdminCourseItem[] = [
     id: "crs-4",
     title: "Docker, Kubernetes & Production CI/CD Pipelines",
     slug: "devops-docker-kubernetes",
+    thumbnail:
+      "https://images.unsplash.com/photo-1667372393119-3d4c48d07fc9?q=80&w=800&auto=format&fit=crop",
+    shortDescription:
+      "Container orchestration, multi-stage builds, and cloud deployment pipelines.",
     price: 79,
     isFree: false,
     status: "PUBLISHED",
+    level: "INTERMEDIATE",
+    language: "English",
+    durationMinutes: 960,
+    totalDuration: "16 Hours",
     category: { id: "c4", name: "Cloud & DevOps" },
     totalStudents: 1420,
     ratingAverage: 4.85,
@@ -91,9 +129,17 @@ const INITIAL_COURSES: AdminCourseItem[] = [
     id: "crs-5",
     title: "Fullstack Python Machine Learning with PyTorch",
     slug: "python-ml-pytorch",
+    thumbnail:
+      "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=800&auto=format&fit=crop",
+    shortDescription:
+      "Deep learning neural networks, tensor operations, and model deployment.",
     price: 110,
     isFree: false,
     status: "PUBLISHED",
+    level: "ADVANCED",
+    language: "English",
+    durationMinutes: 1200,
+    totalDuration: "20 Hours",
     category: { id: "c2", name: "Artificial Intelligence" },
     totalStudents: 980,
     ratingAverage: 4.9,
@@ -103,9 +149,17 @@ const INITIAL_COURSES: AdminCourseItem[] = [
     id: "crs-6",
     title: "Microservices with NestJS, RabbitMQ & Redis",
     slug: "nestjs-microservices-rabbitmq",
+    thumbnail:
+      "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=800&auto=format&fit=crop",
+    shortDescription:
+      "Event-driven architecture, distributed queues, caching, and resilient database pools.",
     price: 89,
     isFree: false,
     status: "DRAFT",
+    level: "ADVANCED",
+    language: "English",
+    durationMinutes: 720,
+    totalDuration: "12 Hours",
     category: { id: "c1", name: "Fullstack Web" },
     totalStudents: 0,
     ratingAverage: 0,
@@ -119,6 +173,7 @@ const DEFAULT_CATEGORIES = [
   "Fullstack Web",
   "Cloud & DevOps",
   "Software Engineering",
+  "Cybersecurity",
 ];
 
 interface CoursesGridClientProps {
@@ -126,6 +181,8 @@ interface CoursesGridClientProps {
   setIsCreateModalOpen?: (open: boolean) => void;
   isAiModalOpen?: boolean;
   setIsAiModalOpen?: (open: boolean) => void;
+  isCategoryModalOpen?: boolean;
+  setIsCategoryModalOpen?: (open: boolean) => void;
 }
 
 export function CoursesGridClient({
@@ -133,6 +190,8 @@ export function CoursesGridClient({
   setIsCreateModalOpen: propSetIsCreateModalOpen,
   isAiModalOpen: propIsAiModalOpen,
   setIsAiModalOpen: propSetIsAiModalOpen,
+  isCategoryModalOpen: propIsCategoryModalOpen,
+  setIsCategoryModalOpen: propSetIsCategoryModalOpen,
 }: CoursesGridClientProps = {}) {
   const [courses, setCourses] = useState<AdminCourseItem[]>(INITIAL_COURSES);
   const [categories, setCategories] = useState<string[]>(DEFAULT_CATEGORIES);
@@ -146,21 +205,32 @@ export function CoursesGridClient({
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  // Fallback internal modal state if not passed from PageHeader
+  // Modal states
   const [internalCreateModalOpen, setInternalCreateModalOpen] = useState(false);
   const [internalAiModalOpen, setInternalAiModalOpen] = useState(false);
+  const [internalCategoryModalOpen, setInternalCategoryModalOpen] = useState(false);
   const [aiModalTitle, setAiModalTitle] = useState("");
 
   const isCreateOpen =
     propIsCreateModalOpen !== undefined
       ? propIsCreateModalOpen
       : internalCreateModalOpen;
-  const setCreateOpen =
-    propSetIsCreateModalOpen || setInternalCreateModalOpen;
+  const setCreateOpen = propSetIsCreateModalOpen || setInternalCreateModalOpen;
 
   const isAiOpen =
     propIsAiModalOpen !== undefined ? propIsAiModalOpen : internalAiModalOpen;
   const setAiOpen = propSetIsAiModalOpen || setInternalAiModalOpen;
+
+  const isCategoryOpen =
+    propIsCategoryModalOpen !== undefined
+      ? propIsCategoryModalOpen
+      : internalCategoryModalOpen;
+  const setCategoryOpen =
+    propSetIsCategoryModalOpen || setInternalCategoryModalOpen;
+
+  // Selected course for full Coursera / Udemy Syllabus & Details Inspector
+  const [selectedCourseForDetails, setSelectedCourseForDetails] =
+    useState<AdminCourseItem | null>(null);
 
   // Active action menu anchor for table view
   const [activeMenuCourse, setActiveMenuCourse] = useState<AdminCourseItem | null>(null);
@@ -175,64 +245,73 @@ export function CoursesGridClient({
           categoriesApi.getAll(),
         ]);
 
-        if (coursesRes.status === "fulfilled" && coursesRes.value) {
-          const raw = coursesRes.value;
-          const items = Array.isArray(raw) ? raw : raw.data;
-          if (Array.isArray(items) && items.length > 0) {
-            const mapped: AdminCourseItem[] = items.map((c: any) => ({
+        if (catsRes.status === "fulfilled" && Array.isArray(catsRes.value)) {
+          const catNames = catsRes.value.map((c: any) => c.name);
+          const unique = Array.from(
+            new Set(["All Categories", ...catNames, ...DEFAULT_CATEGORIES.slice(1)])
+          );
+          setCategories(unique);
+        }
+
+        if (coursesRes.status === "fulfilled") {
+          const apiCourses = Array.isArray(coursesRes.value)
+            ? coursesRes.value
+            : coursesRes.value?.data;
+
+          if (Array.isArray(apiCourses) && apiCourses.length > 0) {
+            const formatted: AdminCourseItem[] = apiCourses.map((c: any) => ({
               id: c.id,
               title: c.title,
-              slug: c.slug || c.title.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
-              price: Number(c.price) || 0,
+              slug: c.slug,
+              thumbnail: c.thumbnail,
+              shortDescription: c.shortDescription || c.description?.slice(0, 100),
+              price: Number(c.price || 0),
               isFree: Boolean(c.isFree),
-              status: c.status || "DRAFT",
+              status: c.status || "PUBLISHED",
+              level: c.level || "INTERMEDIATE",
+              language: c.language || "English",
+              durationMinutes: Number(c.durationMinutes || 720),
+              totalDuration: `${Math.round((c.durationMinutes || 720) / 60)} Hours`,
               category: {
-                id: c.categoryId || c.category?.id || "c1",
+                id: c.category?.id || "cat-gen",
                 name: c.category?.name || "General",
               },
               totalStudents: c.totalStudents || 0,
-              ratingAverage: Number(c.ratingAverage) || 5.0,
-              instructorName: c.instructorName || "Lead Instructor",
+              ratingAverage: Number(c.ratingAverage || 5.0),
+              instructorName: c.instructorName || "Faculty Instructor",
+              modules: c.modules,
             }));
 
-            const backendIds = new Set(mapped.map((m) => m.id));
-            const merged = [
-              ...mapped,
-              ...INITIAL_COURSES.filter((c) => !backendIds.has(c.id)),
-            ];
-            setCourses(merged);
-          }
-        }
-
-        if (catsRes.status === "fulfilled" && catsRes.value) {
-          const rawCats = Array.isArray(catsRes.value) ? catsRes.value : [];
-          if (rawCats.length > 0) {
-            const names = rawCats.map((c: any) => c.name);
-            setCategories((prev) => Array.from(new Set([...prev, ...names])));
+            // Merge with initials so user always sees rich mock data while backend builds up
+            const map = new Map<string, AdminCourseItem>();
+            INITIAL_COURSES.forEach((c) => map.set(c.id, c));
+            formatted.forEach((c) => map.set(c.id, c));
+            setCourses(Array.from(map.values()));
           }
         }
       } catch (err) {
-        console.warn("Backend catalog sync notice:", err);
+        console.warn("Using offline / initial courses state:", err);
       }
     }
 
     loadBackendData();
   }, []);
 
-  // Filter & Sort logic
+  // Filter & Search Logic
   const filteredCourses = courses
-    .filter((c) => {
+    .filter((course) => {
       const matchesSearch =
-        c.title.toLowerCase().includes(search.toLowerCase()) ||
-        c.category.name.toLowerCase().includes(search.toLowerCase()) ||
-        (c.instructorName || "").toLowerCase().includes(search.toLowerCase());
+        course.title.toLowerCase().includes(search.toLowerCase()) ||
+        course.category?.name.toLowerCase().includes(search.toLowerCase()) ||
+        (course.instructorName &&
+          course.instructorName.toLowerCase().includes(search.toLowerCase()));
 
       const matchesCategory =
         selectedCategory === "All Categories" ||
-        c.category.name === selectedCategory;
+        course.category?.name === selectedCategory;
 
       const matchesStatus =
-        selectedStatus === "ALL" || c.status === selectedStatus;
+        selectedStatus === "ALL" || course.status === selectedStatus;
 
       return matchesSearch && matchesCategory && matchesStatus;
     })
@@ -241,11 +320,10 @@ export function CoursesGridClient({
       if (sortBy === "RATING") return b.ratingAverage - a.ratingAverage;
       if (sortBy === "PRICE_ASC") return a.price - b.price;
       if (sortBy === "PRICE_DESC") return b.price - a.price;
-      return 0;
+      return 0; // NEWEST
     });
 
-  // Paginated list
-  const totalPages = Math.max(1, Math.ceil(filteredCourses.length / pageSize));
+  const totalPages = Math.ceil(filteredCourses.length / pageSize) || 1;
   const paginatedCourses = filteredCourses.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize
@@ -271,13 +349,33 @@ export function CoursesGridClient({
       id: `crs-${Date.now()}`,
       title,
       slug: title.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+      thumbnail:
+        "https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=800&auto=format&fit=crop",
       price: 99,
       isFree: false,
       status: "DRAFT",
+      level: (outline.level as any) || "INTERMEDIATE",
+      language: "English",
+      durationMinutes: 720,
+      totalDuration: "12 Hours",
       category: { id: "cat-ai", name: "Artificial Intelligence" },
       totalStudents: 0,
       ratingAverage: 5.0,
       instructorName: "AI Co-Instructor",
+      modules: outline.modules?.map((m: any, mIdx: number) => ({
+        id: `mod-${mIdx + 1}`,
+        title: m.title,
+        order: mIdx + 1,
+        durationMinutes: 60,
+        lessons: (m.lessons || []).map((l: string, lIdx: number) => ({
+          id: `les-${mIdx + 1}-${lIdx + 1}`,
+          title: l,
+          durationMinutes: 15,
+          order: lIdx + 1,
+          type: "VIDEO",
+          isPreview: lIdx === 0,
+        })),
+      })),
     };
     setCourses((prev) => [newCourse, ...prev]);
   };
@@ -318,16 +416,30 @@ export function CoursesGridClient({
     label: cat,
   }));
 
-  // List View Columns
+  // List View Columns (Coursera / Udemy style with 16:9 thumbnail preview)
   const listColumns: ColumnDef<AdminCourseItem>[] = [
     {
       key: "title",
       header: "Course Curriculum",
       render: (row) => (
-        <TwoLineCell
-          title={row.title}
-          sub={`Instructor: ${row.instructorName || "Faculty Instructor"}`}
-        />
+        <div className="flex items-center gap-3 min-w-[300px]">
+          <div className="w-16 h-10 rounded-[8px] overflow-hidden relative border border-[#EDEDED] shrink-0 bg-slate-900 shadow-2xs">
+            <Image
+              src={
+                row.thumbnail ||
+                "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=200&auto=format&fit=crop"
+              }
+              alt={row.title}
+              fill
+              className="object-cover"
+              sizes="64px"
+            />
+          </div>
+          <TwoLineCell
+            title={row.title}
+            sub={`${row.level || "Intermediate"} • ${row.instructorName || "Faculty Instructor"}`}
+          />
+        </div>
       ),
     },
     {
@@ -337,7 +449,7 @@ export function CoursesGridClient({
         <TagBadge
           tag={row.category?.name || "General"}
           bgColor="bg-[#F2F3F3]"
-          textColor="text-primary-500"
+          textColor="text-primary-500 font-semibold"
         />
       ),
     },
@@ -345,7 +457,7 @@ export function CoursesGridClient({
       key: "learners",
       header: "Learners",
       render: (row) => (
-        <span className="body-sm-regular text-primary-500">
+        <span className="body-sm-regular text-primary-500 font-medium">
           {row.totalStudents.toLocaleString()}
         </span>
       ),
@@ -354,9 +466,9 @@ export function CoursesGridClient({
       key: "rating",
       header: "Rating",
       render: (row) => (
-        <span className="flex items-center gap-1 body-sm-regular font-medium text-amber-600">
+        <span className="flex items-center gap-1 body-sm-regular font-bold text-amber-600">
           <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
-          <span>{row.ratingAverage > 0 ? row.ratingAverage : "New"}</span>
+          <span>{row.ratingAverage > 0 ? row.ratingAverage : "5.0"}</span>
         </span>
       ),
     },
@@ -375,7 +487,7 @@ export function CoursesGridClient({
       render: (row) => (
         <ToneBadge
           tone={row.status === "PUBLISHED" ? "green" : "orange"}
-          className="font-medium"
+          className="body-xsm-medium uppercase tracking-wider font-bold"
         >
           {row.status}
         </ToneBadge>
@@ -400,6 +512,13 @@ export function CoursesGridClient({
   ];
 
   const tableMenuItems = [
+    {
+      label: "View Syllabus & Details",
+      icon: <Layers className="w-4 h-4 text-[#1C4D8D]" />,
+      onClick: () => {
+        if (activeMenuCourse) setSelectedCourseForDetails(activeMenuCourse);
+      },
+    },
     {
       label: "AI Syllabus Builder",
       icon: <Sparkles className="w-4 h-4 text-purple-600" />,
@@ -434,7 +553,7 @@ export function CoursesGridClient({
           />
         </div>
 
-        {/* ROW 2: Bottom Toolbar -> Left Side = Search, Right Side = Filters & Add Course */}
+        {/* ROW 2: Bottom Toolbar -> Left Side = Search, Right Side = Filters, Categories & Add Course */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 w-full">
           {/* Bottom Left Side: Search Bar */}
           <div className="w-full sm:w-80 md:w-96">
@@ -457,7 +576,7 @@ export function CoursesGridClient({
             />
           </div>
 
-          {/* Bottom Right Side: Filters, Sort, View Switcher & + Add Course Button */}
+          {/* Bottom Right Side: Filters, Sort, View Switcher & Actions */}
           <div className="flex items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-end flex-wrap sm:flex-nowrap">
             <div className="w-36">
               <DropdownSelect
@@ -515,6 +634,13 @@ export function CoursesGridClient({
               </button>
             </div>
 
+            <SecondaryButton
+              leftIcon={<FolderPlus className="w-4 h-4 text-[#1C4D8D]" />}
+              onClick={() => setCategoryOpen(true)}
+            >
+              Categories
+            </SecondaryButton>
+
             <PrimaryButton
               leftIcon={<Plus className="w-4 h-4" />}
               onClick={() => setCreateOpen(true)}
@@ -538,7 +664,7 @@ export function CoursesGridClient({
 
       {/* 3. Course Cards Grid or List */}
       {filteredCourses.length === 0 ? (
-        <div className="rounded-[12px] border border-[#EDEDED] bg-white p-12 text-center space-y-3">
+        <div className="rounded-[14px] border border-[#EDEDED] bg-white p-12 text-center space-y-3">
           <div className="w-12 h-12 rounded-[10px] bg-[#F5F5F5] flex items-center justify-center mx-auto text-primary-300">
             <BookOpen className="w-6 h-6" />
           </div>
@@ -581,6 +707,7 @@ export function CoursesGridClient({
               course={course}
               onDelete={handleDeleteCourse}
               onGenerateOutline={handleOpenAiOutline}
+              onViewDetails={(c) => setSelectedCourseForDetails(c)}
             />
           ))}
         </motion.div>
@@ -596,6 +723,7 @@ export function CoursesGridClient({
             columns={listColumns}
             data={paginatedCourses}
             rowKey={(row) => row.id}
+            onRowClick={(row) => setSelectedCourseForDetails(row)}
           />
         </motion.div>
       )}
@@ -626,18 +754,42 @@ export function CoursesGridClient({
         anchorEl={activeMenuAnchor}
       />
 
-      {/* Modals */}
+      {/* Course Creation Modal */}
       <CreateCourseModal
         isOpen={isCreateOpen}
         onClose={() => setCreateOpen(false)}
         onCreate={(newCourse) => setCourses((prev) => [newCourse, ...prev])}
+        onOpenCategoryManager={() => setCategoryOpen(true)}
       />
 
+      {/* AI Syllabus Generation Modal */}
       <AiSyllabusModal
         isOpen={isAiOpen}
         onClose={() => setAiOpen(false)}
         defaultTitle={aiModalTitle}
         onApplyOutline={handleApplyAiOutline}
+      />
+
+      {/* Category Management Modal */}
+      <CategoryManagementModal
+        isOpen={isCategoryOpen}
+        onClose={() => setCategoryOpen(false)}
+        onCategoryCreated={(newCat) => {
+          if (!categories.includes(newCat.name)) {
+            setCategories((prev) => [...prev, newCat.name]);
+          }
+        }}
+      />
+
+      {/* Coursera / Udemy Course Details & Syllabus Inspector Modal */}
+      <CourseDetailsModal
+        course={selectedCourseForDetails}
+        isOpen={Boolean(selectedCourseForDetails)}
+        onClose={() => setSelectedCourseForDetails(null)}
+        onOpenAiOutline={(c) => {
+          setSelectedCourseForDetails(null);
+          handleOpenAiOutline(c);
+        }}
       />
     </div>
   );

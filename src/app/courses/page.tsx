@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 import PrimaryButton from "@/components/ui/primary-button";
 import SecondaryButton from "@/components/ui/secondary-button";
-import { RotateCw, Sparkles, Plus } from "lucide-react";
+import { RotateCw, Sparkles, Plus, FolderPlus } from "lucide-react";
 import { toast } from "sonner";
 
 export default function CoursesManagementPage() {
@@ -16,6 +16,7 @@ export default function CoursesManagementPage() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isAiOpen, setIsAiOpen] = useState(false);
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -71,6 +72,13 @@ export default function CoursesManagementPage() {
         </SecondaryButton>
 
         <SecondaryButton
+          leftIcon={<FolderPlus className="w-4 h-4 text-[#1C4D8D]" />}
+          onClick={() => setIsCategoryOpen(true)}
+        >
+          Categories
+        </SecondaryButton>
+
+        <SecondaryButton
           leftIcon={<Sparkles className="w-4 h-4 text-purple-600" />}
           onClick={() => setIsAiOpen(true)}
         >
@@ -90,6 +98,8 @@ export default function CoursesManagementPage() {
         setIsCreateModalOpen={setIsCreateOpen}
         isAiModalOpen={isAiOpen}
         setIsAiModalOpen={setIsAiOpen}
+        isCategoryModalOpen={isCategoryOpen}
+        setIsCategoryModalOpen={setIsCategoryOpen}
       />
     </motion.div>
   );

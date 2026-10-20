@@ -85,16 +85,32 @@ export const ordersApi = {
 };
 
 export const coursesApi = {
-  getAll: async () => {
-    const res = await apiClient.get("/courses");
+  getAll: async (params?: any) => {
+    const res = await apiClient.get("/courses", { params });
+    return res.data;
+  },
+  getOne: async (id: string) => {
+    const res = await apiClient.get(`/courses/${id}`);
     return res.data;
   },
   create: async (data: any) => {
     const res = await apiClient.post("/courses", data);
     return res.data;
   },
+  update: async (id: string, data: any) => {
+    const res = await apiClient.patch(`/courses/${id}`, data);
+    return res.data;
+  },
   delete: async (id: string) => {
     const res = await apiClient.delete(`/courses/${id}`);
+    return res.data;
+  },
+  createModule: async (courseId: string, data: { title: string; description?: string; order: number }) => {
+    const res = await apiClient.post(`/courses/${courseId}/modules`, data);
+    return res.data;
+  },
+  createLesson: async (courseId: string, moduleId: string, data: any) => {
+    const res = await apiClient.post(`/courses/${courseId}/modules/${moduleId}/lessons`, data);
     return res.data;
   },
 };
@@ -102,6 +118,18 @@ export const coursesApi = {
 export const categoriesApi = {
   getAll: async () => {
     const res = await apiClient.get("/categories");
+    return res.data;
+  },
+  create: async (data: { name: string; slug: string; description?: string; icon?: string }) => {
+    const res = await apiClient.post("/categories", data);
+    return res.data;
+  },
+  update: async (id: string, data: { name?: string; description?: string; status?: string }) => {
+    const res = await apiClient.patch(`/categories/${id}`, data);
+    return res.data;
+  },
+  delete: async (id: string) => {
+    const res = await apiClient.delete(`/categories/${id}`);
     return res.data;
   },
 };

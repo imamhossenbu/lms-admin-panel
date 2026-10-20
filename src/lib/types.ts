@@ -20,17 +20,60 @@ export interface AdminUserItem {
   createdAt: string;
 }
 
+export interface CourseLessonItem {
+  id: string;
+  title: string;
+  type?: "VIDEO" | "ARTICLE" | "QUIZ";
+  videoUrl?: string;
+  durationMinutes: number;
+  order: number;
+  isPreview?: boolean;
+}
+
+export interface CourseModuleItem {
+  id: string;
+  title: string;
+  description?: string;
+  order: number;
+  durationMinutes?: number;
+  lessons: CourseLessonItem[];
+}
+
+export interface AdminCategoryItem {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  icon?: string;
+  status: "ACTIVE" | "INACTIVE";
+  _count?: { courses: number };
+  courseCount?: number;
+}
+
 export interface AdminCourseItem {
   id: string;
   title: string;
   slug: string;
+  thumbnail?: string;
+  description?: string;
+  shortDescription?: string;
   price: number;
   isFree: boolean;
   status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
   category: { id: string; name: string };
+  level?: "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "ALL_LEVELS";
+  language?: string;
+  durationMinutes?: number;
   totalStudents: number;
   ratingAverage: number;
   instructorName?: string;
+  instructorAvatar?: string;
+  requirements?: string[];
+  learningOutcomes?: string[];
+  modules?: CourseModuleItem[];
+  totalLessons?: number;
+  totalDuration?: string;
+  createdAt?: string;
 }
 
 export interface AdminOrder {
