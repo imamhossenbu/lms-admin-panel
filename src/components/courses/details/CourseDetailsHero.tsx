@@ -6,6 +6,7 @@ import { AdminCourseItem } from "@/lib/types";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 import { TagBadge } from "@/components/ui/TagBadge";
 import { Avatar } from "@/components/ui/Avatar";
+import PrimaryButton from "@/components/ui/primary-button";
 import SecondaryButton from "@/components/ui/secondary-button";
 import {
   Users,
@@ -14,13 +15,15 @@ import {
   PlayCircle,
   Layers,
   Sparkles,
+  Edit3,
 } from "lucide-react";
 import { SVG_FALLBACK } from "../constants";
 
 interface CourseDetailsHeroProps {
   course: AdminCourseItem;
   formattedHours: string;
-  onClose: () => void;
+  onClose?: () => void;
+  onEditCourse?: (course: AdminCourseItem) => void;
   onOpenAiOutline?: (course: AdminCourseItem) => void;
   onManageCurriculum?: (course: AdminCourseItem) => void;
 }
@@ -29,6 +32,7 @@ export function CourseDetailsHero({
   course,
   formattedHours,
   onClose,
+  onEditCourse,
   onOpenAiOutline,
   onManageCurriculum,
 }: CourseDetailsHeroProps) {
@@ -141,23 +145,19 @@ export function CourseDetailsHero({
             </div>
 
             <div className="flex items-center gap-2">
-              <SecondaryButton
-                size="sm"
-                icon={<Layers className="w-3.5 h-3.5 text-[#1C4D8D]" />}
-                onClick={() => {
-                  onClose();
-                  onManageCurriculum?.(course);
-                }}
-              >
-                Edit Curriculum
-              </SecondaryButton>
-              <SecondaryButton
-                size="sm"
-                icon={<Sparkles className="w-3.5 h-3.5 text-purple-600" />}
-                onClick={() => onOpenAiOutline?.(course)}
-              >
-                AI Syllabus
-              </SecondaryButton>
+              {onEditCourse && (
+                <PrimaryButton
+                  size="sm"
+                  icon={<Edit3 className="w-3.5 h-3.5" />}
+                  onClick={() => {
+                    onClose?.();
+                    onEditCourse(course);
+                  }}
+                  className="bg-white text-[#0F2854] hover:bg-slate-100 font-bold border-none"
+                >
+                  Edit Course in Studio
+                </PrimaryButton>
+              )}
             </div>
           </div>
         </div>

@@ -3,8 +3,6 @@
 import React, { useState } from "react";
 import { CourseModuleItem } from "@/lib/types";
 import { ToneBadge } from "@/components/ui/ToneBadge";
-import PrimaryButton from "@/components/ui/primary-button";
-import SecondaryButton from "@/components/ui/secondary-button";
 import {
   ChevronDown,
   ChevronUp,
@@ -13,41 +11,31 @@ import {
   HelpCircle,
   Clock,
   Eye,
-  Plus,
-  Edit3,
-  Trash2,
   ExternalLink,
+  BookOpen,
 } from "lucide-react";
 
 interface CourseDetailsSyllabusProps {
   displayModules: CourseModuleItem[];
   totalLessons: number;
   formattedHours: string;
-  onOpenCurriculumBuilder?: () => void;
-  onAddModule?: () => void;
-  onEditModule?: (module: CourseModuleItem) => void;
-  onDeleteModule?: (moduleId: string, moduleTitle: string) => void;
-  onAddLesson?: (moduleId: string) => void;
-  onEditLesson?: (moduleId: string, lesson: any) => void;
-  onDeleteLesson?: (moduleId: string, lessonId: string, lessonTitle: string) => void;
 }
 
 export function CourseDetailsSyllabus({
   displayModules,
   totalLessons,
   formattedHours,
-  onOpenCurriculumBuilder,
-  onAddModule,
-  onEditModule,
-  onDeleteModule,
-  onAddLesson,
-  onEditLesson,
-  onDeleteLesson,
 }: CourseDetailsSyllabusProps) {
-  const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>({
-    "mod-1": true,
-    "mod-2": true,
+  // Expand first module by default
+  const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>(() => {
+    const initial: Record<string, boolean> = {};
+    if (displayModules && displayModules.length > 0) {
+      initial[displayModules[0].id] = true;
+    }
+    return initial;
   });
+
+  const [selectedLessonContent, setSelectedLessonContent] = useState<string | null>(null);
 
   const toggleModule = (modId: string) => {
     setExpandedModules((prev) => ({ ...prev, [modId]: !prev[modId] }));
@@ -73,48 +61,30 @@ export function CourseDetailsSyllabus({
             Curriculum & Instructional Syllabus
           </h3>
           <p className="body-xsm-regular subtext-500 mt-0.5">
-            {displayModules.length} Modules • {totalLessons} Lessons • {formattedHours} Total Length
+            {displayModules.length} Modules • {totalLessons} Lessons • {formattedHours} Total Duration
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          {onAddModule && (
-            <SecondaryButton
-              size="sm"
-              icon={<Plus className="w-3.5 h-3.5" />}
-              onClick={onAddModule}
-            >
-              Add Module
-            </SecondaryButton>
-          )}
-
-          {onOpenCurriculumBuilder && (
-            <PrimaryButton
-              size="sm"
-              icon={<Edit3 className="w-3.5 h-3.5" />}
-              onClick={onOpenCurriculumBuilder}
-            >
-              Curriculum Builder & Lessons Studio
-            </PrimaryButton>
-          )}
+          <span className="body-xsm-medium px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+            Read-Only Syllabus Overview
+          </span>
         </div>
       </div>
 
       {/* Accordion List of Modules */}
       <div className="space-y-3">
         {displayModules.length === 0 ? (
-          <div className="py-10 text-center rounded-[10px] border border-dashed border-[#EDEDED] bg-white">
-            <p className="body-sm-medium text-primary-500 font-semibold mb-1">
-              No modules in this curriculum yet
+          <div className="py-12 text-center rounded-[10px] border border-dashed border-[#EDEDED] bg-white space-y-2">
+            <div className="w-10 h-10 rounded-full bg-slate-50 text-slate-400 flex items-center justify-center mx-auto">
+              <BookOpen className="w-5 h-5" />
+            </div>
+            <p className="body-sm-medium text-primary-500 font-semibold">
+              No modules published in this curriculum yet
             </p>
-            <p className="body-xsm-regular subtext-500 mb-3">
-              Click below to author your first module or launch the AI syllabus generator.
+            <p className="body-xsm-regular subtext-500 max-w-sm mx-auto">
+              Switch to Course Edit Studio to author chapters, lesson notes, video streams, or generate syllabus via AI.
             </p>
-            {onAddModule && (
-              <PrimaryButton size="sm" icon={<Plus className="w-3.5 h-3.5" />} onClick={onAddModule}>
-                Create First Module
-              </PrimaryButton>
-            )}
           </div>
         ) : (
           displayModules.map((module, mIdx) => {
@@ -138,51 +108,17 @@ export function CourseDetailsSyllabus({
                         {module.title}
                       </span>
                       <span className="body-xsm-regular subtext-500">
-                        {module.lessons.length} lectures • {Math.round(module.durationMinutes || 45)} mins
+                        {(module.lessons || []).length} lectures • {Math.round(module.durationMinutes || 0)} mins
                         {module.description && ` • ${module.description}`}
                       </span>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1.5 shrink-0" onClick={(e) => e.stopPropagation()}>
-                    {onAddLesson && (
-                      <button
-                        type="button"
-                        onClick={() => onAddLesson(module.id)}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-[6px] bg-white border border-[#EDEDED] hover:border-[#1C4D8D] text-[#1C4D8D] body-xsm-medium transition-colors cursor-pointer shadow-2xs mr-1"
-                        title="Add Lesson to this Module"
-                      >
-                        <Plus className="w-3 h-3" />
-                        <span>Add Lesson</span>
-                      </button>
-                    )}
-
-                    {onEditModule && (
-                      <button
-                        type="button"
-                        onClick={() => onEditModule(module)}
-                        className="p-1.5 rounded-[6px] text-primary-400 hover:text-[#1C4D8D] hover:bg-white transition-colors cursor-pointer"
-                        title="Edit Module Details"
-                      >
-                        <Edit3 className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-
-                    {onDeleteModule && (
-                      <button
-                        type="button"
-                        onClick={() => onDeleteModule(module.id, module.title)}
-                        className="p-1.5 rounded-[6px] text-primary-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
-                        title="Delete Module"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-
+                  <div className="flex items-center gap-2 shrink-0">
                     <button
                       type="button"
-                      onClick={() => toggleModule(module.id)}
-                      className="p-1 rounded text-primary-400 hover:text-primary-500 cursor-pointer ml-1"
+                      aria-label="Toggle module accordion"
+                      className="p-1 rounded text-primary-400 hover:text-primary-500 cursor-pointer"
                     >
                       {isExpanded ? (
                         <ChevronUp className="w-4 h-4 text-primary-300" />
@@ -196,90 +132,90 @@ export function CourseDetailsSyllabus({
                 {/* Lesson Items inside Module */}
                 {isExpanded && (
                   <div className="divide-y divide-[#EDEDED] px-4 py-1">
-                    {module.lessons.length === 0 ? (
+                    {(module.lessons || []).length === 0 ? (
                       <div className="py-4 text-center text-primary-400 body-xsm-regular">
-                        <span>No lessons in this module yet. </span>
-                        {onAddLesson && (
-                          <button
-                            type="button"
-                            onClick={() => onAddLesson(module.id)}
-                            className="text-[#1C4D8D] font-bold hover:underline cursor-pointer ml-1"
-                          >
-                            + Add lesson now
-                          </button>
-                        )}
+                        <span>No lessons added to this module yet.</span>
                       </div>
                     ) : (
-                      module.lessons.map((lesson) => (
+                      module.lessons.map((lesson, lIdx) => (
                         <div
                           key={lesson.id}
-                          onClick={() => onEditLesson?.(module.id, lesson)}
-                          className="py-2.5 flex items-center justify-between gap-3 text-left hover:bg-blue-50/40 px-2 rounded-md transition-colors cursor-pointer group/lesson"
+                          className="py-2.5 flex flex-col gap-2 text-left hover:bg-slate-50/60 px-2 rounded-md transition-colors"
                         >
-                          <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center shrink-0 group-hover/lesson:bg-blue-100 transition-colors">
-                              {getLessonIcon(lesson.type)}
-                            </div>
-                            <div className="min-w-0">
-                              <span className="body-sm-regular text-primary-500 font-medium block truncate group-hover/lesson:text-[#1C4D8D] transition-colors">
-                                {lesson.title}
-                              </span>
-                              {lesson.content && (
-                                <span className="body-2xsm-regular subtext-500 line-clamp-1">
-                                  {lesson.content.substring(0, 70)}...
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-3 min-w-0">
+                              <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center shrink-0 text-slate-600 font-medium text-xs">
+                                {mIdx + 1}.{lIdx + 1}
+                              </div>
+                              <div className="flex items-center gap-2 min-w-0">
+                                {getLessonIcon(lesson.type)}
+                                <span className="body-sm-regular text-primary-500 font-medium truncate">
+                                  {lesson.title}
                                 </span>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2 shrink-0">
+                              {lesson.isPreview && (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                  <Eye className="w-3 h-3" />
+                                  <span>Free Preview</span>
+                                </span>
+                              )}
+
+                              <span className="body-xsm-regular subtext-500 flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                <span>{lesson.durationMinutes || 15}m</span>
+                              </span>
+
+                              <ToneBadge
+                                tone={
+                                  lesson.type === "VIDEO"
+                                    ? "blue"
+                                    : lesson.type === "QUIZ"
+                                    ? "purple"
+                                    : "orange"
+                                }
+                                size="sm"
+                              >
+                                {lesson.type || "VIDEO"}
+                              </ToneBadge>
+
+                              {lesson.videoUrl && (
+                                <a
+                                  href={lesson.videoUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1 text-[11px] text-[#1C4D8D] font-medium hover:underline ml-1"
+                                  title="Open lecture stream in new tab"
+                                >
+                                  <ExternalLink className="w-3 h-3" />
+                                  <span>Stream</span>
+                                </a>
+                              )}
+
+                              {lesson.content && (
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setSelectedLessonContent(
+                                      selectedLessonContent === lesson.id ? null : lesson.id
+                                    )
+                                  }
+                                  className="text-[11px] text-slate-500 hover:text-slate-900 border border-slate-200 px-2 py-0.5 rounded cursor-pointer transition-colors"
+                                >
+                                  {selectedLessonContent === lesson.id ? "Hide Notes" : "View Notes"}
+                                </button>
                               )}
                             </div>
                           </div>
 
-                          <div className="flex items-center gap-2.5 shrink-0" onClick={(e) => e.stopPropagation()}>
-                            {lesson.isPreview && (
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                <Eye className="w-3 h-3" />
-                                <span>Preview</span>
-                              </span>
-                            )}
-
-                            <span className="body-xsm-regular subtext-500 flex items-center gap-1">
-                              <Clock className="w-3 h-3" />
-                              <span>{lesson.durationMinutes || 15}m</span>
-                            </span>
-
-                            <ToneBadge
-                              tone={
-                                lesson.type === "VIDEO"
-                                  ? "blue"
-                                  : lesson.type === "QUIZ"
-                                  ? "purple"
-                                  : "orange"
-                              }
-                              size="sm"
-                            >
-                              {lesson.type || "VIDEO"}
-                            </ToneBadge>
-
-                            {onEditLesson && (
-                              <button
-                                type="button"
-                                onClick={() => onEditLesson(module.id, lesson)}
-                                className="p-1.5 rounded-[6px] text-primary-400 hover:text-[#1C4D8D] hover:bg-white transition-colors cursor-pointer"
-                                title="Edit Lesson Content"
-                              >
-                                <Edit3 className="w-3.5 h-3.5" />
-                              </button>
-                            )}
-
-                            {onDeleteLesson && (
-                              <button
-                                type="button"
-                                onClick={() => onDeleteLesson(module.id, lesson.id, lesson.title)}
-                                className="p-1.5 rounded-[6px] text-primary-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
-                                title="Delete Lesson"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            )}
-                          </div>
+                          {/* Expandable Content Preview */}
+                          {selectedLessonContent === lesson.id && lesson.content && (
+                            <div className="mt-1 p-3 rounded bg-slate-50 border border-slate-200 body-xsm-regular text-slate-700 whitespace-pre-wrap max-h-48 overflow-y-auto">
+                              {lesson.content}
+                            </div>
+                          )}
                         </div>
                       ))
                     )}

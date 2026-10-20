@@ -475,66 +475,62 @@ export default function EditCoursePage() {
       for (let i = 0; i < aiDraftOutline.modules.length; i++) {
         const rawMod = aiDraftOutline.modules[i];
         const modOrder = modules.length + i + 1;
+        const modTitle = (rawMod.moduleTitle || (rawMod as any).title || `Module ${modOrder}`).trim();
+        const modDesc = rawMod.description || "";
 
-        let createdMod: any;
-        try {
-          createdMod = await coursesApi.createModule(courseId, {
-            title: rawMod.moduleTitle,
-            description: rawMod.description,
-            order: modOrder,
-          });
-        } catch {
-          createdMod = { id: `mod-ai-${Date.now()}-${i}` };
+        const createdMod = await coursesApi.createModule(courseId, {
+          title: modTitle,
+          description: modDesc,
+          order: modOrder,
+        });
+
+        const moduleId = createdMod?.id;
+        if (!moduleId) {
+          throw new Error(`Failed to create module "${modTitle}" in database.`);
         }
-
-        const moduleId = createdMod.id;
-        const createdLessons: LessonItem[] = [];
 
         if (Array.isArray(rawMod.lessons)) {
           for (let j = 0; j < rawMod.lessons.length; j++) {
             const rawLes = rawMod.lessons[j];
-            let createdLes: any;
-            try {
-              createdLes = await coursesApi.createLesson(courseId, moduleId, {
-                title: rawLes.title,
-                type: rawLes.type || "VIDEO",
-                durationMinutes: rawLes.durationMinutes || 15,
-                order: j + 1,
-              });
-            } catch {
-              createdLes = { id: `les-ai-${Date.now()}-${i}-${j}` };
-            }
+            const lesTitle = (
+              typeof rawLes === "string"
+                ? rawLes
+                : rawLes.title || (rawLes as any).summary || `Lesson ${j + 1}`
+            ).trim();
+            const lesType =
+              typeof rawLes === "object" && rawLes.type ? rawLes.type : "VIDEO";
+            const lesDuration =
+              typeof rawLes === "object" && rawLes.durationMinutes
+                ? Number(rawLes.durationMinutes)
+                : 15;
+            const lesContent =
+              typeof rawLes === "object"
+                ? rawLes.summary || (rawLes as any).content || null
+                : null;
 
-            createdLessons.push({
-              id: createdLes?.id || `les-ai-${Date.now()}-${i}-${j}`,
-              title: rawLes.title,
-              type: rawLes.type || "VIDEO",
-              durationMinutes: rawLes.durationMinutes || 15,
+            await coursesApi.createLesson(courseId, moduleId, {
+              title: lesTitle,
+              type: lesType,
+              durationMinutes: lesDuration,
               order: j + 1,
-              content: rawLes.summary,
+              content: lesContent,
             });
           }
         }
-
-        setModules((prev) => [
-          ...prev,
-          {
-            id: moduleId,
-            title: rawMod.moduleTitle,
-            description: rawMod.description,
-            order: modOrder,
-            lessons: createdLessons,
-          },
-        ]);
       }
 
       setAiDraftOutline(null);
-      toast.success("AI Curriculum Applied to Course!", {
+      await fetchCourseData();
+      toast.success("AI Curriculum Applied & Synchronized!", {
         id: toastId,
-        description: "All synthesized chapters and lessons are now in your course.",
+        description: "All synthesized chapters and lessons are stored in the database.",
       });
-    } catch {
-      toast.error("Failed to apply all modules");
+    } catch (err: any) {
+      console.error("AI application error:", err);
+      toast.error(err?.response?.data?.message || err?.message || "Failed to apply AI curriculum", {
+        id: toastId,
+      });
+      await fetchCourseData();
     } finally {
       setIsApplyingAi(false);
     }
