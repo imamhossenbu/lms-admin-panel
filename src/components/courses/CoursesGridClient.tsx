@@ -91,7 +91,7 @@ const INITIAL_COURSES: AdminCourseItem[] = [
     title: "Foundations of TypeScript 6 & Clean Code",
     slug: "typescript-foundations",
     thumbnail:
-      "https://images.unsplash.com/photo-1516116211227-bbc07b22a087?q=80&w=800&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=800&auto=format&fit=crop",
     shortDescription:
       "Type safety, generics, decorators, and clean domain-driven architecture.",
     price: 0,

@@ -40,7 +40,7 @@ const FALLBACK_BANNERS: Record<string, string> = {
   "Cloud & DevOps":
     "https://images.unsplash.com/photo-1667372393119-3d4c48d07fc9?q=80&w=800&auto=format&fit=crop",
   "Software Engineering":
-    "https://images.unsplash.com/photo-1516116211227-bbc07b22a087?q=80&w=800&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=800&auto=format&fit=crop",
   Cybersecurity:
     "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=800&auto=format&fit=crop",
 };
@@ -109,6 +109,11 @@ export function CourseCard({
             alt={course.title}
             fill
             unoptimized
+            onError={(e) => {
+              const target = e.currentTarget as HTMLImageElement;
+              target.src =
+                "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=800&auto=format&fit=crop";
+            }}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="object-cover transition-transform duration-500 group-hover:scale-105"
           />

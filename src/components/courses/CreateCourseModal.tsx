@@ -60,7 +60,7 @@ const PRESET_BANNERS = [
   },
   {
     name: "TypeScript Engineering",
-    url: "https://images.unsplash.com/photo-1516116211227-bbc07b22a087?q=80&w=800&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=800&auto=format&fit=crop",
   },
   {
     name: "Python & Machine Learning",
@@ -374,6 +374,11 @@ export function CreateCourseModal({
                 alt="Course banner preview"
                 fill
                 unoptimized
+                onError={() => {
+                  setThumbnail(
+                    "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=800&auto=format&fit=crop"
+                  );
+                }}
                 sizes="(max-width: 768px) 100vw, 300px"
                 className="object-cover"
               />
@@ -453,6 +458,11 @@ export function CreateCourseModal({
                         alt={preset.name}
                         fill
                         unoptimized
+                        onError={(e) => {
+                          const target = e.currentTarget as HTMLImageElement;
+                          target.src =
+                            "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=800&auto=format&fit=crop";
+                        }}
                         sizes="100px"
                         className="object-cover"
                       />
