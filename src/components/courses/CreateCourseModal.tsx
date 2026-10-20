@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import Image from "next/image";
+import React, { useState, useEffect } from "react";
 import { ModalShell } from "@/components/ui/ModalShell";
 import { InputField } from "@/components/ui/InputField";
 import { DropdownSelect } from "@/components/ui/DropdownSelect";
@@ -10,25 +9,14 @@ import SecondaryButton from "@/components/ui/secondary-button";
 import { AdminCourseItem } from "@/lib/types";
 import { coursesApi, categoriesApi } from "@/lib/api";
 import { toast } from "sonner";
+import { Plus, FolderPlus, Sparkles } from "lucide-react";
+import { CourseBannerPicker } from "./CourseBannerPicker";
+import { QuickCategoryAdd } from "./QuickCategoryAdd";
 import {
-  Plus,
-  Image as ImageIcon,
-  FolderPlus,
-  Sparkles,
-  Layers,
-  Clock,
-  Globe,
-  CheckCircle2,
-  X,
-  UploadCloud,
-  Loader2,
-} from "lucide-react";
-
-interface CategoryOption {
-  id: string;
-  name: string;
-  slug: string;
-}
+  PRESET_BANNERS,
+  DEFAULT_COURSE_CATEGORIES,
+  CategoryOption,
+} from "./constants";
 
 interface CreateCourseModalProps {
   isOpen: boolean;
@@ -36,47 +24,6 @@ interface CreateCourseModalProps {
   onCreate: (course: AdminCourseItem) => void;
   onOpenCategoryManager?: () => void;
 }
-
-const DEFAULT_CATEGORIES: CategoryOption[] = [
-  { id: "c1", name: "Fullstack Web", slug: "fullstack-web" },
-  { id: "c2", name: "Artificial Intelligence", slug: "artificial-intelligence" },
-  { id: "c3", name: "Cloud & DevOps", slug: "cloud-devops" },
-  { id: "c4", name: "Software Engineering", slug: "software-engineering" },
-  { id: "c5", name: "Cybersecurity", slug: "cybersecurity" },
-];
-
-const DEFAULT_FALLBACK_BANNER =
-  "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=800&auto=format&fit=crop";
-
-const SVG_FALLBACK =
-  "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='450' viewBox='0 0 800 450'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%231C4D8D'/%3E%3Cstop offset='100%25' stop-color='%230F2854'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='800' height='450' fill='url(%23g)'/%3E%3Ctext x='50%25' y='50%25' fill='white' font-family='sans-serif' font-size='26' font-weight='600' text-anchor='middle' dy='.3em'%3ECourse Banner%3C/text%3E%3C/svg%3E";
-
-const PRESET_BANNERS = [
-  {
-    name: "AI & Neural Networks",
-    url: "https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=800&auto=format&fit=crop",
-  },
-  {
-    name: "Modern React & Next.js",
-    url: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=800&auto=format&fit=crop",
-  },
-  {
-    name: "Cloud, Docker & DevOps",
-    url: "https://images.unsplash.com/photo-1667372393119-3d4c48d07fc9?q=80&w=800&auto=format&fit=crop",
-  },
-  {
-    name: "TypeScript Engineering",
-    url: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=800&auto=format&fit=crop",
-  },
-  {
-    name: "Python & Machine Learning",
-    url: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=800&auto=format&fit=crop",
-  },
-  {
-    name: "Cybersecurity & Cryptography",
-    url: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=800&auto=format&fit=crop",
-  },
-];
 
 export function CreateCourseModal({
   isOpen,
@@ -87,410 +34,185 @@ export function CreateCourseModal({
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
   const [selectedCategoryName, setSelectedCategoryName] = useState(
-    DEFAULT_CATEGORIES[0].name
+    DEFAULT_COURSE_CATEGORIES[0].name
   );
   const [price, setPrice] = useState<number>(99);
   const [isFree, setIsFree] = useState(false);
   const [status, setStatus] = useState<"DRAFT" | "PUBLISHED">("PUBLISHED");
-  const [level, setLevel] = useState<"BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "ALL_LEVELS">("INTERMEDIATE");
+  const [level, setLevel] = useState<
+    "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "ALL_LEVELS"
+  >("INTERMEDIATE");
   const [language, setLanguage] = useState("English");
   const [durationHours, setDurationHours] = useState<number>(18);
   const [thumbnail, setThumbnail] = useState(PRESET_BANNERS[0].url);
   const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleDeviceImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-      toast.error("Invalid file type", {
-        description: "Please select an image file (PNG, JPG, WebP, etc.)",
-      });
-      return;
-    }
-
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error("Image file too large", {
-        description: "Please select an image smaller than 10MB.",
-      });
-      return;
-    }
-
-    setSelectedFileName(file.name);
-    // Instant local preview
-    const previewUrl = URL.createObjectURL(file);
-    setThumbnail(previewUrl);
-
-    // Upload to Cloudinary via backend
-    setIsUploadingImage(true);
-    const toastId = toast.loading("Uploading to Cloudinary Cloud CDN...", {
-      description: `Optimizing and uploading ${file.name}`,
-    });
-
-    try {
-      const res = await coursesApi.uploadThumbnail(file);
-      if (res && res.url) {
-        setThumbnail(res.url);
-        toast.success("Uploaded to Cloudinary!", {
-          id: toastId,
-          description: "Course thumbnail securely hosted on Cloudinary CDN.",
-          icon: <CheckCircle2 className="w-5 h-5 text-emerald-500" />,
-        });
-      }
-    } catch (err: any) {
-      console.warn("Cloudinary upload fallback to local preview:", err);
-      toast.info("Using local preview", {
-        id: toastId,
-        description: "Image loaded locally and will be synchronized.",
-      });
-    } finally {
-      setIsUploadingImage(false);
-    }
-  };
-
-  const [instructorName, setInstructorName] = useState("");
-  const [shortDescription, setShortDescription] = useState("");
-  const [description, setDescription] = useState("");
-  const [learningOutcomes, setLearningOutcomes] = useState("");
-  const [requirements, setRequirements] = useState("");
-
-  const [categories, setCategories] = useState<CategoryOption[]>(DEFAULT_CATEGORIES);
+  // Dynamic Categories from API
+  const [categories, setCategories] = useState<CategoryOption[]>(
+    DEFAULT_COURSE_CATEGORIES
+  );
+  const [isQuickCategoryOpen, setIsQuickCategoryOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Quick category creation dialog inside course modal
-  const [isQuickCategoryOpen, setIsQuickCategoryOpen] = useState(false);
-  const [quickCategoryName, setQuickCategoryName] = useState("");
-
   useEffect(() => {
-    async function loadBackendCategories() {
+    if (!isOpen) return;
+
+    let isMounted = true;
+    const fetchCats = async () => {
       try {
-        const data = await categoriesApi.getAll();
-        if (Array.isArray(data) && data.length > 0) {
-          const formatted = data.map((item: any) => ({
-            id: item.id,
-            name: item.name,
-            slug: item.slug || item.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+        const fetched = await categoriesApi.getAll();
+        if (isMounted && Array.isArray(fetched) && fetched.length > 0) {
+          const mapped: CategoryOption[] = fetched.map((c) => ({
+            id: c.id,
+            name: c.name,
+            slug: c.slug,
           }));
-          const map = new Map<string, CategoryOption>();
-          DEFAULT_CATEGORIES.forEach((item) => map.set(item.name, item));
-          formatted.forEach((item: CategoryOption) => map.set(item.name, item));
-          setCategories(Array.from(map.values()));
+          setCategories(mapped);
+          setSelectedCategoryName(mapped[0].name);
         }
-      } catch {
-        // Keep defaults
+      } catch (err) {
+        console.warn("Using default category options:", err);
       }
-    }
-    if (isOpen) {
-      loadBackendCategories();
-    }
+    };
+
+    fetchCats();
+    return () => {
+      isMounted = false;
+    };
   }, [isOpen]);
 
   const handleTitleChange = (val: string) => {
     setTitle(val);
-    const generated = val
+    const autoSlug = val
       .toLowerCase()
       .trim()
-      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/[^\w\s-]/g, "")
+      .replace(/[\s_-]+/g, "-")
       .replace(/^-+|-+$/g, "");
-    setSlug(generated);
+    setSlug(autoSlug);
   };
 
-  const handleQuickAddCategory = async () => {
-    if (!quickCategoryName.trim()) {
-      toast.error("Category name required");
-      return;
-    }
-    const catSlug = quickCategoryName.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-");
-    const newCat: CategoryOption = {
-      id: `cat-${Date.now()}`,
-      name: quickCategoryName.trim(),
-      slug: catSlug,
-    };
-
-    try {
-      const created = await categoriesApi.create({
-        name: newCat.name,
-        slug: newCat.slug,
-      });
-      if (created && created.id) newCat.id = created.id;
-    } catch (err) {
-      console.warn("Category saved locally in form state:", err);
-    }
-
+  const handleCategoryCreated = (newCat: CategoryOption) => {
     setCategories((prev) => [newCat, ...prev]);
     setSelectedCategoryName(newCat.name);
-    setQuickCategoryName("");
-    setIsQuickCategoryOpen(false);
-    toast.success(`Category "${newCat.name}" added and selected!`);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!title.trim()) {
-      toast.error("Course title is required.");
+      toast.error("Validation Error", {
+        description: "Course title is required.",
+      });
       return;
     }
 
-    const finalSlug =
-      slug.trim() ||
-      title
-        .toLowerCase()
-        .trim()
-        .replace(/[^a-z0-9]+/g, "-");
-
-    const matchedCategory =
-      categories.find((c) => c.name === selectedCategoryName) || categories[0];
-
     setIsSubmitting(true);
+    const selectedCat = categories.find((c) => c.name === selectedCategoryName);
 
-    const outcomesArray = learningOutcomes
-      .split("\n")
-      .map((s) => s.trim())
-      .filter(Boolean);
-
-    const requirementsArray = requirements
-      .split("\n")
-      .map((s) => s.trim())
-      .filter(Boolean);
-
-    const newCourse: AdminCourseItem = {
-      id: `crs-${Date.now()}`,
+    const payload = {
       title: title.trim(),
-      slug: finalSlug,
-      thumbnail: thumbnail.trim(),
-      description: description.trim() || `${title.trim()} - Comprehensive Coursera/Udemy style curriculum.`,
-      shortDescription: shortDescription.trim() || title.trim(),
-      price: isFree ? 0 : Number(price),
+      slug:
+        slug.trim() ||
+        title
+          .toLowerCase()
+          .replace(/[^\w\s-]/g, "")
+          .replace(/[\s_-]+/g, "-"),
+      thumbnail,
+      price: isFree ? 0 : Number(price) || 0,
       isFree,
       status,
       level,
       language,
       durationMinutes: durationHours * 60,
-      totalDuration: `${durationHours} Hours`,
-      category: {
-        id: matchedCategory.id,
-        name: matchedCategory.name,
-      },
-      totalStudents: 0,
-      ratingAverage: 5.0,
-      instructorName: instructorName.trim() || "Faculty Instructor",
-      learningOutcomes: outcomesArray.length > 0 ? outcomesArray : undefined,
-      requirements: requirementsArray.length > 0 ? requirementsArray : undefined,
+      categoryId: selectedCat?.id || undefined,
     };
 
     try {
-      await coursesApi.create({
-        title: newCourse.title,
-        slug: newCourse.slug,
-        thumbnail: newCourse.thumbnail,
-        description: newCourse.description,
-        shortDescription: newCourse.shortDescription,
-        categoryId: matchedCategory.id,
-        level: level,
-        language: language,
-        price: newCourse.price,
-        isFree: newCourse.isFree,
-        status: newCourse.status,
-        durationMinutes: newCourse.durationMinutes,
-        requirements: requirementsArray.join("\n"),
-        learningOutcomes: outcomesArray.join("\n"),
+      const created = await coursesApi.create(payload);
+      toast.success("Course Created Successfully!", {
+        description: `"${created.title}" is now added to your catalog.`,
       });
-    } catch (err) {
-      console.warn("Backend course sync notice (saved locally in catalog):", err);
-    } finally {
-      onCreate(newCourse);
-      toast.success(`Course "${newCourse.title}" successfully added!`, {
-        description: `Status: ${status} • Category: ${matchedCategory.name} • ${durationHours}h Curriculum`,
-      });
-      setIsSubmitting(false);
-      setTitle("");
-      setSlug("");
-      setDescription("");
-      setShortDescription("");
+      onCreate(created);
       onClose();
+    } catch (err: any) {
+      console.warn("Backend API create fallback to optimistic local state:", err);
+      const fallbackCourse: AdminCourseItem = {
+        id: `crs-${Date.now()}`,
+        ...payload,
+        totalDuration: `${durationHours} Hours`,
+        category: {
+          id: selectedCat?.id || "c1",
+          name: selectedCat?.name || selectedCategoryName || "General",
+        },
+        totalStudents: 0,
+        ratingAverage: 5.0,
+      };
+      onCreate(fallbackCourse);
+      toast.success("Course Created (Local Demo)", {
+        description: `"${fallbackCourse.title}" is live in your catalog.`,
+      });
+      onClose();
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const categoryOptions = categories.map((c) => ({
-    value: c.name,
     label: c.name,
+    value: c.name,
   }));
 
-  const statusOptions = [
-    { value: "PUBLISHED", label: "Published (Available to students)" },
-    { value: "DRAFT", label: "Draft (Under construction)" },
-  ];
-
   const levelOptions = [
-    { value: "BEGINNER", label: "Beginner (Foundations)" },
-    { value: "INTERMEDIATE", label: "Intermediate (Core Practice)" },
-    { value: "ADVANCED", label: "Advanced (Enterprise Mastery)" },
-    { value: "ALL_LEVELS", label: "All Levels (Comprehensive)" },
+    { label: "All Levels", value: "ALL_LEVELS" },
+    { label: "Beginner", value: "BEGINNER" },
+    { label: "Intermediate", value: "INTERMEDIATE" },
+    { label: "Advanced", value: "ADVANCED" },
   ];
 
-  const languageOptions = [
-    { value: "English", label: "English" },
-    { value: "Bengali", label: "Bengali (বাংলা)" },
-    { value: "Spanish", label: "Spanish (Español)" },
+  const statusOptions = [
+    { label: "Published (Live for Students)", value: "PUBLISHED" },
+    { label: "Draft (Internal Planning)", value: "DRAFT" },
   ];
 
   return (
     <ModalShell
       isOpen={isOpen}
       onClose={onClose}
-      title="Create New Academic Course"
-      subtitle="Define curriculum metadata, banner image, syllabus requirements, and pricing tier."
+      title="Create New Course"
+      subtitle="Publish a new curriculum with 16:9 banner, modules, and lessons"
       maxWidth="2xl"
       footer={
         <div className="flex items-center justify-end gap-3 w-full">
-          <SecondaryButton onClick={onClose} disabled={isSubmitting}>
+          <SecondaryButton type="button" onClick={onClose} disabled={isSubmitting}>
             Cancel
           </SecondaryButton>
           <PrimaryButton
+            type="submit"
             onClick={handleSubmit}
-            isLoading={isSubmitting}
-            leftIcon={<Plus className="w-4 h-4" />}
+            disabled={isSubmitting || !title.trim()}
+            icon={isSubmitting ? undefined : <Plus className="w-4 h-4" />}
           >
-            Add Course to Catalog
+            {isSubmitting ? "Creating Course..." : "Add Course to Catalog"}
           </PrimaryButton>
         </div>
       }
     >
       <form onSubmit={handleSubmit} className="space-y-5 text-left">
-        {/* ================= 1. 16:9 BANNER IMAGE & LIVE PREVIEW ================= */}
-        <div className="space-y-3 p-4 rounded-[12px] bg-[#F8F9FA] border border-[#EDEDED]">
-          <div className="flex items-center justify-between">
-            <label className="body-sm-medium text-primary-500 font-semibold flex items-center gap-2">
-              <ImageIcon className="w-4 h-4 text-[#1C4D8D]" />
-              <span>Course Banner / Thumbnail Image (16:9 Aspect Ratio)</span>
-            </label>
-            <span className="body-xsm-regular subtext-500">
-              Matches Coursera & Udemy card dimensions
-            </span>
-          </div>
+        {/* Banner Image & Device / Cloudinary Upload */}
+        <CourseBannerPicker
+          thumbnail={thumbnail}
+          onThumbnailChange={setThumbnail}
+          title={title}
+          selectedCategoryName={selectedCategoryName}
+          level={level}
+          selectedFileName={selectedFileName}
+          onSelectedFileNameChange={setSelectedFileName}
+          isUploadingImage={isUploadingImage}
+          onIsUploadingChange={setIsUploadingImage}
+        />
 
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
-            {/* Live 16:9 Thumbnail Preview */}
-            <div className="md:col-span-5 relative aspect-video rounded-[10px] overflow-hidden border border-[#EDEDED] bg-slate-900 shadow-sm">
-              <Image
-                src={thumbnail}
-                alt="Course banner preview"
-                fill
-                unoptimized
-                onError={() => {
-                  if (thumbnail !== DEFAULT_FALLBACK_BANNER) {
-                    setThumbnail(DEFAULT_FALLBACK_BANNER);
-                  } else {
-                    setThumbnail(SVG_FALLBACK);
-                  }
-                }}
-                sizes="(max-width: 768px) 100vw, 300px"
-                className="object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />
-              <div className="absolute bottom-2 left-2.5 right-2.5 text-white">
-                <span className="body-xsm-medium font-bold block truncate">
-                  {title || "Course Title Preview"}
-                </span>
-                <span className="body-xsm-regular text-sky-200">
-                  {selectedCategoryName} • {level}
-                </span>
-              </div>
-            </div>
-
-            {/* Device Image Upload + Cloudinary Integration */}
-            <div className="md:col-span-7 space-y-2.5">
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/png, image/jpeg, image/webp, image/gif"
-                onChange={handleDeviceImageChange}
-                className="hidden"
-              />
-
-              <div
-                onClick={() => fileInputRef.current?.click()}
-                className="p-3.5 rounded-[10px] border-2 border-dashed border-[#1C4D8D]/40 bg-white hover:bg-blue-50/40 transition-all cursor-pointer flex flex-col items-center justify-center text-center group"
-              >
-                <div className="w-9 h-9 rounded-full bg-blue-50 text-[#1C4D8D] flex items-center justify-center mb-1.5 group-hover:scale-105 transition-transform">
-                  {isUploadingImage ? (
-                    <Loader2 className="w-4 h-4 animate-spin text-[#1C4D8D]" />
-                  ) : (
-                    <UploadCloud className="w-4 h-4" />
-                  )}
-                </div>
-
-                <div className="space-y-0.5">
-                  <span className="body-sm-medium text-primary-500 font-bold block">
-                    {isUploadingImage
-                      ? "Uploading to Cloudinary CDN..."
-                      : selectedFileName
-                      ? `Selected: ${selectedFileName}`
-                      : "Choose Image from Device"}
-                  </span>
-                  <span className="body-xsm-regular subtext-500 block">
-                    Click to browse JPG, PNG, or WebP • Uploads to Cloudinary
-                  </span>
-                </div>
-
-                {thumbnail.includes("cloudinary.com") && (
-                  <div className="mt-2 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 body-xsm-medium border border-emerald-200">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Hosted on Cloudinary CDN</span>
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-1">
-                <span className="body-xsm-regular subtext-500 block">
-                  Or select a curated educational banner preset:
-                </span>
-                <div className="grid grid-cols-3 gap-2">
-                  {PRESET_BANNERS.map((preset, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => setThumbnail(preset.url)}
-                      className={`h-12 relative rounded-[6px] overflow-hidden border transition-all cursor-pointer ${
-                        thumbnail === preset.url
-                          ? "ring-2 ring-[#1C4D8D] border-transparent"
-                          : "border-[#EDEDED] opacity-75 hover:opacity-100"
-                      }`}
-                      title={preset.name}
-                    >
-                      <Image
-                        src={preset.url}
-                        alt={preset.name}
-                        fill
-                        unoptimized
-                        onError={(e) => {
-                          const target = e.currentTarget as HTMLImageElement;
-                          if (target.src !== DEFAULT_FALLBACK_BANNER) {
-                            target.src = DEFAULT_FALLBACK_BANNER;
-                          } else {
-                            target.src = SVG_FALLBACK;
-                          }
-                        }}
-                        sizes="100px"
-                        className="object-cover"
-                      />
-                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center p-1 text-center">
-                        <span className="text-[10px] text-white font-semibold leading-tight line-clamp-2">
-                          {preset.name}
-                        </span>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* ================= 2. TITLE & SLUG ================= */}
+        {/* Title & Slug */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <InputField
             label="Course Title"
@@ -508,7 +230,7 @@ export function CreateCourseModal({
           />
         </div>
 
-        {/* ================= 3. CATEGORY SELECTION + QUICK ADD ================= */}
+        {/* Category Selection + Quick Add */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <span className="body-sm-regular text-primary-400">Academic Category</span>
@@ -528,166 +250,62 @@ export function CreateCourseModal({
             onChange={(val) => setSelectedCategoryName(val)}
           />
 
-          {/* Inline Quick Category Add Form */}
-          {isQuickCategoryOpen && (
-            <div className="p-3 rounded-[8px] bg-[#EBF4FC] border border-[#BDE8F5]/80 space-y-2.5 animate-in fade-in duration-150">
-              <div className="flex items-center justify-between">
-                <span className="body-xsm-medium text-[#1C4D8D] font-bold">
-                  Quick Create Category
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setIsQuickCategoryOpen(false)}
-                  className="text-primary-300 hover:text-primary-500"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              </div>
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={quickCategoryName}
-                  onChange={(e) => setQuickCategoryName(e.target.value)}
-                  placeholder="e.g. Distributed Systems"
-                  className="flex-1 h-[36px] px-3 rounded-[6px] border border-[#EDEDED] bg-white text-primary-500 body-sm-regular outline-none focus:border-[#1C4D8D]"
-                />
-                <PrimaryButton size="sm" onClick={handleQuickAddCategory}>
-                  Create & Select
-                </PrimaryButton>
-              </div>
-            </div>
-          )}
+          <QuickCategoryAdd
+            isOpen={isQuickCategoryOpen}
+            onClose={() => setIsQuickCategoryOpen(false)}
+            onCategoryCreated={handleCategoryCreated}
+            onOpenCategoryManager={onOpenCategoryManager}
+          />
         </div>
 
-        {/* ================= 4. METADATA: LEVEL, LANGUAGE, DURATION ================= */}
+        {/* Pricing & Free Toggle */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
+          <InputField
+            label="Course Price ($ USD)"
+            type="number"
+            disabled={isFree}
+            value={isFree ? 0 : price}
+            onChange={(e) => setPrice(Number(e.target.value))}
+            placeholder="99"
+          />
+
+          <div className="flex items-center gap-2.5 pb-2">
+            <input
+              type="checkbox"
+              id="isFree"
+              checked={isFree}
+              onChange={(e) => setIsFree(e.target.checked)}
+              className="w-4 h-4 rounded border-gray-300 text-[#1C4D8D] focus:ring-[#1C4D8D] cursor-pointer"
+            />
+            <label htmlFor="isFree" className="body-sm-medium text-primary-500 cursor-pointer">
+              Offer as Free Open-Access Course
+            </label>
+          </div>
+        </div>
+
+        {/* Level, Duration & Status */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <DropdownSelect
-            fieldLabel="Target Level"
+            label="Target Audience Level"
             options={levelOptions}
             value={level}
             onChange={(val) => setLevel(val as any)}
           />
 
-          <DropdownSelect
-            fieldLabel="Instruction Language"
-            options={languageOptions}
-            value={language}
-            onChange={(val) => setLanguage(val)}
-          />
-
-          <div className="space-y-1.5">
-            <label className="body-sm-regular text-primary-400 block">
-              Estimated Duration (Hours)
-            </label>
-            <div className="relative flex items-center">
-              <Clock className="w-4 h-4 text-primary-300 absolute left-3 pointer-events-none" />
-              <input
-                type="number"
-                min="1"
-                step="1"
-                value={durationHours}
-                onChange={(e) => setDurationHours(Number(e.target.value))}
-                className="w-full h-[40px] pl-9 pr-3 rounded-[8px] border border-[#EDEDED] bg-white text-primary-500 body-sm-regular outline-none focus:border-[#1C4D8D]"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Instructor & Publication Status */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <InputField
-            label="Lead Instructor Name"
-            value={instructorName}
-            onChange={(e) => setInstructorName(e.target.value)}
-            placeholder="e.g. Dr. Alex Johnson"
+            label="Estimated Duration (Hours)"
+            type="number"
+            value={durationHours}
+            onChange={(e) => setDurationHours(Number(e.target.value))}
+            placeholder="18"
           />
 
           <DropdownSelect
-            fieldLabel="Publication State"
+            label="Publication Status"
             options={statusOptions}
             value={status}
             onChange={(val) => setStatus(val as any)}
           />
-        </div>
-
-        {/* ================= 5. PRICING TIER ================= */}
-        <div className="p-3.5 rounded-[10px] bg-[#F8F9FA] border border-[#EDEDED] space-y-3">
-          <label className="flex items-center gap-2 cursor-pointer select-none">
-            <input
-              type="checkbox"
-              checked={isFree}
-              onChange={(e) => setIsFree(e.target.checked)}
-              className="w-4 h-4 rounded border-gray-300 text-[#1C4D8D] focus:ring-[#1C4D8D] cursor-pointer"
-            />
-            <span className="body-sm-regular text-primary-500 font-semibold">
-              Offer this course with Free Student Enrollment
-            </span>
-          </label>
-
-          {!isFree && (
-            <div className="space-y-1.5 pt-1">
-              <label className="block body-sm-regular text-primary-400">
-                Tuition / Enrollment Price (USD)
-              </label>
-              <div className="relative flex items-center max-w-xs">
-                <span className="absolute left-3.5 text-primary-300 font-bold">$</span>
-                <input
-                  type="number"
-                  min="0"
-                  step="1"
-                  value={price}
-                  onChange={(e) => setPrice(Number(e.target.value))}
-                  className="w-full h-[40px] pl-8 pr-4 rounded-[8px] border border-[#EDEDED] bg-white text-primary-500 body-sm-regular outline-none focus:border-[#1C4D8D]"
-                />
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* ================= 6. DESCRIPTIONS & LEARNING OBJECTIVES ================= */}
-        <div className="space-y-4">
-          <div>
-            <label className="block body-sm-regular text-primary-400 mb-1.5">
-              Course Short Summary (Displayed on Coursera/Udemy search cards)
-            </label>
-            <input
-              type="text"
-              value={shortDescription}
-              onChange={(e) => setShortDescription(e.target.value)}
-              placeholder="e.g. Master React 19, Turbopack, and LLM integrations with real-world capstone microservices."
-              className="w-full h-[40px] px-3.5 rounded-[8px] border border-[#EDEDED] text-primary-500 body-sm-regular outline-none focus:border-[#1C4D8D] bg-white"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block body-sm-regular text-primary-400 mb-1.5 flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                <span>What Students Will Learn (One per line)</span>
-              </label>
-              <textarea
-                rows={3}
-                value={learningOutcomes}
-                onChange={(e) => setLearningOutcomes(e.target.value)}
-                placeholder="Build production Next.js 16 microservices&#10;Implement sub-second AI syllabus inference&#10;Deploy resilient PostgreSQL pools"
-                className="w-full p-3 rounded-[8px] border border-[#EDEDED] text-primary-500 body-sm-regular outline-none focus:border-[#1C4D8D] bg-white"
-              />
-            </div>
-
-            <div>
-              <label className="block body-sm-regular text-primary-400 mb-1.5 flex items-center gap-1.5">
-                <Layers className="w-3.5 h-3.5 text-[#1C4D8D]" />
-                <span>Prerequisites / Requirements (One per line)</span>
-              </label>
-              <textarea
-                rows={3}
-                value={requirements}
-                onChange={(e) => setRequirements(e.target.value)}
-                placeholder="Basic JavaScript/TypeScript knowledge&#10;Node.js 20+ installed on local machine&#10;Familiarity with REST APIs"
-                className="w-full p-3 rounded-[8px] border border-[#EDEDED] text-primary-500 body-sm-regular outline-none focus:border-[#1C4D8D] bg-white"
-              />
-            </div>
-          </div>
         </div>
       </form>
     </ModalShell>
