@@ -8,6 +8,7 @@ export interface LessonItem {
   videoUrl?: string | null;
   resources?: string | null;
   isPreview?: boolean;
+  quiz?: any;
 }
 
 export interface ModuleItem {

@@ -5,7 +5,7 @@ import { ModalShell } from "@/components/ui/ModalShell";
 import PrimaryButton from "@/components/ui/primary-button";
 import SecondaryButton from "@/components/ui/secondary-button";
 import { TagBadge } from "@/components/ui/TagBadge";
-import { coursesApi, aiApi } from "@/lib/api";
+import { coursesApi, aiApi, quizApi } from "@/lib/api";
 import { AdminCourseItem } from "@/lib/types";
 import { toast } from "sonner";
 import { AnimatePresence } from "framer-motion";
@@ -290,6 +290,25 @@ export function CurriculumBuilderModal({
           content: lessonData.content,
           resources: lessonData.resources,
         };
+
+        // If this is a QUIZ lesson, persist the quiz and its questions
+        const createdLessonId = res?.id;
+        if (lessonData.type === "QUIZ" && lessonData.quiz && createdLessonId) {
+          try {
+            await quizApi.create({
+              courseId: course.id,
+              lessonId: createdLessonId,
+              title: lessonData.title!,
+              description: lessonData.content || undefined,
+              timeLimitMinutes: lessonData.quiz.timeLimitMinutes || 15,
+              passingScore: lessonData.quiz.passingScore || 70,
+              questions: lessonData.quiz.questions || [],
+            });
+            toast.success("Quiz assessment and questions linked!");
+          } catch (qErr) {
+            console.warn("Quiz save on create:", qErr);
+          }
+        }
 
         setModules((prev) =>
           prev.map((m) =>
@@ -669,12 +688,14 @@ export function CurriculumBuilderModal({
         onSave={handleSaveModule}
       />
 
-      {/* Lesson Add/Edit Modal */}
+      {/* Lesson Add/Edit Modal (with full Markdown & Quiz content authoring) */}
       <CurriculumLessonModal
         isOpen={isLessonModalOpen}
         onClose={() => setIsLessonModalOpen(false)}
         moduleId={activeModuleForLesson}
         moduleTitle={targetModuleForModal?.title}
+        courseId={course?.id}
+        availableLessons={modules.flatMap((m) => m.lessons)}
         initialLesson={editingLesson}
         onSave={handleSaveLesson}
       />

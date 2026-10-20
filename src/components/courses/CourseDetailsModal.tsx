@@ -361,12 +361,14 @@ export function CourseDetailsModal({
         onSave={handleSaveModule}
       />
 
-      {/* Lesson Add/Edit Modal (with full Markdown content authoring) */}
+      {/* Lesson Add/Edit Modal (with full Markdown & Quiz content authoring) */}
       <CurriculumLessonModal
         isOpen={isLessonModalOpen}
         onClose={() => setIsLessonModalOpen(false)}
         moduleId={activeModuleForLesson}
         moduleTitle={targetModuleForModal?.title}
+        courseId={course?.id}
+        availableLessons={modules.flatMap((m) => m.lessons as any)}
         initialLesson={editingLesson}
         onSave={handleSaveLesson}
       />

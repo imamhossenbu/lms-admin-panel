@@ -230,6 +230,67 @@ export const aiApi = {
     const res = await apiClient.post("/ai/generate-course-outline", payload);
     return res.data;
   },
+  generateQuiz: async (payload: {
+    topic: string;
+    numQuestions?: number;
+    difficulty?: "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
+    lessonContent?: string;
+    lessonTitle?: string;
+  }) => {
+    const res = await apiClient.post("/ai/generate-quiz", payload);
+    return res.data;
+  },
+};
+
+export interface QuizQuestionItem {
+  id?: string;
+  questionText: string;
+  questionType?: string;
+  options: string[];
+  correctAnswer: string;
+  marks?: number;
+  explanation?: string;
+  order?: number;
+}
+
+export interface QuizItem {
+  id?: string;
+  courseId: string;
+  lessonId: string;
+  title: string;
+  description?: string;
+  timeLimitMinutes?: number;
+  passingScore?: number;
+  totalMarks?: number;
+  status?: string;
+  questions?: QuizQuestionItem[];
+}
+
+export const quizApi = {
+  create: async (data: Partial<QuizItem>) => {
+    const res = await apiClient.post("/quiz", data);
+    return res.data;
+  },
+  update: async (id: string, data: Partial<QuizItem>) => {
+    const res = await apiClient.patch(`/quiz/${id}`, data);
+    return res.data;
+  },
+  getOne: async (id: string) => {
+    const res = await apiClient.get(`/quiz/${id}`);
+    return res.data;
+  },
+  getByLesson: async (lessonId: string) => {
+    const res = await apiClient.get(`/quiz/lesson/${lessonId}`);
+    return res.data;
+  },
+  getByCourse: async (courseId: string) => {
+    const res = await apiClient.get(`/quiz/course/${courseId}`);
+    return res.data;
+  },
+  delete: async (id: string) => {
+    const res = await apiClient.delete(`/quiz/${id}`);
+    return res.data;
+  },
 };
 
 

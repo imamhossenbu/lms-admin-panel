@@ -18,12 +18,16 @@ import {
   Paperclip,
 } from "lucide-react";
 import { LessonItem } from "./types";
+import { CurriculumQuizManager } from "./CurriculumQuizManager";
+import { quizApi, QuizQuestionItem } from "@/lib/api";
 
 interface CurriculumLessonModalProps {
   isOpen: boolean;
   onClose: () => void;
   moduleId: string | null;
   moduleTitle?: string;
+  courseId?: string;
+  availableLessons?: LessonItem[];
   initialLesson?: LessonItem | null;
   onSave: (moduleId: string, lessonData: Partial<LessonItem>) => Promise<void>;
 }
@@ -33,6 +37,8 @@ export function CurriculumLessonModal({
   onClose,
   moduleId,
   moduleTitle,
+  courseId,
+  availableLessons = [],
   initialLesson,
   onSave,
 }: CurriculumLessonModalProps) {
@@ -43,6 +49,13 @@ export function CurriculumLessonModal({
   const [videoUrl, setVideoUrl] = useState("");
   const [content, setContent] = useState("");
   const [resources, setResources] = useState("");
+
+  // Quiz State
+  const [quizQuestions, setQuizQuestions] = useState<QuizQuestionItem[]>([]);
+  const [quizTimeLimit, setQuizTimeLimit] = useState<number>(15);
+  const [quizPassingScore, setQuizPassingScore] = useState<number>(70);
+  const [quizId, setQuizId] = useState<string | null>(null);
+  const [isLoadingQuiz, setIsLoadingQuiz] = useState<boolean>(false);
 
   const [isUploadingVideo, setIsUploadingVideo] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -57,6 +70,28 @@ export function CurriculumLessonModal({
       setVideoUrl(initialLesson.videoUrl || "");
       setContent(initialLesson.content || "");
       setResources(initialLesson.resources || "");
+
+      // If it's a QUIZ, fetch existing quiz from backend
+      if (initialLesson.type === "QUIZ" && initialLesson.id) {
+        setIsLoadingQuiz(true);
+        quizApi
+          .getByLesson(initialLesson.id)
+          .then((res) => {
+            if (res) {
+              setQuizId(res.id || null);
+              setQuizTimeLimit(res.timeLimitMinutes ?? 15);
+              setQuizPassingScore(res.passingScore ?? 70);
+              if (Array.isArray(res.questions) && res.questions.length > 0) {
+                setQuizQuestions(res.questions);
+              }
+            }
+          })
+          .catch(() => {})
+          .finally(() => setIsLoadingQuiz(false));
+      } else {
+        setQuizId(null);
+        setQuizQuestions([]);
+      }
     } else {
       setTitle("");
       setType("VIDEO");
@@ -65,6 +100,8 @@ export function CurriculumLessonModal({
       setVideoUrl("");
       setContent("");
       setResources("");
+      setQuizId(null);
+      setQuizQuestions([]);
     }
   }, [initialLesson, isOpen]);
 
@@ -108,6 +145,10 @@ export function CurriculumLessonModal({
       return;
     }
 
+    if (type === "QUIZ" && quizQuestions.length === 0) {
+      toast.warning("Please add or generate questions for this quiz assessment.");
+    }
+
     setIsSubmitting(true);
     try {
       await onSave(moduleId, {
@@ -119,7 +160,41 @@ export function CurriculumLessonModal({
         videoUrl: videoUrl.trim() || undefined,
         content: content.trim() || undefined,
         resources: resources.trim() || undefined,
+        quiz:
+          type === "QUIZ"
+            ? {
+                id: quizId,
+                title: title.trim(),
+                timeLimitMinutes: quizTimeLimit,
+                passingScore: quizPassingScore,
+                questions: quizQuestions,
+              }
+            : undefined,
       });
+
+      // If initialLesson exists, update or create quiz in backend directly
+      if (type === "QUIZ" && initialLesson?.id) {
+        try {
+          const payload = {
+            courseId: courseId || "",
+            lessonId: initialLesson.id,
+            title: title.trim(),
+            description: content.trim() || undefined,
+            timeLimitMinutes: quizTimeLimit,
+            passingScore: quizPassingScore,
+            questions: quizQuestions,
+          };
+          if (quizId) {
+            await quizApi.update(quizId, payload);
+          } else {
+            await quizApi.create(payload);
+          }
+          toast.success("Quiz assessment and questions synchronized!");
+        } catch (quizErr) {
+          console.warn("Quiz direct sync notice:", quizErr);
+        }
+      }
+
       onClose();
     } finally {
       setIsSubmitting(false);
@@ -306,6 +381,21 @@ export function CurriculumLessonModal({
               </div>
             )}
           </div>
+        )}
+
+        {/* ================= 2B. QUIZ ASSESSMENT & QUESTIONS (FOR QUIZ LESSONS) ================= */}
+        {type === "QUIZ" && (
+          <CurriculumQuizManager
+            quizTitle={title}
+            timeLimitMinutes={quizTimeLimit}
+            setTimeLimitMinutes={setQuizTimeLimit}
+            passingScore={quizPassingScore}
+            setPassingScore={setQuizPassingScore}
+            questions={quizQuestions}
+            setQuestions={setQuizQuestions}
+            availableLessons={availableLessons}
+            currentLessonId={initialLesson?.id}
+          />
         )}
 
         {/* ================= 3. LESSON CONTENT & LECTURE NOTES (TIPTAP NPM RICH TEXT ENGINE) ================= */}
