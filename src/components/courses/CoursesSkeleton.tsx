@@ -1,24 +1,26 @@
 import React from "react";
 import { Skeleton } from "@/components/ui/Skeleton";
 
-export function CoursesSkeleton() {
+export function CoursesSkeleton({ showHeader = false }: { showHeader?: boolean } = {}) {
   return (
     <div className="space-y-5 text-left animate-in fade-in duration-300">
-      {/* 1. Header Skeleton */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 w-full mb-[20px]">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2.5">
-            <Skeleton className="h-7 w-64 rounded-[8px]" />
-            <Skeleton className="h-6 w-24 rounded-[6px]" />
+      {/* 1. Header Skeleton (optional) */}
+      {showHeader && (
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 w-full mb-[20px]">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2.5">
+              <Skeleton className="h-7 w-64 rounded-[8px]" />
+              <Skeleton className="h-6 w-24 rounded-[6px]" />
+            </div>
+            <Skeleton className="h-4 w-96 max-w-full rounded-[6px]" />
           </div>
-          <Skeleton className="h-4 w-96 max-w-full rounded-[6px]" />
+          <div className="flex items-center gap-2.5">
+            <Skeleton className="h-10 w-20 rounded-[8px]" />
+            <Skeleton className="h-10 w-28 rounded-[8px]" />
+            <Skeleton className="h-10 w-36 rounded-[8px]" />
+          </div>
         </div>
-        <div className="flex items-center gap-2.5">
-          <Skeleton className="h-10 w-20 rounded-[8px]" />
-          <Skeleton className="h-10 w-28 rounded-[8px]" />
-          <Skeleton className="h-10 w-36 rounded-[8px]" />
-        </div>
-      </div>
+      )}
 
       {/* 2. KPI Metrics Ribbon Skeleton (4 cards) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 w-full">

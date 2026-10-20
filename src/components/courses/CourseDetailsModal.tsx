@@ -23,91 +23,6 @@ interface CourseDetailsModalProps {
   onCourseUpdated?: () => void;
 }
 
-const DEFAULT_FALLBACK_MODULES: CourseModuleItem[] = [
-  {
-    id: "mod-1",
-    title: "Module 1: Foundations & Architecture Design",
-    description: "Core architectural paradigms, environment setup, and framework fundamentals.",
-    order: 1,
-    durationMinutes: 145,
-    lessons: [
-      {
-        id: "les-1",
-        title: "01. Introduction to Enterprise Architecture & Course Roadmap",
-        type: "VIDEO",
-        durationMinutes: 18,
-        order: 1,
-        isPreview: true,
-        videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-        content: "Detailed overview of clean architecture patterns, domain-driven design, and course outcomes.",
-      },
-      {
-        id: "les-2",
-        title: "02. Setting up Turbopack, TypeScript 6 & Workspace Schemas",
-        type: "VIDEO",
-        durationMinutes: 24,
-        order: 2,
-        isPreview: true,
-        content: "Setting up local monorepos, strict tsconfig rules, and compiler performance tuning.",
-      },
-      {
-        id: "les-3",
-        title: "03. Component Tree Lifecycle & Server Actions Optimization",
-        type: "TEXT",
-        durationMinutes: 32,
-        order: 3,
-        isPreview: false,
-        content: "# Server Actions & Cache Invalidation\n\nLearn how React 19 RSCs interact with mutation boundaries and optimistic client UI updates.",
-      },
-      {
-        id: "les-4",
-        title: "04. Module Diagnostic Quiz & Architecture Exercise",
-        type: "QUIZ",
-        durationMinutes: 20,
-        order: 4,
-        isPreview: false,
-        content: "10-question assessment testing your understanding of component boundaries and data fetching paradigms.",
-      },
-    ],
-  },
-  {
-    id: "mod-2",
-    title: "Module 2: Advanced Telemetry, State & AI Orchestration",
-    description: "Production telemetry pipelines, sub-second inference, and PostgreSQL pooling.",
-    order: 2,
-    durationMinutes: 210,
-    lessons: [
-      {
-        id: "les-5",
-        title: "05. Microservices Authentication with Zero-Trust Tokens",
-        type: "VIDEO",
-        durationMinutes: 28,
-        order: 1,
-        isPreview: false,
-        content: "Implementing asymmetric JWT verification, refresh tokens, and rate-limiting guardrails.",
-      },
-      {
-        id: "les-6",
-        title: "06. Gemini 3.8 Flash Dual-Engine Streaming Pipeline",
-        type: "VIDEO",
-        durationMinutes: 35,
-        order: 2,
-        isPreview: false,
-        content: "Connecting Google AI Studio SDK with SSE response streams in NestJS gateways.",
-      },
-      {
-        id: "les-7",
-        title: "07. Database Connection Pooling with Neon Serverless pg-pool",
-        type: "TEXT",
-        durationMinutes: 30,
-        order: 3,
-        isPreview: false,
-        content: "# PostgreSQL Pooling in Serverless\n\nHow to configure Prisma and pgBouncer to avoid connection starvation during traffic spikes.",
-      },
-    ],
-  },
-];
-
 export function CourseDetailsModal({
   course,
   isOpen,
@@ -127,12 +42,12 @@ export function CourseDetailsModal({
   const [activeModuleForLesson, setActiveModuleForLesson] = useState<string | null>(null);
   const [editingLesson, setEditingLesson] = useState<LessonItem | null>(null);
 
-  // Initialize or fetch curriculum
+  // Initialize or fetch curriculum from real backend
   const loadCourseModules = async () => {
     if (!course?.id) return;
     try {
       const res = await coursesApi.getOne(course.id);
-      if (res && Array.isArray(res.modules) && res.modules.length > 0) {
+      if (res && Array.isArray(res.modules)) {
         setModules(res.modules);
         return;
       }
@@ -140,10 +55,10 @@ export function CourseDetailsModal({
       // Fallback
     }
 
-    if (course.modules && course.modules.length > 0) {
+    if (course.modules && Array.isArray(course.modules)) {
       setModules(course.modules);
     } else {
-      setModules(DEFAULT_FALLBACK_MODULES);
+      setModules([]);
     }
   };
 

@@ -23,7 +23,7 @@ import { CategoryFormModal } from "@/components/categories/CategoryFormModal";
 import { DeleteCategoryModal } from "@/components/categories/DeleteCategoryModal";
 
 export default function CategoriesManagementPage() {
-  const [categories, setCategories] = useState<AdminCategoryItem[]>(DEFAULT_CATEGORIES);
+  const [categories, setCategories] = useState<AdminCategoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -39,7 +39,7 @@ export default function CategoriesManagementPage() {
   const fetchCategories = async () => {
     try {
       const data = await categoriesApi.getAll();
-      if (Array.isArray(data) && data.length > 0) {
+      if (Array.isArray(data)) {
         const formatted: AdminCategoryItem[] = data.map((item: any) => ({
           id: item.id,
           name: item.name,
@@ -51,14 +51,13 @@ export default function CategoriesManagementPage() {
             courses: item._count?.courses ?? item.courses?.length ?? 0,
           },
         }));
-
-        const map = new Map<string, AdminCategoryItem>();
-        DEFAULT_CATEGORIES.forEach((cat) => map.set(cat.name, cat));
-        formatted.forEach((cat) => map.set(cat.name, cat));
-        setCategories(Array.from(map.values()));
+        setCategories(formatted);
+      } else {
+        setCategories([]);
       }
     } catch (err) {
-      console.warn("Using offline categories catalog:", err);
+      console.warn("Failed to load real categories:", err);
+      setCategories([]);
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
@@ -290,7 +289,25 @@ export default function CategoriesManagementPage() {
       </div>
 
       {/* Main Catalog View */}
-      {filteredCategories.length === 0 ? (
+      {isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[...Array(6)].map((_, i) => (
+            <div
+              key={i}
+              className="h-32 rounded-[12px] border border-[#EDEDED] bg-white p-4 animate-pulse space-y-3"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-slate-100" />
+                <div className="flex-1 space-y-1.5">
+                  <div className="h-4 w-28 bg-slate-100 rounded" />
+                  <div className="h-3 w-16 bg-slate-100 rounded" />
+                </div>
+              </div>
+              <div className="h-3 w-3/4 bg-slate-100 rounded" />
+            </div>
+          ))}
+        </div>
+      ) : filteredCategories.length === 0 ? (
         <div className="py-16 text-center rounded-[12px] border-2 border-dashed border-[#EDEDED] bg-[#F8F9FA]/40 space-y-3">
           <div className="w-12 h-12 rounded-full bg-blue-50 text-[#1C4D8D] flex items-center justify-center mx-auto">
             <FolderTree className="w-6 h-6" />

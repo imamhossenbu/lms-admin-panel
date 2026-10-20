@@ -17,7 +17,7 @@ import PrimaryButton from "@/components/ui/primary-button";
 import { AdminCourseItem, CourseModuleItem, CourseLessonItem } from "@/lib/types";
 import { coursesApi, categoriesApi } from "@/lib/api";
 import { toast } from "sonner";
-import { INITIAL_COURSES } from "./constants";
+import { CoursesSkeleton } from "./CoursesSkeleton";
 
 export interface CoursesGridClientProps {
   isCreateModalOpen?: boolean;
@@ -26,6 +26,7 @@ export interface CoursesGridClientProps {
   setIsAiModalOpen?: (open: boolean) => void;
   isCategoryModalOpen?: boolean;
   setIsCategoryModalOpen?: (open: boolean) => void;
+  refreshTrigger?: number;
 }
 
 export function CoursesGridClient({
@@ -35,8 +36,10 @@ export function CoursesGridClient({
   setIsAiModalOpen: propSetAiOpen,
   isCategoryModalOpen: propCategoryOpen,
   setIsCategoryModalOpen: propSetCategoryOpen,
+  refreshTrigger,
 }: CoursesGridClientProps = {}) {
-  const [courses, setCourses] = useState<AdminCourseItem[]>(INITIAL_COURSES);
+  const [courses, setCourses] = useState<AdminCourseItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("ALL");
@@ -67,13 +70,19 @@ export function CoursesGridClient({
 
   // Load courses & categories from backend
   const fetchCourses = async () => {
+    setIsLoading(true);
     try {
       const data = await coursesApi.getAll();
-      if (Array.isArray(data) && data.length > 0) {
+      if (Array.isArray(data)) {
         setCourses(data);
+      } else {
+        setCourses([]);
       }
     } catch (err) {
-      console.warn("Using offline demo catalog:", err);
+      console.warn("Failed to fetch real courses catalog:", err);
+      setCourses([]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -84,14 +93,14 @@ export function CoursesGridClient({
         setCategories(cats.map((c) => ({ id: c.id, name: c.name })));
       }
     } catch (err) {
-      console.warn("Using default categories for courses grid:", err);
+      console.warn("Failed to fetch real categories for courses grid:", err);
     }
   };
 
   useEffect(() => {
     fetchCourses();
     fetchCategories();
-  }, []);
+  }, [refreshTrigger]);
 
   const handleCreateCourse = (newCourse: AdminCourseItem) => {
     setCourses((prev) => [newCourse, ...prev]);
@@ -266,6 +275,10 @@ export function CoursesGridClient({
       label: `Free Open-Access (${courses.filter((c) => c.isFree).length})`,
     },
   ];
+
+  if (isLoading) {
+    return <CoursesSkeleton showHeader={false} />;
+  }
 
   return (
     <div className="space-y-6 text-left">

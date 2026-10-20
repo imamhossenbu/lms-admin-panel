@@ -12,33 +12,23 @@ import { RotateCw, Sparkles, Plus, FolderPlus } from "lucide-react";
 import { toast } from "sonner";
 
 export default function CoursesManagementPage() {
-  const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isAiOpen, setIsAiOpen] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 400);
-    return () => clearTimeout(timer);
-  }, []);
-
   const handleRefresh = () => {
     setIsRefreshing(true);
+    setRefreshTrigger((prev) => prev + 1);
     setTimeout(() => {
       setIsRefreshing(false);
       toast.success("Catalog Synchronized", {
         description: "Course registrations and syllabus definitions up to date.",
         icon: <Sparkles className="w-4 h-4 text-[#1C4D8D]" />,
       });
-    }, 500);
+    }, 400);
   };
-
-  if (isLoading || isRefreshing) {
-    return <CoursesSkeleton />;
-  }
 
   return (
     <motion.div
@@ -100,6 +90,7 @@ export default function CoursesManagementPage() {
         setIsAiModalOpen={setIsAiOpen}
         isCategoryModalOpen={isCategoryOpen}
         setIsCategoryModalOpen={setIsCategoryOpen}
+        refreshTrigger={refreshTrigger}
       />
     </motion.div>
   );

@@ -99,24 +99,23 @@ export function CategoryManagementModal({
       setIsLoading(true);
       try {
         const res = await categoriesApi.getAll();
-        if (Array.isArray(res) && res.length > 0) {
-          const map = new Map<string, AdminCategoryItem>();
-          DEFAULT_CATEGORIES.forEach((c) => map.set(c.slug, c));
-          res.forEach((c: any) =>
-            map.set(c.slug || c.name, {
-              id: c.id,
-              name: c.name,
-              slug: c.slug || c.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
-              description: c.description || "",
-              icon: c.icon || "📚",
-              status: (c.status as any) || "ACTIVE",
-              _count: c._count || { courses: 0 },
-            })
-          );
-          setCategories(Array.from(map.values()));
+        if (Array.isArray(res)) {
+          const formatted: AdminCategoryItem[] = res.map((c: any) => ({
+            id: c.id,
+            name: c.name,
+            slug: c.slug || c.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+            description: c.description || "",
+            icon: c.icon || "📚",
+            status: (c.status as any) || "ACTIVE",
+            _count: c._count || { courses: 0 },
+          }));
+          setCategories(formatted);
+        } else {
+          setCategories([]);
         }
       } catch (err) {
-        console.warn("Using offline categories list:", err);
+        console.warn("Failed to fetch real categories list:", err);
+        setCategories([]);
       } finally {
         setIsLoading(false);
       }

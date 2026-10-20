@@ -49,9 +49,7 @@ export function CreateCourseModal({
   const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   // Dynamic Categories from API
-  const [categories, setCategories] = useState<CategoryOption[]>(
-    DEFAULT_COURSE_CATEGORIES
-  );
+  const [categories, setCategories] = useState<CategoryOption[]>([]);
   const [isQuickCategoryOpen, setIsQuickCategoryOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -69,10 +67,10 @@ export function CreateCourseModal({
             slug: c.slug,
           }));
           setCategories(mapped);
-          setSelectedCategoryName(mapped[0].name);
+          setSelectedCategoryName((prev) => prev || mapped[0].name);
         }
       } catch (err) {
-        console.warn("Using default category options:", err);
+        console.warn("Failed to fetch real categories:", err);
       }
     };
 
