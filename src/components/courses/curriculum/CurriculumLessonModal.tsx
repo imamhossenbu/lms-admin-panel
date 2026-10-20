@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { ModalShell } from "@/components/ui/ModalShell";
 import { InputField } from "@/components/ui/InputField";
 import { DropdownSelect } from "@/components/ui/DropdownSelect";
+import { RichTextEditor } from "@/components/ui/RichTextEditor";
 import PrimaryButton from "@/components/ui/primary-button";
 import SecondaryButton from "@/components/ui/secondary-button";
 import { coursesApi } from "@/lib/api";
@@ -11,20 +12,10 @@ import { toast } from "sonner";
 import {
   PlayCircle,
   FileText,
-  HelpCircle,
   UploadCloud,
   CheckCircle2,
   Loader2,
-  Eye,
-  Bold,
-  Italic,
-  Heading,
-  List,
-  Code,
-  Quote,
-  Link as LinkIcon,
   Paperclip,
-  ExternalLink,
 } from "lucide-react";
 import { LessonItem } from "./types";
 
@@ -52,12 +43,10 @@ export function CurriculumLessonModal({
   const [videoUrl, setVideoUrl] = useState("");
   const [content, setContent] = useState("");
   const [resources, setResources] = useState("");
-  const [activeTab, setActiveTab] = useState<"edit" | "preview">("edit");
 
   const [isUploadingVideo, setIsUploadingVideo] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const videoInputRef = useRef<HTMLInputElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (initialLesson) {
@@ -77,33 +66,9 @@ export function CurriculumLessonModal({
       setContent("");
       setResources("");
     }
-    setActiveTab("edit");
   }, [initialLesson, isOpen]);
 
   if (!isOpen || !moduleId) return null;
-
-  // Formatting helpers for rich markdown content
-  const insertFormatting = (prefix: string, suffix: string = "") => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selectedText = content.substring(start, end) || "text";
-    const replacement = `${prefix}${selectedText}${suffix}`;
-
-    const newContent =
-      content.substring(0, start) + replacement + content.substring(end);
-    setContent(newContent);
-
-    setTimeout(() => {
-      textarea.focus();
-      textarea.setSelectionRange(
-        start + prefix.length,
-        start + prefix.length + selectedText.length
-      );
-    }, 10);
-  };
 
   const handleDeviceVideoUpload = async (
     e: React.ChangeEvent<HTMLInputElement>
@@ -343,141 +308,24 @@ export function CurriculumLessonModal({
           </div>
         )}
 
-        {/* ================= 3. LESSON CONTENT & LECTURE NOTES (TEXT/MARKDOWN) ================= */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <label className="body-sm-medium text-primary-500 font-semibold flex items-center gap-1.5">
-              <FileText className="w-4 h-4 text-[#1C4D8D]" />
-              <span>
-                {type === "VIDEO"
-                  ? "Lecture Summary & Supplementary Notes (Markdown)"
-                  : type === "QUIZ"
-                  ? "Quiz Description & Question Outline"
-                  : "Lesson Body & Detailed Reading Content (Markdown)"}
-              </span>
-            </label>
-
-            {/* Edit / Preview Tabs */}
-            <div className="flex items-center p-0.5 rounded-[6px] bg-[#F8F9FA] border border-[#EDEDED]">
-              <button
-                type="button"
-                onClick={() => setActiveTab("edit")}
-                className={`px-2.5 py-0.5 rounded-[4px] body-xsm-medium transition-all cursor-pointer ${
-                  activeTab === "edit"
-                    ? "bg-white text-[#1C4D8D] font-bold shadow-2xs"
-                    : "text-primary-400 hover:text-primary-500"
-                }`}
-              >
-                Author
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("preview")}
-                className={`px-2.5 py-0.5 rounded-[4px] body-xsm-medium transition-all cursor-pointer ${
-                  activeTab === "preview"
-                    ? "bg-white text-[#1C4D8D] font-bold shadow-2xs"
-                    : "text-primary-400 hover:text-primary-500"
-                }`}
-              >
-                Preview
-              </button>
-            </div>
-          </div>
-
-          {activeTab === "edit" ? (
-            <div className="rounded-[8px] border border-[#EDEDED] bg-white overflow-hidden focus-within:border-[#1C4D8D]">
-              {/* Markdown Toolbar */}
-              <div className="p-1.5 bg-[#F8F9FA] border-b border-[#EDEDED] flex items-center gap-1 flex-wrap">
-                <button
-                  type="button"
-                  onClick={() => insertFormatting("**", "**")}
-                  className="p-1.5 rounded hover:bg-gray-200 text-primary-500 cursor-pointer"
-                  title="Bold"
-                >
-                  <Bold className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => insertFormatting("*", "*")}
-                  className="p-1.5 rounded hover:bg-gray-200 text-primary-500 cursor-pointer"
-                  title="Italic"
-                >
-                  <Italic className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => insertFormatting("### ")}
-                  className="p-1.5 rounded hover:bg-gray-200 text-primary-500 cursor-pointer"
-                  title="Heading"
-                >
-                  <Heading className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => insertFormatting("- ")}
-                  className="p-1.5 rounded hover:bg-gray-200 text-primary-500 cursor-pointer"
-                  title="Bullet List"
-                >
-                  <List className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => insertFormatting("```typescript\n", "\n```")}
-                  className="p-1.5 rounded hover:bg-gray-200 text-primary-500 cursor-pointer"
-                  title="Code Block"
-                >
-                  <Code className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => insertFormatting("> ")}
-                  className="p-1.5 rounded hover:bg-gray-200 text-primary-500 cursor-pointer"
-                  title="Quote"
-                >
-                  <Quote className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => insertFormatting("[", "](https://...)")}
-                  className="p-1.5 rounded hover:bg-gray-200 text-primary-500 cursor-pointer"
-                  title="Link"
-                >
-                  <LinkIcon className="w-3.5 h-3.5" />
-                </button>
-              </div>
-
-              <textarea
-                ref={textareaRef}
-                rows={6}
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder={
-                  type === "TEXT"
-                    ? "# Lesson Overview\n\nExplain core concepts, architecture diagrams, and code snippets here...\n\n```ts\nexport function example() {}\n```"
-                    : "Key takeaways, lecture timestamps, exercise instructions, or reading resources..."
-                }
-                className="w-full p-3 body-sm-regular text-primary-500 placeholder:text-primary-300 focus:outline-none resize-y font-mono text-xs leading-relaxed"
-              />
-
-              <div className="p-1.5 bg-[#F8F9FA] border-t border-[#EDEDED] flex items-center justify-between text-[11px] text-primary-400">
-                <span>Supports full Markdown, code formatting, and lists</span>
-                <span>
-                  {wordCount} words • {content.length} characters
-                </span>
-              </div>
-            </div>
-          ) : (
-            <div className="p-4 rounded-[8px] border border-[#EDEDED] bg-white min-h-[160px] max-h-[300px] overflow-y-auto body-sm-regular text-primary-500 space-y-2 whitespace-pre-wrap">
-              {content ? (
-                content
-              ) : (
-                <span className="text-primary-300 italic">
-                  No lecture content typed yet. Switch to Author tab to write content.
-                </span>
-              )}
-            </div>
-          )}
-        </div>
+        {/* ================= 3. LESSON CONTENT & LECTURE NOTES (TIPTAP NPM RICH TEXT ENGINE) ================= */}
+        <RichTextEditor
+          label={
+            type === "VIDEO"
+              ? "Lecture Summary & Supplementary Notes (TipTap Editor)"
+              : type === "QUIZ"
+              ? "Quiz Description & Question Outline (TipTap Editor)"
+              : "Lesson Body & Detailed Reading Content (TipTap Editor)"
+          }
+          value={content}
+          onChange={setContent}
+          placeholder={
+            type === "TEXT"
+              ? "Write comprehensive lesson instructions, lecture notes, architecture guidelines, or code blocks..."
+              : "Key takeaways, lecture timestamps, exercise instructions, or reading resources..."
+          }
+          minHeight="180px"
+        />
 
         {/* ================= 4. DOWNLOADABLE ATTACHMENTS & RESOURCES ================= */}
         <InputField
