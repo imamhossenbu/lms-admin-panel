@@ -87,7 +87,13 @@ export const ordersApi = {
 export const coursesApi = {
   getAll: async (params?: any) => {
     const res = await apiClient.get("/courses", { params });
-    return res.data;
+    if (res.data && Array.isArray(res.data.data)) {
+      return res.data.data;
+    }
+    if (Array.isArray(res.data)) {
+      return res.data;
+    }
+    return [];
   },
   getOne: async (id: string) => {
     const res = await apiClient.get(`/courses/${id}`);
@@ -109,6 +115,16 @@ export const coursesApi = {
     const formData = new FormData();
     formData.append("file", file);
     const res = await apiClient.post<{ url: string }>("/courses/upload-thumbnail", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return res.data;
+  },
+  uploadMedia: async (file: File): Promise<{ url: string }> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await apiClient.post<{ url: string }>("/courses/upload-media", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -152,8 +168,9 @@ export const coursesApi = {
       type: string;
       durationMinutes: number;
       order: number;
-      content?: string;
-      videoUrl?: string;
+      content?: string | null;
+      videoUrl?: string | null;
+      resources?: string | null;
       isPreview?: boolean;
     }
   ) => {
@@ -169,8 +186,9 @@ export const coursesApi = {
       type?: string;
       durationMinutes?: number;
       order?: number;
-      content?: string;
-      videoUrl?: string;
+      content?: string | null;
+      videoUrl?: string | null;
+      resources?: string | null;
       isPreview?: boolean;
     }
   ) => {

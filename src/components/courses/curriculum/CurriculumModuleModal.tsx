@@ -10,7 +10,7 @@ import { ModuleItem } from "./types";
 interface CurriculumModuleModalProps {
   isOpen: boolean;
   onClose: () => void;
-  initialModule?: ModuleItem | null;
+  initialModule?: { title: string; description?: string | null } | null;
   onSave: (moduleData: { title: string; description?: string }) => Promise<void>;
 }
 

@@ -23,8 +23,10 @@ export interface AdminUserItem {
 export interface CourseLessonItem {
   id: string;
   title: string;
-  type?: "VIDEO" | "ARTICLE" | "QUIZ";
-  videoUrl?: string;
+  type?: "VIDEO" | "ARTICLE" | "QUIZ" | string;
+  videoUrl?: string | null;
+  content?: string | null;
+  resources?: string | null;
   durationMinutes: number;
   order: number;
   isPreview?: boolean;
@@ -36,6 +38,7 @@ export interface CourseModuleItem {
   description?: string;
   order: number;
   durationMinutes?: number;
+  isLocked?: boolean;
   lessons: CourseLessonItem[];
 }
 

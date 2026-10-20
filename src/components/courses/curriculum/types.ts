@@ -6,6 +6,7 @@ export interface LessonItem {
   order: number;
   content?: string | null;
   videoUrl?: string | null;
+  resources?: string | null;
   isPreview?: boolean;
 }
 

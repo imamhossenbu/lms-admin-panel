@@ -89,11 +89,19 @@ export function CurriculumBuilderModal({
         if (formatted.length > 0 && Object.keys(expandedModules).length === 0) {
           setExpandedModules({ [formatted[0].id]: true });
         }
+      } else if (course?.modules && course.modules.length > 0) {
+        setModules(course.modules as any);
+        setExpandedModules({ [course.modules[0].id]: true });
       } else {
         setModules([]);
       }
     } catch {
-      setModules([]);
+      if (course?.modules && course.modules.length > 0) {
+        setModules(course.modules as any);
+        setExpandedModules({ [course.modules[0].id]: true });
+      } else {
+        setModules([]);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -224,6 +232,8 @@ export function CurriculumBuilderModal({
           type: lessonData.type,
           durationMinutes: lessonData.durationMinutes,
           isPreview: lessonData.isPreview,
+          content: lessonData.content,
+          videoUrl: lessonData.videoUrl,
         });
 
         setModules((prev) =>
@@ -238,7 +248,7 @@ export function CurriculumBuilderModal({
               : m
           )
         );
-        toast.success("Lesson updated");
+        toast.success("Lesson content updated");
       } catch {
         setModules((prev) =>
           prev.map((m) =>
@@ -252,7 +262,7 @@ export function CurriculumBuilderModal({
               : m
           )
         );
-        toast.success("Lesson updated (local sync)");
+        toast.success("Lesson content updated (local sync)");
       }
     } else {
       const targetModule = modules.find((m) => m.id === moduleId);
@@ -265,6 +275,8 @@ export function CurriculumBuilderModal({
           durationMinutes: lessonData.durationMinutes || 15,
           order: nextOrder,
           isPreview: lessonData.isPreview,
+          content: lessonData.content,
+          videoUrl: lessonData.videoUrl,
         });
 
         const newLesson: LessonItem = {
@@ -275,6 +287,8 @@ export function CurriculumBuilderModal({
           order: nextOrder,
           isPreview: lessonData.isPreview,
           videoUrl: lessonData.videoUrl,
+          content: lessonData.content,
+          resources: lessonData.resources,
         };
 
         setModules((prev) =>
@@ -292,6 +306,8 @@ export function CurriculumBuilderModal({
           order: nextOrder,
           isPreview: lessonData.isPreview,
           videoUrl: lessonData.videoUrl,
+          content: lessonData.content,
+          resources: lessonData.resources,
         };
         setModules((prev) =>
           prev.map((m) =>
