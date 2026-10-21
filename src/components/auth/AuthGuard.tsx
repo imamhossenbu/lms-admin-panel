@@ -6,12 +6,23 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setCredentials, logout, setInitialized } from "@/store/slices/authSlice";
 import { authApi } from "@/lib/api";
 
+const PUBLIC_AUTH_ROUTES = ["/login", "/forgot-password", "/reset-password"];
+
+export function isPublicAuthRoute(pathname: string | null): boolean {
+  if (!pathname) return false;
+  return PUBLIC_AUTH_ROUTES.some(
+    (route) => pathname === route || pathname.startsWith(`${route}/`)
+  );
+}
+
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const dispatch = useAppDispatch();
   const { isAuthenticated } = useAppSelector((state) => state.auth);
   const [isClientReady, setIsClientReady] = useState(false);
+
+  const isAuthRoute = isPublicAuthRoute(pathname);
 
   useEffect(() => {
     try {
@@ -51,14 +62,14 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
           .catch((err) => {
             if (err.response?.status === 401) {
               dispatch(logout());
-              if (pathname !== "/login") {
+              if (!isAuthRoute) {
                 router.replace("/login");
               }
             }
           });
       } else {
         dispatch(setInitialized(true));
-        if (pathname !== "/login") {
+        if (!isAuthRoute) {
           router.replace("/login");
         }
       }
@@ -67,16 +78,16 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     } finally {
       setIsClientReady(true);
     }
-  }, [dispatch, pathname, router]);
+  }, [dispatch, pathname, router, isAuthRoute]);
 
-  // If on login route, render immediately without guard check
-  if (pathname === "/login") {
+  // If on public auth route, render immediately without guard check
+  if (isAuthRoute) {
     return <>{children}</>;
   }
 
   // Once client check completes and user is confirmed unauthenticated on protected route,
   // hide content while router redirects to /login
-  if (isClientReady && !isAuthenticated && pathname !== "/login") {
+  if (isClientReady && !isAuthenticated && !isAuthRoute) {
     return null;
   }
 

@@ -16,31 +16,28 @@ export function EduProCapIcon({ className = "w-8 h-8" }: { className?: string })
       xmlns="http://www.w3.org/2000/svg"
       className={className}
     >
-      <defs>
-        <linearGradient id="edupro-orange-grad" x1="6" y1="8" x2="42" y2="38" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#FF7A29" />
-          <stop offset="1" stopColor="#FF5B00" />
-        </linearGradient>
-        <linearGradient id="edupro-cap-depth" x1="10" y1="22" x2="38" y2="34" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E54E00" />
-          <stop offset="1" stopColor="#B33900" />
-        </linearGradient>
-      </defs>
+      {/* Cap Underside / Base Arc with Rich Shadow Depth */}
+      <path
+        d="M12 21.5V30C12 34 17.5 37 24 37C30.5 37 36 34 36 30V21.5L24 27.5L12 21.5Z"
+        fill="#C93F00"
+      />
 
       {/* Main Top Mortarboard Rhombus */}
       <path
         d="M24 7L44 17L24 27L4 17L24 7Z"
-        fill="url(#edupro-orange-grad)"
-        stroke="#FFFFFF"
-        strokeWidth="1.5"
-        strokeLinejoin="round"
+        fill="#FF5B00"
       />
 
-      {/* Cap Underside / Base Arc */}
+      {/* Subtle Top Cap Highlight Rim */}
       <path
-        d="M12 21.5V30C12 34 17.5 37 24 37C30.5 37 36 34 36 30V21.5L24 27.5L12 21.5Z"
-        fill="url(#edupro-cap-depth)"
+        d="M24 8L42 17L24 26L6 17L24 8Z"
+        stroke="#FF8038"
+        strokeWidth="1"
+        fill="none"
       />
+
+      {/* Center Cap Pin */}
+      <circle cx="24" cy="17" r="1.5" fill="#D94800" />
 
       {/* Tassel String */}
       <path
@@ -51,7 +48,7 @@ export function EduProCapIcon({ className = "w-8 h-8" }: { className?: string })
       />
 
       {/* Tassel Bobble */}
-      <circle cx="36.5" cy="35" r="2.5" fill="#FFD2B0" />
+      <circle cx="36.5" cy="35" r="2.5" fill="#FFA05C" />
     </svg>
   );
 }
@@ -87,12 +84,21 @@ export function EduProLogo({
         <div className="flex flex-col text-left leading-tight">
           <span
             className={`${
-              size === "lg" ? "title-medium" : "h6-medium"
+              size === "lg" ? "text-2xl" : size === "md" ? "text-xl" : "text-lg"
             } font-extrabold tracking-tight ${
               isLight ? "text-white" : "text-primary-500"
             }`}
           >
-            EduPro
+            {isLight ? (
+              "EduPro"
+            ) : variant === "orange" ? (
+              <>
+                <span className="text-[#111827]">Edu</span>
+                <span className="text-brand-orange">Pro</span>
+              </>
+            ) : (
+              "EduPro"
+            )}
           </span>
           {subtitle && (
             <span

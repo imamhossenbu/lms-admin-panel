@@ -4,11 +4,11 @@ import React, { Suspense } from "react";
 import { usePathname } from "next/navigation";
 import { AdminSidebar } from "./AdminSidebar";
 import { AdminNavbar } from "./AdminNavbar";
-import { AuthGuard } from "@/components/auth/AuthGuard";
+import { AuthGuard, isPublicAuthRoute } from "@/components/auth/AuthGuard";
 
 function AdminShellContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isAuthPage = pathname ? pathname.startsWith("/login") : false;
+  const isAuthPage = isPublicAuthRoute(pathname);
 
   if (isAuthPage) {
     return <AuthGuard>{children}</AuthGuard>;
