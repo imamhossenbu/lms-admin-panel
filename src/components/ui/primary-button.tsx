@@ -38,12 +38,12 @@ export const PrimaryButton = React.forwardRef<
   ) => {
     const effectiveLeftIcon = leftIcon || icon;
 
-    // User's Own Brand Palette (#1C4D8D) instead of agency's orange
+    // EduPro Brand Palette (#FF5B00)
     const variantStyles: Record<string, string> = {
       primary:
-        "bg-[#1C4D8D] hover:bg-[#0F2854] active:bg-[#0B1F3A] text-white shadow-sm border border-transparent",
+        "bg-[#FF5B00] hover:bg-[#EA5200] active:bg-[#D44900] text-white shadow-sm border border-transparent",
       secondary:
-        "bg-[#EBF4FC] hover:bg-[#D8EBF9] active:bg-[#C5E1F6] text-[#1C4D8D] border border-[#1C4D8D]/20",
+        "bg-[#FFF4ED] hover:bg-[#FFE8D9] active:bg-[#FFDEC9] text-[#FF5B00] border border-[#FF5B00]/20",
       outline:
         "bg-white hover:bg-[#F8FAFC] active:bg-[#F1F5F9] text-[#0E2038] border border-[#E5E7EB]",
       ghost:

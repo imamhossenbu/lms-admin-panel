@@ -1,19 +1,33 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { AppProviders } from "@/providers/AppProviders";
 import { AdminShell } from "@/components/layout/AdminShell";
 
-const jakarta = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  variable: "--font-jakarta",
+const aeonik = localFont({
+  src: [
+    { path: "./fonts/Aeonik-Air.ttf", weight: "100", style: "normal" },
+    { path: "./fonts/Aeonik-AirItalic.ttf", weight: "100", style: "italic" },
+    { path: "./fonts/Aeonik-Thin.ttf", weight: "200", style: "normal" },
+    { path: "./fonts/Aeonik-ThinItalic.ttf", weight: "200", style: "italic" },
+    { path: "./fonts/Aeonik-Light.ttf", weight: "300", style: "normal" },
+    { path: "./fonts/Aeonik-LightItalic.ttf", weight: "300", style: "italic" },
+    { path: "./fonts/Aeonik-Regular.ttf", weight: "400", style: "normal" },
+    { path: "./fonts/Aeonik-RegularItalic.ttf", weight: "400", style: "italic" },
+    { path: "./fonts/Aeonik-Medium.ttf", weight: "500", style: "normal" },
+    { path: "./fonts/Aeonik-MediumItalic.ttf", weight: "500", style: "italic" },
+    { path: "./fonts/Aeonik-Bold.ttf", weight: "700", style: "normal" },
+    { path: "./fonts/Aeonik-BoldItalic.ttf", weight: "700", style: "italic" },
+    { path: "./fonts/Aeonik-Black.ttf", weight: "900", style: "normal" },
+    { path: "./fonts/Aeonik-BlackItalic.ttf", weight: "900", style: "italic" },
+  ],
+  variable: "--font-aeonik",
   display: "swap",
-  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
-  title: "LMS AI — Enterprise Admin Dashboard",
-  description: "Next-gen Learning Management System Administrative Platform",
+  title: "EduPro — LMS Admin Panel",
+  description: "Empower Learning. Build Skills. Grow. Next-Gen LMS Platform",
 };
 
 export default function RootLayout({
@@ -22,8 +36,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={jakarta.variable}>
-      <body className="antialiased min-h-screen">
+    <html lang="en" className={aeonik.variable}>
+      <body className={`${aeonik.className} antialiased min-h-screen font-sans`}>
         <AppProviders>
           <AdminShell>{children}</AdminShell>
         </AppProviders>

@@ -45,7 +45,7 @@ export function RevenueChart() {
               onClick={() => setMetric("revenue")}
               className={`px-3 py-1 body-xsm-medium rounded-[6px] transition-all flex items-center gap-1.5 cursor-pointer ${
                 metric === "revenue"
-                  ? "bg-white text-[#1C4D8D] shadow-2xs border border-[#EDEDED]"
+                  ? "bg-white text-[#FF5B00] shadow-2xs border border-[#EDEDED]"
                   : "text-primary-400 hover:text-primary-500"
               }`}
             >
@@ -57,7 +57,7 @@ export function RevenueChart() {
               onClick={() => setMetric("enrollments")}
               className={`px-3 py-1 body-xsm-medium rounded-[6px] transition-all flex items-center gap-1.5 cursor-pointer ${
                 metric === "enrollments"
-                  ? "bg-white text-[#1C4D8D] shadow-2xs border border-[#EDEDED]"
+                  ? "bg-white text-[#FF5B00] shadow-2xs border border-[#EDEDED]"
                   : "text-primary-400 hover:text-primary-500"
               }`}
             >
@@ -105,8 +105,8 @@ export function RevenueChart() {
           >
             <defs>
               <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#2563EB" stopOpacity={0.35} />
-                <stop offset="95%" stopColor="#2563EB" stopOpacity={0.0} />
+                <stop offset="5%" stopColor="#FF5B00" stopOpacity={0.35} />
+                <stop offset="95%" stopColor="#FF5B00" stopOpacity={0.0} />
               </linearGradient>
               <linearGradient id="enrollmentGrad" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#0D9488" stopOpacity={0.35} />
@@ -135,19 +135,19 @@ export function RevenueChart() {
                 if (active && payload && payload.length) {
                   const data = payload[0].payload;
                   return (
-                    <div className="bg-[#0F2854] border border-[#1C355E] rounded-xl p-3 shadow-xl text-left text-white space-y-1">
-                      <p className="body-xsm-medium text-sky-200 uppercase tracking-wider">
+                    <div className="bg-[#0B0F19] border border-[#1E293B] rounded-xl p-3 shadow-xl text-left text-white space-y-1">
+                      <p className="body-xsm-medium text-amber-200 uppercase tracking-wider">
                         {label} 2026 Telemetry
                       </p>
                       <div className="flex items-center justify-between gap-4 body-sm-medium text-white">
                         <span>Revenue:</span>
-                        <span className="text-emerald-400">
+                        <span className="text-[#FF7A29] font-bold">
                           ${data.revenue.toLocaleString()}
                         </span>
                       </div>
                       <div className="flex items-center justify-between gap-4 body-xsm-regular text-slate-300">
                         <span>Enrollments:</span>
-                        <span className="font-semibold text-sky-300">
+                        <span className="font-semibold text-emerald-400">
                           {data.enrollments.toLocaleString()}
                         </span>
                       </div>
@@ -161,7 +161,7 @@ export function RevenueChart() {
               <Area
                 type="monotone"
                 dataKey="revenue"
-                stroke="#2563EB"
+                stroke="#FF5B00"
                 strokeWidth={3}
                 fillOpacity={1}
                 fill="url(#revenueGrad)"

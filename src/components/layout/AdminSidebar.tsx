@@ -19,6 +19,8 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { toggleSidebar } from "@/store/slices/uiSlice";
 import { cn } from "@/lib/cn";
 
+import { EduProCapIcon } from "@/components/ui/EduProLogo";
+
 const NAV_ITEMS = [
   { href: "/", label: "Overview", icon: LayoutDashboard },
   { href: "/users", label: "Users", icon: Users },
@@ -37,24 +39,24 @@ export function AdminSidebar() {
   return (
     <aside
       className={cn(
-        "h-screen sticky top-0 bg-[#0F2854] text-white flex flex-col justify-between transition-all duration-300 z-30 select-none border-r border-[#1C355E]",
+        "h-screen sticky top-0 bg-[#0B0F19] text-white flex flex-col justify-between transition-all duration-300 z-30 select-none border-r border-[#1E293B]",
         collapsed ? "w-[72px]" : "w-[260px]"
       )}
     >
       <div>
         {/* Brand Header */}
-        <div className="h-16 px-4 flex items-center justify-between border-b border-[#1C355E]">
+        <div className="h-16 px-4 flex items-center justify-between border-b border-[#1E293B]">
           <Link href="/" className="flex items-center gap-3 overflow-hidden">
-            <div className="w-10 h-10 rounded-xl bg-[#1C4D8D] flex items-center justify-center shrink-0 shadow-sm border border-[#4988C4]/40">
-              <GraduationCap className="w-6 h-6 text-[#BDE8F5]" />
+            <div className="w-10 h-10 rounded-xl bg-[#FF5B00]/15 flex items-center justify-center shrink-0 shadow-sm border border-[#FF5B00]/30">
+              <EduProCapIcon className="w-7 h-7" />
             </div>
             {!collapsed && (
               <div className="flex flex-col text-left">
-                <span className="h6-medium font-bold text-white tracking-tight">
-                  LMS AI
+                <span className="body-medium font-extrabold text-white tracking-tight">
+                  EduPro
                 </span>
-                <span className="body-xsm-regular text-[#BDE8F5]/80">
-                  Admin Workspace
+                <span className="body-xsm-regular text-slate-400">
+                  LMS Admin Panel
                 </span>
               </div>
             )}

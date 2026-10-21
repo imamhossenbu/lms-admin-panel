@@ -1,24 +1,37 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: var(--font-jakarta), system-ui, -apple-system, sans-serif;
-  --font-aeonik: var(--font-jakarta), system-ui, -apple-system, sans-serif;
-  --font-inter: var(--font-jakarta), system-ui, -apple-system, sans-serif;
+  --font-sans: var(--font-aeonik), system-ui, -apple-system, sans-serif;
+  --font-aeonik: var(--font-aeonik), system-ui, -apple-system, sans-serif;
+  --font-inter: var(--font-aeonik), system-ui, -apple-system, sans-serif;
 
   --breakpoint-xxl: 1400px;
   --breakpoint-2xl: 1400px;
   --breakpoint-3xl: 1600px;
 
-  --color-brand-primary: #1C4D8D;
-  --color-brand-navy: #0F2854;
-  --color-brand-accent: #4988C4;
-  --color-brand-ice: #BDE8F5;
-  --color-brand-ice-soft: #F0F9FD;
-  --color-brand-primary-light: #EBF4FC;
+  /* EduPro Brand Palette */
+  --color-brand-orange: #FF5B00;
+  --color-brand-orange-hover: #EA5200;
+  --color-brand-orange-active: #D44900;
+  --color-brand-orange-light: #FFF4ED;
+  --color-brand-orange-soft: #FFF9F5;
+  --color-brand-orange-10: rgba(255, 91, 0, 0.1);
+  --color-brand-orange-20: rgba(255, 91, 0, 0.2);
 
-  --color-primary-500: #0e2038;
-  --color-primary-400: #3e4d60;
-  --color-primary-300: #5e6a7a;
+  --color-brand-primary: #FF5B00;
+  --color-brand-navy: #0B101B;
+  --color-brand-dark: #070B13;
+  --color-brand-surface: #0E1626;
+  --color-brand-card: #131E33;
+  --color-brand-accent: #FF7A29;
+  --color-brand-ice: #FFF0E5;
+  --color-brand-ice-soft: #FFF7F2;
+  --color-brand-primary-light: #FFF4ED;
+
+  /* Classic/Legacy shades */
+  --color-primary-500: #0F172A;
+  --color-primary-400: #334155;
+  --color-primary-300: #64748B;
   --color-blue: #2570fc;
   --color-blue-14: #2570fc14;
   --color-green-bg: #e6ffee;
@@ -31,21 +44,29 @@
 }
 
 :root {
-  --font-sans: var(--font-jakarta), system-ui, -apple-system, sans-serif;
-  --font-aeonik: var(--font-jakarta), system-ui, -apple-system, sans-serif;
+  --font-sans: var(--font-aeonik), system-ui, -apple-system, sans-serif;
+  --font-aeonik: var(--font-aeonik), system-ui, -apple-system, sans-serif;
 
-  /* User's Own Brand Palette */
-  --color-brand-primary: #1C4D8D;
-  --color-brand-navy: #0F2854;
-  --color-brand-accent: #4988C4;
-  --color-brand-ice: #BDE8F5;
-  --color-brand-ice-soft: #F0F9FD;
-  --color-brand-primary-light: #EBF4FC;
+  /* EduPro Brand Palette */
+  --color-brand-orange: #FF5B00;
+  --color-brand-orange-hover: #EA5200;
+  --color-brand-orange-active: #D44900;
+  --color-brand-orange-light: #FFF4ED;
+  --color-brand-orange-soft: #FFF9F5;
+  --color-brand-primary: #FF5B00;
+  --color-brand-navy: #0B101B;
+  --color-brand-dark: #070B13;
+  --color-brand-surface: #0E1626;
+  --color-brand-card: #131E33;
+  --color-brand-accent: #FF7A29;
+  --color-brand-ice: #FFF0E5;
+  --color-brand-ice-soft: #FFF7F2;
+  --color-brand-primary-light: #FFF4ED;
 
   /* Typography / Text Palette */
-  --color-primary-text-500: #0e2038;
-  --color-primary-text-400: #3e4d60;
-  --color-primary-text-300: #5e6a7a;
+  --color-primary-text-500: #0F172A;
+  --color-primary-text-400: #334155;
+  --color-primary-text-300: #64748B;
   --color-blue: #2570fc;
   --color-blue-14: #2570fc14;
   --color-green-bg: #e6ffee;
@@ -56,12 +77,12 @@
   --color-purple-14: #c218fb14;
   --color-purple: #c218fb;
 
-  /* PURE WHITE Background */
+  /* Clean Surface Colors */
   --dash-bg: #FFFFFF;
   --dash-surface: #FFFFFF;
-  --dash-border: #EDEDED;
-  --dash-text: #0E2038;
-  --dash-muted: #5E6A7A;
+  --dash-border: #E2E8F0;
+  --dash-text: #0F172A;
+  --dash-muted: #64748B;
 }
 
 html,
@@ -79,40 +100,286 @@ body {
 *,
 ::before,
 ::after {
-  border-color: #EDEDED;
+  border-color: #E2E8F0;
 }
 
 /* ==========================================
-   Color Utility Classes (Matching Metabari Agency)
+   Color Utility Classes (EduPro Brand Theme + Legacy Compatibility)
    ========================================== */
-.text-primary-500 { color: #0e2038; }
-.text-primary-400 { color: #3e4d60; }
-.text-primary-300 { color: #5e6a7a; }
-.text-primary-text-500 { color: #0e2038; }
-.text-brand-primary { color: #1C4D8D; }
-.text-brand-navy { color: #0F2854; }
-.text-brand-accent { color: #4988C4; }
+.text-brand-orange { color: #FF5B00; }
+.text-brand-orange-hover:hover { color: #EA5200; }
+.text-brand-primary { color: #FF5B00; }
+.text-brand-navy { color: #0B101B; }
+.text-brand-accent { color: #FF7A29; }
+.text-brand-ice { color: #FFF0E5; }
+.text-brand-ice-soft { color: #FFF7F2; }
+.text-brand-primary-light { color: #FFF4ED; }
+.text-primary-500 { color: #0F172A; }
+.text-primary-400 { color: #334155; }
+.text-primary-300 { color: #64748B; }
+.text-primary-text-500 { color: #0F172A; }
 .text-blue { color: #2570fc; }
 .text-green { color: #0dc34a; }
 .text-red { color: #df1c41; }
 .text-red-dark { color: #be1c23; }
 .text-purple { color: #c218fb; }
-.subtext-500 { color: #7F8482; }
+.text-muted { color: #64748B; }
+.subtext-500 { color: #64748B; }
 
-.bg-brand-primary { background-color: #1C4D8D; }
-.bg-brand-navy { background-color: #0F2854; }
-.bg-brand-accent { background-color: #4988C4; }
-.bg-brand-light { background-color: #EBF4FC; }
+.bg-brand-orange { background-color: #FF5B00; }
+.bg-brand-orange:hover { background-color: #EA5200; }
+.bg-brand-primary { background-color: #FF5B00; }
+.bg-brand-primary:hover { background-color: #EA5200; }
+.bg-brand-navy { background-color: #0B101B; }
+.bg-brand-accent { background-color: #FF7A29; }
+.bg-brand-light { background-color: #FFF4ED; }
+.bg-brand-orange-light { background-color: #FFF4ED; }
+.bg-brand-ice { background-color: #FFF0E5; }
+.bg-brand-ice-soft { background-color: #FFF7F2; }
+.bg-brand-primary-light { background-color: #FFF4ED; }
 .bg-blue-14 { background-color: #2570fc14; }
 .bg-green-bg { background-color: #e6ffee; }
 .bg-red-14 { background-color: #df1c4114; }
 .bg-purple-14 { background-color: #c218fb14; }
 
+.border-brand-orange { border-color: #FF5B00; }
+.border-brand-primary { border-color: #FF5B00; }
+.border-brand-navy { border-color: #0B101B; }
+.border-brand-accent { border-color: #FF7A29; }
+.border-brand-ice { border-color: #FFF0E5; }
+.border-dash { border-color: #E2E8F0; }
+
+/* Custom EduPro Glow & Glass Utilities */
+.edupro-glow-ring {
+  box-shadow: 0 0 60px 10px rgba(255, 91, 0, 0.35);
+}
+
+.edupro-glow-btn {
+  box-shadow: 0 4px 18px rgba(255, 91, 0, 0.32);
+}
+
+.edupro-glow-btn:hover {
+  box-shadow: 0 6px 24px rgba(255, 91, 0, 0.45);
+}
+
+.edupro-glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.edupro-glass-pill {
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.dashboard-card {
+  background-color: var(--dash-surface, #FFFFFF);
+  border: 1px solid var(--dash-border, #E2E8F0);
+  border-radius: 12px;
+}
+
+.glass-card-dark {
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 32px 0 rgba(7, 19, 38, 0.35);
+}
+
+.glass-card-light {
+  background: #ffffff;
+  border: 1px solid var(--dash-border, #E2E8F0);
+  box-shadow: 0 16px 36px -10px rgba(15, 40, 84, 0.09);
+}
+
 /* ==========================================
-   Typography Classes (Exact Metabari Agency Spec)
+   Complete Typography System (EduPro & Metabari Agency)
    ========================================== */
 
-/* Body-sm/body-sm-medium */
+/* Display / H1 Bold */
+.display-h1,
+.heading-display-h1 {
+  font-weight: 800;
+  font-size: 44px;
+  line-height: 110%;
+  letter-spacing: -0.02em;
+}
+
+/* H1 */
+.h1,
+.h1-bold,
+.heading-h1,
+.heading-h1-bold {
+  font-weight: 700;
+  font-size: 38px;
+  line-height: 115%;
+  letter-spacing: -0.015em;
+}
+
+.h1-medium {
+  font-weight: 500;
+  font-size: 38px;
+  line-height: 115%;
+  letter-spacing: -0.015em;
+}
+
+/* H2 */
+.h2,
+.h2-bold,
+.heading-h2,
+.heading-h2-bold {
+  font-weight: 700;
+  font-size: 30px;
+  line-height: 120%;
+  letter-spacing: -0.01em;
+}
+
+.h2-medium {
+  font-weight: 500;
+  font-size: 30px;
+  line-height: 120%;
+  letter-spacing: -0.01em;
+}
+
+/* H3 */
+.h3,
+.h3-bold,
+.heading-h3,
+.heading-h3-bold {
+  font-weight: 600;
+  font-size: 26px;
+  line-height: 125%;
+  letter-spacing: -0.01em;
+}
+
+.h3-semibold {
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 130%;
+}
+
+/* H4 */
+.h4,
+.h4-semibold,
+.heading-h4,
+.heading-h4-semibold {
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 135%;
+  letter-spacing: -0.01em;
+}
+
+/* H5 */
+.h5,
+.h5-medium,
+.h5-semibold,
+.heading-h5 {
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 140%;
+}
+
+/* H6 */
+.h6,
+.h6-bold,
+.heading-h6,
+.heading-h6-bold {
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 120%;
+}
+
+.h6-medium,
+.heading-h6-medium {
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 120%;
+  letter-spacing: 0%;
+}
+
+.h6-semibold {
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 120%;
+}
+
+/* Title Tokens */
+.title-black {
+  font-weight: 900;
+  font-size: 20px;
+  line-height: 120%;
+}
+
+.title-bold {
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 120%;
+}
+
+.title-md,
+.title-medium {
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 120%;
+  letter-spacing: 0%;
+}
+
+.title-regular {
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 120%;
+}
+
+.title-sm {
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 135%;
+}
+
+/* Body Tokens */
+.body-xl-regular {
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 140%;
+}
+
+.body-l-medium {
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 140%;
+  letter-spacing: 0%;
+}
+
+.body-l-regular {
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 140%;
+  letter-spacing: 0%;
+}
+
+.body-md-medium {
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 145%;
+}
+
+.body-medium {
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 140%;
+  letter-spacing: 0%;
+}
+
+.body-regular {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 160%;
+  letter-spacing: 0%;
+}
+
 .body-sm-medium {
   font-weight: 500;
   font-size: 14px;
@@ -121,24 +388,6 @@ body {
   vertical-align: bottom;
 }
 
-/* Body/body-medium */
-.body-medium {
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 140%;
-  letter-spacing: 0%;
-}
-
-/* Heading/h6/medium */
-.h6-medium,
-.heading-h6-medium {
-  font-weight: 500;
-  font-size: 24px;
-  line-height: 120%;
-  letter-spacing: 0%;
-}
-
-/* Body-sm/body-sm-regular */
 .body-sm-regular {
   font-weight: 400;
   font-size: 14px;
@@ -146,31 +395,12 @@ body {
   letter-spacing: -1%;
 }
 
-/* Body-L/body-l-medium */
-.body-l-medium {
+.body-xs-medium {
   font-weight: 500;
-  font-size: 18px;
-  line-height: 140%;
-  letter-spacing: 0%;
-}
-
-/* Body-L/body-l-regular */
-.body-l-regular {
-  font-weight: 400;
-  font-size: 18px;
-  line-height: 140%;
-  letter-spacing: 0%;
-}
-
-/* Body-xsm/body-xsm-regular */
-.body-xsm-regular {
-  font-weight: 400;
-  font-size: 12px;
+  font-size: 13px;
   line-height: 150%;
-  letter-spacing: 0%;
 }
 
-/* Body-xsm/body-xsm-medium */
 .body-xsm-medium {
   font-weight: 500;
   font-size: 12px;
@@ -178,23 +408,19 @@ body {
   letter-spacing: 0%;
 }
 
-/* Title/title-medium */
-.title-medium {
-  font-weight: 500;
-  font-size: 20px;
-  line-height: 120%;
-  letter-spacing: 0%;
-}
-
-/* Body/body-regular */
-.body-regular {
+.body-xsm-regular {
   font-weight: 400;
-  font-size: 16px;
-  line-height: 160%;
+  font-size: 12px;
+  line-height: 150%;
   letter-spacing: 0%;
 }
 
-/* Body/medium/medium (Inter) */
+.body-2xsm-regular {
+  font-weight: 400;
+  font-size: 11px;
+  line-height: 150%;
+}
+
 .body-medium-inter {
   font-weight: 500;
   font-size: 14px;
@@ -203,7 +429,6 @@ body {
   text-align: center;
 }
 
-/* Body-xsm/body-xsm-medium (Inter) */
 .body-xsm-medium-inter {
   font-weight: 500;
   font-size: 12px;
@@ -212,11 +437,41 @@ body {
 }
 
 /* ==========================================
-   Responsive Typography Breakpoints (Metabari Agency)
+   Responsive Typography Breakpoints (EduPro & Metabari Agency)
    ========================================== */
 
 /* Large Desktop Devices (min-width: 1400px) */
 @media (min-width: 1400px) {
+  .display-h1,
+  .heading-display-h1 {
+    font-size: 48px;
+    line-height: 110%;
+  }
+
+  .h1,
+  .h1-bold,
+  .heading-h1,
+  .heading-h1-bold {
+    font-size: 42px;
+    line-height: 115%;
+  }
+
+  .h2,
+  .h2-bold,
+  .heading-h2,
+  .heading-h2-bold {
+    font-size: 34px;
+    line-height: 120%;
+  }
+
+  .h3,
+  .h3-bold,
+  .heading-h3,
+  .heading-h3-bold {
+    font-size: 28px;
+    line-height: 125%;
+  }
+
   .h6-medium,
   .heading-h6-medium {
     font-size: 26px;
@@ -264,6 +519,36 @@ body {
 
 /* Extra Large Screens (min-width: 1600px) */
 @media (min-width: 1600px) {
+  .display-h1,
+  .heading-display-h1 {
+    font-size: 52px;
+    line-height: 110%;
+  }
+
+  .h1,
+  .h1-bold,
+  .heading-h1,
+  .heading-h1-bold {
+    font-size: 46px;
+    line-height: 115%;
+  }
+
+  .h2,
+  .h2-bold,
+  .heading-h2,
+  .heading-h2-bold {
+    font-size: 36px;
+    line-height: 120%;
+  }
+
+  .h3,
+  .h3-bold,
+  .heading-h3,
+  .heading-h3-bold {
+    font-size: 30px;
+    line-height: 125%;
+  }
+
   .h6-medium,
   .heading-h6-medium {
     font-size: 28px;
@@ -306,6 +591,36 @@ body {
 
 /* Tablet / Medium Device (max-width: 1024px) */
 @media (max-width: 1024px) {
+  .display-h1,
+  .heading-display-h1 {
+    font-size: 36px;
+    line-height: 115%;
+  }
+
+  .h1,
+  .h1-bold,
+  .heading-h1,
+  .heading-h1-bold {
+    font-size: 32px;
+    line-height: 120%;
+  }
+
+  .h2,
+  .h2-bold,
+  .heading-h2,
+  .heading-h2-bold {
+    font-size: 26px;
+    line-height: 120%;
+  }
+
+  .h3,
+  .h3-bold,
+  .heading-h3,
+  .heading-h3-bold {
+    font-size: 22px;
+    line-height: 125%;
+  }
+
   .h6-medium,
   .heading-h6-medium {
     font-size: 22px;
@@ -341,6 +656,36 @@ body {
 
 /* Mobile Device (max-width: 640px) */
 @media (max-width: 640px) {
+  .display-h1,
+  .heading-display-h1 {
+    font-size: 30px;
+    line-height: 115%;
+  }
+
+  .h1,
+  .h1-bold,
+  .heading-h1,
+  .heading-h1-bold {
+    font-size: 28px;
+    line-height: 120%;
+  }
+
+  .h2,
+  .h2-bold,
+  .heading-h2,
+  .heading-h2-bold {
+    font-size: 24px;
+    line-height: 120%;
+  }
+
+  .h3,
+  .h3-bold,
+  .heading-h3,
+  .heading-h3-bold {
+    font-size: 20px;
+    line-height: 125%;
+  }
+
   .h6-medium,
   .heading-h6-medium {
     font-size: 20px;
@@ -381,6 +726,36 @@ body {
 
 /* Extra Small Mobile (max-width: 380px) */
 @media (max-width: 380px) {
+  .display-h1,
+  .heading-display-h1 {
+    font-size: 26px;
+    line-height: 115%;
+  }
+
+  .h1,
+  .h1-bold,
+  .heading-h1,
+  .heading-h1-bold {
+    font-size: 24px;
+    line-height: 120%;
+  }
+
+  .h2,
+  .h2-bold,
+  .heading-h2,
+  .heading-h2-bold {
+    font-size: 22px;
+    line-height: 120%;
+  }
+
+  .h3,
+  .h3-bold,
+  .heading-h3,
+  .heading-h3-bold {
+    font-size: 18px;
+    line-height: 125%;
+  }
+
   .h6-medium,
   .heading-h6-medium {
     font-size: 18px;

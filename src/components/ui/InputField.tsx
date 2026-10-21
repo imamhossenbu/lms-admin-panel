@@ -40,7 +40,7 @@ export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
           <input
             ref={ref}
             id={id}
-            className={`h-[40px] w-full rounded-[8px] border body-sm-regular text-primary-500 outline-none transition-all placeholder:text-[#969696] focus:border-[#1C4D8D] focus:bg-white ${
+            className={`h-[40px] w-full rounded-[8px] border body-sm-regular text-primary-500 outline-none transition-all placeholder:text-[#969696] focus:border-[#FF5B00] focus:bg-white ${
               error
                 ? "border-[#d92d20] bg-[#fef3f2]"
                 : "border-[#EDEDED] bg-white"

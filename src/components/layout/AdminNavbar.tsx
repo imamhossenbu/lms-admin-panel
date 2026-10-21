@@ -46,7 +46,7 @@ export function AdminNavbar() {
         <input
           type="text"
           placeholder="Quick search courses, users, transactions..."
-          className="w-full h-[40px] pl-10 pr-4 rounded-[8px] bg-white border border-[#EDEDED] body-sm-regular text-primary-500 placeholder:text-[#969696] focus:outline-none focus:border-[#1C4D8D] transition-colors"
+          className="w-full h-[40px] pl-10 pr-4 rounded-[8px] bg-white border border-[#EDEDED] body-sm-regular text-primary-500 placeholder:text-[#969696] focus:outline-none focus:border-[#FF5B00] transition-colors"
         />
       </div>
 
@@ -57,7 +57,7 @@ export function AdminNavbar() {
           size="sm"
           className="hidden md:inline-flex items-center gap-1.5 font-medium h-[32px] px-2.5"
         >
-          <Sparkles className="w-3.5 h-3.5 text-[#1C4D8D]" />
+          <Sparkles className="w-3.5 h-3.5 text-[#FF5B00]" />
           <span>Gemini 3.8 Flash Online</span>
         </ToneBadge>
 
