@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { X, UserPlus, Edit2 } from "lucide-react";
+import { X, UserPlus, Edit2, Mail } from "lucide-react";
 import { StudentItem, StudentStatus } from "@/types/student";
 import { InputField } from "@/components/ui/InputField";
 import { DropdownSelect } from "@/components/ui/DropdownSelect";
@@ -99,11 +99,13 @@ export function AddStudentDrawer({
   const onSubmit = async (data: StudentFormData) => {
     setIsSubmitting(true);
     const toastId = toast.loading(
-      mode === "add" ? "Adding new student..." : "Updating student details..."
+      mode === "add"
+        ? "Creating student account & emailing credentials..."
+        : "Updating student details..."
     );
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 400));
+      await new Promise((resolve) => setTimeout(resolve, 450));
       onSave({
         id: student?.id,
         name: data.name,
@@ -113,13 +115,17 @@ export function AddStudentDrawer({
         initialCourse: data.initialCourse,
       });
 
-      toast.success(
-        mode === "add" ? "Student Added Successfully" : "Student Details Updated",
-        {
+      if (mode === "add") {
+        toast.success("Student Added Successfully", {
           id: toastId,
-          description: `Account for ${data.name} is ready.`,
-        }
-      );
+          description: `Temporary password and access credentials have been sent to ${data.email}.`,
+        });
+      } else {
+        toast.success("Student Details Updated", {
+          id: toastId,
+          description: `Account for ${data.name} has been updated successfully.`,
+        });
+      }
       setIsSubmitting(false);
       onClose();
     } catch {
@@ -167,7 +173,7 @@ export function AddStudentDrawer({
                   <h3 className="title-medium text-primary-500 font-bold leading-none">
                     {mode === "add" ? "Add New Student" : "Edit Student Information"}
                   </h3>
-                  <p className="body-2xsm-regular text-primary-300 mt-1">
+                  <p className="body-sm-regular text-primary-400 mt-1.5">
                     {mode === "add"
                       ? "Create an account and assign courses."
                       : `Update records for ${student?.name}.`}
@@ -257,6 +263,23 @@ export function AddStudentDrawer({
                     )}
                   />
                 </div>
+
+                {/* Email dispatch notice for new students */}
+                {mode === "add" && (
+                  <div className="p-3.5 rounded-xl bg-blue-14 border border-blue/20 flex items-start gap-2.5 text-left">
+                    <div className="w-7 h-7 rounded-lg bg-blue/10 flex items-center justify-center shrink-0 mt-0.5">
+                      <Mail className="w-4 h-4 text-blue" />
+                    </div>
+                    <div className="space-y-0.5">
+                      <p className="body-sm-medium text-primary-500 font-semibold">
+                        Automated Credentials Email
+                      </p>
+                      <p className="body-sm-regular text-primary-400">
+                        A temporary login password and welcome setup link will be automatically sent to the student&apos;s email address upon creation.
+                      </p>
+                    </div>
+                  </div>
+                )}
               </form>
             </div>
 

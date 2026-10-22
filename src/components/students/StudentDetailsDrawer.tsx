@@ -294,8 +294,8 @@ export function StudentDetailsDrawer({
                   </div>
 
                   {/* Personal Information Card (With Seamless Inline Edit!) */}
-                  <div className="p-4 rounded-xl border border-dash bg-white shadow-2xs space-y-3">
-                    <div className="flex items-center justify-between pb-2 border-b border-dash">
+                  <div className="rounded-xl border border-dash bg-white shadow-2xs overflow-hidden">
+                    <div className="flex items-center justify-between px-4 py-3 border-b border-dash bg-white">
                       <h4 className="title-sm text-primary-500 font-bold">
                         Personal Information
                       </h4>
@@ -316,168 +316,170 @@ export function StudentDetailsDrawer({
                       )}
                     </div>
 
-                    {!isEditingInfo ? (
-                      /* Read-Only View */
-                      <div className="space-y-2 body-sm-regular text-left">
-                        <div className="flex items-center justify-between">
-                          <span className="text-primary-300">Full Name</span>
-                          <span className="text-primary-500 font-medium">
-                            {student.name}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-primary-300">Email</span>
-                          <span className="text-primary-500 font-medium font-mono text-[13px]">
-                            {student.email}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-primary-300">Phone</span>
-                          <span className="text-primary-500 font-medium">
-                            {student.phone}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-primary-300">Join Date</span>
-                          <span className="text-primary-500 font-medium">
-                            {student.joinDate}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-primary-300">Status</span>
-                          <ToneBadge
-                            tone={student.status === "Active" ? "green" : "red"}
-                            size="sm"
-                          >
-                            {student.status}
-                          </ToneBadge>
-                        </div>
-                      </div>
-                    ) : (
-                      /* Inline Edit Form View */
-                      <div className="space-y-3 pt-1 animate-in fade-in duration-200">
-                        <div>
-                          <label className="block body-2xsm-regular text-primary-400 mb-1">
-                            Full Name <span className="text-red">*</span>
-                          </label>
-                          <input
-                            type="text"
-                            value={formName}
-                            onChange={(e) => setFormName(e.target.value)}
-                            className="w-full h-9 px-3 rounded-lg border border-dash body-sm-regular text-primary-500 focus:outline-none focus:border-brand-orange bg-white"
-                            placeholder="Student name"
-                          />
-                          {errors.name && (
-                            <span className="body-2xsm-regular text-red mt-0.5 block">
-                              {errors.name}
+                    <div className="p-4 space-y-3">
+                      {!isEditingInfo ? (
+                        /* Read-Only View */
+                        <div className="space-y-2.5 body-sm-regular text-left">
+                          <div className="flex items-center justify-between">
+                            <span className="text-primary-300">Full Name</span>
+                            <span className="text-primary-500 font-medium">
+                              {student.name}
                             </span>
-                          )}
-                        </div>
-
-                        <div>
-                          <label className="block body-2xsm-regular text-primary-400 mb-1">
-                            Email Address <span className="text-red">*</span>
-                          </label>
-                          <input
-                            type="email"
-                            value={formEmail}
-                            onChange={(e) => setFormEmail(e.target.value)}
-                            className="w-full h-9 px-3 rounded-lg border border-dash body-sm-regular text-primary-500 focus:outline-none focus:border-brand-orange bg-white font-mono text-[13px]"
-                            placeholder="email@example.com"
-                          />
-                          {errors.email && (
-                            <span className="body-2xsm-regular text-red mt-0.5 block">
-                              {errors.email}
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-primary-300">Email</span>
+                            <span className="text-primary-500 font-medium font-mono text-[13px]">
+                              {student.email}
                             </span>
-                          )}
-                        </div>
-
-                        <div>
-                          <label className="block body-2xsm-regular text-primary-400 mb-1">
-                            Phone Number <span className="text-red">*</span>
-                          </label>
-                          <input
-                            type="text"
-                            value={formPhone}
-                            onChange={(e) => setFormPhone(e.target.value)}
-                            className="w-full h-9 px-3 rounded-lg border border-dash body-sm-regular text-primary-500 focus:outline-none focus:border-brand-orange bg-white"
-                            placeholder="+880 1..."
-                          />
-                          {errors.phone && (
-                            <span className="body-2xsm-regular text-red mt-0.5 block">
-                              {errors.phone}
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-primary-300">Phone</span>
+                            <span className="text-primary-500 font-medium">
+                              {student.phone}
                             </span>
-                          )}
-                        </div>
-
-                        <div>
-                          <label className="block body-2xsm-regular text-primary-400 mb-1.5">
-                            Status <span className="text-red">*</span>
-                          </label>
-                          <div className="grid grid-cols-2 gap-2">
-                            <button
-                              type="button"
-                              onClick={() => setFormStatus("Active")}
-                              className={`py-1.5 px-3 rounded-lg body-sm-medium font-semibold border transition-all cursor-pointer ${
-                                formStatus === "Active"
-                                  ? "bg-green-bg text-green border-green"
-                                  : "bg-white text-primary-400 border-dash hover:bg-slate-50"
-                              }`}
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-primary-300">Join Date</span>
+                            <span className="text-primary-500 font-medium">
+                              {student.joinDate}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-primary-300">Status</span>
+                            <ToneBadge
+                              tone={student.status === "Active" ? "green" : "red"}
+                              size="sm"
                             >
-                              Active
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setFormStatus("Inactive")}
-                              className={`py-1.5 px-3 rounded-lg body-sm-medium font-semibold border transition-all cursor-pointer ${
-                                formStatus === "Inactive"
-                                  ? "bg-red-14 text-red border-red"
-                                  : "bg-white text-primary-400 border-dash hover:bg-slate-50"
-                              }`}
-                            >
-                              Inactive
-                            </button>
+                              {student.status}
+                            </ToneBadge>
                           </div>
                         </div>
+                      ) : (
+                        /* Inline Edit Form View */
+                        <div className="space-y-3 pt-1 animate-in fade-in duration-200">
+                          <div>
+                            <label className="block body-2xsm-regular text-primary-400 mb-1">
+                              Full Name <span className="text-red">*</span>
+                            </label>
+                            <input
+                              type="text"
+                              value={formName}
+                              onChange={(e) => setFormName(e.target.value)}
+                              className="w-full h-9 px-3 rounded-lg border border-dash body-sm-regular text-primary-500 focus:outline-none focus:border-brand-orange bg-white"
+                              placeholder="Student name"
+                            />
+                            {errors.name && (
+                              <span className="body-2xsm-regular text-red mt-0.5 block">
+                                {errors.name}
+                              </span>
+                            )}
+                          </div>
 
-                        {/* Inline Edit Action Buttons */}
-                        <div className="flex items-center justify-end gap-2 pt-2 border-t border-dash">
-                          <SecondaryButton
-                            onClick={handleCancelEdit}
-                            disabled={isSaving}
-                            size="sm"
-                          >
-                            Cancel
-                          </SecondaryButton>
-                          <PrimaryButton
-                            onClick={handleSaveEdit}
-                            isLoading={isSaving}
-                            leftIcon={<Check className="w-3.5 h-3.5" />}
-                            size="sm"
-                          >
-                            Save Changes
-                          </PrimaryButton>
+                          <div>
+                            <label className="block body-2xsm-regular text-primary-400 mb-1">
+                              Email Address <span className="text-red">*</span>
+                            </label>
+                            <input
+                              type="email"
+                              value={formEmail}
+                              onChange={(e) => setFormEmail(e.target.value)}
+                              className="w-full h-9 px-3 rounded-lg border border-dash body-sm-regular text-primary-500 focus:outline-none focus:border-brand-orange bg-white font-mono text-[13px]"
+                              placeholder="email@example.com"
+                            />
+                            {errors.email && (
+                              <span className="body-2xsm-regular text-red mt-0.5 block">
+                                {errors.email}
+                              </span>
+                            )}
+                          </div>
+
+                          <div>
+                            <label className="block body-2xsm-regular text-primary-400 mb-1">
+                              Phone Number <span className="text-red">*</span>
+                            </label>
+                            <input
+                              type="text"
+                              value={formPhone}
+                              onChange={(e) => setFormPhone(e.target.value)}
+                              className="w-full h-9 px-3 rounded-lg border border-dash body-sm-regular text-primary-500 focus:outline-none focus:border-brand-orange bg-white"
+                              placeholder="+880 1..."
+                            />
+                            {errors.phone && (
+                              <span className="body-2xsm-regular text-red mt-0.5 block">
+                                {errors.phone}
+                              </span>
+                            )}
+                          </div>
+
+                          <div>
+                            <label className="block body-2xsm-regular text-primary-400 mb-1.5">
+                              Status <span className="text-red">*</span>
+                            </label>
+                            <div className="grid grid-cols-2 gap-2">
+                              <button
+                                type="button"
+                                onClick={() => setFormStatus("Active")}
+                                className={`py-1.5 px-3 rounded-lg body-sm-medium font-semibold border transition-all cursor-pointer ${
+                                  formStatus === "Active"
+                                    ? "bg-green-bg text-green border-green"
+                                    : "bg-white text-primary-400 border-dash hover:bg-slate-50"
+                                }`}
+                              >
+                                Active
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setFormStatus("Inactive")}
+                                className={`py-1.5 px-3 rounded-lg body-sm-medium font-semibold border transition-all cursor-pointer ${
+                                  formStatus === "Inactive"
+                                    ? "bg-red-14 text-red border-red"
+                                    : "bg-white text-primary-400 border-dash hover:bg-slate-50"
+                                }`}
+                              >
+                                Inactive
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Inline Edit Action Buttons */}
+                          <div className="flex items-center justify-end gap-2 pt-2 border-t border-dash">
+                            <SecondaryButton
+                              onClick={handleCancelEdit}
+                              disabled={isSaving}
+                              size="sm"
+                            >
+                              Cancel
+                            </SecondaryButton>
+                            <PrimaryButton
+                              onClick={handleSaveEdit}
+                              isLoading={isSaving}
+                              leftIcon={<Check className="w-3.5 h-3.5" />}
+                              size="sm"
+                            >
+                              Save Changes
+                            </PrimaryButton>
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
 
                   {/* Recent Enrollments Card */}
-                  <div className="p-4 rounded-xl border border-dash bg-white shadow-2xs space-y-3">
-                    <div className="flex items-center justify-between pb-2 border-b border-dash">
+                  <div className="rounded-xl border border-dash bg-white shadow-2xs overflow-hidden">
+                    <div className="flex items-center justify-between px-4 py-3 border-b border-dash bg-white">
                       <h4 className="title-sm text-primary-500 font-bold">
                         Recent Enrollments
                       </h4>
                       <button
                         type="button"
                         onClick={() => setActiveTab("courses")}
-                        className="body-2xsm-regular text-brand-orange font-semibold hover:underline cursor-pointer"
+                        className="body-sm-medium text-brand-orange font-bold hover:text-brand-orange-hover hover:underline transition-colors cursor-pointer"
                       >
                         View All
                       </button>
                     </div>
 
-                    <div className="space-y-3">
+                    <div className="p-4 space-y-3">
                       {student.enrolledCourses.length > 0 ? (
                         student.enrolledCourses.slice(0, 3).map((course) => (
                           <div

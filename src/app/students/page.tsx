@@ -138,7 +138,13 @@ export default function StudentsPage() {
         : [],
       recentActivities: [
         {
-          id: `act-${Date.now()}`,
+          id: `act-${Date.now()}-1`,
+          action: `Welcome email with temporary password (EduPro#${Math.floor(1000 + Math.random() * 9000)}) sent to ${payload.email}`,
+          timestamp: "Just now",
+          iconType: "enroll",
+        },
+        {
+          id: `act-${Date.now()}-2`,
           action: "Account registered and onboarded",
           timestamp: "Just now",
           iconType: "enroll",
