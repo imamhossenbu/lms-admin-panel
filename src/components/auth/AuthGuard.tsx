@@ -6,7 +6,12 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setCredentials, logout, setInitialized } from "@/store/slices/authSlice";
 import { authApi } from "@/lib/api";
 
-const PUBLIC_AUTH_ROUTES = ["/login", "/forgot-password", "/reset-password"];
+const PUBLIC_AUTH_ROUTES = [
+  "/login",
+  "/forgot-password",
+  "/reset-password",
+  "/verify-email",
+];
 
 export function isPublicAuthRoute(pathname: string | null): boolean {
   if (!pathname) return false;
