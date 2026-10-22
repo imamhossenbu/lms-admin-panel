@@ -37,30 +37,30 @@ export function StatCard({ stat }: StatCardProps) {
   const IconComponent = config.icon;
 
   return (
-    <div className="bg-white rounded-2xl border border-dash p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow relative flex flex-col justify-between">
+    <div className="bg-white rounded-2xl border border-dash py-3.5 px-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow relative flex flex-col justify-between">
       {/* Top Part: Icon, Value and Label */}
-      <div className="flex items-start gap-4">
+      <div className="flex items-start gap-3.5">
         <div
-          className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${config.bg} ${config.textColor}`}
+          className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${config.bg} ${config.textColor}`}
         >
           <IconComponent className="w-5 h-5" />
         </div>
 
         <div className="flex flex-col text-left">
-          <span className="heading-h2-bold text-primary-500 tracking-tight">
+          <span className="text-[25px] font-bold text-primary-500 tracking-tight leading-none">
             {stat.value}
           </span>
-          <span className="body-sm-medium text-primary-300 mt-0.5">
+          <span className="body-xsm-medium text-primary-400 mt-1">
             {stat.label}
           </span>
         </div>
       </div>
 
       {/* Bottom Part: Trend & Mini Sparkline */}
-      <div className="flex items-end justify-between mt-5 pt-1">
+      <div className="flex items-end justify-between mt-3 pt-0.5">
         <div className="flex items-center">
-          <span className="body-sm-medium font-bold text-[#16A34A] flex items-center gap-0.5">
-            <ArrowUpRight className="w-4 h-4 stroke-[2.5]" />
+          <span className="body-xsm-medium font-bold text-[#16A34A] flex items-center gap-0.5">
+            <ArrowUpRight className="w-3.5 h-3.5 stroke-[2.5]" />
             {stat.change}
           </span>
           <span className="body-2xsm-regular text-primary-300 ml-1.5">
@@ -69,7 +69,7 @@ export function StatCard({ stat }: StatCardProps) {
         </div>
 
         <div className="shrink-0 pl-2">
-          <Sparkline data={stat.sparklineData} color={stat.colorScheme} width={90} height={32} />
+          <Sparkline data={stat.sparklineData} color={stat.colorScheme} width={84} height={26} />
         </div>
       </div>
     </div>

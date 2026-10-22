@@ -4,18 +4,17 @@ import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import {
   Search,
-  Bell,
-  Calendar,
   ChevronDown,
   LogOut,
-  User as UserIcon,
-  Shield,
   Settings,
+  Shield,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { logout } from "@/store/slices/authSlice";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { NotificationDropdown } from "./NotificationDropdown";
+import { DateRangePicker } from "./DateRangePicker";
 
 export function AdminNavbar() {
   const router = useRouter();
@@ -74,29 +73,13 @@ export function AdminNavbar() {
 
       {/* Right Controls */}
       <div className="flex items-center gap-3">
-        {/* Date Selector Pill */}
-        <button
-          type="button"
-          onClick={() => toast.info("Date range selector", { description: "Viewing analytics for Oct 20, 2026." })}
-          className="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-xl border border-dash bg-white body-sm-medium text-primary-500 shadow-2xs hover:bg-slate-50 transition-colors cursor-pointer"
-        >
-          <Calendar className="w-4 h-4 text-primary-400" />
-          <span>Oct 20, 2026</span>
-          <ChevronDown className="w-3.5 h-3.5 text-primary-300" />
-        </button>
+        {/* Date Range Picker Component */}
+        <div className="hidden sm:block">
+          <DateRangePicker />
+        </div>
 
-        {/* Notifications Bell with count badge */}
-        <button
-          type="button"
-          onClick={() => toast.info("Notifications", { description: "You have 3 unread administrative alerts." })}
-          className="w-10 h-10 flex items-center justify-center rounded-xl border border-dash bg-white text-primary-400 hover:text-primary-500 hover:bg-slate-50 transition-colors relative cursor-pointer"
-          title="Notifications"
-        >
-          <Bell className="w-4 h-4" />
-          <span className="w-4 h-4 rounded-full bg-brand-orange text-white text-[10px] font-bold flex items-center justify-center absolute -top-1 -right-1 ring-2 ring-white">
-            3
-          </span>
-        </button>
+        {/* Notifications Dropdown Card Component */}
+        <NotificationDropdown />
 
         {/* User Profile Pill */}
         <div className="relative" ref={dropdownRef}>
