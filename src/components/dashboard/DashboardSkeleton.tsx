@@ -4,10 +4,10 @@ import React from "react";
 
 export function DashboardSkeleton() {
   return (
-    <div className="space-y-6 animate-pulse select-none">
+    <div className="space-y-[12px] animate-pulse select-none pb-6">
       {/* Header Skeleton */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-        <div className="space-y-2">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-[12px]">
+        <div className="space-y-1.5">
           <div className="h-8 w-36 bg-slate-200 rounded-xl" />
           <div className="h-4 w-64 bg-slate-100 rounded-lg" />
         </div>
@@ -18,7 +18,7 @@ export function DashboardSkeleton() {
       </div>
 
       {/* 4 Stat Cards Skeleton */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-[12px]">
         {[1, 2, 3, 4].map((i) => (
           <div
             key={i}
@@ -40,7 +40,7 @@ export function DashboardSkeleton() {
       </div>
 
       {/* Row 2: 2 Main Charts Skeleton */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-[12px]">
         <div className="bg-white rounded-2xl border border-dash p-5 h-[330px] flex flex-col justify-between">
           <div className="flex justify-between items-center mb-4">
             <div className="space-y-2">
@@ -65,7 +65,7 @@ export function DashboardSkeleton() {
       </div>
 
       {/* Row 3: 2 Middle Charts Skeleton */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-[12px]">
         <div className="bg-white rounded-2xl border border-dash p-5 h-[340px] flex flex-col justify-between">
           <div className="flex justify-between items-center mb-4">
             <div className="space-y-2">
@@ -97,7 +97,7 @@ export function DashboardSkeleton() {
       </div>
 
       {/* Row 4: 2 Tables Skeleton */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-[12px]">
         {[1, 2].map((t) => (
           <div
             key={t}

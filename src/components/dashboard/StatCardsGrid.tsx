@@ -10,7 +10,7 @@ interface StatCardsGridProps {
 
 export function StatCardsGrid({ stats }: StatCardsGridProps) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-[12px]">
       {stats.map((stat) => (
         <StatCard key={stat.id} stat={stat} />
       ))}

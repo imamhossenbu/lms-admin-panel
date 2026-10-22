@@ -8,9 +8,11 @@ import {
   LogOut,
   Settings,
   Shield,
+  Menu,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { logout } from "@/store/slices/authSlice";
+import { toggleSidebar } from "@/store/slices/uiSlice";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { NotificationDropdown } from "./NotificationDropdown";
@@ -52,22 +54,34 @@ export function AdminNavbar() {
   };
 
   return (
-    <header className="h-16 px-6 lg:px-8 bg-white border-b border-dash flex items-center justify-between sticky top-0 z-20">
-      {/* Search Bar with ⌘ K shortcut */}
-      <div className="relative w-72 md:w-96">
-        <Search className="w-4 h-4 text-primary-300 absolute left-3.5 top-1/2 -translate-y-1/2" />
-        <input
-          type="text"
-          onKeyDown={(e) => {
-            if (e.key === "Enter") handleSearchFocus();
-          }}
-          placeholder="Search courses, students, orders..."
-          className="w-full h-10 pl-10 pr-12 rounded-xl bg-[#F8FAFC]/60 border border-dash body-sm-regular text-primary-500 placeholder:text-primary-300 focus:outline-none focus:border-brand-orange focus:bg-white transition-all"
-        />
-        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-          <kbd className="body-2xsm-regular font-semibold text-primary-300 px-1.5 py-0.5 rounded border border-slate-200 bg-white shadow-2xs">
-            ⌘ K
-          </kbd>
+    <header className="h-16 px-4 lg:px-8 bg-white border-b border-dash flex items-center justify-between sticky top-0 z-20">
+      <div className="flex items-center gap-2">
+        {/* Sidebar Toggle Button */}
+        <button
+          type="button"
+          onClick={() => dispatch(toggleSidebar())}
+          className="p-2 rounded-xl border border-dash text-primary-400 hover:text-primary-500 hover:bg-slate-50 transition-colors cursor-pointer shrink-0"
+          title="Toggle sidebar"
+        >
+          <Menu className="w-4 h-4" />
+        </button>
+
+        {/* Search Bar with ⌘ K shortcut */}
+        <div className="relative w-64 md:w-96">
+          <Search className="w-4 h-4 text-primary-300 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSearchFocus();
+            }}
+            placeholder="Search courses, students, orders..."
+            className="w-full h-10 pl-10 pr-12 rounded-xl bg-[#F8FAFC]/60 border border-dash body-sm-regular text-primary-500 placeholder:text-primary-300 focus:outline-none focus:border-brand-orange focus:bg-white transition-all"
+          />
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+            <kbd className="body-2xsm-regular font-semibold text-primary-300 px-1.5 py-0.5 rounded border border-slate-200 bg-white shadow-2xs">
+              ⌘ K
+            </kbd>
+          </div>
         </div>
       </div>
 

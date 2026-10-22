@@ -20,7 +20,7 @@ function AdminShellContent({ children }: { children: React.ReactNode }) {
         <AdminSidebar />
         <div className="flex-1 flex flex-col min-w-0 bg-[#F8FAFC]">
           <AdminNavbar />
-          <main className="p-6 lg:p-8 flex-1 max-w-[1600px] w-full mx-auto">
+          <main className="p-[12px] flex-1 max-w-[1600px] w-full mx-auto">
             {children}
           </main>
         </div>

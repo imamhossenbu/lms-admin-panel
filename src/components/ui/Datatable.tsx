@@ -51,6 +51,7 @@ export interface DataTableProps<T> {
   renderExpandedRow?: (row: T, rowIndex: number) => React.ReactNode;
   expandedRowKeys?: (string | number)[];
   isLoading?: boolean;
+  verticalBorders?: boolean;
 }
 
 export function DataTable<T extends Record<string, any>>({
@@ -73,6 +74,7 @@ export function DataTable<T extends Record<string, any>>({
   renderExpandedRow,
   expandedRowKeys = [],
   isLoading = false,
+  verticalBorders = true,
 }: DataTableProps<T>) {
   const allSelected = data.length > 0 && selectedRowKeys.length === data.length;
 
@@ -160,7 +162,7 @@ export function DataTable<T extends Record<string, any>>({
                     thClassName || "px-3 sm:px-3.5",
                     isClickable &&
                       "cursor-pointer hover:text-primary-500 transition-colors",
-                    !isLastColumn && "border-r border-[#EDEDED]",
+                    !isLastColumn && verticalBorders && "border-r border-[#EDEDED]",
                     col.align === "center" && "text-center",
                     col.align === "right" && "text-right",
                     col.className
@@ -296,7 +298,7 @@ export function DataTable<T extends Record<string, any>>({
                           className={cn(
                             "py-3 text-primary-500 body-sm-regular",
                             cellClassName || "px-3 sm:px-3.5",
-                            !isLastColumn && "border-r border-[#EDEDED]",
+                            !isLastColumn && verticalBorders && "border-r border-[#EDEDED]",
                             col.align === "center" && "text-center",
                             col.align === "right" && "text-right",
                             col.className

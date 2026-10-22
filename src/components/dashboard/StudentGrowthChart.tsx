@@ -83,6 +83,7 @@ export function StudentGrowthChart({ data }: StudentGrowthChartProps) {
             />
 
             <Tooltip
+              cursor={{ fill: "transparent" }}
               content={({ active, payload }) => {
                 if (active && payload && payload.length >= 2) {
                   const item = payload[0].payload as StudentGrowthPoint;

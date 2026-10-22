@@ -98,33 +98,50 @@ export function AdminSidebar() {
     >
       <div className="flex-1 flex flex-col min-h-0">
         {/* Brand Header */}
-        <div className="h-16 px-4 flex items-center justify-between border-b border-dash shrink-0">
-          <Link href="/" className="flex items-center gap-3 overflow-hidden">
-            <div className="w-9 h-9 rounded-xl bg-brand-orange-light flex items-center justify-center shrink-0">
+        <div
+          className={cn(
+            "h-16 flex items-center border-b border-dash shrink-0 transition-all",
+            collapsed ? "px-2.5 justify-between" : "px-4 justify-between"
+          )}
+        >
+          <div className="flex items-center gap-2.5 overflow-hidden">
+            <button
+              type="button"
+              onClick={() => collapsed && dispatch(toggleSidebar())}
+              className={cn(
+                "w-9 h-9 rounded-xl bg-brand-orange-light flex items-center justify-center shrink-0 transition-transform",
+                collapsed ? "cursor-pointer hover:scale-105" : ""
+              )}
+              title={collapsed ? "Click to expand sidebar" : "EduPro LMS"}
+            >
               <EduProCapIcon className="w-6 h-6 text-brand-orange" />
-            </div>
+            </button>
+
             {!collapsed && (
-              <div className="flex flex-col text-left">
+              <Link href="/" className="flex flex-col text-left">
                 <span className="body-medium font-extrabold text-primary-500 tracking-tight leading-none">
                   EduPro
                 </span>
                 <span className="body-2xsm-regular text-primary-300 mt-0.5 leading-none">
                   LMS Admin Panel
                 </span>
-              </div>
+              </Link>
             )}
-          </Link>
+          </div>
 
-          {!collapsed && (
-            <button
-              type="button"
-              onClick={() => dispatch(toggleSidebar())}
-              className="p-1 rounded-lg text-primary-300 hover:text-primary-500 hover:bg-slate-50 transition-colors cursor-pointer"
-              title="Collapse sidebar"
-            >
+          {/* Toggle Button in Header - Always Visible */}
+          <button
+            type="button"
+            onClick={() => dispatch(toggleSidebar())}
+            className="p-1.5 rounded-lg text-primary-300 hover:text-brand-orange hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {collapsed ? (
+              <ChevronRight className="w-4 h-4 text-brand-orange" />
+            ) : (
               <ChevronLeft className="w-4 h-4" />
-            </button>
-          )}
+            )}
+          </button>
         </div>
 
         {/* Scrollable Navigation Categories */}
@@ -179,19 +196,29 @@ export function AdminSidebar() {
         </nav>
       </div>
 
-      {/* Collapse Toggle when collapsed */}
-      {collapsed && (
-        <div className="p-3 border-t border-dash">
-          <button
-            type="button"
-            onClick={() => dispatch(toggleSidebar())}
-            className="w-full flex items-center justify-center p-2 rounded-xl text-primary-400 hover:bg-slate-50 transition-colors cursor-pointer"
-            title="Expand sidebar"
-          >
+      {/* Collapse Toggle Footer */}
+      <div className="p-3 border-t border-dash">
+        <button
+          type="button"
+          onClick={() => dispatch(toggleSidebar())}
+          className={cn(
+            "w-full flex items-center justify-center p-2 rounded-xl transition-colors cursor-pointer",
+            collapsed
+              ? "bg-brand-orange-light text-brand-orange hover:bg-brand-orange hover:text-white"
+              : "text-primary-400 hover:bg-slate-50 hover:text-primary-500"
+          )}
+          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {collapsed ? (
             <ChevronRight className="w-5 h-5" />
-          </button>
-        </div>
-      )}
+          ) : (
+            <div className="flex items-center gap-2">
+              <ChevronLeft className="w-4 h-4" />
+              <span className="body-sm-medium">Collapse</span>
+            </div>
+          )}
+        </button>
+      </div>
     </aside>
   );
 }

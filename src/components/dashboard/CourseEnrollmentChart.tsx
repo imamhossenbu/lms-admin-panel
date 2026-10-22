@@ -99,11 +99,12 @@ export function CourseEnrollmentChart({ data }: CourseEnrollmentChartProps) {
             />
 
             <Tooltip
+              cursor={{ fill: "transparent" }}
               content={({ active, payload }) => {
                 if (active && payload && payload.length) {
                   const item = payload[0].payload as CourseEnrollmentPoint;
                   return (
-                    <div className="bg-white rounded-xl shadow-md border border-dash px-3.5 py-2 text-left">
+                    <div className="bg-white rounded-xl shadow-lg border border-dash px-3.5 py-2.5 text-left pointer-events-none z-50 animate-in fade-in zoom-in-95 duration-100">
                       <p className="body-xsm-medium text-primary-500 font-bold">
                         {item.courseName}
                       </p>
@@ -122,6 +123,7 @@ export function CourseEnrollmentChart({ data }: CourseEnrollmentChartProps) {
               fill="#FF5B00"
               barSize={36}
               radius={[6, 6, 0, 0]}
+              className="cursor-pointer transition-opacity hover:opacity-85"
             />
           </BarChart>
         </ResponsiveContainer>
