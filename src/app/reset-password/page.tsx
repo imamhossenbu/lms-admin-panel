@@ -125,33 +125,18 @@ function ResetPasswordFormContent() {
       setIsSuccess(true);
       toast.success("Password reset successful!", {
         id: toastId,
-        description: "Your new credentials are now active.",
+        description: "Your new credentials are now active. Click below to sign in.",
       });
-
-      setTimeout(() => {
-        router.push("/login");
-      }, 2000);
+      // Screen stays fixed: No auto setTimeout redirect so user can see confirmation and click when ready!
     } catch (err: any) {
       console.error("Reset password error:", err);
-      let message = "Unable to reset password. The link may have expired or is invalid.";
+      let message = "Unable to reset password. The link or code may have expired or is invalid.";
 
       if (err.response?.data?.message) {
         const backendMsg = err.response.data.message;
         message = Array.isArray(backendMsg) ? backendMsg.join(", ") : backendMsg;
       } else if (err.message) {
         message = err.message;
-      }
-
-      if (err.response?.status === 404 || err.code === "ERR_NETWORK") {
-        setIsSuccess(true);
-        toast.success("Password reset successfully!", {
-          id: toastId,
-          description: "Redirecting you to the sign-in portal...",
-        });
-        setTimeout(() => {
-          router.push("/login");
-        }, 1800);
-        return;
       }
 
       setServerError(message);
@@ -205,7 +190,7 @@ function ResetPasswordFormContent() {
                 Password Successfully Reset!
               </h3>
               <p className="body-sm-regular text-primary-400 leading-relaxed max-w-sm mx-auto">
-                Your new password has been verified and applied. You will be redirected to the sign-in page in a moment.
+                Your new password has been verified and applied. Click below to continue to the sign-in page.
               </p>
             </div>
             <div className="pt-2">

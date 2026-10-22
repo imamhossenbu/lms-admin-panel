@@ -51,6 +51,7 @@ function VerifyEmailFormContent() {
   const [isResending, setIsResending] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [verifiedResetToken, setVerifiedResetToken] = useState<string | null>(null);
 
   // Auto-populate 6 digits if token is passed in query params
   React.useEffect(() => {
@@ -84,34 +85,25 @@ function VerifyEmailFormContent() {
     });
 
     try {
-      await apiClient.post("/auth/verify", {
+      const response = await apiClient.post("/auth/verify", {
         code: fullCode,
         email,
         purpose: isResetMode ? "reset-password" : "verify-email",
       });
 
+      const tokenToPass = response.data?.resetToken || fullCode;
+      setVerifiedResetToken(tokenToPass);
       setIsSuccess(true);
-      if (isResetMode) {
-        toast.success("Code verified successfully!", {
+      toast.success(
+        isResetMode ? "Code verified successfully!" : "Email verified successfully!",
+        {
           id: toastId,
-          description: "Proceeding to set your new password...",
-        });
-
-        setTimeout(() => {
-          router.push(
-            `/reset-password?token=${encodeURIComponent(fullCode)}&email=${encodeURIComponent(email)}`
-          );
-        }, 1200);
-      } else {
-        toast.success("Email verified successfully!", {
-          id: toastId,
-          description: "Redirecting you to your LMS dashboard...",
-        });
-
-        setTimeout(() => {
-          router.push("/");
-        }, 1800);
-      }
+          description: isResetMode
+            ? "Click below to proceed to set your new password."
+            : "Your identity has been authenticated.",
+        }
+      );
+      // Fixed screen: Screen stays fixed so user clicks button when ready!
     } catch (err: any) {
       console.error("Verification error:", err);
       let message = "Invalid or expired verification code. Please try again.";
@@ -121,30 +113,6 @@ function VerifyEmailFormContent() {
         message = Array.isArray(backendMsg) ? backendMsg.join(", ") : backendMsg;
       } else if (err.message) {
         message = err.message;
-      }
-
-      if (err.response?.status === 404 || err.code === "ERR_NETWORK") {
-        setIsSuccess(true);
-        if (isResetMode) {
-          toast.success("Code verified!", {
-            id: toastId,
-            description: "Redirecting to set your new password...",
-          });
-          setTimeout(() => {
-            router.push(
-              `/reset-password?token=${encodeURIComponent(fullCode)}&email=${encodeURIComponent(email)}`
-            );
-          }, 1200);
-        } else {
-          toast.success("Email verified!", {
-            id: toastId,
-            description: "Access granted. Welcome to EduPro!",
-          });
-          setTimeout(() => {
-            router.push("/");
-          }, 1600);
-        }
-        return;
       }
 
       setServerError(message);
@@ -260,15 +228,15 @@ function VerifyEmailFormContent() {
               </h3>
               <p className="body-sm-regular text-primary-400 leading-relaxed max-w-sm mx-auto">
                 {isResetMode
-                  ? "Security code validated. Redirecting you to choose your new password..."
-                  : "Your identity has been authenticated. Redirecting you to your dashboard..."}
+                  ? "Security code validated. Click the button below to set your new password."
+                  : "Your identity has been authenticated. Click the button below to enter your dashboard."}
               </p>
             </div>
             <div className="pt-2">
               <Link
                 href={
                   isResetMode
-                    ? `/reset-password?token=${encodeURIComponent(fullCode)}&email=${encodeURIComponent(email)}`
+                    ? `/reset-password?token=${encodeURIComponent(verifiedResetToken || fullCode)}&email=${encodeURIComponent(email)}`
                     : "/"
                 }
                 className="inline-flex items-center justify-center gap-2 w-full h-[50px] rounded-xl bg-brand-orange bg-brand-orange:hover text-white body-medium font-semibold shadow-md edupro-glow-btn transition-all cursor-pointer"
