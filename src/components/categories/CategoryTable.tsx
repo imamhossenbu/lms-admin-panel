@@ -57,7 +57,7 @@ export function CategoryTable({
             className={`w-7 h-7 flex items-center justify-center rounded-lg transition-all cursor-pointer ${
               isExpanded
                 ? "bg-brand-orange-light text-brand-orange"
-                : "text-primary-300 hover:text-brand-orange hover:bg-slate-100"
+                : "text-primary-300 hover:text-brand-orange hover:bg-slate-200/60"
             }`}
             title={
               isExpanded
@@ -73,17 +73,6 @@ export function CategoryTable({
           </button>
         );
       },
-    },
-    {
-      key: "number",
-      header: "#",
-      width: "48px",
-      align: "center",
-      render: (row) => (
-        <span className="body-sm-medium text-primary-400">
-          {row.orderNumber}
-        </span>
-      ),
     },
     {
       key: "category",
@@ -102,7 +91,7 @@ export function CategoryTable({
                   {row.name}
                 </span>
                 {subCount > 0 && (
-                  <span className="body-2xsm-regular px-1.5 py-0.5 rounded-full bg-slate-100 text-primary-400 font-medium">
+                  <span className="body-2xsm-regular px-1.5 py-0.5 rounded-full bg-slate-200/70 text-primary-500 font-medium">
                     {subCount} sub
                   </span>
                 )}
@@ -187,7 +176,7 @@ export function CategoryTable({
               e.stopPropagation();
               setActiveMenuId(activeMenuId === row.id ? null : row.id);
             }}
-            className="p-1.5 rounded-lg text-primary-300 hover:text-primary-500 hover:bg-slate-100 transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-primary-300 hover:text-primary-500 hover:bg-slate-200/60 transition-colors cursor-pointer"
             title="Category Actions"
           >
             <MoreHorizontal className="w-4 h-4" />
@@ -316,8 +305,8 @@ export function CategoryTable({
         verticalBorders={true}
         containerClassName="border-0 rounded-none w-full"
         tableClassName="w-full"
-        headerClassName="bg-slate-50/80 border-b border-dash body-2xsm-regular text-primary-400 font-bold uppercase tracking-wider"
-        thClassName="px-3.5 py-3"
+        headerClassName="bg-[#F1F3F5] border-b border-dash body-sm-medium text-primary-500 font-semibold normal-case"
+        thClassName="px-3.5 py-3 text-primary-500 font-semibold normal-case text-[13.5px]"
         cellClassName="px-3.5 py-3.5"
       />
     </div>
