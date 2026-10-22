@@ -25,28 +25,29 @@ export function AuthAlertBanner({
 
   return (
     <div
-      className={`p-3.5 rounded-xl border flex items-start gap-2.5 mb-5 text-left animate-in fade-in duration-200 ${
+      role="alert"
+      className={`p-4 rounded-xl border flex items-start gap-3 mb-5 text-left animate-in fade-in duration-200 ${
         isError
-          ? "bg-[#df1c4114] border-[#df1c41]/30"
+          ? "bg-red-14 border-[#df1c41]/30"
           : "bg-green-bg border-green/30"
       } ${className}`}
     >
       {isError ? (
-        <AlertCircle className="w-4 h-4 text-red shrink-0 mt-0.5" />
+        <AlertCircle className="w-5 h-5 text-red-dark shrink-0 mt-0.5 stroke-[2]" />
       ) : (
-        <CheckCircle2 className="w-4 h-4 text-green shrink-0 mt-0.5" />
+        <CheckCircle2 className="w-5 h-5 text-green shrink-0 mt-0.5 stroke-[2]" />
       )}
-      <div className="flex-1 space-y-0.5">
+      <div className="flex-1 space-y-1">
         <p
-          className={`body-xsm-medium font-semibold ${
+          className={`body-sm-medium font-bold ${
             isError ? "text-red-dark" : "text-green"
           }`}
         >
           {title || defaultTitle}
         </p>
         <p
-          className={`body-xsm-regular leading-relaxed ${
-            isError ? "text-red" : "text-green"
+          className={`body-sm-regular font-medium leading-relaxed ${
+            isError ? "text-red-dark" : "text-green"
           }`}
         >
           {message}
@@ -56,9 +57,14 @@ export function AuthAlertBanner({
         <button
           type="button"
           onClick={onClose}
-          className="text-primary-300 hover:text-primary-500 p-0.5 transition-colors cursor-pointer"
+          className={`p-1 rounded-md transition-colors cursor-pointer shrink-0 ${
+            isError
+              ? "text-red-dark hover:bg-red-14"
+              : "text-green hover:bg-green/10"
+          }`}
+          aria-label="Close notification"
         >
-          <X className="w-3.5 h-3.5" />
+          <X className="w-4 h-4" />
         </button>
       )}
     </div>

@@ -29,6 +29,8 @@ import { AuthLeftPanel } from "@/components/auth/AuthLeftPanel";
 import { AuthRightPanel } from "@/components/auth/AuthRightPanel";
 import { LanguageSelector } from "@/components/auth/LanguageSelector";
 import { AuthFeature } from "@/components/auth/AuthFeatureList";
+import { AuthAlertBanner } from "@/components/auth/AuthAlertBanner";
+import { AuthSubmitButton } from "@/components/auth/AuthSubmitButton";
 
 const LOGIN_FEATURES: AuthFeature[] = [
   {
@@ -194,26 +196,11 @@ export default function LoginPage() {
         topRightAction={<LanguageSelector />}
       >
         {/* Server Error Alert Banner */}
-        {serverError && (
-          <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 flex items-start gap-2.5 mb-4 text-left animate-in fade-in duration-200">
-            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
-            <div className="flex-1 space-y-0.5">
-              <p className="text-xs font-semibold text-rose-800">
-                Authentication Notice
-              </p>
-              <p className="text-[11px] text-rose-700 leading-relaxed">
-                {serverError}
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setServerError(null)}
-              className="text-rose-400 hover:text-rose-700 p-0.5 transition-colors cursor-pointer"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        )}
+        <AuthAlertBanner
+          message={serverError}
+          title="Authentication Notice"
+          onClose={() => setServerError(null)}
+        />
 
         {/* Credentials Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 text-left">
@@ -221,12 +208,12 @@ export default function LoginPage() {
           <div className="space-y-2">
             <label
               htmlFor="email-address"
-              className="block text-sm sm:text-[15px] font-semibold text-slate-800 tracking-tight"
+              className="block body-sm-regular text-primary-500 font-semibold tracking-tight"
             >
               Email Address
             </label>
             <div className="relative flex items-center group">
-              <span className="absolute left-4 text-slate-400 group-focus-within:text-brand-orange transition-colors pointer-events-none">
+              <span className="absolute left-4 text-primary-300 group-focus-within:text-brand-orange transition-colors pointer-events-none">
                 <Mail className="w-5 h-5" />
               </span>
               <input
@@ -235,15 +222,15 @@ export default function LoginPage() {
                 autoComplete="email"
                 placeholder="Enter your email address"
                 {...register("email")}
-                className={`w-full h-[54px] pl-12 pr-4 rounded-xl border bg-white text-base text-slate-900 placeholder:text-slate-400 focus:outline-none transition-all ${
+                className={`w-full h-[52px] sm:h-[54px] pl-12 pr-4 rounded-xl border bg-white body-regular text-primary-500 placeholder:text-primary-300 focus:outline-none transition-all ${
                   errors.email
-                    ? "border-rose-400 focus:border-rose-600 focus:ring-4 focus:ring-rose-500/10"
-                    : "border-slate-200 focus:border-brand-orange focus:ring-4 focus:ring-[#FF5B00]/10"
+                    ? "border-red focus:border-red focus:ring-4 focus:ring-red/10 bg-red-14"
+                    : "border-dash focus:border-brand-orange focus:ring-4 focus:ring-brand-orange/10"
                 }`}
               />
             </div>
             {errors.email && (
-              <p className="text-xs text-rose-600 flex items-center gap-1 mt-1.5">
+              <p className="body-xsm-regular text-red flex items-center gap-1 mt-1.5">
                 <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                 <span>{errors.email.message}</span>
               </p>
@@ -255,18 +242,18 @@ export default function LoginPage() {
             <div className="flex items-center justify-between">
               <label
                 htmlFor="password-field"
-                className="block text-sm sm:text-[15px] font-semibold text-slate-800 tracking-tight"
+                className="block body-sm-regular text-primary-500 font-semibold tracking-tight"
               >
                 Password
               </label>
               {capsLockActive && (
-                <span className="text-[11px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                <span className="body-2xsm-regular text-[#92400e] bg-[#fef3c7] px-2 py-0.5 rounded border border-[#fde68a]">
                   Caps Lock On
                 </span>
               )}
             </div>
             <div className="relative flex items-center group">
-              <span className="absolute left-4 text-slate-400 group-focus-within:text-brand-orange transition-colors pointer-events-none">
+              <span className="absolute left-4 text-primary-300 group-focus-within:text-brand-orange transition-colors pointer-events-none">
                 <Lock className="w-5 h-5" />
               </span>
               <input
@@ -276,26 +263,27 @@ export default function LoginPage() {
                 placeholder="Enter your password"
                 onKeyDown={handleKeyDown}
                 {...register("password")}
-                className={`w-full h-[54px] pl-12 pr-12 rounded-xl border bg-white text-base text-slate-900 placeholder:text-slate-400 focus:outline-none transition-all ${
+                className={`w-full h-[52px] sm:h-[54px] pl-12 pr-12 rounded-xl border bg-white body-regular text-primary-500 placeholder:text-primary-300 focus:outline-none transition-all ${
                   errors.password
-                    ? "border-rose-400 focus:border-rose-600 focus:ring-4 focus:ring-rose-500/10"
-                    : "border-slate-200 focus:border-brand-orange focus:ring-4 focus:ring-[#FF5B00]/10"
+                    ? "border-red focus:border-red focus:ring-4 focus:ring-red/10 bg-red-14"
+                    : "border-dash focus:border-brand-orange focus:ring-4 focus:ring-brand-orange/10"
                 }`}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 text-slate-400 hover:text-slate-600 p-1 transition-colors cursor-pointer"
+                className="absolute right-4 text-primary-300 hover:text-brand-orange p-1 transition-colors cursor-pointer"
+                aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? (
-                  <EyeOff className="w-4 h-4" />
+                  <EyeOff className="w-5 h-5" />
                 ) : (
-                  <Eye className="w-4 h-4" />
+                  <Eye className="w-5 h-5" />
                 )}
               </button>
             </div>
             {errors.password && (
-              <p className="text-xs text-rose-600 flex items-center gap-1 mt-1.5">
+              <p className="body-xsm-regular text-red flex items-center gap-1 mt-1.5">
                 <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                 <span>{errors.password.message}</span>
               </p>
@@ -308,39 +296,30 @@ export default function LoginPage() {
               <input
                 type="checkbox"
                 {...register("rememberMe")}
-                className="w-4 h-4 rounded border-slate-300 text-brand-orange focus:ring-brand-orange accent-[#FF5B00] cursor-pointer"
+                className="w-4 h-4 rounded border-dash text-brand-orange focus:ring-brand-orange accent-[#FF5B00] cursor-pointer"
               />
-              <span className="text-sm font-medium text-slate-600">
+              <span className="body-sm-regular text-primary-400">
                 Remember me
               </span>
             </label>
 
             <Link
               href="/forgot-password"
-              className="text-sm font-semibold text-brand-orange hover:text-[#EA5200] hover:underline transition-colors cursor-pointer"
+              className="body-sm-medium font-semibold text-brand-orange hover:text-brand-orange-hover hover:underline transition-colors cursor-pointer"
             >
               Forgot password?
             </Link>
           </div>
 
           {/* Sign In Button */}
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full h-[54px] mt-2 rounded-xl bg-brand-orange hover:bg-[#EA5200] active:scale-[0.99] text-white text-base sm:text-[17px] font-semibold flex items-center justify-center gap-2.5 transition-all duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed shadow-lg shadow-orange-500/25 hover:shadow-orange-500/35 group"
-          >
-            {isSubmitting ? (
-              <>
-                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                <span>Signing In...</span>
-              </>
-            ) : (
-              <>
-                <span>Sign In</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </>
-            )}
-          </button>
+          <div className="pt-2">
+            <AuthSubmitButton
+              isSubmitting={isSubmitting}
+              submittingText="Signing In..."
+            >
+              Sign In
+            </AuthSubmitButton>
+          </div>
         </form>
       </AuthRightPanel>
     </AuthCardContainer>
