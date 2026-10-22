@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
-  BarChart3,
   BookOpen,
   FolderTree,
   Users,
@@ -41,7 +40,6 @@ const SIDEBAR_SECTIONS: NavCategory[] = [
     category: "Overview",
     items: [
       { href: "/", label: "Dashboard", icon: LayoutDashboard },
-      { href: "/analytics", label: "Analytics", icon: BarChart3 },
     ],
   },
   {
