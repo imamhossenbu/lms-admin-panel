@@ -14,22 +14,22 @@ interface AuthFeatureListProps {
 
 export function AuthFeatureList({
   features,
-  className = "space-y-3 pt-5",
+  className = "space-y-3.5 pt-5",
 }: AuthFeatureListProps) {
   return (
     <div className={className}>
       {features.map((feature, idx) => {
         const Icon = feature.icon;
         return (
-          <div key={idx} className="flex items-center gap-3 group">
-            <div className="w-8 h-8 rounded-full bg-[#202B3B] flex items-center justify-center text-white/90 shrink-0 group-hover:bg-[#FF5B00]/25 transition-colors">
-              <Icon className="w-3.5 h-3.5" />
+          <div key={idx} className="flex items-center gap-3.5 group">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#1F2A3B] border border-white/10 flex items-center justify-center text-white/90 shrink-0 group-hover:bg-brand-orange-20 group-hover:text-brand-orange transition-all">
+              <Icon className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />
             </div>
             <div>
-              <h3 className="text-[13px] font-semibold text-white tracking-tight leading-snug">
+              <h3 className="body-sm-medium text-white tracking-tight leading-snug">
                 {feature.title}
               </h3>
-              <p className="text-[11px] text-slate-400 leading-tight">
+              <p className="body-xsm-regular text-slate-400 leading-tight mt-0.5">
                 {feature.description}
               </p>
             </div>

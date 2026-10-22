@@ -8,12 +8,9 @@ import Link from "next/link";
 import { toast } from "sonner";
 import {
   Mail,
-  ArrowRight,
   ArrowLeft,
   ShieldCheck,
   Zap,
-  CheckCircle2,
-  AlertCircle,
   Check,
 } from "lucide-react";
 
@@ -21,6 +18,11 @@ import { AuthCardContainer } from "@/components/auth/AuthCardContainer";
 import { AuthLeftPanel } from "@/components/auth/AuthLeftPanel";
 import { AuthRightPanel } from "@/components/auth/AuthRightPanel";
 import { AuthFeature } from "@/components/auth/AuthFeatureList";
+import { LanguageSelector } from "@/components/auth/LanguageSelector";
+import { AuthSubmitButton } from "@/components/auth/AuthSubmitButton";
+import { AuthDivider } from "@/components/auth/AuthDivider";
+import { AuthBackButton } from "@/components/auth/AuthBackButton";
+import { AuthAlertBanner } from "@/components/auth/AuthAlertBanner";
 import { apiClient } from "@/lib/api";
 
 const forgotPasswordSchema = z.object({
@@ -95,7 +97,6 @@ export default function ForgotPasswordPage() {
         message = err.message;
       }
 
-      // If backend mock or mail sender is unconfigured in development, still provide helpful feedback
       if (err.response?.status === 404 || err.code === "ERR_NETWORK") {
         setSubmittedEmail(data.email.trim());
         toast.success("Reset instructions dispatched", {
@@ -126,72 +127,54 @@ export default function ForgotPasswordPage() {
             <span className="text-brand-orange">Easily</span>
           </>
         }
-        description={
-          <>
-            No worries! Enter your email address<br className="hidden sm:inline" />
-            and we&apos;ll send you a link to reset<br className="hidden sm:inline" />
-            your password.
-          </>
-        }
+        description="No worries! Enter your email address and we'll send you a link to reset your password."
         features={FORGOT_PASSWORD_FEATURES}
         mockupSrc="/images/edupro_forgot_password_mockup.png"
         mockupAlt="EduPro Password Reset 3D Mockup"
+        footerTagline="A modern LMS for a brighter future"
       />
 
       {/* Right White Form Panel */}
       <AuthRightPanel
         title="Forgot Password?"
-        subtitle={
-          <>
-            Enter your email address and we&apos;ll send you<br className="hidden sm:inline" />
-            a link to reset your password.
-          </>
-        }
+        subtitle="Enter your email address and we'll send you a link to reset your password."
+        topRightAction={<LanguageSelector />}
       >
         {/* Server Error Alert Banner */}
-        {serverError && (
-          <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 flex items-start gap-2.5 mb-4 text-left animate-in fade-in duration-200">
-            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
-            <div className="flex-1 space-y-0.5">
-              <p className="text-xs font-semibold text-rose-800">
-                Notice
-              </p>
-              <p className="text-[11px] text-rose-700 leading-relaxed">
-                {serverError}
-              </p>
-            </div>
-          </div>
-        )}
+        <AuthAlertBanner
+          message={serverError}
+          onClose={() => setServerError(null)}
+        />
 
         {/* Success State Confirmation */}
         {submittedEmail ? (
-          <div className="p-4 rounded-xl bg-[#FFF4ED] border border-[#FF5B00]/25 text-left space-y-3 animate-in fade-in duration-200">
-            <div className="w-9 h-9 rounded-full bg-[#FF5B00]/15 flex items-center justify-center text-brand-orange">
-              <Check className="w-4 h-4" />
+          <div className="p-5 rounded-2xl bg-brand-orange-light border border-brand-orange/30 text-left space-y-4 animate-in fade-in duration-200">
+            <div className="w-10 h-10 rounded-full bg-brand-orange-20 flex items-center justify-center text-brand-orange">
+              <Check className="w-5 h-5 stroke-[2.5]" />
             </div>
             <div>
-              <h3 className="text-xs font-bold text-slate-900">
+              <h3 className="heading-h5 text-primary-500 font-bold">
                 Reset Link Dispatched
               </h3>
-              <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+              <p className="body-sm-regular text-primary-400 mt-1 leading-relaxed">
                 We have emailed instructions to{" "}
-                <strong className="text-slate-900 font-semibold">
+                <strong className="text-primary-500 font-semibold">
                   {submittedEmail}
                 </strong>
                 . Please check your inbox and spam folder.
               </p>
             </div>
-            <div className="pt-1 flex flex-col gap-2">
+            <div className="pt-2 flex flex-col gap-2.5">
               <button
                 type="button"
                 onClick={() => setSubmittedEmail(null)}
-                className="w-full h-9 rounded-lg bg-brand-orange hover:bg-[#EA5200] text-white text-xs font-semibold flex items-center justify-center transition-colors cursor-pointer"
+                className="w-full h-11 rounded-xl bg-brand-orange bg-brand-orange:hover text-white body-sm-medium font-semibold flex items-center justify-center transition-colors cursor-pointer shadow-xs"
               >
                 Resend to another email
               </button>
               <Link
                 href="/login"
-                className="w-full h-9 rounded-lg border border-slate-200 hover:bg-white text-slate-600 text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                className="w-full h-11 rounded-xl border border-dash hover:bg-white text-primary-400 body-sm-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 <span>Return to Sign In</span>
@@ -205,12 +188,12 @@ export default function ForgotPasswordPage() {
             <div className="space-y-2">
               <label
                 htmlFor="reset-email"
-                className="block text-sm sm:text-[15px] font-semibold text-slate-800 tracking-tight"
+                className="block body-sm-regular text-primary-500 font-semibold tracking-tight"
               >
                 Email Address
               </label>
               <div className="relative flex items-center group">
-                <span className="absolute left-4 text-slate-400 group-focus-within:text-brand-orange transition-colors pointer-events-none">
+                <span className="absolute left-4 text-primary-300 group-focus-within:text-brand-orange transition-colors pointer-events-none">
                   <Mail className="w-5 h-5" />
                 </span>
                 <input
@@ -219,64 +202,39 @@ export default function ForgotPasswordPage() {
                   autoComplete="email"
                   placeholder="Enter your email address"
                   {...register("email")}
-                  className={`w-full h-[54px] pl-12 pr-4 rounded-xl border bg-white text-base text-slate-900 placeholder:text-slate-400 focus:outline-none transition-all ${
+                  className={`w-full h-[52px] sm:h-[54px] pl-12 pr-4 rounded-xl border bg-white body-regular text-primary-500 placeholder:text-primary-300 focus:outline-none transition-all ${
                     errors.email
-                      ? "border-rose-400 focus:border-rose-600 focus:ring-4 focus:ring-rose-500/10"
-                      : "border-slate-200 focus:border-brand-orange focus:ring-4 focus:ring-[#FF5B00]/10"
+                      ? "border-[#df1c41] focus:border-[#df1c41] focus:ring-4 focus:ring-[#df1c41]/10 bg-[#df1c4114]"
+                      : "border-dash focus:border-brand-orange focus:ring-4 focus:ring-brand-orange/10"
                   }`}
                 />
               </div>
               {errors.email && (
-                <p className="text-xs text-rose-600 flex items-center gap-1 mt-1.5">
-                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                <p className="body-xsm-regular text-red flex items-center gap-1 mt-1.5">
                   <span>{errors.email.message}</span>
                 </p>
               )}
             </div>
 
             {/* Submit Send Reset Link Button */}
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full h-[54px] mt-3 rounded-xl bg-brand-orange hover:bg-[#EA5200] active:scale-[0.99] text-white text-base sm:text-[17px] font-semibold flex items-center justify-center gap-2.5 transition-all duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed shadow-lg shadow-orange-500/25 hover:shadow-orange-500/35 group"
-            >
-              {isSubmitting ? (
-                <>
-                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  <span>Sending Reset Link...</span>
-                </>
-              ) : (
-                <>
-                  <span>Send Reset Link</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </>
-              )}
-            </button>
+            <div className="pt-2">
+              <AuthSubmitButton
+                isSubmitting={isSubmitting}
+                submittingText="Sending Reset Link..."
+              >
+                Send Reset Link
+              </AuthSubmitButton>
+            </div>
           </form>
         )}
 
         {!submittedEmail && (
           <>
-            {/* Separator */}
-            <div className="relative my-6 sm:my-7">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-200" />
-              </div>
-              <div className="relative flex justify-center text-xs lowercase">
-                <span className="bg-white px-3 text-slate-400">
-                  or
-                </span>
-              </div>
-            </div>
+            {/* Separator Component */}
+            <AuthDivider text="or" />
 
-            {/* Back to Sign In Button */}
-            <Link
-              href="/login"
-              className="w-full h-[54px] rounded-xl border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-colors flex items-center justify-center gap-2.5 text-base font-semibold text-slate-700 cursor-pointer shadow-xs active:scale-[0.99] group"
-            >
-              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-              <span>Back to Sign In</span>
-            </Link>
+            {/* Back to Sign In Button Component */}
+            <AuthBackButton href="/login" label="Back to Sign In" />
           </>
         )}
       </AuthRightPanel>
