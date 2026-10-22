@@ -52,7 +52,7 @@ const SIDEBAR_SECTIONS: NavCategory[] = [
   {
     category: "People",
     items: [
-      { href: "/users?role=student", label: "Students", icon: Users },
+      { href: "/students", label: "Students", icon: Users },
       { href: "/users?role=instructor", label: "Instructors", icon: UserCheck },
     ],
   },
