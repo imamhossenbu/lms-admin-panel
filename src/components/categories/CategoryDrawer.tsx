@@ -12,11 +12,15 @@ import {
   BookOpen,
   Calendar,
   Layers,
-  CheckCircle2,
   AlertCircle,
   HelpCircle,
 } from "lucide-react";
-import { CategoryItem, CategoryDrawerMode, CategoryStatus } from "@/types/category";
+import {
+  CategoryItem,
+  SubCategoryItem,
+  CategoryDrawerMode,
+  CategoryStatus,
+} from "@/types/category";
 import { CATEGORY_ICONS } from "@/data/mockCategoryData";
 import { InputField } from "@/components/ui/InputField";
 import { DropdownSelect } from "@/components/ui/DropdownSelect";
@@ -35,10 +39,12 @@ const categorySchema = z
     slug: z
       .string()
       .min(2, "Slug must be at least 2 characters")
-      .regex(/^[a-z0-9-]+$/, "Slug can only contain lowercase letters, numbers, and hyphens"),
+      .regex(
+        /^[a-z0-9-]+$/,
+        "Slug can only contain lowercase letters, numbers, and hyphens"
+      ),
     description: z
       .string()
-      .min(5, "Description must be at least 5 characters")
       .max(300, "Description cannot exceed 300 characters"),
     isSubCategory: z.boolean(),
     parentId: z.string().optional(),
@@ -59,6 +65,7 @@ interface CategoryDrawerProps {
   isOpen: boolean;
   mode: CategoryDrawerMode;
   category: CategoryItem | null;
+  editingSubCategory?: SubCategoryItem | null;
   parentCategories: CategoryItem[];
   onClose: () => void;
   onSave: (payload: {
@@ -72,16 +79,22 @@ interface CategoryDrawerProps {
     parentId?: string;
   }) => void;
   onOpenEdit?: (category: CategoryItem) => void;
+  onOpenEditSubCategory?: (
+    subCategory: SubCategoryItem,
+    parentCategory: CategoryItem
+  ) => void;
 }
 
 export function CategoryDrawer({
   isOpen,
   mode,
   category,
+  editingSubCategory,
   parentCategories,
   onClose,
   onSave,
   onOpenEdit,
+  onOpenEditSubCategory,
 }: CategoryDrawerProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -110,20 +123,34 @@ export function CategoryDrawer({
   const selectedIconId = watch("iconId");
   const descriptionValue = watch("description") || "";
 
-  // Synchronize form values whenever drawer opens or mode/category changes
+  // Synchronize form values whenever drawer opens or mode/category/subCategory changes
   useEffect(() => {
     if (!isOpen) return;
 
-    if (mode === "edit" && category) {
-      reset({
-        name: category.name,
-        slug: category.slug,
-        description: category.description,
-        isSubCategory: Boolean(category.parentId),
-        parentId: category.parentId || "",
-        status: category.status,
-        iconId: category.iconId || "code",
-      });
+    if (mode === "edit") {
+      if (editingSubCategory) {
+        // Editing an existing sub-category
+        reset({
+          name: editingSubCategory.name,
+          slug: editingSubCategory.slug,
+          description: editingSubCategory.description || "",
+          isSubCategory: true,
+          parentId: editingSubCategory.parentId || category?.id || "",
+          status: editingSubCategory.status,
+          iconId: category?.iconId || "code",
+        });
+      } else if (category) {
+        // Editing an existing parent category
+        reset({
+          name: category.name,
+          slug: category.slug,
+          description: category.description || "",
+          isSubCategory: Boolean(category.parentId),
+          parentId: category.parentId || "",
+          status: category.status,
+          iconId: category.iconId || "code",
+        });
+      }
     } else if (mode === "create") {
       reset({
         name: "",
@@ -135,7 +162,7 @@ export function CategoryDrawer({
         iconId: "code",
       });
     }
-  }, [isOpen, mode, category, reset, parentCategories]);
+  }, [isOpen, mode, category, editingSubCategory, reset, parentCategories]);
 
   // Handle auto slug generator when name changes (only in create mode)
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -159,12 +186,14 @@ export function CategoryDrawer({
     );
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 400));
+      await new Promise((resolve) => setTimeout(resolve, 350));
+      const targetId = editingSubCategory ? editingSubCategory.id : category?.id;
+
       onSave({
-        id: category?.id,
+        id: targetId,
         name: data.name,
         slug: data.slug,
-        description: data.description,
+        description: data.description || "",
         status: data.status as CategoryStatus,
         iconId: data.iconId,
         isSubCategory: data.isSubCategory,
@@ -172,12 +201,12 @@ export function CategoryDrawer({
       });
 
       toast.success(
-        mode === "create" ? "Category Created" : "Category Updated",
+        mode === "create" ? "Category Created" : "Saved Successfully",
         {
           id: toastId,
           description: data.isSubCategory
-            ? `Sub-category "${data.name}" was saved successfully.`
-            : `Category "${data.name}" was saved successfully.`,
+            ? `Sub-category "${data.name}" was saved.`
+            : `Category "${data.name}" was saved.`,
         }
       );
       setIsSubmitting(false);
@@ -235,14 +264,18 @@ export function CategoryDrawer({
                     {mode === "details"
                       ? "Category Details"
                       : mode === "edit"
-                      ? "Edit Category"
+                      ? editingSubCategory
+                        ? `Edit Sub-Category`
+                        : `Edit Category`
                       : "Add New Category"}
                   </h2>
                   <p className="body-2xsm-regular text-primary-300 mt-1">
                     {mode === "details"
                       ? "Overview and nested sub-categories."
                       : mode === "edit"
-                      ? `Update category details and hierarchy.`
+                      ? editingSubCategory
+                        ? `Editing sub-category under "${category?.name || "Parent"}"`
+                        : `Update category details and hierarchy.`
                       : "Create a top-level category or nested sub-category."}
                   </p>
                 </div>
@@ -267,13 +300,16 @@ export function CategoryDrawer({
                   <div className="p-4 rounded-xl border border-dash bg-[#F8FAFC]/50 space-y-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <CategoryIconRenderer iconId={category.iconId} size="lg" />
+                        <CategoryIconRenderer
+                          iconId={category.iconId}
+                          size="lg"
+                        />
                         <div>
                           <h3 className="heading-h5 text-primary-500 font-bold">
                             {category.name}
                           </h3>
                           <span className="body-xsm-regular text-primary-300 font-mono">
-                            slug: {category.slug}
+                            slug: /{category.slug}
                           </span>
                         </div>
                       </div>
@@ -318,7 +354,7 @@ export function CategoryDrawer({
                     </div>
                   </div>
 
-                  {/* Sub-categories Accordion / List */}
+                  {/* Sub-categories List with Edit Option for Sub-categories! */}
                   <div className="space-y-2.5">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5">
@@ -332,7 +368,8 @@ export function CategoryDrawer({
                       </span>
                     </div>
 
-                    {category.subCategories && category.subCategories.length > 0 ? (
+                    {category.subCategories &&
+                    category.subCategories.length > 0 ? (
                       <div className="rounded-xl border border-dash divide-y divide-dash overflow-hidden bg-white">
                         {category.subCategories.map((sub) => (
                           <div
@@ -357,6 +394,19 @@ export function CategoryDrawer({
                               >
                                 {sub.status}
                               </ToneBadge>
+
+                              {/* Edit Sub-category directly from details view */}
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  onOpenEditSubCategory &&
+                                  onOpenEditSubCategory(sub, category)
+                                }
+                                className="p-1 rounded-md text-primary-300 hover:text-brand-orange hover:bg-brand-orange-light/50 transition-colors cursor-pointer"
+                                title={`Edit ${sub.name}`}
+                              >
+                                <Edit2 className="w-3.5 h-3.5 text-brand-orange" />
+                              </button>
                             </div>
                           </div>
                         ))}
@@ -397,7 +447,11 @@ export function CategoryDrawer({
                     <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-lg border border-dash">
                       <button
                         type="button"
-                        onClick={() => setValue("isSubCategory", false, { shouldValidate: true })}
+                        onClick={() =>
+                          setValue("isSubCategory", false, {
+                            shouldValidate: true,
+                          })
+                        }
                         className={`py-2 px-3 rounded-md body-sm-medium transition-all cursor-pointer ${
                           !isSubCategory
                             ? "bg-white text-primary-500 font-bold shadow-2xs"
@@ -408,7 +462,11 @@ export function CategoryDrawer({
                       </button>
                       <button
                         type="button"
-                        onClick={() => setValue("isSubCategory", true, { shouldValidate: true })}
+                        onClick={() =>
+                          setValue("isSubCategory", true, {
+                            shouldValidate: true,
+                          })
+                        }
                         className={`py-2 px-3 rounded-md body-sm-medium transition-all cursor-pointer ${
                           isSubCategory
                             ? "bg-white text-brand-orange font-bold shadow-2xs"
@@ -449,9 +507,13 @@ export function CategoryDrawer({
                   {/* Category Name */}
                   <InputField
                     id="cat-name"
-                    label="Category Name"
+                    label={isSubCategory ? "Sub-Category Name" : "Category Name"}
                     required
-                    placeholder="e.g. Artificial Intelligence"
+                    placeholder={
+                      isSubCategory
+                        ? "e.g. React & Next.js"
+                        : "e.g. Artificial Intelligence"
+                    }
                     {...register("name")}
                     onChange={handleNameChange}
                     error={errors.name?.message}
@@ -462,7 +524,11 @@ export function CategoryDrawer({
                     id="cat-slug"
                     label="URL Slug"
                     required
-                    placeholder="e.g. artificial-intelligence"
+                    placeholder={
+                      isSubCategory
+                        ? "e.g. react-nextjs"
+                        : "e.g. artificial-intelligence"
+                    }
                     {...register("slug")}
                     error={errors.slug?.message}
                   />
@@ -474,7 +540,7 @@ export function CategoryDrawer({
                         htmlFor="cat-desc"
                         className="body-sm-regular text-primary-400 select-none"
                       >
-                        Description <span className="text-red">*</span>
+                        Description
                       </label>
                       <span className="body-2xsm-regular text-primary-300">
                         {descriptionValue.length}/300
@@ -498,7 +564,7 @@ export function CategoryDrawer({
                     )}
                   </div>
 
-                  {/* Icon Selector */}
+                  {/* Icon Selector (Shown for parent categories, or inherited for sub-categories) */}
                   <div>
                     <label className="block body-sm-regular text-primary-400 mb-1.5 select-none">
                       Icon & Theme <span className="text-red">*</span>
@@ -511,7 +577,9 @@ export function CategoryDrawer({
                             key={iconOpt.id}
                             type="button"
                             onClick={() =>
-                              setValue("iconId", iconOpt.id, { shouldValidate: true })
+                              setValue("iconId", iconOpt.id, {
+                                shouldValidate: true,
+                              })
                             }
                             className={`p-2 rounded-lg border flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
                               isSelected
@@ -520,7 +588,10 @@ export function CategoryDrawer({
                             }`}
                             title={iconOpt.label}
                           >
-                            <CategoryIconRenderer iconId={iconOpt.id} size="sm" />
+                            <CategoryIconRenderer
+                              iconId={iconOpt.id}
+                              size="sm"
+                            />
                             <span className="body-2xsm-regular text-primary-400 truncate max-w-full block">
                               {iconOpt.label}
                             </span>

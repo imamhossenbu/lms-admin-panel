@@ -4,6 +4,7 @@ export interface SubCategoryItem {
   id: string;
   name: string;
   slug: string;
+  description?: string;
   courseCount: number;
   status: CategoryStatus;
   createdDate: string;

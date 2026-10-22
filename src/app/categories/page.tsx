@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { MOCK_CATEGORIES } from "@/data/mockCategoryData";
 import {
   CategoryItem,
+  SubCategoryItem,
   CategoryDrawerMode,
   CategoryStatus,
 } from "@/types/category";
@@ -24,10 +25,11 @@ export default function CategoriesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Drawer state management (create, edit, details)
+  // Drawer state management (create, edit, details, including sub-category editing)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [drawerMode, setDrawerMode] = useState<CategoryDrawerMode>("create");
   const [selectedCategory, setSelectedCategory] = useState<CategoryItem | null>(null);
+  const [editingSubCategory, setEditingSubCategory] = useState<SubCategoryItem | null>(null);
 
   const pageSize = 10;
 
@@ -56,27 +58,41 @@ export default function CategoriesPage() {
 
   const totalPages = Math.ceil(filteredCategories.length / pageSize) || 1;
 
-  // Drawer Handlers
+  // Drawer Open Handlers
   const handleOpenAdd = () => {
     setSelectedCategory(null);
+    setEditingSubCategory(null);
     setDrawerMode("create");
     setIsDrawerOpen(true);
   };
 
   const handleOpenEdit = (cat: CategoryItem) => {
     setSelectedCategory(cat);
+    setEditingSubCategory(null);
+    setDrawerMode("edit");
+    setIsDrawerOpen(true);
+  };
+
+  const handleOpenEditSubCategory = (
+    sub: SubCategoryItem,
+    parentCat: CategoryItem
+  ) => {
+    setSelectedCategory(parentCat);
+    setEditingSubCategory(sub);
     setDrawerMode("edit");
     setIsDrawerOpen(true);
   };
 
   const handleOpenDetails = (cat: CategoryItem) => {
     setSelectedCategory(cat);
+    setEditingSubCategory(null);
     setDrawerMode("details");
     setIsDrawerOpen(true);
   };
 
   const handleCloseDrawer = () => {
     setIsDrawerOpen(false);
+    setEditingSubCategory(null);
   };
 
   // Add / Edit Category or Sub-category handler
@@ -105,16 +121,18 @@ export default function CategoriesPage() {
                         ...sub,
                         name: payload.name,
                         slug: payload.slug,
+                        description: payload.description,
                         status: payload.status,
                       }
                     : sub
                 ),
               };
             } else {
-              const newSub = {
+              const newSub: SubCategoryItem = {
                 id: `sub-${Date.now()}`,
                 name: payload.name,
                 slug: payload.slug,
+                description: payload.description,
                 courseCount: 0,
                 status: payload.status,
                 createdDate: new Date().toLocaleDateString("en-US", {
@@ -212,6 +230,7 @@ export default function CategoriesPage() {
             categories={paginatedCategories}
             onEdit={handleOpenEdit}
             onViewDetails={handleOpenDetails}
+            onEditSubCategory={handleOpenEditSubCategory}
           />
         ) : (
           <CategoryGrid
@@ -236,10 +255,12 @@ export default function CategoriesPage() {
         isOpen={isDrawerOpen}
         mode={drawerMode}
         category={selectedCategory}
+        editingSubCategory={editingSubCategory}
         parentCategories={categories}
         onClose={handleCloseDrawer}
         onSave={handleSaveCategory}
         onOpenEdit={handleOpenEdit}
+        onOpenEditSubCategory={handleOpenEditSubCategory}
       />
     </motion.div>
   );

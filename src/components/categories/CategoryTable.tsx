@@ -8,7 +8,7 @@ import {
   Eye,
   Layers,
 } from "lucide-react";
-import { CategoryItem } from "@/types/category";
+import { CategoryItem, SubCategoryItem } from "@/types/category";
 import { DataTable, ColumnDef } from "@/components/ui/Datatable";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 import { CategoryIconRenderer } from "./CategoryIconRenderer";
@@ -17,12 +17,14 @@ interface CategoryTableProps {
   categories: CategoryItem[];
   onEdit: (category: CategoryItem) => void;
   onViewDetails: (category: CategoryItem) => void;
+  onEditSubCategory: (subCategory: SubCategoryItem, parentCategory: CategoryItem) => void;
 }
 
 export function CategoryTable({
   categories,
   onEdit,
   onViewDetails,
+  onEditSubCategory,
 }: CategoryTableProps) {
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
   const [expandedRowKeys, setExpandedRowKeys] = useState<(string | number)[]>(
@@ -40,6 +42,7 @@ export function CategoryTable({
       key: "expand",
       header: "",
       width: "44px",
+      align: "center",
       render: (row) => {
         const isExpanded = expandedRowKeys.includes(row.id);
         const subCount = row.subCategories?.length || 0;
@@ -74,7 +77,8 @@ export function CategoryTable({
     {
       key: "number",
       header: "#",
-      width: "44px",
+      width: "48px",
+      align: "center",
       render: (row) => (
         <span className="body-sm-medium text-primary-400">
           {row.orderNumber}
@@ -126,6 +130,8 @@ export function CategoryTable({
     {
       key: "totalCourses",
       header: "Total Courses",
+      width: "120px",
+      align: "center",
       render: (row) => (
         <span className="body-sm-medium text-primary-500 font-semibold">
           {row.totalCourses}
@@ -135,6 +141,8 @@ export function CategoryTable({
     {
       key: "publishedCourses",
       header: "Published",
+      width: "110px",
+      align: "center",
       render: (row) => (
         <span className="body-sm-medium text-brand-orange font-semibold">
           {row.publishedCourses}
@@ -144,6 +152,8 @@ export function CategoryTable({
     {
       key: "status",
       header: "Status",
+      width: "100px",
+      align: "center",
       render: (row) => (
         <ToneBadge
           tone={row.status === "Active" ? "green" : "red"}
@@ -156,6 +166,8 @@ export function CategoryTable({
     {
       key: "createdDate",
       header: "Created Date",
+      width: "120px",
+      align: "center",
       render: (row) => (
         <span className="body-sm-regular text-primary-300 whitespace-nowrap">
           {row.createdDate}
@@ -165,7 +177,7 @@ export function CategoryTable({
     {
       key: "actions",
       header: "Actions",
-      width: "56px",
+      width: "64px",
       align: "center",
       render: (row) => (
         <div className="relative flex justify-center">
@@ -215,12 +227,12 @@ export function CategoryTable({
     },
   ];
 
-  // Render expanded row showing nested subcategories with smooth layout
+  // Render expanded row showing nested subcategories with smooth layout and edit buttons
   const renderExpandedRow = (row: CategoryItem) => {
     const subCategories = row.subCategories || [];
 
     return (
-      <div className="bg-[#F8FAFC] border-y border-dash px-5 py-3.5 space-y-2.5 text-left">
+      <div className="bg-[#F8FAFC] border-y border-dash px-5 py-4 space-y-3 text-left">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Layers className="w-4 h-4 text-brand-orange" />
@@ -229,36 +241,54 @@ export function CategoryTable({
             </h5>
           </div>
           <span className="body-2xsm-regular text-primary-300">
-            Click chevron above to collapse
+            Click chevron on the left to collapse
           </span>
         </div>
 
         {subCategories.length > 0 ? (
           <div className="rounded-xl border border-dash overflow-hidden bg-white shadow-2xs divide-y divide-dash">
-            {subCategories.map((sub) => (
+            {subCategories.map((sub, idx) => (
               <div
-                key={sub.id}
-                className="px-4 py-2.5 flex items-center justify-between hover:bg-slate-50/70 transition-colors"
+                key={sub.id || idx}
+                className="px-4 py-3 flex items-center justify-between hover:bg-slate-50/70 transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  <span className="w-1.5 h-1.5 rounded-full bg-brand-orange shrink-0" />
-                  <span className="body-sm-medium text-primary-500 font-semibold">
-                    {sub.name}
-                  </span>
-                  <span className="body-2xsm-regular text-primary-300 font-mono">
-                    /{sub.slug}
-                  </span>
+                  <span className="w-2 h-2 rounded-full bg-brand-orange shrink-0" />
+                  <div>
+                    <span className="body-sm-medium text-primary-500 font-semibold block">
+                      {sub.name}
+                    </span>
+                    <span className="body-2xsm-regular text-primary-300 font-mono">
+                      /{sub.slug}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <span className="body-2xsm-regular px-2 py-0.5 rounded bg-slate-100 text-primary-400 font-medium">
+
+                <div className="flex items-center gap-3.5">
+                  <span className="body-2xsm-regular px-2.5 py-1 rounded-md bg-slate-100 text-primary-500 font-medium">
                     {sub.courseCount} courses
                   </span>
+
                   <ToneBadge
                     tone={sub.status === "Active" ? "green" : "red"}
                     size="sm"
                   >
                     {sub.status}
                   </ToneBadge>
+
+                  {/* Sub-Category Edit Action Button */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEditSubCategory(sub, row);
+                    }}
+                    className="flex items-center gap-1.5 px-3 py-1 rounded-lg border border-dash bg-white hover:bg-brand-orange-light text-primary-500 hover:text-brand-orange hover:border-brand-orange/40 transition-all cursor-pointer body-2xsm-regular font-bold shadow-2xs"
+                    title={`Edit sub-category "${sub.name}"`}
+                  >
+                    <Edit2 className="w-3.5 h-3.5 text-brand-orange" />
+                    <span>Edit</span>
+                  </button>
                 </div>
               </div>
             ))}
@@ -283,12 +313,12 @@ export function CategoryTable({
         rowKey={(row) => row.id}
         renderExpandedRow={renderExpandedRow}
         expandedRowKeys={expandedRowKeys}
-        verticalBorders={false}
+        verticalBorders={true}
         containerClassName="border-0 rounded-none w-full"
         tableClassName="w-full"
-        headerClassName="bg-slate-50/70 border-b border-dash body-2xsm-regular text-primary-300 font-semibold uppercase tracking-wider"
-        thClassName="px-3.5 py-3 border-none"
-        cellClassName="px-3.5 py-3.5 border-none"
+        headerClassName="bg-slate-50/80 border-b border-dash body-2xsm-regular text-primary-400 font-bold uppercase tracking-wider"
+        thClassName="px-3.5 py-3"
+        cellClassName="px-3.5 py-3.5"
       />
     </div>
   );

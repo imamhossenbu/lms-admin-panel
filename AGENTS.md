@@ -57,3 +57,59 @@ These rules are strictly enforced across the `lms-admin-panel` codebase:
 ## 7. Single Language Policy
 - **English Only**: The entire user interface must always remain in English.
 - **No Language Toggler/Selector**: NEVER include any language selector, dropdown, toggle button, or globe icon anywhere in the application.
+
+
+
+
+
+# Project Development Rules — MUST FOLLOW
+
+Follow these rules for every new feature, page, component, and UI modification. These are mandatory project-wide conventions, not optional suggestions.
+
+### 1. Proper Validation & Toast Notifications
+- Always implement proper client-side and server-side validation wherever applicable.
+- Show clear, user-friendly validation messages for invalid or missing inputs.
+- Use the project's existing toast notification system for success, error, warning, and informational feedback.
+- Never use `alert()` for notifications.
+- Handle API errors, loading states, and failed requests properly.
+- Prevent duplicate submissions when a request is in progress.
+
+### 2. Proper Skeleton Loading
+- Always implement appropriate skeleton loading states for data-driven pages and components.
+- Skeletons must match the layout and dimensions of the actual content.
+- Use reusable skeleton components wherever possible.
+- Avoid unnecessary layout shifts, blank screens, and excessive loading spinners.
+- Handle loading, empty, error, and success states separately.
+
+### 3. Always Use Reusable Components
+- Before creating a new component, check whether an existing reusable component can be used.
+- Extract repeated UI patterns into reusable components instead of duplicating code.
+- Follow the existing project architecture, folder structure, naming conventions, and coding style.
+- Keep components modular, maintainable, and easy to update.
+- Avoid unnecessary duplication and overly large components.
+- Extend existing shared components when appropriate instead of rebuilding them.
+
+### 4. Follow `globals.css` for Styling
+- Always inspect and reuse existing utility classes, CSS variables, design tokens, and shared styles defined in `globals.css`.
+- Use existing global classes for text colors, background colors, typography, borders, spacing, and other common styling whenever available.
+- Do not introduce arbitrary colors, font sizes, or duplicate CSS rules when an existing project convention can be reused.
+- Maintain consistent typography, colors, spacing, and visual hierarchy across the entire application.
+- Add new global styles only when genuinely necessary, and keep them reusable.
+- Follow the existing theme and dark-mode conventions, if applicable.
+
+### 5. Always Use DataTable for Tables
+- Always use the project's existing reusable DataTable component for tabular data.
+- Do not create a separate custom HTML table when the DataTable component can handle the requirement.
+- **Every table must have visible borders between columns**, in addition to appropriate row borders.
+- Ensure table headers and cells are consistently aligned and styled.
+- Preserve existing DataTable features such as sorting, pagination, filtering, search, and responsive behavior wherever applicable.
+- Use reusable column definitions and appropriate cell renderers.
+- Handle loading, empty, and error states consistently with the project's existing DataTable conventions.
+- If the DataTable lacks a required feature, extend the reusable component rather than creating a duplicate implementation.
+
+### Final Requirement
+Before implementing anything, inspect the existing project structure and identify the available shared components, DataTable, toast system, validation utilities, skeleton components, and global CSS classes.
+
+Reuse existing implementations whenever possible. Do not install additional packages or introduce a new library if the project already has a suitable solution.
+
+Apply these rules consistently to all future development and preserve the existing project conventions.
