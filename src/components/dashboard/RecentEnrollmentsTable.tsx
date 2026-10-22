@@ -15,18 +15,18 @@ const columns: ColumnDef<DashboardEnrollment>[] = [
     key: "student",
     header: "Student",
     render: (row) => (
-      <div className="flex items-center gap-2.5">
-        <div className="relative w-7 h-7 rounded-full overflow-hidden bg-slate-100 shrink-0">
+      <div className="flex items-center gap-2">
+        <div className="relative w-6 h-6 rounded-full overflow-hidden bg-slate-100 shrink-0">
           <Image
             src={row.student.avatarUrl}
             alt={row.student.name}
             fill
-            sizes="28px"
+            sizes="24px"
             className="object-cover"
             unoptimized
           />
         </div>
-        <span className="body-sm-medium text-primary-500 font-medium truncate max-w-[130px]">
+        <span className="body-sm-medium text-primary-500 font-medium truncate max-w-[110px]">
           {row.student.name}
         </span>
       </div>
@@ -36,7 +36,7 @@ const columns: ColumnDef<DashboardEnrollment>[] = [
     key: "course",
     header: "Course",
     render: (row) => (
-      <span className="body-sm-regular text-primary-400">
+      <span className="body-sm-regular text-primary-400 truncate max-w-[130px] block">
         {row.course}
       </span>
     ),
@@ -45,8 +45,8 @@ const columns: ColumnDef<DashboardEnrollment>[] = [
     key: "progress",
     header: "Progress",
     render: (row) => (
-      <div className="flex items-center gap-3 max-w-[130px]">
-        <span className="body-xsm-medium text-primary-500 w-8 font-semibold">
+      <div className="flex items-center gap-2.5 max-w-[120px]">
+        <span className="body-2xsm-regular text-primary-500 w-7 font-bold">
           {row.progress}%
         </span>
         <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
@@ -75,8 +75,8 @@ export function RecentEnrollmentsTable({
   return (
     <div className="bg-white rounded-2xl border border-dash shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden flex flex-col justify-between">
       {/* Header */}
-      <div className="px-5 py-4 flex items-center justify-between">
-        <h3 className="heading-h5 font-bold text-primary-500">
+      <div className="px-4 py-3 flex items-center justify-between">
+        <h3 className="heading-h6 font-bold text-primary-500 text-sm">
           Recent Enrollments
         </h3>
         <Link
@@ -96,8 +96,8 @@ export function RecentEnrollmentsTable({
           containerClassName="border-0 rounded-none w-full"
           tableClassName="w-full"
           headerClassName="bg-transparent border-b border-dash body-2xsm-regular text-primary-300 font-semibold uppercase tracking-wider"
-          thClassName="px-5 py-3 border-none"
-          cellClassName="px-5 py-3.5 border-none"
+          thClassName="px-4 py-2.5 border-none"
+          cellClassName="px-4 py-2.5 border-none"
         />
       </div>
     </div>

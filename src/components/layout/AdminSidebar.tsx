@@ -101,55 +101,57 @@ export function AdminSidebar() {
         <div
           className={cn(
             "h-16 flex items-center border-b border-dash shrink-0 transition-all",
-            collapsed ? "px-2.5 justify-between" : "px-4 justify-between"
+            collapsed ? "px-3 justify-center" : "px-4 justify-between"
           )}
         >
-          <div className="flex items-center gap-2.5 overflow-hidden">
+          {collapsed ? (
+            /* Collapsed Header: Centered Logo + Click to Expand */
             <button
               type="button"
-              onClick={() => collapsed && dispatch(toggleSidebar())}
-              className={cn(
-                "w-9 h-9 rounded-xl bg-brand-orange-light flex items-center justify-center shrink-0 transition-transform",
-                collapsed ? "cursor-pointer hover:scale-105" : ""
-              )}
-              title={collapsed ? "Click to expand sidebar" : "EduPro LMS"}
+              onClick={() => dispatch(toggleSidebar())}
+              className="w-10 h-10 rounded-xl bg-brand-orange-light flex items-center justify-center cursor-pointer hover:scale-105 transition-all shadow-2xs group relative"
+              title="Click to expand sidebar"
             >
               <EduProCapIcon className="w-6 h-6 text-brand-orange" />
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-brand-orange text-white flex items-center justify-center shadow-xs">
+                <ChevronRight className="w-3 h-3" />
+              </div>
             </button>
-
-            {!collapsed && (
-              <Link href="/" className="flex flex-col text-left">
-                <span className="body-medium font-extrabold text-primary-500 tracking-tight leading-none">
-                  EduPro
-                </span>
-                <span className="body-2xsm-regular text-primary-300 mt-0.5 leading-none">
-                  LMS Admin Panel
-                </span>
+          ) : (
+            /* Expanded Header: Brand + Text + Collapse Chevron */
+            <>
+              <Link href="/" className="flex items-center gap-2.5 overflow-hidden">
+                <div className="w-9 h-9 rounded-xl bg-brand-orange-light flex items-center justify-center shrink-0">
+                  <EduProCapIcon className="w-6 h-6 text-brand-orange" />
+                </div>
+                <div className="flex flex-col text-left">
+                  <span className="body-medium font-extrabold text-primary-500 tracking-tight leading-none">
+                    EduPro
+                  </span>
+                  <span className="body-2xsm-regular text-primary-300 mt-0.5 leading-none">
+                    LMS Admin Panel
+                  </span>
+                </div>
               </Link>
-            )}
-          </div>
 
-          {/* Toggle Button in Header - Always Visible */}
-          <button
-            type="button"
-            onClick={() => dispatch(toggleSidebar())}
-            className="p-1.5 rounded-lg text-primary-300 hover:text-brand-orange hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
-            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          >
-            {collapsed ? (
-              <ChevronRight className="w-4 h-4 text-brand-orange" />
-            ) : (
-              <ChevronLeft className="w-4 h-4" />
-            )}
-          </button>
+              <button
+                type="button"
+                onClick={() => dispatch(toggleSidebar())}
+                className="p-1.5 rounded-lg text-primary-300 hover:text-brand-orange hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
+                title="Collapse sidebar"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+            </>
+          )}
         </div>
 
         {/* Scrollable Navigation Categories */}
-        <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-4 text-left custom-scrollbar">
+        <nav className="flex-1 overflow-y-auto px-2.5 py-3 space-y-3.5 text-left custom-scrollbar">
           {SIDEBAR_SECTIONS.map((section) => (
             <div key={section.category} className="space-y-1">
               {!collapsed && (
-                <div className="px-3 py-1 body-2xsm-regular font-semibold text-primary-300 tracking-wider">
+                <div className="px-3 pt-1 pb-0.5 text-[13px] font-bold text-primary-400 tracking-wider uppercase select-none">
                   {section.category}
                 </div>
               )}
@@ -170,13 +172,14 @@ export function AdminSidebar() {
                         "flex items-center gap-3 px-3 py-2 rounded-xl transition-all group",
                         isActive
                           ? "bg-brand-orange-light text-brand-orange font-semibold border-l-4 border-brand-orange rounded-l-none"
-                          : "text-primary-400 hover:bg-slate-50 hover:text-primary-500"
+                          : "text-primary-400 hover:bg-slate-50 hover:text-primary-500",
+                        collapsed && "justify-center px-0 w-11 h-10 mx-auto"
                       )}
                       title={collapsed ? item.label : undefined}
                     >
                       <Icon
                         className={cn(
-                          "w-4 h-4 shrink-0 transition-colors",
+                          "w-4.5 h-4.5 shrink-0 transition-colors",
                           isActive
                             ? "text-brand-orange"
                             : "text-primary-300 group-hover:text-primary-400"
@@ -196,29 +199,19 @@ export function AdminSidebar() {
         </nav>
       </div>
 
-      {/* Collapse Toggle Footer */}
-      <div className="p-3 border-t border-dash">
-        <button
-          type="button"
-          onClick={() => dispatch(toggleSidebar())}
-          className={cn(
-            "w-full flex items-center justify-center p-2 rounded-xl transition-colors cursor-pointer",
-            collapsed
-              ? "bg-brand-orange-light text-brand-orange hover:bg-brand-orange hover:text-white"
-              : "text-primary-400 hover:bg-slate-50 hover:text-primary-500"
-          )}
-          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-        >
-          {collapsed ? (
-            <ChevronRight className="w-5 h-5" />
-          ) : (
-            <div className="flex items-center gap-2">
-              <ChevronLeft className="w-4 h-4" />
-              <span className="body-sm-medium">Collapse</span>
-            </div>
-          )}
-        </button>
-      </div>
+      {/* Collapse Toggle Footer (only visible when collapsed) */}
+      {collapsed && (
+        <div className="p-2.5 border-t border-dash">
+          <button
+            type="button"
+            onClick={() => dispatch(toggleSidebar())}
+            className="w-full flex items-center justify-center p-2 rounded-xl bg-brand-orange-light text-brand-orange hover:bg-brand-orange hover:text-white transition-all cursor-pointer shadow-2xs"
+            title="Expand sidebar"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+      )}
     </aside>
   );
 }

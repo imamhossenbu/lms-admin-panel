@@ -52,7 +52,7 @@ export function StudentGrowthChart({ data }: StudentGrowthChartProps) {
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={data}
-            margin={{ top: 20, right: 10, left: -10, bottom: 0 }}
+            margin={{ top: 15, right: 10, left: -10, bottom: 20 }}
             barCategoryGap={24}
           >
             <CartesianGrid
@@ -65,8 +65,8 @@ export function StudentGrowthChart({ data }: StudentGrowthChartProps) {
               dataKey="date"
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "#94A3B8", fontSize: 12 }}
-              dy={10}
+              tick={{ fill: "#94A3B8", fontSize: 11 }}
+              dy={6}
             />
 
             <YAxis

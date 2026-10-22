@@ -21,7 +21,7 @@ const PRESETS = [
 const DAYS_OF_WEEK = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 
 export function DateRangePicker({
-  initialRange = "Oct 01, 2026 - Oct 20, 2026",
+  initialRange = "Oct 01 - Oct 20, 2026",
   onRangeApply,
 }: DateRangePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -74,7 +74,7 @@ export function DateRangePicker({
   };
 
   const handleApply = () => {
-    const formatted = `Oct ${startDay < 10 ? `0${startDay}` : startDay}, 2026 - Oct ${
+    const formatted = `Oct ${startDay < 10 ? `0${startDay}` : startDay} - Oct ${
       endDay < 10 ? `0${endDay}` : endDay
     }, 2026`;
     setDisplayedRange(formatted);
@@ -95,11 +95,11 @@ export function DateRangePicker({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-dash bg-white body-sm-medium text-primary-500 shadow-2xs hover:bg-slate-50 transition-colors cursor-pointer"
+        className="flex items-center gap-2 px-3 py-2 rounded-xl border border-dash bg-white body-sm-medium text-primary-500 shadow-2xs hover:bg-slate-50 transition-colors cursor-pointer"
       >
-        <CalendarIcon className="w-4 h-4 text-primary-400" />
-        <span className="truncate max-w-[170px]">{displayedRange}</span>
-        <ChevronDown className="w-3.5 h-3.5 text-primary-300" />
+        <CalendarIcon className="w-4 h-4 text-primary-400 shrink-0" />
+        <span className="whitespace-nowrap text-xs sm:text-sm">{displayedRange}</span>
+        <ChevronDown className="w-3.5 h-3.5 text-primary-300 shrink-0" />
       </button>
 
       {/* Floating Date Range Picker Card */}

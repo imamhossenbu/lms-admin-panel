@@ -14,20 +14,20 @@ interface RecentOrdersTableProps {
 function StatusBadge({ status }: { status: OrderStatus }) {
   if (status === "Completed") {
     return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full body-xsm-medium bg-green-bg text-green font-semibold">
+      <span className="inline-flex items-center px-2 py-0.5 rounded-full body-2xsm-regular bg-green-bg text-green font-semibold">
         Completed
       </span>
     );
   }
   if (status === "Pending") {
     return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full body-xsm-medium bg-[#FFF4ED] text-[#FF5B00] font-semibold">
+      <span className="inline-flex items-center px-2 py-0.5 rounded-full body-2xsm-regular bg-[#FFF4ED] text-[#FF5B00] font-semibold">
         Pending
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full body-xsm-medium bg-red-14 text-red-dark font-semibold">
+    <span className="inline-flex items-center px-2 py-0.5 rounded-full body-2xsm-regular bg-red-14 text-red-dark font-semibold">
       Failed
     </span>
   );
@@ -38,7 +38,7 @@ const columns: ColumnDef<DashboardOrder>[] = [
     key: "orderNumber",
     header: "Order ID",
     render: (row) => (
-      <span className="body-sm-medium text-primary-500 font-medium">
+      <span className="body-sm-medium text-primary-500 font-medium whitespace-nowrap">
         {row.orderNumber}
       </span>
     ),
@@ -47,18 +47,18 @@ const columns: ColumnDef<DashboardOrder>[] = [
     key: "student",
     header: "Student",
     render: (row) => (
-      <div className="flex items-center gap-2.5">
-        <div className="relative w-7 h-7 rounded-full overflow-hidden bg-slate-100 shrink-0">
+      <div className="flex items-center gap-2">
+        <div className="relative w-6 h-6 rounded-full overflow-hidden bg-slate-100 shrink-0">
           <Image
             src={row.student.avatarUrl}
             alt={row.student.name}
             fill
-            sizes="28px"
+            sizes="24px"
             className="object-cover"
             unoptimized
           />
         </div>
-        <span className="body-sm-medium text-primary-500 font-medium truncate max-w-[120px]">
+        <span className="body-sm-medium text-primary-500 font-medium truncate max-w-[105px]">
           {row.student.name}
         </span>
       </div>
@@ -68,7 +68,7 @@ const columns: ColumnDef<DashboardOrder>[] = [
     key: "course",
     header: "Course",
     render: (row) => (
-      <span className="body-sm-regular text-primary-400">
+      <span className="body-sm-regular text-primary-400 truncate max-w-[120px] block">
         {row.course}
       </span>
     ),
@@ -77,7 +77,7 @@ const columns: ColumnDef<DashboardOrder>[] = [
     key: "amount",
     header: "Amount",
     render: (row) => (
-      <span className="body-sm-medium font-semibold text-primary-500">
+      <span className="body-sm-medium font-semibold text-primary-500 whitespace-nowrap">
         ${row.amount.toFixed(2)}
       </span>
     ),
@@ -105,8 +105,8 @@ export function RecentOrdersTable({ orders }: RecentOrdersTableProps) {
   return (
     <div className="bg-white rounded-2xl border border-dash shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden flex flex-col justify-between">
       {/* Header */}
-      <div className="px-5 py-4 flex items-center justify-between">
-        <h3 className="heading-h5 font-bold text-primary-500">
+      <div className="px-4 py-3 flex items-center justify-between">
+        <h3 className="heading-h6 font-bold text-primary-500 text-sm">
           Recent Orders
         </h3>
         <Link
@@ -126,8 +126,8 @@ export function RecentOrdersTable({ orders }: RecentOrdersTableProps) {
           containerClassName="border-0 rounded-none w-full"
           tableClassName="w-full"
           headerClassName="bg-transparent border-b border-dash body-2xsm-regular text-primary-300 font-semibold uppercase tracking-wider"
-          thClassName="px-5 py-3 border-none"
-          cellClassName="px-5 py-3.5 border-none"
+          thClassName="px-3.5 py-2.5 border-none"
+          cellClassName="px-3.5 py-2.5 border-none"
         />
       </div>
     </div>
