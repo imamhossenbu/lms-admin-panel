@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import {
   ChevronRight,
-  MoreHorizontal,
   Edit2,
   Eye,
   Layers,
@@ -26,7 +25,6 @@ export function CategoryTable({
   onViewDetails,
   onEditSubCategory,
 }: CategoryTableProps) {
-  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
   const [expandedRowKeys, setExpandedRowKeys] = useState<(string | number)[]>(
     []
   );
@@ -166,57 +164,41 @@ export function CategoryTable({
     {
       key: "actions",
       header: "Actions",
-      width: "64px",
+      width: "84px",
       align: "center",
       render: (row) => (
-        <div className="relative flex justify-center">
+        <div className="flex items-center justify-center gap-1.5">
+          {/* View Details Icon Button */}
           <button
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              setActiveMenuId(activeMenuId === row.id ? null : row.id);
+              onViewDetails(row);
             }}
-            className="p-1.5 rounded-lg text-primary-300 hover:text-primary-500 hover:bg-slate-200/60 transition-colors cursor-pointer"
-            title="Category Actions"
+            className="w-7 h-7 flex items-center justify-center rounded-lg border border-dash bg-white hover:bg-slate-100 text-primary-400 hover:text-primary-600 transition-colors cursor-pointer shadow-2xs"
+            title={`View details for "${row.name}"`}
           >
-            <MoreHorizontal className="w-4 h-4" />
+            <Eye className="w-3.5 h-3.5" />
           </button>
 
-          {activeMenuId === row.id && (
-            <div
-              className="absolute right-0 top-8 mt-1 w-40 bg-white rounded-xl shadow-xl border border-dash py-1 z-30 animate-in fade-in zoom-in-95 duration-100 text-left"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveMenuId(null);
-                  onViewDetails(row);
-                }}
-                className="w-full flex items-center gap-2 px-3.5 py-2 body-sm-regular text-primary-500 hover:bg-slate-50 transition-colors cursor-pointer"
-              >
-                <Eye className="w-3.5 h-3.5 text-primary-400" />
-                <span>View Details</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveMenuId(null);
-                  onEdit(row);
-                }}
-                className="w-full flex items-center gap-2 px-3.5 py-2 body-sm-regular text-primary-500 hover:bg-slate-50 transition-colors cursor-pointer"
-              >
-                <Edit2 className="w-3.5 h-3.5 text-primary-400" />
-                <span>Edit Category</span>
-              </button>
-            </div>
-          )}
+          {/* Edit Category Icon-Only Button */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit(row);
+            }}
+            className="w-7 h-7 flex items-center justify-center rounded-lg border border-dash bg-white hover:bg-brand-orange-light text-primary-400 hover:text-brand-orange hover:border-brand-orange/40 transition-colors cursor-pointer shadow-2xs"
+            title={`Edit category "${row.name}"`}
+          >
+            <Edit2 className="w-3.5 h-3.5 text-brand-orange" />
+          </button>
         </div>
       ),
     },
   ];
 
-  // Render expanded row showing nested subcategories with smooth layout and edit buttons
+  // Render expanded row showing nested subcategories with icon-only edit button
   const renderExpandedRow = (row: CategoryItem) => {
     const subCategories = row.subCategories || [];
 
@@ -253,7 +235,7 @@ export function CategoryTable({
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3.5">
+                <div className="flex items-center gap-3">
                   <span className="body-2xsm-regular px-2.5 py-1 rounded-md bg-slate-100 text-primary-500 font-medium">
                     {sub.courseCount} courses
                   </span>
@@ -265,18 +247,17 @@ export function CategoryTable({
                     {sub.status}
                   </ToneBadge>
 
-                  {/* Sub-Category Edit Action Button */}
+                  {/* Sub-Category Edit Icon-Only Button */}
                   <button
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       onEditSubCategory(sub, row);
                     }}
-                    className="flex items-center gap-1.5 px-3 py-1 rounded-lg border border-dash bg-white hover:bg-brand-orange-light text-primary-500 hover:text-brand-orange hover:border-brand-orange/40 transition-all cursor-pointer body-2xsm-regular font-bold shadow-2xs"
+                    className="w-7 h-7 flex items-center justify-center rounded-lg border border-dash bg-white hover:bg-brand-orange-light text-primary-400 hover:text-brand-orange hover:border-brand-orange/40 transition-all cursor-pointer shadow-2xs"
                     title={`Edit sub-category "${sub.name}"`}
                   >
                     <Edit2 className="w-3.5 h-3.5 text-brand-orange" />
-                    <span>Edit</span>
                   </button>
                 </div>
               </div>
@@ -292,10 +273,7 @@ export function CategoryTable({
   };
 
   return (
-    <div
-      className="w-full overflow-x-auto text-left"
-      onClick={() => setActiveMenuId(null)}
-    >
+    <div className="w-full overflow-x-auto text-left">
       <DataTable
         columns={columns}
         data={categories}
