@@ -35,7 +35,6 @@ export function StudentSkeleton() {
         {/* Table Header Skeleton */}
         <div className="bg-[#F1F3F5] border-b border-dash px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-6">
-            <div className="h-4 w-4 bg-slate-200 rounded" />
             <div className="h-4 w-6 bg-slate-200 rounded" />
             <div className="h-4 w-24 bg-slate-200 rounded" />
             <div className="h-4 w-36 bg-slate-200 rounded hidden md:block" />
@@ -54,7 +53,6 @@ export function StudentSkeleton() {
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
             <div key={i} className="px-4 py-3.5 flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="w-4 h-4 bg-slate-100 rounded" />
                 <div className="w-5 h-4 bg-slate-100 rounded text-center" />
                 <div className="w-8 h-8 rounded-full bg-slate-200 shrink-0" />
                 <div className="h-4 w-28 bg-slate-200 rounded" />

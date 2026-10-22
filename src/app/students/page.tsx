@@ -21,14 +21,13 @@ export default function StudentsPage() {
   const [dateFilter, setDateFilter] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>(["std-1"]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Side Drawers state (Right side details is a drawer, NOT a static panel!)
+  // Side Drawer states (Details drawer supports smooth inline editing!)
   const [selectedStudent, setSelectedStudent] = useState<StudentItem | null>(null);
   const [isDetailsDrawerOpen, setIsDetailsDrawerOpen] = useState(false);
-  const [isFormDrawerOpen, setIsFormDrawerOpen] = useState(false);
-  const [formDrawerMode, setFormDrawerMode] = useState<"add" | "edit">("add");
+  const [detailsInitialEditMode, setDetailsInitialEditMode] = useState(false);
+  const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
 
   // Filtering
   const filteredStudents = useMemo(() => {
@@ -61,125 +60,93 @@ export default function StudentsPage() {
 
   const totalPages = Math.ceil(filteredStudents.length / pageSize) || 1;
 
-  // Selection Handlers
-  const handleSelectStudent = (id: string, checked: boolean) => {
-    if (checked) {
-      setSelectedStudentIds((prev) => [...prev, id]);
-    } else {
-      setSelectedStudentIds((prev) => prev.filter((item) => item !== id));
-    }
-  };
-
-  const handleSelectAll = (checked: boolean) => {
-    if (checked) {
-      setSelectedStudentIds(paginatedStudents.map((s) => s.id));
-    } else {
-      setSelectedStudentIds([]);
-    }
-  };
-
   // Drawer triggers
   const handleViewDetails = (student: StudentItem) => {
     setSelectedStudent(student);
+    setDetailsInitialEditMode(false);
+    setIsDetailsDrawerOpen(true);
+  };
+
+  const handleOpenEditFromTable = (student: StudentItem) => {
+    setSelectedStudent(student);
+    setDetailsInitialEditMode(true);
     setIsDetailsDrawerOpen(true);
   };
 
   const handleOpenAdd = () => {
-    setSelectedStudent(null);
-    setFormDrawerMode("add");
-    setIsFormDrawerOpen(true);
+    setIsAddDrawerOpen(true);
   };
 
-  const handleOpenEdit = (student: StudentItem) => {
-    setSelectedStudent(student);
-    setFormDrawerMode("edit");
-    setIsFormDrawerOpen(true);
+  // Update existing student info (called from drawer's inline edit)
+  const handleUpdateStudent = (
+    studentId: string,
+    updatedData: {
+      name: string;
+      email: string;
+      phone: string;
+      status: StudentStatus;
+    }
+  ) => {
+    setStudents((prev) =>
+      prev.map((s) => (s.id === studentId ? { ...s, ...updatedData } : s))
+    );
+
+    setSelectedStudent((prev) =>
+      prev && prev.id === studentId ? { ...prev, ...updatedData } : prev
+    );
   };
 
-  // Add / Edit Save Handler
-  const handleSaveStudent = (payload: {
-    id?: string;
+  // Add New Student
+  const handleAddStudent = (payload: {
     name: string;
     email: string;
     phone: string;
     status: StudentStatus;
     initialCourse?: string;
   }) => {
-    if (payload.id) {
-      // Edit existing
-      setStudents((prev) =>
-        prev.map((s) =>
-          s.id === payload.id
-            ? {
-                ...s,
-                name: payload.name,
-                email: payload.email,
-                phone: payload.phone,
-                status: payload.status,
-              }
-            : s
-        )
-      );
+    const newStd: StudentItem = {
+      id: `std-${Date.now()}`,
+      orderNumber: students.length + 1,
+      name: payload.name,
+      email: payload.email,
+      phone: payload.phone,
+      status: payload.status,
+      enrolledCoursesCount: payload.initialCourse ? 1 : 0,
+      completedCoursesCount: 0,
+      completionRate: 0,
+      joinDate: new Date().toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      }),
+      totalWatchTime: "0h 0m",
+      averageScore: 0,
+      avatarUrl: `https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&auto=format&fit=crop&q=80`,
+      enrolledCourses: payload.initialCourse
+        ? [
+            {
+              id: `c-${Date.now()}`,
+              title: payload.initialCourse,
+              progress: 0,
+              enrolledDate: "Today",
+              completedLessons: 0,
+              totalLessons: 20,
+              instructor: "EduPro Faculty",
+              category: "General",
+            },
+          ]
+        : [],
+      recentActivities: [
+        {
+          id: `act-${Date.now()}`,
+          action: "Account registered and onboarded",
+          timestamp: "Just now",
+          iconType: "enroll",
+        },
+      ],
+    };
 
-      if (selectedStudent && selectedStudent.id === payload.id) {
-        setSelectedStudent((prev) =>
-          prev
-            ? {
-                ...prev,
-                name: payload.name,
-                email: payload.email,
-                phone: payload.phone,
-                status: payload.status,
-              }
-            : null
-        );
-      }
-    } else {
-      // Create new student
-      const newStd: StudentItem = {
-        id: `std-${Date.now()}`,
-        orderNumber: students.length + 1,
-        name: payload.name,
-        email: payload.email,
-        phone: payload.phone,
-        status: payload.status,
-        enrolledCoursesCount: payload.initialCourse ? 1 : 0,
-        completedCoursesCount: 0,
-        completionRate: 0,
-        joinDate: new Date().toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        }),
-        totalWatchTime: "0h 0m",
-        averageScore: 0,
-        avatarUrl: `https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&auto=format&fit=crop&q=80`,
-        enrolledCourses: payload.initialCourse
-          ? [
-              {
-                id: `c-${Date.now()}`,
-                title: payload.initialCourse,
-                progress: 0,
-                enrolledDate: "Today",
-                completedLessons: 0,
-                totalLessons: 20,
-                instructor: "EduPro Faculty",
-                category: "General",
-              },
-            ]
-          : [],
-        recentActivities: [
-          {
-            id: `act-${Date.now()}`,
-            action: "Account created and onboarded",
-            timestamp: "Just now",
-            iconType: "enroll",
-          },
-        ],
-      };
-
-      setStudents((prev) => [newStd, ...prev]);
-    }
+    setStudents((prev) => [newStd, ...prev]);
   };
 
   // Remove Student Handler
@@ -259,14 +226,11 @@ export default function StudentsPage() {
           onExport={handleExport}
         />
 
-        {/* Full-width DataTable with column borders */}
+        {/* Full-width DataTable without checkboxes, with # column and column borders */}
         <StudentTable
           students={paginatedStudents}
-          selectedStudentIds={selectedStudentIds}
-          onSelectStudent={handleSelectStudent}
-          onSelectAll={handleSelectAll}
           onViewDetails={handleViewDetails}
-          onEdit={handleOpenEdit}
+          onEdit={handleOpenEditFromTable}
         />
 
         {/* Pagination Footer */}
@@ -280,25 +244,26 @@ export default function StudentsPage() {
         />
       </div>
 
-      {/* 3. Slide-Over Side Drawer for Student Details (Opened on row click or details action) */}
+      {/* 3. Slide-Over Side Drawer for Student Details (Supports Smooth Inline Editing of Info!) */}
       <StudentDetailsDrawer
         isOpen={isDetailsDrawerOpen}
         student={selectedStudent}
-        onClose={() => setIsDetailsDrawerOpen(false)}
-        onEdit={(student) => {
+        initialEditMode={detailsInitialEditMode}
+        onClose={() => {
           setIsDetailsDrawerOpen(false);
-          handleOpenEdit(student);
+          setDetailsInitialEditMode(false);
         }}
+        onUpdateStudent={handleUpdateStudent}
         onDeleteStudent={handleDeleteStudent}
       />
 
-      {/* 4. Slide-Over Side Drawer for Add / Edit Student */}
+      {/* 4. Slide-Over Side Drawer for Add Student */}
       <AddStudentDrawer
-        isOpen={isFormDrawerOpen}
-        mode={formDrawerMode}
-        student={selectedStudent}
-        onClose={() => setIsFormDrawerOpen(false)}
-        onSave={handleSaveStudent}
+        isOpen={isAddDrawerOpen}
+        mode="add"
+        student={null}
+        onClose={() => setIsAddDrawerOpen(false)}
+        onSave={handleAddStudent}
       />
     </motion.div>
   );

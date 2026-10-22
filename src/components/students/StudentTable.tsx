@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { Eye, Edit2, MoreHorizontal } from "lucide-react";
+import React from "react";
+import { Eye, Edit2 } from "lucide-react";
 import { StudentItem } from "@/types/student";
 import { DataTable, ColumnDef } from "@/components/ui/Datatable";
 import { ToneBadge } from "@/components/ui/ToneBadge";
@@ -9,28 +9,20 @@ import { Avatar } from "@/components/ui/Avatar";
 
 interface StudentTableProps {
   students: StudentItem[];
-  selectedStudentIds: string[];
-  onSelectStudent: (id: string, selected: boolean) => void;
-  onSelectAll: (selected: boolean) => void;
   onViewDetails: (student: StudentItem) => void;
   onEdit: (student: StudentItem) => void;
 }
 
 export function StudentTable({
   students,
-  selectedStudentIds,
-  onSelectStudent,
-  onSelectAll,
   onViewDetails,
   onEdit,
 }: StudentTableProps) {
-  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
-
   const columns: ColumnDef<StudentItem>[] = [
     {
       key: "number",
       header: "#",
-      width: "48px",
+      width: "52px",
       align: "center",
       render: (row) => (
         <span className="body-sm-medium text-primary-400">
@@ -135,69 +127,47 @@ export function StudentTable({
     {
       key: "actions",
       header: "Actions",
-      width: "68px",
+      width: "80px",
       align: "center",
       render: (row) => (
-        <div className="relative flex justify-center">
+        <div className="flex items-center justify-center gap-1.5">
+          {/* View Details Icon Button */}
           <button
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              setActiveMenuId(activeMenuId === row.id ? null : row.id);
+              onViewDetails(row);
             }}
-            className="p-1.5 rounded-lg text-primary-300 hover:text-primary-500 hover:bg-slate-100 transition-colors cursor-pointer"
-            title="Options"
+            className="w-7 h-7 flex items-center justify-center rounded-lg border border-dash bg-white hover:bg-slate-100 text-primary-400 hover:text-primary-600 transition-colors cursor-pointer shadow-2xs"
+            title={`View details for ${row.name}`}
           >
-            <MoreHorizontal className="w-4 h-4" />
+            <Eye className="w-3.5 h-3.5" />
           </button>
 
-          {activeMenuId === row.id && (
-            <div
-              className="absolute right-0 top-8 mt-1 w-36 bg-white rounded-xl shadow-xl border border-dash py-1 z-30 animate-in fade-in zoom-in-95 duration-100 text-left"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveMenuId(null);
-                  onViewDetails(row);
-                }}
-                className="w-full flex items-center gap-2 px-3 py-1.5 body-sm-regular text-primary-500 hover:bg-slate-50 transition-colors cursor-pointer"
-              >
-                <Eye className="w-3.5 h-3.5 text-primary-400" />
-                <span>View Details</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveMenuId(null);
-                  onEdit(row);
-                }}
-                className="w-full flex items-center gap-2 px-3 py-1.5 body-sm-regular text-primary-500 hover:bg-slate-50 transition-colors cursor-pointer"
-              >
-                <Edit2 className="w-3.5 h-3.5 text-primary-400" />
-                <span>Edit Info</span>
-              </button>
-            </div>
-          )}
+          {/* Edit Student Icon Button */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit(row);
+            }}
+            className="w-7 h-7 flex items-center justify-center rounded-lg border border-dash bg-white hover:bg-brand-orange-light text-primary-400 hover:text-brand-orange hover:border-brand-orange/40 transition-colors cursor-pointer shadow-2xs"
+            title={`Edit info for ${row.name}`}
+          >
+            <Edit2 className="w-3.5 h-3.5 text-brand-orange" />
+          </button>
         </div>
       ),
     },
   ];
 
   return (
-    <div
-      className="w-full overflow-x-auto text-left"
-      onClick={() => setActiveMenuId(null)}
-    >
+    <div className="w-full overflow-x-auto text-left">
       <DataTable
         columns={columns}
         data={students}
         rowKey={(row) => row.id}
-        selectable={true}
-        selectedRowKeys={selectedStudentIds}
-        onSelectRow={(key, checked) => onSelectStudent(String(key), checked)}
-        onSelectAll={onSelectAll}
+        selectable={false}
         onRowClick={(row) => onViewDetails(row)}
         verticalBorders={true}
         containerClassName="border-0 rounded-none w-full"

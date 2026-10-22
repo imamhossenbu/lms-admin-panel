@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
@@ -10,22 +10,33 @@ import {
   Trophy,
   ChevronRight,
   Trash2,
-  Calendar,
   Award,
-  Layers,
-  ArrowRight,
+  Edit2,
+  Check,
 } from "lucide-react";
-import { StudentItem } from "@/types/student";
+import { StudentItem, StudentStatus } from "@/types/student";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 import { Avatar } from "@/components/ui/Avatar";
+import { InputField } from "@/components/ui/InputField";
+import { PrimaryButton } from "@/components/ui/primary-button";
+import { SecondaryButton } from "@/components/ui/secondary-button";
 import { toast } from "sonner";
 import Image from "next/image";
 
 interface StudentDetailsDrawerProps {
   isOpen: boolean;
   student: StudentItem | null;
+  initialEditMode?: boolean;
   onClose: () => void;
-  onEdit: (student: StudentItem) => void;
+  onUpdateStudent: (
+    studentId: string,
+    updatedData: {
+      name: string;
+      email: string;
+      phone: string;
+      status: StudentStatus;
+    }
+  ) => void;
   onDeleteStudent: (student: StudentItem) => void;
 }
 
@@ -34,14 +45,89 @@ type TabKey = "overview" | "courses" | "progress" | "activity";
 export function StudentDetailsDrawer({
   isOpen,
   student,
+  initialEditMode = false,
   onClose,
-  onEdit,
+  onUpdateStudent,
   onDeleteStudent,
 }: StudentDetailsDrawerProps) {
   const [activeTab, setActiveTab] = useState<TabKey>("overview");
+  const [isEditingInfo, setIsEditingInfo] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Form states for inline editing
+  const [formName, setFormName] = useState("");
+  const [formEmail, setFormEmail] = useState("");
+  const [formPhone, setFormPhone] = useState("");
+  const [formStatus, setFormStatus] = useState<StudentStatus>("Active");
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  useEffect(() => {
+    if (student) {
+      setFormName(student.name);
+      setFormEmail(student.email);
+      setFormPhone(student.phone);
+      setFormStatus(student.status);
+      setErrors({});
+      setIsEditingInfo(initialEditMode);
+      setShowDeleteConfirm(false);
+    }
+  }, [student, isOpen, initialEditMode]);
 
   if (!student) return null;
+
+  const handleStartEdit = () => {
+    setFormName(student.name);
+    setFormEmail(student.email);
+    setFormPhone(student.phone);
+    setFormStatus(student.status);
+    setErrors({});
+    setIsEditingInfo(true);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditingInfo(false);
+    setErrors({});
+  };
+
+  const handleSaveEdit = async () => {
+    const newErrors: { [key: string]: string } = {};
+
+    if (!formName.trim() || formName.trim().length < 2) {
+      newErrors.name = "Full name must be at least 2 characters";
+    }
+    if (!formEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formEmail)) {
+      newErrors.email = "Please provide a valid email address";
+    }
+    if (!formPhone.trim() || formPhone.trim().length < 8) {
+      newErrors.phone = "Phone number must be at least 8 digits";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setIsSaving(true);
+    const toastId = toast.loading("Saving changes...");
+
+    await new Promise((resolve) => setTimeout(resolve, 350));
+
+    onUpdateStudent(student.id, {
+      name: formName.trim(),
+      email: formEmail.trim(),
+      phone: formPhone.trim(),
+      status: formStatus,
+    });
+
+    toast.success("Student Information Updated", {
+      id: toastId,
+      description: `Details for ${formName} have been updated.`,
+    });
+
+    setIsSaving(false);
+    setIsEditingInfo(false);
+  };
 
   const handleDelete = () => {
     setShowDeleteConfirm(false);
@@ -207,56 +293,173 @@ export function StudentDetailsDrawer({
                     </div>
                   </div>
 
-                  {/* Personal Information Card */}
+                  {/* Personal Information Card (With Seamless Inline Edit!) */}
                   <div className="p-4 rounded-xl border border-dash bg-white shadow-2xs space-y-3">
                     <div className="flex items-center justify-between pb-2 border-b border-dash">
                       <h4 className="title-sm text-primary-500 font-bold">
                         Personal Information
                       </h4>
-                      <button
-                        type="button"
-                        onClick={() => onEdit(student)}
-                        className="body-sm-medium text-primary-400 hover:text-brand-orange transition-colors cursor-pointer"
-                      >
-                        Edit
-                      </button>
+                      {!isEditingInfo ? (
+                        <button
+                          type="button"
+                          onClick={handleStartEdit}
+                          className="body-sm-medium text-primary-400 hover:text-brand-orange transition-colors cursor-pointer flex items-center gap-1"
+                          title="Edit Personal Information"
+                        >
+                          <Edit2 className="w-3.5 h-3.5 text-brand-orange" />
+                          <span>Edit</span>
+                        </button>
+                      ) : (
+                        <span className="body-2xsm-regular px-2 py-0.5 rounded bg-brand-orange-light text-brand-orange font-semibold">
+                          Editing Mode
+                        </span>
+                      )}
                     </div>
 
-                    <div className="space-y-2 body-sm-regular text-left">
-                      <div className="flex items-center justify-between">
-                        <span className="text-primary-300">Full Name</span>
-                        <span className="text-primary-500 font-medium">
-                          {student.name}
-                        </span>
+                    {!isEditingInfo ? (
+                      /* Read-Only View */
+                      <div className="space-y-2 body-sm-regular text-left">
+                        <div className="flex items-center justify-between">
+                          <span className="text-primary-300">Full Name</span>
+                          <span className="text-primary-500 font-medium">
+                            {student.name}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-primary-300">Email</span>
+                          <span className="text-primary-500 font-medium font-mono text-[13px]">
+                            {student.email}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-primary-300">Phone</span>
+                          <span className="text-primary-500 font-medium">
+                            {student.phone}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-primary-300">Join Date</span>
+                          <span className="text-primary-500 font-medium">
+                            {student.joinDate}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-primary-300">Status</span>
+                          <ToneBadge
+                            tone={student.status === "Active" ? "green" : "red"}
+                            size="sm"
+                          >
+                            {student.status}
+                          </ToneBadge>
+                        </div>
                       </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-primary-300">Email</span>
-                        <span className="text-primary-500 font-medium font-mono text-[13px]">
-                          {student.email}
-                        </span>
+                    ) : (
+                      /* Inline Edit Form View */
+                      <div className="space-y-3 pt-1 animate-in fade-in duration-200">
+                        <div>
+                          <label className="block body-2xsm-regular text-primary-400 mb-1">
+                            Full Name <span className="text-red">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={formName}
+                            onChange={(e) => setFormName(e.target.value)}
+                            className="w-full h-9 px-3 rounded-lg border border-dash body-sm-regular text-primary-500 focus:outline-none focus:border-brand-orange bg-white"
+                            placeholder="Student name"
+                          />
+                          {errors.name && (
+                            <span className="body-2xsm-regular text-red mt-0.5 block">
+                              {errors.name}
+                            </span>
+                          )}
+                        </div>
+
+                        <div>
+                          <label className="block body-2xsm-regular text-primary-400 mb-1">
+                            Email Address <span className="text-red">*</span>
+                          </label>
+                          <input
+                            type="email"
+                            value={formEmail}
+                            onChange={(e) => setFormEmail(e.target.value)}
+                            className="w-full h-9 px-3 rounded-lg border border-dash body-sm-regular text-primary-500 focus:outline-none focus:border-brand-orange bg-white font-mono text-[13px]"
+                            placeholder="email@example.com"
+                          />
+                          {errors.email && (
+                            <span className="body-2xsm-regular text-red mt-0.5 block">
+                              {errors.email}
+                            </span>
+                          )}
+                        </div>
+
+                        <div>
+                          <label className="block body-2xsm-regular text-primary-400 mb-1">
+                            Phone Number <span className="text-red">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={formPhone}
+                            onChange={(e) => setFormPhone(e.target.value)}
+                            className="w-full h-9 px-3 rounded-lg border border-dash body-sm-regular text-primary-500 focus:outline-none focus:border-brand-orange bg-white"
+                            placeholder="+880 1..."
+                          />
+                          {errors.phone && (
+                            <span className="body-2xsm-regular text-red mt-0.5 block">
+                              {errors.phone}
+                            </span>
+                          )}
+                        </div>
+
+                        <div>
+                          <label className="block body-2xsm-regular text-primary-400 mb-1.5">
+                            Status <span className="text-red">*</span>
+                          </label>
+                          <div className="grid grid-cols-2 gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setFormStatus("Active")}
+                              className={`py-1.5 px-3 rounded-lg body-sm-medium font-semibold border transition-all cursor-pointer ${
+                                formStatus === "Active"
+                                  ? "bg-green-bg text-green border-green"
+                                  : "bg-white text-primary-400 border-dash hover:bg-slate-50"
+                              }`}
+                            >
+                              Active
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setFormStatus("Inactive")}
+                              className={`py-1.5 px-3 rounded-lg body-sm-medium font-semibold border transition-all cursor-pointer ${
+                                formStatus === "Inactive"
+                                  ? "bg-red-14 text-red border-red"
+                                  : "bg-white text-primary-400 border-dash hover:bg-slate-50"
+                              }`}
+                            >
+                              Inactive
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Inline Edit Action Buttons */}
+                        <div className="flex items-center justify-end gap-2 pt-2 border-t border-dash">
+                          <SecondaryButton
+                            onClick={handleCancelEdit}
+                            disabled={isSaving}
+                            size="sm"
+                          >
+                            Cancel
+                          </SecondaryButton>
+                          <PrimaryButton
+                            onClick={handleSaveEdit}
+                            isLoading={isSaving}
+                            leftIcon={<Check className="w-3.5 h-3.5" />}
+                            size="sm"
+                          >
+                            Save Changes
+                          </PrimaryButton>
+                        </div>
                       </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-primary-300">Phone</span>
-                        <span className="text-primary-500 font-medium">
-                          {student.phone}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-primary-300">Join Date</span>
-                        <span className="text-primary-500 font-medium">
-                          {student.joinDate}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-primary-300">Status</span>
-                        <ToneBadge
-                          tone={student.status === "Active" ? "green" : "red"}
-                          size="sm"
-                        >
-                          {student.status}
-                        </ToneBadge>
-                      </div>
-                    </div>
+                    )}
                   </div>
 
                   {/* Recent Enrollments Card */}
