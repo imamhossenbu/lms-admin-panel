@@ -27,7 +27,6 @@ import {
 import { AuthCardContainer } from "@/components/auth/AuthCardContainer";
 import { AuthLeftPanel } from "@/components/auth/AuthLeftPanel";
 import { AuthRightPanel } from "@/components/auth/AuthRightPanel";
-import { QuickDemoAccessBar } from "@/components/auth/QuickDemoAccessBar";
 import { LanguageSelector } from "@/components/auth/LanguageSelector";
 import { AuthFeature } from "@/components/auth/AuthFeatureList";
 
@@ -70,14 +69,14 @@ export default function LoginPage() {
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "admin@lms.com",
+      email: "imam.adsfixter@gmail.com",
       password: "admin123",
       rememberMe: true,
     },
   });
 
   const handleFillDemo = () => {
-    setValue("email", "admin@lms.com", { shouldValidate: true });
+    setValue("email", "imam.adsfixter@gmail.com", { shouldValidate: true });
     setValue("password", "admin123", { shouldValidate: true });
     setServerError(null);
   };
