@@ -1,291 +1,159 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
-import { PageHeader } from "@/components/ui/PageHeader";
-import PrimaryButton from "@/components/ui/primary-button";
-import SecondaryButton from "@/components/ui/secondary-button";
-import { categoriesApi } from "@/lib/api";
-import { AdminCategoryItem } from "@/lib/types";
-import { toast } from "sonner";
-import {
-  FolderTree,
-  Plus,
-  Search,
-  RotateCw,
-  LayoutGrid,
-  List,
-} from "lucide-react";
-import { useRouter } from "next/navigation";
-import { DEFAULT_CATEGORIES } from "@/components/categories/constants";
-import { CategoryStats } from "@/components/categories/CategoryStats";
-import { CategoryGrid } from "@/components/categories/CategoryGrid";
+import React, { useState, useMemo } from "react";
+import { motion } from "framer-motion";
+import { MOCK_CATEGORIES } from "@/data/mockCategoryData";
+import { CategoryItem } from "@/types/category";
+import { CategoryHeader } from "@/components/categories/CategoryHeader";
+import { CategoryToolbar } from "@/components/categories/CategoryToolbar";
 import { CategoryTable } from "@/components/categories/CategoryTable";
-import { DeleteCategoryModal } from "@/components/categories/DeleteCategoryModal";
+import { CategoryGrid } from "@/components/categories/CategoryGrid";
+import { CategoryPagination } from "@/components/categories/CategoryPagination";
+import { AddCategoryCard } from "@/components/categories/AddCategoryCard";
+import { CategorySkeleton } from "@/components/categories/CategorySkeleton";
+import { toast } from "sonner";
 
-export default function CategoriesManagementPage() {
-  const router = useRouter();
-  const [categories, setCategories] = useState<AdminCategoryItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+export default function CategoriesPage() {
+  const [categories, setCategories] = useState<CategoryItem[]>(MOCK_CATEGORIES);
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"ALL" | "ACTIVE" | "INACTIVE">("ALL");
-  const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [viewMode, setViewMode] = useState<"table" | "grid">("table");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [showAddPanel, setShowAddPanel] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Deleting modal state
-  const [deletingCategory, setDeletingCategory] = useState<AdminCategoryItem | null>(null);
+  const pageSize = 10;
 
-  // Load backend categories
-  const fetchCategories = async () => {
-    try {
-      const data = await categoriesApi.getAll();
-      if (Array.isArray(data)) {
-        const formatted: AdminCategoryItem[] = data.map((item: any) => ({
-          id: item.id,
-          name: item.name,
-          slug: item.slug || item.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
-          description: item.description || "Course discipline and curriculum category.",
-          icon: item.icon || "📚",
-          status: item.status || "ACTIVE",
-          _count: {
-            courses: item._count?.courses ?? item.courses?.length ?? 0,
-          },
-        }));
-        setCategories(formatted);
-      } else {
-        setCategories([]);
-      }
-    } catch (err) {
-      console.warn("Failed to load real categories:", err);
-      setCategories([]);
-    } finally {
-      setIsLoading(false);
-      setIsRefreshing(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  const handleRefresh = () => {
-    setIsRefreshing(true);
-    fetchCategories();
-    toast.success("Categories Synchronized", {
-      description: "Subject areas and curriculum density up to date.",
-    });
-  };
-
-  const handleOpenCreate = () => {
-    router.push("/categories/create");
-  };
-
-  const handleOpenEdit = (cat: AdminCategoryItem) => {
-    router.push(`/categories/${cat.id}/edit`);
-  };
-
-  const handleOpenDelete = (cat: AdminCategoryItem) => {
-    setDeletingCategory(cat);
-  };
-
-  const handleConfirmDelete = async (cat: AdminCategoryItem) => {
-    try {
-      await categoriesApi.delete(cat.id);
-      setCategories((prev) => prev.filter((c) => c.id !== cat.id));
-      toast.success("Category Deleted", {
-        description: `"${cat.name}" has been removed.`,
-      });
-    } catch {
-      setCategories((prev) => prev.filter((c) => c.id !== cat.id));
-      toast.success("Category Deleted (Local Sync)");
-    }
-  };
-
-  // Filter and search logic
+  // Filtered categories
   const filteredCategories = useMemo(() => {
     return categories.filter((cat) => {
       const matchesSearch =
         cat.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        cat.slug.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (cat.description &&
-          cat.description.toLowerCase().includes(searchQuery.toLowerCase()));
-
+        cat.description.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesStatus =
-        statusFilter === "ALL" || cat.status === statusFilter;
-
+        statusFilter === "All" || cat.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
   }, [categories, searchQuery, statusFilter]);
 
+  // Paginated categories
+  const paginatedCategories = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    return filteredCategories.slice(startIndex, startIndex + pageSize);
+  }, [filteredCategories, currentPage]);
+
+  const totalPages = Math.ceil(filteredCategories.length / pageSize) || 1;
+
+  // Checkbox handlers
+  const handleSelectAll = (selected: boolean) => {
+    if (selected) {
+      setSelectedIds(paginatedCategories.map((c) => c.id));
+    } else {
+      setSelectedIds([]);
+    }
+  };
+
+  const handleSelectCategory = (id: string, selected: boolean) => {
+    if (selected) {
+      setSelectedIds((prev) => [...prev, id]);
+    } else {
+      setSelectedIds((prev) => prev.filter((item) => item !== id));
+    }
+  };
+
+  // Category Add / Edit / Delete handlers
+  const handleCategoryCreated = (newCategory: CategoryItem) => {
+    setCategories((prev) => [newCategory, ...prev]);
+  };
+
+  const handleEditCategory = (cat: CategoryItem) => {
+    toast.info("Edit Category", {
+      description: `Editing details for "${cat.name}".`,
+    });
+  };
+
+  const handleDeleteCategory = (cat: CategoryItem) => {
+    setCategories((prev) => prev.filter((c) => c.id !== cat.id));
+    toast.success("Category Deleted", {
+      description: `"${cat.name}" has been removed.`,
+    });
+  };
+
+  if (isLoading) {
+    return <CategorySkeleton />;
+  }
+
   return (
-    <div className="space-y-6 pb-12 bg-white min-h-screen">
-      {/* Page Header */}
-      <PageHeader
-        title="Course Categories & Disciplines"
-        subtitle="Manage subject areas, academic taxonomies, and course allocations"
-        action={
-          <div className="flex items-center gap-3">
-            <SecondaryButton
-              onClick={handleRefresh}
-              disabled={isRefreshing}
-              icon={
-                <RotateCw
-                  className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`}
-                />
-              }
-            >
-              Refresh
-            </SecondaryButton>
-            <PrimaryButton
-              onClick={handleOpenCreate}
-              icon={<Plus className="w-4 h-4" />}
-            >
-              Add New Category
-            </PrimaryButton>
-          </div>
-        }
+    <motion.div
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25, ease: "easeOut" }}
+      className="space-y-[12px] text-left pb-6"
+    >
+      {/* 1. Page Header with Breadcrumbs & Add Category CTA */}
+      <CategoryHeader
+        onAddClick={() => {
+          setShowAddPanel(true);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
       />
 
-      {/* KPI Stats Overview */}
-      <CategoryStats categories={categories} />
+      {/* 2. Main Layout Split: Table on Left + Form on Right */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-[12px] items-start">
+        {/* Left Side: Category Table / Grid Card */}
+        <div
+          className={`${
+            showAddPanel ? "lg:col-span-2" : "lg:col-span-3"
+          } bg-white rounded-xl border border-dash shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden flex flex-col justify-between transition-all`}
+        >
+          {/* Card Toolbar */}
+          <CategoryToolbar
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            statusFilter={statusFilter}
+            onStatusChange={setStatusFilter}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+          />
 
-      {/* Filter and View Toolbar */}
-      <div className="p-4 rounded-[12px] bg-white border border-[#EDEDED] flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
-        <div className="relative w-full sm:w-80">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-primary-300" />
-          <input
-            type="text"
-            placeholder="Search disciplines or keywords..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full h-10 pl-9 pr-3 rounded-[8px] border border-[#EDEDED] body-sm-regular text-primary-500 placeholder:text-primary-300 focus:outline-none focus:border-[#1C4D8D]"
+          {/* Table or Grid View */}
+          {viewMode === "table" ? (
+            <CategoryTable
+              categories={paginatedCategories}
+              selectedCategoryIds={selectedIds}
+              onSelectCategory={handleSelectCategory}
+              onSelectAll={handleSelectAll}
+              onEdit={handleEditCategory}
+              onDelete={handleDeleteCategory}
+            />
+          ) : (
+            <CategoryGrid
+              categories={paginatedCategories}
+              onEdit={handleEditCategory}
+            />
+          )}
+
+          {/* Card Pagination Footer */}
+          <CategoryPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalCount={filteredCategories.length}
+            pageSize={pageSize}
+            onPageChange={setCurrentPage}
           />
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-          <div className="flex items-center p-1 rounded-[8px] bg-[#F8F9FA] border border-[#EDEDED]">
-            <button
-              type="button"
-              onClick={() => setStatusFilter("ALL")}
-              className={`px-3 py-1 rounded-[6px] body-xsm-medium transition-all cursor-pointer ${
-                statusFilter === "ALL"
-                  ? "bg-white text-primary-500 font-bold shadow-2xs"
-                  : "text-primary-400 hover:text-primary-500"
-              }`}
-            >
-              All ({categories.length})
-            </button>
-            <button
-              type="button"
-              onClick={() => setStatusFilter("ACTIVE")}
-              className={`px-3 py-1 rounded-[6px] body-xsm-medium transition-all cursor-pointer ${
-                statusFilter === "ACTIVE"
-                  ? "bg-white text-primary-500 font-bold shadow-2xs"
-                  : "text-primary-400 hover:text-primary-500"
-              }`}
-            >
-              Active
-            </button>
-            <button
-              type="button"
-              onClick={() => setStatusFilter("INACTIVE")}
-              className={`px-3 py-1 rounded-[6px] body-xsm-medium transition-all cursor-pointer ${
-                statusFilter === "INACTIVE"
-                  ? "bg-white text-primary-500 font-bold shadow-2xs"
-                  : "text-primary-400 hover:text-primary-500"
-              }`}
-            >
-              Inactive
-            </button>
+        {/* Right Side: Add Category Side Card */}
+        {showAddPanel && (
+          <div className="lg:col-span-1">
+            <AddCategoryCard
+              onClose={() => setShowAddPanel(false)}
+              onCategoryCreated={handleCategoryCreated}
+            />
           </div>
-
-          <div className="flex items-center p-1 rounded-[8px] bg-[#F8F9FA] border border-[#EDEDED]">
-            <button
-              type="button"
-              onClick={() => setViewMode("grid")}
-              className={`p-1.5 rounded-[6px] transition-all cursor-pointer ${
-                viewMode === "grid"
-                  ? "bg-white text-[#1C4D8D] shadow-2xs"
-                  : "text-primary-400 hover:text-primary-500"
-              }`}
-              title="Grid View"
-            >
-              <LayoutGrid className="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => setViewMode("table")}
-              className={`p-1.5 rounded-[6px] transition-all cursor-pointer ${
-                viewMode === "table"
-                  ? "bg-white text-[#1C4D8D] shadow-2xs"
-                  : "text-primary-400 hover:text-primary-500"
-              }`}
-              title="Table View"
-            >
-              <List className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
+        )}
       </div>
-
-      {/* Main Catalog View */}
-      {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[...Array(6)].map((_, i) => (
-            <div
-              key={i}
-              className="h-32 rounded-[12px] border border-[#EDEDED] bg-white p-4 animate-pulse space-y-3"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-slate-100" />
-                <div className="flex-1 space-y-1.5">
-                  <div className="h-4 w-28 bg-slate-100 rounded" />
-                  <div className="h-3 w-16 bg-slate-100 rounded" />
-                </div>
-              </div>
-              <div className="h-3 w-3/4 bg-slate-100 rounded" />
-            </div>
-          ))}
-        </div>
-      ) : filteredCategories.length === 0 ? (
-        <div className="py-16 text-center rounded-[12px] border-2 border-dashed border-[#EDEDED] bg-[#F8F9FA]/40 space-y-3">
-          <div className="w-12 h-12 rounded-full bg-blue-50 text-[#1C4D8D] flex items-center justify-center mx-auto">
-            <FolderTree className="w-6 h-6" />
-          </div>
-          <div>
-            <h4 className="body-md-medium text-primary-500 font-bold">
-              No categories found
-            </h4>
-            <p className="body-sm-regular subtext-500 mt-1">
-              {searchQuery
-                ? `No disciplines matching "${searchQuery}".`
-                : "Get started by adding your first academic category."}
-            </p>
-          </div>
-          <PrimaryButton onClick={handleOpenCreate} icon={<Plus className="w-4 h-4" />}>
-            Create Category
-          </PrimaryButton>
-        </div>
-      ) : viewMode === "grid" ? (
-        <CategoryGrid
-          categories={filteredCategories}
-          onEdit={handleOpenEdit}
-          onDelete={handleOpenDelete}
-        />
-      ) : (
-        <CategoryTable
-          categories={filteredCategories}
-          onEdit={handleOpenEdit}
-          onDelete={handleOpenDelete}
-        />
-      )}
-
-      {/* Delete Confirmation Modal */}
-      <DeleteCategoryModal
-        isOpen={Boolean(deletingCategory)}
-        onClose={() => setDeletingCategory(null)}
-        category={deletingCategory}
-        onConfirm={handleConfirmDelete}
-      />
-    </div>
+    </motion.div>
   );
 }

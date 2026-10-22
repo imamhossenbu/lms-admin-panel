@@ -184,9 +184,16 @@ export function AdminSidebar() {
                         )}
                       />
                       {!collapsed && (
-                        <span className="body-sm-medium truncate">
-                          {item.label}
-                        </span>
+                        <>
+                          <span className="body-sm-medium truncate">
+                            {item.label}
+                          </span>
+                          {item.label === "Notifications" && (
+                            <span className="ml-auto w-5 h-5 rounded-md bg-brand-orange text-white text-[11px] font-bold flex items-center justify-center shadow-2xs">
+                              3
+                            </span>
+                          )}
+                        </>
                       )}
                     </Link>
                   );

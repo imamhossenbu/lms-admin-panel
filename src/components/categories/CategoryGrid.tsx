@@ -1,84 +1,53 @@
 "use client";
 
 import React from "react";
-import { motion } from "framer-motion";
-import { BookOpen, Edit3, Trash2 } from "lucide-react";
-import { AdminCategoryItem } from "@/lib/types";
-import { CategoryIcon } from "@/components/ui/CategoryIcon";
-import { ToneBadge } from "@/components/ui/ToneBadge";
+import { CategoryItem } from "@/types/category";
+import { CategoryIconRenderer } from "./CategoryIconRenderer";
+import { BookOpen } from "lucide-react";
 
 interface CategoryGridProps {
-  categories: AdminCategoryItem[];
-  onEdit: (cat: AdminCategoryItem) => void;
-  onDelete: (cat: AdminCategoryItem) => void;
+  categories: CategoryItem[];
+  onEdit?: (category: CategoryItem) => void;
 }
 
-export function CategoryGrid({
-  categories,
-  onEdit,
-  onDelete,
-}: CategoryGridProps) {
+export function CategoryGrid({ categories }: CategoryGridProps) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      {categories.map((cat, idx) => (
-        <motion.div
-          key={cat.id}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.15, delay: idx * 0.03 }}
-          className="p-5 rounded-[12px] bg-white border border-[#EDEDED] hover:border-[#1C4D8D]/40 transition-all flex flex-col justify-between group shadow-xs hover:shadow-md text-left"
+    <div className="p-4 border-t border-dash grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+      {categories.map((category) => (
+        <div
+          key={category.id}
+          className="bg-white rounded-xl border border-dash p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow flex flex-col justify-between text-left"
         >
           <div>
-            <div className="flex items-start justify-between gap-3 mb-3">
-              <CategoryIcon icon={cat.icon} />
-              <div className="flex items-center gap-1.5">
-                <ToneBadge
-                  tone={cat.status === "ACTIVE" ? "success" : "gray"}
-                  size="sm"
-                >
-                  {cat.status}
-                </ToneBadge>
-              </div>
+            <div className="flex items-center justify-between gap-2 mb-3">
+              <CategoryIconRenderer iconId={category.iconId} size="lg" />
+              <span
+                className={`inline-flex items-center px-2 py-0.5 rounded-md body-2xsm-regular font-semibold ${
+                  category.status === "Active"
+                    ? "bg-green-bg text-green"
+                    : "bg-red-14 text-red"
+                }`}
+              >
+                {category.status}
+              </span>
             </div>
 
-            <h3 className="body-md-medium text-primary-500 font-bold group-hover:text-[#1C4D8D] transition-colors">
-              {cat.name}
-            </h3>
-
-            <p className="body-xsm-regular subtext-500 mt-1 line-clamp-2 min-h-[32px]">
-              {cat.description || "Instructional domain for LMS courses."}
+            <h4 className="heading-h6 font-bold text-primary-500 mb-1">
+              {category.name}
+            </h4>
+            <p className="body-sm-regular text-primary-400 line-clamp-2">
+              {category.description}
             </p>
           </div>
 
-          <div className="pt-4 mt-3 border-t border-[#EDEDED]/80 flex items-center justify-between">
-            <div className="flex items-center gap-1.5 text-primary-400 body-xsm-regular">
-              <BookOpen className="w-3.5 h-3.5 text-[#1C4D8D]" />
-              <span className="font-semibold text-primary-500">
-                {cat._count?.courses ?? 0}
-              </span>
-              <span>courses cataloged</span>
-            </div>
-
-            <div className="flex items-center gap-1">
-              <button
-                type="button"
-                onClick={() => onEdit(cat)}
-                className="p-1.5 rounded-[6px] text-primary-400 hover:text-[#1C4D8D] hover:bg-blue-50 transition-colors cursor-pointer"
-                title="Edit Category"
-              >
-                <Edit3 className="w-3.5 h-3.5" />
-              </button>
-              <button
-                type="button"
-                onClick={() => onDelete(cat)}
-                className="p-1.5 rounded-[6px] text-primary-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
-                title="Delete Category"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
-            </div>
+          <div className="pt-3 mt-3 border-t border-dash flex items-center justify-between body-2xsm-regular text-primary-300">
+            <span className="flex items-center gap-1 font-medium text-primary-500">
+              <BookOpen className="w-3.5 h-3.5 text-brand-orange" />
+              <span>{category.totalCourses} Courses</span>
+            </span>
+            <span>Created {category.createdDate}</span>
           </div>
-        </motion.div>
+        </div>
       ))}
     </div>
   );
