@@ -27,7 +27,6 @@ import {
 import { AuthCardContainer } from "@/components/auth/AuthCardContainer";
 import { AuthLeftPanel } from "@/components/auth/AuthLeftPanel";
 import { AuthRightPanel } from "@/components/auth/AuthRightPanel";
-import { LanguageSelector } from "@/components/auth/LanguageSelector";
 import { AuthFeature } from "@/components/auth/AuthFeatureList";
 import { AuthAlertBanner } from "@/components/auth/AuthAlertBanner";
 import { AuthSubmitButton } from "@/components/auth/AuthSubmitButton";
@@ -193,7 +192,6 @@ export default function LoginPage() {
       <AuthRightPanel
         title="Welcome back 👋"
         subtitle="Sign in to continue to your LMS dashboard."
-        topRightAction={<LanguageSelector />}
       >
         {/* Server Error Alert Banner */}
         <AuthAlertBanner

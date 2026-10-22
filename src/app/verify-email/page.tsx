@@ -10,7 +10,6 @@ import { AuthCardContainer } from "@/components/auth/AuthCardContainer";
 import { AuthLeftPanel } from "@/components/auth/AuthLeftPanel";
 import { AuthRightPanel } from "@/components/auth/AuthRightPanel";
 import { AuthFeature } from "@/components/auth/AuthFeatureList";
-import { LanguageSelector } from "@/components/auth/LanguageSelector";
 import { OtpInput } from "@/components/auth/OtpInput";
 import { CountdownTimer } from "@/components/auth/CountdownTimer";
 import { AuthSubmitButton } from "@/components/auth/AuthSubmitButton";
@@ -208,7 +207,6 @@ function VerifyEmailFormContent() {
             </>
           )
         }
-        topRightAction={<LanguageSelector />}
       >
         {/* Alert Banner */}
         <AuthAlertBanner

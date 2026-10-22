@@ -20,7 +20,6 @@ import { AuthCardContainer } from "@/components/auth/AuthCardContainer";
 import { AuthLeftPanel } from "@/components/auth/AuthLeftPanel";
 import { AuthRightPanel } from "@/components/auth/AuthRightPanel";
 import { AuthFeature } from "@/components/auth/AuthFeatureList";
-import { LanguageSelector } from "@/components/auth/LanguageSelector";
 import { AuthSubmitButton } from "@/components/auth/AuthSubmitButton";
 import { AuthDivider } from "@/components/auth/AuthDivider";
 import { AuthBackButton } from "@/components/auth/AuthBackButton";
@@ -145,7 +144,6 @@ export default function ForgotPasswordPage() {
       <AuthRightPanel
         title="Forgot Password?"
         subtitle="Enter your email address and we'll send you a link to reset your password."
-        topRightAction={<LanguageSelector />}
       >
         {/* Server Error Alert Banner */}
         <AuthAlertBanner

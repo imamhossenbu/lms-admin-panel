@@ -21,7 +21,6 @@ import { AuthCardContainer } from "@/components/auth/AuthCardContainer";
 import { AuthLeftPanel } from "@/components/auth/AuthLeftPanel";
 import { AuthRightPanel } from "@/components/auth/AuthRightPanel";
 import { AuthFeature } from "@/components/auth/AuthFeatureList";
-import { LanguageSelector } from "@/components/auth/LanguageSelector";
 import { PasswordRequirementsChecklist } from "@/components/auth/PasswordRequirementsChecklist";
 import { AuthSubmitButton } from "@/components/auth/AuthSubmitButton";
 import { AuthBackButton } from "@/components/auth/AuthBackButton";
@@ -171,7 +170,6 @@ function ResetPasswordFormContent() {
       <AuthRightPanel
         title="Reset Your Password"
         subtitle="Enter your new password below. Make sure it's strong and secure."
-        topRightAction={<LanguageSelector />}
       >
         {/* Alert Banner */}
         <AuthAlertBanner
