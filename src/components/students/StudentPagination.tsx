@@ -1,7 +1,14 @@
 "use client";
 
 import React from "react";
-import { ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { DropdownSelect } from "@/components/ui/DropdownSelect";
+
+const PAGE_SIZE_OPTIONS = [
+  { value: "10", label: "Show 10" },
+  { value: "20", label: "Show 20" },
+  { value: "50", label: "Show 50" },
+];
 
 interface StudentPaginationProps {
   currentPage: number;
@@ -124,19 +131,20 @@ export function StudentPagination({
           </button>
         </div>
 
-        {/* Page size dropdown */}
-        <div className="relative ml-2">
-          <select
-            value={pageSize}
-            onChange={(e) => onPageSizeChange?.(Number(e.target.value))}
-            className="h-8 pl-2.5 pr-6 rounded-lg border border-dash bg-white body-sm-medium text-primary-500 appearance-none focus:outline-none focus:border-brand-orange cursor-pointer"
-          >
-            <option value={10}>Show 10</option>
-            <option value={20}>Show 20</option>
-            <option value={50}>Show 50</option>
-          </select>
-          <ChevronDown className="w-3.5 h-3.5 text-primary-300 absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-        </div>
+        {/* Page size dropdown using reusable DropdownSelect */}
+        {onPageSizeChange && (
+          <div className="w-[116px] ml-2 shrink-0">
+            <DropdownSelect
+              options={PAGE_SIZE_OPTIONS}
+              value={String(pageSize)}
+              onChange={(val) => onPageSizeChange(Number(val))}
+              buttonClassName="!h-8 !py-1 text-[13px] border-dash rounded-lg px-2.5"
+              menuClassName="min-w-[116px] w-[116px]"
+              align="right"
+              direction="up"
+            />
+          </div>
+        )}
       </div>
     </div>
   );

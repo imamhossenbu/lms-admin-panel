@@ -76,11 +76,14 @@ export function StudentSkeleton() {
         {/* Pagination Skeleton */}
         <div className="p-4 border-t border-dash flex items-center justify-between">
           <div className="h-4 w-48 bg-slate-100 rounded" />
-          <div className="flex items-center gap-1.5">
-            <div className="w-8 h-8 bg-slate-100 rounded-lg" />
-            <div className="w-8 h-8 bg-slate-200 rounded-lg" />
-            <div className="w-8 h-8 bg-slate-100 rounded-lg" />
-            <div className="w-8 h-8 bg-slate-100 rounded-lg" />
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
+              <div className="w-8 h-8 bg-slate-100 rounded-lg" />
+              <div className="w-8 h-8 bg-slate-200 rounded-lg" />
+              <div className="w-8 h-8 bg-slate-100 rounded-lg" />
+              <div className="w-8 h-8 bg-slate-100 rounded-lg" />
+            </div>
+            <div className="w-[116px] h-8 bg-slate-100 rounded-lg" />
           </div>
         </div>
       </div>

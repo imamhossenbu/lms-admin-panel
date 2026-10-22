@@ -23,8 +23,11 @@ export interface DropdownSelectProps {
   onChange: (value: string) => void;
   icon?: React.ReactNode;
   className?: string;
+  buttonClassName?: string;
   align?: "left" | "right";
+  direction?: "up" | "down";
   menuClassName?: string;
+  optionClassName?: string;
   disabled?: boolean;
 }
 
@@ -38,8 +41,11 @@ export function DropdownSelect({
   onChange,
   icon,
   className = "",
+  buttonClassName = "",
   align = "left",
+  direction = "down",
   menuClassName = "",
+  optionClassName = "",
   disabled = false,
 }: DropdownSelectProps) {
   const [open, setOpen] = useState(false);
@@ -79,6 +85,7 @@ export function DropdownSelect({
   }, [open]);
 
   const alignClass = align === "right" ? "right-0" : "left-0";
+  const isUp = direction === "up";
 
   return (
     <div ref={containerRef} className={cn("relative w-full", className)}>
@@ -108,7 +115,8 @@ export function DropdownSelect({
           "hover:border-[#D1D5DB] focus:border-[#1C4D8D]",
           open && "border-[#1C4D8D] ring-2 ring-[#1C4D8D]/10",
           disabled && "opacity-50 cursor-not-allowed",
-          value ? "text-primary-500 font-medium" : "text-[#7F8482]"
+          value ? "text-primary-500 font-medium" : "text-[#7F8482]",
+          buttonClassName
         )}
       >
         <div className="flex items-center gap-2 overflow-hidden truncate">
@@ -121,7 +129,8 @@ export function DropdownSelect({
         <ChevronDown
           className={cn(
             "h-4 w-4 shrink-0 text-primary-300 transition-transform duration-200 pointer-events-none",
-            open && "rotate-180 text-primary-500"
+            open && (isUp ? "-rotate-180" : "rotate-180"),
+            open && "text-primary-500"
           )}
         />
       </button>
@@ -131,9 +140,9 @@ export function DropdownSelect({
         {open && (
           <motion.div
             role="listbox"
-            initial={{ opacity: 0, y: 6, scale: 0.98 }}
+            initial={{ opacity: 0, y: isUp ? 6 : -6, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 6, scale: 0.98 }}
+            exit={{ opacity: 0, y: isUp ? 6 : -6, scale: 0.98 }}
             transition={{ duration: 0.15, ease: "easeOut" }}
             style={{
               background: "#FFFFFF",
@@ -142,7 +151,8 @@ export function DropdownSelect({
                 "0px 10px 25px -5px rgba(14, 32, 56, 0.1), 0px 8px 10px -6px rgba(14, 32, 56, 0.05)",
             }}
             className={cn(
-              "absolute z-50 mt-1.5 min-w-[200px] w-full rounded-[10px] p-1.5 bg-white max-h-64 overflow-y-auto scrollbar-none",
+              "absolute z-50 min-w-[200px] w-full rounded-[10px] p-1.5 bg-white max-h-64 overflow-y-auto scrollbar-none",
+              isUp ? "bottom-full mb-1.5" : "mt-1.5",
               alignClass,
               menuClassName
             )}
@@ -163,7 +173,8 @@ export function DropdownSelect({
                     "w-full rounded-[6px] px-3 py-2 text-left body-sm-regular transition-colors cursor-pointer flex items-center justify-between gap-2",
                     isSelected
                       ? "bg-[#F3F4F6] text-[#1C4D8D] font-semibold"
-                      : "text-primary-500 hover:bg-[#F8F9FA]"
+                      : "text-primary-500 hover:bg-[#F8F9FA]",
+                    optionClassName
                   )}
                 >
                   <div className="flex items-center gap-2 truncate">

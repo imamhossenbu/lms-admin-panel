@@ -3,6 +3,7 @@
 import React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { DropdownSelect } from "./DropdownSelect";
 
 export interface PaginationProps {
   page: number;
@@ -37,6 +38,11 @@ export function Pagination({
 
   const visiblePages = getVisiblePages();
 
+  const dropdownOptions = pageSizeOptions.map((size) => ({
+    value: String(size),
+    label: `Show ${size}`,
+  }));
+
   return (
     <div
       className={cn(
@@ -44,22 +50,18 @@ export function Pagination({
         className
       )}
     >
-      {/* Left: Per Page Selector */}
+      {/* Left: Per Page Selector using DropdownSelect */}
       {onPageSizeChange && (
-        <div className="flex items-center gap-2 body-sm-regular subtext-500">
-          <span>Show</span>
-          <select
-            value={pageSize}
-            onChange={(e) => onPageSizeChange(Number(e.target.value))}
-            className="rounded-lg border border-[#EDEDED] bg-white px-2.5 py-1 body-xsm-medium text-primary-500 outline-none transition focus:border-[#1C4D8D] cursor-pointer"
-          >
-            {pageSizeOptions.map((size) => (
-              <option key={size} value={size}>
-                {String(size).padStart(2, "0")}
-              </option>
-            ))}
-          </select>
-          <span>Per Page</span>
+        <div className="w-[116px] shrink-0">
+          <DropdownSelect
+            options={dropdownOptions}
+            value={String(pageSize)}
+            onChange={(val) => onPageSizeChange(Number(val))}
+            buttonClassName="!h-8 !py-1 text-[13px] border-dash rounded-lg px-2.5"
+            menuClassName="min-w-[116px] w-[116px]"
+            align="left"
+            direction="up"
+          />
         </div>
       )}
 
@@ -70,7 +72,7 @@ export function Pagination({
           type="button"
           onClick={() => onPageChange(Math.max(1, page - 1))}
           disabled={page === 1}
-          className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[#EDEDED] bg-white text-primary-400 transition-colors hover:bg-gray-50 hover:text-primary-500 disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
+          className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-dash bg-white text-primary-400 transition-colors hover:bg-slate-50 hover:text-primary-500 disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
         >
           <ChevronLeft className="h-4 w-4" />
         </button>
@@ -82,10 +84,10 @@ export function Pagination({
             type="button"
             onClick={() => onPageChange(p)}
             className={cn(
-              "inline-flex h-8 w-8 items-center justify-center rounded-lg body-xsm-medium transition-all cursor-pointer",
+              "inline-flex h-8 w-8 items-center justify-center rounded-lg body-sm-medium font-bold transition-all cursor-pointer",
               p === page
-                ? "bg-[#1C4D8D] text-white shadow-xs font-semibold"
-                : "border border-[#EDEDED] bg-white text-primary-400 hover:bg-gray-50 hover:text-primary-500"
+                ? "bg-brand-orange text-white shadow-2xs font-bold"
+                : "border border-dash bg-white text-primary-400 hover:bg-slate-50 hover:text-primary-500"
             )}
           >
             {p}
@@ -97,7 +99,7 @@ export function Pagination({
           type="button"
           onClick={() => onPageChange(Math.min(totalPages, page + 1))}
           disabled={page === totalPages}
-          className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[#EDEDED] bg-white text-primary-400 transition-colors hover:bg-gray-50 hover:text-primary-500 disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
+          className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-dash bg-white text-primary-400 transition-colors hover:bg-slate-50 hover:text-primary-500 disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
         >
           <ChevronRight className="h-4 w-4" />
         </button>

@@ -31,7 +31,7 @@ export default function CategoriesPage() {
   const [selectedCategory, setSelectedCategory] = useState<CategoryItem | null>(null);
   const [editingSubCategory, setEditingSubCategory] = useState<SubCategoryItem | null>(null);
 
-  const pageSize = 10;
+  const [pageSize, setPageSize] = useState(10);
 
   // Filtered categories (also searches through subcategories!)
   const filteredCategories = useMemo(() => {
@@ -247,6 +247,10 @@ export default function CategoriesPage() {
           totalCount={filteredCategories.length}
           pageSize={pageSize}
           onPageChange={setCurrentPage}
+          onPageSizeChange={(newSize) => {
+            setPageSize(newSize);
+            setCurrentPage(1);
+          }}
         />
       </div>
 
