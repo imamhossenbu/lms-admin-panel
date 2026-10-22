@@ -3,15 +3,18 @@
 import React, { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { MOCK_CATEGORIES } from "@/data/mockCategoryData";
-import { CategoryItem } from "@/types/category";
+import {
+  CategoryItem,
+  CategoryDrawerMode,
+  CategoryStatus,
+} from "@/types/category";
 import { CategoryHeader } from "@/components/categories/CategoryHeader";
 import { CategoryToolbar } from "@/components/categories/CategoryToolbar";
 import { CategoryTable } from "@/components/categories/CategoryTable";
 import { CategoryGrid } from "@/components/categories/CategoryGrid";
 import { CategoryPagination } from "@/components/categories/CategoryPagination";
-import { AddCategoryCard } from "@/components/categories/AddCategoryCard";
+import { CategoryDrawer } from "@/components/categories/CategoryDrawer";
 import { CategorySkeleton } from "@/components/categories/CategorySkeleton";
-import { toast } from "sonner";
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<CategoryItem[]>(MOCK_CATEGORIES);
@@ -19,18 +22,26 @@ export default function CategoriesPage() {
   const [statusFilter, setStatusFilter] = useState("All");
   const [viewMode, setViewMode] = useState<"table" | "grid">("table");
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [showAddPanel, setShowAddPanel] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Drawer state management (create, edit, details)
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [drawerMode, setDrawerMode] = useState<CategoryDrawerMode>("create");
+  const [selectedCategory, setSelectedCategory] = useState<CategoryItem | null>(null);
 
   const pageSize = 10;
 
-  // Filtered categories
+  // Filtered categories (also searches through subcategories!)
   const filteredCategories = useMemo(() => {
     return categories.filter((cat) => {
+      const q = searchQuery.toLowerCase().trim();
       const matchesSearch =
-        cat.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        cat.description.toLowerCase().includes(searchQuery.toLowerCase());
+        !q ||
+        cat.name.toLowerCase().includes(q) ||
+        cat.description.toLowerCase().includes(q) ||
+        Boolean(
+          cat.subCategories?.some((sub) => sub.name.toLowerCase().includes(q))
+        );
       const matchesStatus =
         statusFilter === "All" || cat.status === statusFilter;
       return matchesSearch && matchesStatus;
@@ -45,39 +56,122 @@ export default function CategoriesPage() {
 
   const totalPages = Math.ceil(filteredCategories.length / pageSize) || 1;
 
-  // Checkbox handlers
-  const handleSelectAll = (selected: boolean) => {
-    if (selected) {
-      setSelectedIds(paginatedCategories.map((c) => c.id));
+  // Drawer Handlers
+  const handleOpenAdd = () => {
+    setSelectedCategory(null);
+    setDrawerMode("create");
+    setIsDrawerOpen(true);
+  };
+
+  const handleOpenEdit = (cat: CategoryItem) => {
+    setSelectedCategory(cat);
+    setDrawerMode("edit");
+    setIsDrawerOpen(true);
+  };
+
+  const handleOpenDetails = (cat: CategoryItem) => {
+    setSelectedCategory(cat);
+    setDrawerMode("details");
+    setIsDrawerOpen(true);
+  };
+
+  const handleCloseDrawer = () => {
+    setIsDrawerOpen(false);
+  };
+
+  // Add / Edit Category or Sub-category handler
+  const handleSaveCategory = (payload: {
+    id?: string;
+    name: string;
+    slug: string;
+    description: string;
+    status: CategoryStatus;
+    iconId: string;
+    isSubCategory: boolean;
+    parentId?: string;
+  }) => {
+    if (payload.isSubCategory && payload.parentId) {
+      // Adding or editing a sub-category under a parent
+      setCategories((prev) =>
+        prev.map((cat) => {
+          if (cat.id === payload.parentId) {
+            const existingSub = cat.subCategories || [];
+            if (payload.id) {
+              return {
+                ...cat,
+                subCategories: existingSub.map((sub) =>
+                  sub.id === payload.id
+                    ? {
+                        ...sub,
+                        name: payload.name,
+                        slug: payload.slug,
+                        status: payload.status,
+                      }
+                    : sub
+                ),
+              };
+            } else {
+              const newSub = {
+                id: `sub-${Date.now()}`,
+                name: payload.name,
+                slug: payload.slug,
+                courseCount: 0,
+                status: payload.status,
+                createdDate: new Date().toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                }),
+                parentId: payload.parentId!,
+              };
+              return {
+                ...cat,
+                subCategories: [newSub, ...existingSub],
+              };
+            }
+          }
+          return cat;
+        })
+      );
     } else {
-      setSelectedIds([]);
+      // Parent category create or edit
+      if (payload.id) {
+        setCategories((prev) =>
+          prev.map((cat) =>
+            cat.id === payload.id
+              ? {
+                  ...cat,
+                  name: payload.name,
+                  slug: payload.slug,
+                  description: payload.description,
+                  status: payload.status,
+                  iconId: payload.iconId,
+                }
+              : cat
+          )
+        );
+      } else {
+        const newCat: CategoryItem = {
+          id: `cat-${Date.now()}`,
+          orderNumber: categories.length + 1,
+          name: payload.name,
+          slug: payload.slug,
+          description: payload.description,
+          totalCourses: 0,
+          publishedCourses: 0,
+          status: payload.status,
+          createdDate: new Date().toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          }),
+          iconId: payload.iconId,
+          colorScheme: "orange",
+          subCategories: [],
+        };
+        setCategories((prev) => [newCat, ...prev]);
+      }
     }
-  };
-
-  const handleSelectCategory = (id: string, selected: boolean) => {
-    if (selected) {
-      setSelectedIds((prev) => [...prev, id]);
-    } else {
-      setSelectedIds((prev) => prev.filter((item) => item !== id));
-    }
-  };
-
-  // Category Add / Edit / Delete handlers
-  const handleCategoryCreated = (newCategory: CategoryItem) => {
-    setCategories((prev) => [newCategory, ...prev]);
-  };
-
-  const handleEditCategory = (cat: CategoryItem) => {
-    toast.info("Edit Category", {
-      description: `Editing details for "${cat.name}".`,
-    });
-  };
-
-  const handleDeleteCategory = (cat: CategoryItem) => {
-    setCategories((prev) => prev.filter((c) => c.id !== cat.id));
-    toast.success("Category Deleted", {
-      description: `"${cat.name}" has been removed.`,
-    });
   };
 
   if (isLoading) {
@@ -89,71 +183,64 @@ export default function CategoriesPage() {
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25, ease: "easeOut" }}
-      className="space-y-[12px] text-left pb-6"
+      className="space-y-[16px] text-left pb-8"
     >
-      {/* 1. Page Header with Breadcrumbs & Add Category CTA */}
-      <CategoryHeader
-        onAddClick={() => {
-          setShowAddPanel(true);
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        }}
-      />
+      {/* 1. Page Header with Prominent Breadcrumbs & Add Category CTA */}
+      <CategoryHeader onAddClick={handleOpenAdd} />
 
-      {/* 2. Main Layout Split: Table on Left + Form on Right */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-[12px] items-start">
-        {/* Left Side: Category Table / Grid Card */}
-        <div
-          className={`${
-            showAddPanel ? "lg:col-span-2" : "lg:col-span-3"
-          } bg-white rounded-xl border border-dash shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden flex flex-col justify-between transition-all`}
-        >
-          {/* Card Toolbar */}
-          <CategoryToolbar
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-            statusFilter={statusFilter}
-            onStatusChange={setStatusFilter}
-            viewMode={viewMode}
-            onViewModeChange={setViewMode}
+      {/* 2. Full-Width Category Card: Toolbar + DataTable/Grid + Pagination */}
+      <div className="bg-white rounded-xl border border-dash shadow-2xs overflow-hidden flex flex-col justify-between">
+        {/* Toolbar */}
+        <CategoryToolbar
+          searchQuery={searchQuery}
+          onSearchChange={(q) => {
+            setSearchQuery(q);
+            setCurrentPage(1);
+          }}
+          statusFilter={statusFilter}
+          onStatusChange={(s) => {
+            setStatusFilter(s);
+            setCurrentPage(1);
+          }}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
+        />
+
+        {/* Table or Grid View */}
+        {viewMode === "table" ? (
+          <CategoryTable
+            categories={paginatedCategories}
+            onEdit={handleOpenEdit}
+            onViewDetails={handleOpenDetails}
           />
-
-          {/* Table or Grid View */}
-          {viewMode === "table" ? (
-            <CategoryTable
-              categories={paginatedCategories}
-              selectedCategoryIds={selectedIds}
-              onSelectCategory={handleSelectCategory}
-              onSelectAll={handleSelectAll}
-              onEdit={handleEditCategory}
-              onDelete={handleDeleteCategory}
-            />
-          ) : (
-            <CategoryGrid
-              categories={paginatedCategories}
-              onEdit={handleEditCategory}
-            />
-          )}
-
-          {/* Card Pagination Footer */}
-          <CategoryPagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            totalCount={filteredCategories.length}
-            pageSize={pageSize}
-            onPageChange={setCurrentPage}
+        ) : (
+          <CategoryGrid
+            categories={paginatedCategories}
+            onEdit={handleOpenEdit}
+            onViewDetails={handleOpenDetails}
           />
-        </div>
-
-        {/* Right Side: Add Category Side Card */}
-        {showAddPanel && (
-          <div className="lg:col-span-1">
-            <AddCategoryCard
-              onClose={() => setShowAddPanel(false)}
-              onCategoryCreated={handleCategoryCreated}
-            />
-          </div>
         )}
+
+        {/* Pagination Footer */}
+        <CategoryPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalCount={filteredCategories.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+        />
       </div>
+
+      {/* 3. Slide-Over Side Drawer for Create / Edit / Details */}
+      <CategoryDrawer
+        isOpen={isDrawerOpen}
+        mode={drawerMode}
+        category={selectedCategory}
+        parentCategories={categories}
+        onClose={handleCloseDrawer}
+        onSave={handleSaveCategory}
+        onOpenEdit={handleOpenEdit}
+      />
     </motion.div>
   );
 }

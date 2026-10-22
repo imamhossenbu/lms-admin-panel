@@ -1,7 +1,9 @@
 "use client";
 
 import React from "react";
-import { Search, ChevronDown, Table, LayoutGrid } from "lucide-react";
+import { Search, Table, LayoutGrid } from "lucide-react";
+import { InputField } from "@/components/ui/InputField";
+import { DropdownSelect } from "@/components/ui/DropdownSelect";
 
 interface CategoryToolbarProps {
   searchQuery: string;
@@ -12,6 +14,12 @@ interface CategoryToolbarProps {
   onViewModeChange: (mode: "table" | "grid") => void;
 }
 
+const STATUS_OPTIONS = [
+  { value: "All", label: "All Status" },
+  { value: "Active", label: "Active" },
+  { value: "Inactive", label: "Inactive" },
+];
+
 export function CategoryToolbar({
   searchQuery,
   onSearchChange,
@@ -21,63 +29,63 @@ export function CategoryToolbar({
   onViewModeChange,
 }: CategoryToolbarProps) {
   return (
-    <div className="p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-      {/* Search Input and Status Dropdown */}
-      <div className="flex flex-wrap items-center gap-2.5">
-        <div className="relative w-full sm:w-64">
-          <Search className="w-4 h-4 text-primary-300 absolute left-3 top-1/2 -translate-y-1/2" />
-          <input
+    <div className="p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-dash">
+      {/* Search Input & Status Dropdown using Reusable UI Components */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto">
+        <div className="w-full sm:w-72">
+          <InputField
+            id="category-search"
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search categories..."
-            className="w-full h-9 pl-9 pr-3 rounded-lg bg-[#F8FAFC]/60 border border-dash body-sm-regular text-primary-500 placeholder:text-primary-300 focus:outline-none focus:border-brand-orange focus:bg-white transition-all"
+            leftElement={<Search className="w-4 h-4 text-primary-300" />}
+            className="!h-[38px] text-[13.5px]"
           />
         </div>
 
-        {/* Status Filter */}
-        <div className="relative">
-          <select
+        <div className="w-full sm:w-40">
+          <DropdownSelect
+            options={STATUS_OPTIONS}
             value={statusFilter}
-            onChange={(e) => onStatusChange(e.target.value)}
-            className="h-9 pl-3 pr-8 rounded-lg border border-dash bg-white body-sm-medium text-primary-500 appearance-none focus:outline-none focus:border-brand-orange transition-colors cursor-pointer"
-          >
-            <option value="All">All Status</option>
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
-          </select>
-          <ChevronDown className="w-3.5 h-3.5 text-primary-300 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            onChange={onStatusChange}
+            className="w-full"
+          />
         </div>
       </div>
 
       {/* View Mode Toggle Buttons */}
-      <div className="flex items-center gap-1 self-end sm:self-auto">
+      <div className="flex items-center gap-1.5 self-end sm:self-auto bg-slate-50 p-1 rounded-lg border border-dash">
         <button
           type="button"
           onClick={() => onViewModeChange("table")}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg body-sm-medium transition-all cursor-pointer ${
+          className={`flex items-center gap-1.5 px-3 py-1 rounded-md body-sm-medium transition-all cursor-pointer ${
             viewMode === "table"
-              ? "bg-brand-orange text-white font-semibold shadow-2xs"
-              : "text-primary-400 hover:bg-slate-50 hover:text-primary-500"
+              ? "bg-white text-primary-500 font-semibold shadow-2xs border border-dash"
+              : "text-primary-400 hover:text-primary-500"
           }`}
+          title="Table View"
         >
-          <Table className="w-4 h-4" />
+          <Table className="w-4 h-4 text-primary-400" />
           <span>Table</span>
         </button>
 
         <button
           type="button"
           onClick={() => onViewModeChange("grid")}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg body-sm-medium transition-all cursor-pointer ${
+          className={`flex items-center gap-1.5 px-3 py-1 rounded-md body-sm-medium transition-all cursor-pointer ${
             viewMode === "grid"
-              ? "bg-brand-orange text-white font-semibold shadow-2xs"
-              : "text-primary-400 hover:bg-slate-50 hover:text-primary-500"
+              ? "bg-white text-primary-500 font-semibold shadow-2xs border border-dash"
+              : "text-primary-400 hover:text-primary-500"
           }`}
+          title="Grid View"
         >
-          <LayoutGrid className="w-4 h-4" />
+          <LayoutGrid className="w-4 h-4 text-primary-400" />
           <span>Grid</span>
         </button>
       </div>
     </div>
   );
 }
+
+export default CategoryToolbar;
