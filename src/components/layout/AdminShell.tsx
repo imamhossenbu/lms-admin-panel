@@ -16,11 +16,11 @@ function AdminShellContent({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthGuard>
-      <div className="flex min-h-screen bg-white">
+      <div className="flex min-h-screen bg-[#F8FAFC]">
         <AdminSidebar />
-        <div className="flex-1 flex flex-col min-w-0 bg-white">
+        <div className="flex-1 flex flex-col min-w-0 bg-[#F8FAFC]">
           <AdminNavbar />
-          <main className="p-6 md:p-8 flex-1 max-w-[1600px] w-full mx-auto bg-white">
+          <main className="p-6 lg:p-8 flex-1 max-w-[1600px] w-full mx-auto">
             {children}
           </main>
         </div>
@@ -33,8 +33,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-white">
-          <div className="w-8 h-8 rounded-full border-2 border-[#1C4D8D] border-t-transparent animate-spin" />
+        <div className="flex min-h-screen items-center justify-center bg-[#F8FAFC]">
+          <div className="w-8 h-8 rounded-full border-2 border-brand-orange border-t-transparent animate-spin" />
         </div>
       }
     >
