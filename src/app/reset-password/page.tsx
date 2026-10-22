@@ -71,6 +71,8 @@ function ResetPasswordFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token") || "";
+  const emailParam = searchParams.get("email");
+  const email = emailParam ? decodeURIComponent(emailParam) : undefined;
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -95,6 +97,13 @@ function ResetPasswordFormContent() {
   const passwordValue = watch("password") || "";
 
   const onSubmit = async (data: ResetPasswordFormData) => {
+    if (!token) {
+      setServerError(
+        "Missing reset token. Please use the reset link sent to your email or request a new one."
+      );
+      return;
+    }
+
     setServerError(null);
     setIsSubmitting(true);
 
@@ -104,8 +113,9 @@ function ResetPasswordFormContent() {
 
     try {
       await apiClient.post("/auth/reset-password", {
-        token: token || "mock-token",
+        token,
         newPassword: data.password,
+        email,
       });
 
       setIsSuccess(true);

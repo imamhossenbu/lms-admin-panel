@@ -50,6 +50,18 @@ function VerifyEmailFormContent() {
   const [serverError, setServerError] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
 
+  // Auto-populate 6 digits if token is passed in query params
+  React.useEffect(() => {
+    const tokenParam = searchParams.get("token");
+    if (tokenParam) {
+      const cleanNumbers = tokenParam.trim().replace(/\D/g, "").slice(0, 6);
+      if (cleanNumbers.length > 0) {
+        const newDigits = Array.from({ length: 6 }, (_, i) => cleanNumbers[i] || "");
+        setDigits(newDigits);
+      }
+    }
+  }, [searchParams]);
+
   const fullCode = digits.join("");
   const isCodeComplete = fullCode.length === 6;
 

@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import {
   Mail,
   ArrowLeft,
+  ArrowRight,
   ShieldCheck,
   Zap,
   Check,
@@ -165,12 +166,19 @@ export default function ForgotPasswordPage() {
               </p>
             </div>
             <div className="pt-2 flex flex-col gap-2.5">
+              <Link
+                href={`/reset-password?email=${encodeURIComponent(submittedEmail)}`}
+                className="w-full h-11 rounded-xl bg-brand-orange bg-brand-orange:hover text-white body-sm-medium font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+              >
+                <span>Enter Reset Code Directly</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
               <button
                 type="button"
                 onClick={() => setSubmittedEmail(null)}
-                className="w-full h-11 rounded-xl bg-brand-orange bg-brand-orange:hover text-white body-sm-medium font-semibold flex items-center justify-center transition-colors cursor-pointer shadow-xs"
+                className="w-full h-11 rounded-xl border border-dash hover:bg-white text-primary-400 body-sm-medium flex items-center justify-center transition-colors cursor-pointer"
               >
-                Resend to another email
+                Try another email
               </button>
               <Link
                 href="/login"
