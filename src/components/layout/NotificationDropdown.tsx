@@ -140,7 +140,7 @@ export function NotificationDropdown() {
 
       {/* Floating Notification Card */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-xl border border-dash overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-150">
+        <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-xl shadow-xl border border-dash overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-150">
           {/* Card Header */}
           <div className="px-5 py-4 border-b border-dash flex items-center justify-between bg-slate-50/60">
             <div className="flex items-center gap-2.5">
@@ -148,7 +148,7 @@ export function NotificationDropdown() {
                 Notifications
               </h3>
               {unreadCount > 0 && (
-                <span className="px-2 py-0.5 rounded-full bg-brand-orange-light text-brand-orange body-2xsm-regular font-bold">
+                <span className="px-2 py-0.5 rounded-md bg-brand-orange-light text-brand-orange body-2xsm-regular font-bold">
                   {unreadCount} new
                 </span>
               )}

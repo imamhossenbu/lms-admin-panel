@@ -18,7 +18,7 @@ interface StudentGrowthChartProps {
 
 export function StudentGrowthChart({ data }: StudentGrowthChartProps) {
   return (
-    <div className="bg-white rounded-2xl border border-dash p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex flex-col justify-between h-[330px]">
+    <div className="bg-white rounded-xl border border-dash p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex flex-col justify-between h-[330px]">
       {/* Header with Title and Legend */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
         <div className="text-left">

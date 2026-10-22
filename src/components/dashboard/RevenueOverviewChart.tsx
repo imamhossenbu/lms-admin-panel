@@ -22,7 +22,7 @@ export function RevenueOverviewChart({ data }: RevenueOverviewChartProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   return (
-    <div className="bg-white rounded-2xl border border-dash p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex flex-col justify-between h-[330px]">
+    <div className="bg-white rounded-xl border border-dash p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex flex-col justify-between h-[330px]">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="text-left">

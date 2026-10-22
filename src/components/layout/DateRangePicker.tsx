@@ -95,7 +95,7 @@ export function DateRangePicker({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 rounded-xl border border-dash bg-white body-sm-medium text-primary-500 shadow-2xs hover:bg-slate-50 transition-colors cursor-pointer"
+        className="flex items-center gap-2 px-3 py-2 rounded-lg border border-dash bg-white body-sm-medium text-primary-500 shadow-2xs hover:bg-slate-50 transition-colors cursor-pointer"
       >
         <CalendarIcon className="w-4 h-4 text-primary-400 shrink-0" />
         <span className="whitespace-nowrap text-xs sm:text-sm">{displayedRange}</span>
@@ -104,7 +104,7 @@ export function DateRangePicker({
 
       {/* Floating Date Range Picker Card */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-auto min-w-[340px] sm:min-w-[480px] bg-white rounded-2xl shadow-xl border border-dash overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-150">
+        <div className="absolute right-0 mt-2 w-auto min-w-[340px] sm:min-w-[480px] bg-white rounded-xl shadow-xl border border-dash overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-150">
           <div className="flex flex-col sm:flex-row">
             {/* Presets Sidebar */}
             <div className="w-full sm:w-36 p-3 border-b sm:border-b-0 sm:border-r border-dash bg-slate-50/50 space-y-1">

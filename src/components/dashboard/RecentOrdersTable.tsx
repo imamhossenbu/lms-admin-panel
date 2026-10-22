@@ -14,20 +14,20 @@ interface RecentOrdersTableProps {
 function StatusBadge({ status }: { status: OrderStatus }) {
   if (status === "Completed") {
     return (
-      <span className="inline-flex items-center px-2 py-0.5 rounded-full body-2xsm-regular bg-green-bg text-green font-semibold">
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-md body-2xsm-regular bg-green-bg text-green font-semibold">
         Completed
       </span>
     );
   }
   if (status === "Pending") {
     return (
-      <span className="inline-flex items-center px-2 py-0.5 rounded-full body-2xsm-regular bg-[#FFF4ED] text-[#FF5B00] font-semibold">
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-md body-2xsm-regular bg-[#FFF4ED] text-[#FF5B00] font-semibold">
         Pending
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center px-2 py-0.5 rounded-full body-2xsm-regular bg-red-14 text-red-dark font-semibold">
+    <span className="inline-flex items-center px-2.5 py-0.5 rounded-md body-2xsm-regular bg-red-14 text-red-dark font-semibold">
       Failed
     </span>
   );
@@ -103,7 +103,7 @@ export function RecentOrdersTable({ orders }: RecentOrdersTableProps) {
     orders && orders.length > 0 ? orders : MOCK_DASHBOARD_DATA.recentOrders;
 
   return (
-    <div className="bg-white rounded-2xl border border-dash shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden flex flex-col justify-between">
+    <div className="bg-white rounded-xl border border-dash shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden flex flex-col justify-between">
       {/* Header */}
       <div className="px-4 py-3 flex items-center justify-between">
         <h3 className="heading-h6 font-bold text-primary-500 text-sm">

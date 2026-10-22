@@ -37,11 +37,11 @@ export function StatCard({ stat }: StatCardProps) {
   const IconComponent = config.icon;
 
   return (
-    <div className="bg-white rounded-2xl border border-dash py-3.5 px-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow relative flex flex-col justify-between">
+    <div className="bg-white rounded-xl border border-dash py-3.5 px-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow relative flex flex-col justify-between">
       {/* Top Part: Icon, Value and Label */}
       <div className="flex items-start gap-3.5">
         <div
-          className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${config.bg} ${config.textColor}`}
+          className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${config.bg} ${config.textColor}`}
         >
           <IconComponent className="w-5 h-5" />
         </div>

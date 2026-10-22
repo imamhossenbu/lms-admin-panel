@@ -43,7 +43,7 @@ export function DashboardHeader({
           <button
             type="button"
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-dash bg-white body-sm-medium text-primary-500 shadow-2xs hover:bg-slate-50 transition-colors cursor-pointer"
+            className="flex items-center gap-2 px-3.5 py-2 rounded-lg border border-dash bg-white body-sm-medium text-primary-500 shadow-2xs hover:bg-slate-50 transition-colors cursor-pointer"
           >
             <span>{selectedPeriod}</span>
             <ChevronDown className="w-3.5 h-3.5 text-primary-300" />
@@ -76,7 +76,7 @@ export function DashboardHeader({
         <button
           type="button"
           onClick={onCreateCourse}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-orange hover:bg-brand-orange-hover text-white body-sm-medium font-semibold shadow-2xs transition-all cursor-pointer"
+          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand-orange hover:bg-brand-orange-hover text-white body-sm-medium font-semibold shadow-2xs transition-all cursor-pointer"
         >
           <Plus className="w-4 h-4 stroke-[2.5]" />
           <span>Create Course</span>
