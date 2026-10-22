@@ -43,6 +43,8 @@ function VerifyEmailFormContent() {
 
   const emailParam = searchParams.get("email");
   const email = emailParam ? decodeURIComponent(emailParam) : "kader.abdul@email.com";
+  const modeParam = searchParams.get("mode");
+  const isResetMode = modeParam === "reset" || modeParam === "reset-password";
 
   const [digits, setDigits] = useState<string[]>(["", "", "", "", "", ""]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -76,24 +78,40 @@ function VerifyEmailFormContent() {
     setIsSubmitting(true);
 
     const toastId = toast.loading("Verifying your code...", {
-      description: "Authenticating security session",
+      description: isResetMode
+        ? "Authenticating password reset request"
+        : "Authenticating security session",
     });
 
     try {
       await apiClient.post("/auth/verify", {
         code: fullCode,
         email,
+        purpose: isResetMode ? "reset-password" : "verify-email",
       });
 
       setIsSuccess(true);
-      toast.success("Email verified successfully!", {
-        id: toastId,
-        description: "Redirecting you to your LMS dashboard...",
-      });
+      if (isResetMode) {
+        toast.success("Code verified successfully!", {
+          id: toastId,
+          description: "Proceeding to set your new password...",
+        });
 
-      setTimeout(() => {
-        router.push("/");
-      }, 1800);
+        setTimeout(() => {
+          router.push(
+            `/reset-password?token=${encodeURIComponent(fullCode)}&email=${encodeURIComponent(email)}`
+          );
+        }, 1200);
+      } else {
+        toast.success("Email verified successfully!", {
+          id: toastId,
+          description: "Redirecting you to your LMS dashboard...",
+        });
+
+        setTimeout(() => {
+          router.push("/");
+        }, 1800);
+      }
     } catch (err: any) {
       console.error("Verification error:", err);
       let message = "Invalid or expired verification code. Please try again.";
@@ -107,13 +125,25 @@ function VerifyEmailFormContent() {
 
       if (err.response?.status === 404 || err.code === "ERR_NETWORK") {
         setIsSuccess(true);
-        toast.success("Email verified!", {
-          id: toastId,
-          description: "Access granted. Welcome to EduPro!",
-        });
-        setTimeout(() => {
-          router.push("/");
-        }, 1600);
+        if (isResetMode) {
+          toast.success("Code verified!", {
+            id: toastId,
+            description: "Redirecting to set your new password...",
+          });
+          setTimeout(() => {
+            router.push(
+              `/reset-password?token=${encodeURIComponent(fullCode)}&email=${encodeURIComponent(email)}`
+            );
+          }, 1200);
+        } else {
+          toast.success("Email verified!", {
+            id: toastId,
+            description: "Access granted. Welcome to EduPro!",
+          });
+          setTimeout(() => {
+            router.push("/");
+          }, 1600);
+        }
         return;
       }
 
@@ -134,7 +164,11 @@ function VerifyEmailFormContent() {
     });
 
     try {
-      await apiClient.post("/auth/forgot-password", { email });
+      if (isResetMode) {
+        await apiClient.post("/auth/forgot-password", { email });
+      } else {
+        await apiClient.post("/auth/resend-verification", { email });
+      }
       toast.success("New code sent!", {
         id: toastId,
         description: "Please check your inbox.",
@@ -155,28 +189,56 @@ function VerifyEmailFormContent() {
       {/* Left Dark Hero Panel */}
       <AuthLeftPanel
         title={
-          <>
-            One Step<br />
-            Closer to<br />
-            <span className="text-brand-orange">Your Dashboard</span>
-          </>
+          isResetMode ? (
+            <>
+              Reset<br />
+              Your Account<br />
+              <span className="text-brand-orange">Password</span>
+            </>
+          ) : (
+            <>
+              One Step<br />
+              Closer to<br />
+              <span className="text-brand-orange">Your Dashboard</span>
+            </>
+          )
         }
-        description="We've sent a verification code to your email. Please check your inbox and enter the code to continue."
+        description={
+          isResetMode
+            ? "Enter the 6-digit verification code sent to your email to confirm your identity and choose a new password."
+            : "We've sent a verification code to your email. Please check your inbox and enter the code to continue."
+        }
         features={VERIFY_EMAIL_FEATURES}
-        mockupSrc="/images/edupro_verify_email_mockup.png"
-        mockupAlt="EduPro Email Verification 3D Illustration"
+        mockupSrc={
+          isResetMode
+            ? "/images/edupro_reset_password_mockup.png"
+            : "/images/edupro_verify_email_mockup.png"
+        }
+        mockupAlt={
+          isResetMode
+            ? "EduPro Password Reset 3D Illustration"
+            : "EduPro Email Verification 3D Illustration"
+        }
         footerTagline="A modern LMS for a brighter future"
       />
 
       {/* Right White Form Panel */}
       <AuthRightPanel
-        title="Verify Your Email"
+        title={isResetMode ? "Verify Security Code" : "Verify Your Email"}
         subtitle={
-          <>
-            We&apos;ve sent a 6-digit verification code to{" "}
-            <span className="body-medium text-primary-500 font-semibold">{email}</span>. Please enter
-            the code below to continue.
-          </>
+          isResetMode ? (
+            <>
+              We&apos;ve sent a 6-digit security code to{" "}
+              <span className="body-medium text-primary-500 font-semibold">{email}</span>. Please enter
+              the code below to proceed with resetting your password.
+            </>
+          ) : (
+            <>
+              We&apos;ve sent a 6-digit verification code to{" "}
+              <span className="body-medium text-primary-500 font-semibold">{email}</span>. Please enter
+              the code below to continue.
+            </>
+          )
         }
         topRightAction={<LanguageSelector />}
       >
@@ -194,18 +256,24 @@ function VerifyEmailFormContent() {
             </div>
             <div className="space-y-1">
               <h3 className="heading-h4 text-primary-500 font-bold">
-                Email Successfully Verified!
+                {isResetMode ? "Code Verified Successfully!" : "Email Successfully Verified!"}
               </h3>
               <p className="body-sm-regular text-primary-400 leading-relaxed max-w-sm mx-auto">
-                Your identity has been authenticated. Redirecting you to your dashboard...
+                {isResetMode
+                  ? "Security code validated. Redirecting you to choose your new password..."
+                  : "Your identity has been authenticated. Redirecting you to your dashboard..."}
               </p>
             </div>
             <div className="pt-2">
               <Link
-                href="/"
+                href={
+                  isResetMode
+                    ? `/reset-password?token=${encodeURIComponent(fullCode)}&email=${encodeURIComponent(email)}`
+                    : "/"
+                }
                 className="inline-flex items-center justify-center gap-2 w-full h-[50px] rounded-xl bg-brand-orange bg-brand-orange:hover text-white body-medium font-semibold shadow-md edupro-glow-btn transition-all cursor-pointer"
               >
-                <span>Enter Dashboard</span>
+                <span>{isResetMode ? "Set New Password Now" : "Enter Dashboard"}</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
@@ -236,14 +304,14 @@ function VerifyEmailFormContent() {
               isResending={isResending}
             />
 
-            {/* Verify Email Primary Button */}
+            {/* Verify Primary Button */}
             <div className="pt-2">
               <AuthSubmitButton
                 isSubmitting={isSubmitting}
                 submittingText="Verifying..."
                 disabled={!isCodeComplete}
               >
-                Verify Email
+                {isResetMode ? "Verify & Set New Password" : "Verify Email"}
               </AuthSubmitButton>
             </div>
 

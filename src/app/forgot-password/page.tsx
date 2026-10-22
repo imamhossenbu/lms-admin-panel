@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
   Mail,
@@ -54,6 +55,7 @@ const FORGOT_PASSWORD_FEATURES: AuthFeature[] = [
 ];
 
 export default function ForgotPasswordPage() {
+  const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -73,8 +75,8 @@ export default function ForgotPasswordPage() {
     setServerError(null);
     setIsSubmitting(true);
 
-    const toastId = toast.loading("Sending reset link...", {
-      description: "Generating secure password reset token",
+    const toastId = toast.loading("Sending verification code...", {
+      description: "Generating secure 6-digit OTP code",
     });
 
     try {
@@ -83,10 +85,17 @@ export default function ForgotPasswordPage() {
       });
 
       setSubmittedEmail(data.email.trim());
-      toast.success("Reset link sent!", {
+      toast.success("Verification code dispatched!", {
         id: toastId,
-        description: `Check your inbox at ${data.email.trim()}`,
+        description: `Enter the code sent to ${data.email.trim()}`,
       });
+
+      // Smoothly redirect to verify-email in reset mode
+      setTimeout(() => {
+        router.push(
+          `/verify-email?email=${encodeURIComponent(data.email.trim())}&mode=reset`
+        );
+      }, 1000);
     } catch (err: any) {
       console.error("Forgot password request error:", err);
       let message = "Unable to process password reset. Please try again.";

@@ -70,15 +70,19 @@ const RESET_PASSWORD_FEATURES: AuthFeature[] = [
 function ResetPasswordFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const token = searchParams.get("token") || "";
+  const tokenParam = searchParams.get("token") || "";
   const emailParam = searchParams.get("email");
-  const email = emailParam ? decodeURIComponent(emailParam) : undefined;
 
+  const [manualToken, setManualToken] = useState("");
+  const [manualEmail, setManualEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
+
+  const token = (tokenParam || manualToken).trim();
+  const email = (emailParam ? decodeURIComponent(emailParam) : manualEmail).trim();
 
   const {
     register,
@@ -99,7 +103,7 @@ function ResetPasswordFormContent() {
   const onSubmit = async (data: ResetPasswordFormData) => {
     if (!token) {
       setServerError(
-        "Missing reset token. Please use the reset link sent to your email or request a new one."
+        "Missing reset security code. Please enter the 6-digit verification code from your email."
       );
       return;
     }
@@ -216,6 +220,58 @@ function ResetPasswordFormContent() {
           </div>
         ) : (
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 text-left">
+            {/* If token is not in URL, let the user enter their 6-digit code */}
+            {!tokenParam && (
+              <div className="space-y-2">
+                <label
+                  htmlFor="manualToken"
+                  className="block body-sm-regular text-primary-500 font-semibold tracking-tight"
+                >
+                  6-Digit Verification Code
+                </label>
+                <div className="relative flex items-center group">
+                  <span className="absolute left-4 text-primary-300 group-focus-within:text-brand-orange transition-colors pointer-events-none">
+                    <ShieldCheck className="w-5 h-5" />
+                  </span>
+                  <input
+                    id="manualToken"
+                    type="text"
+                    maxLength={6}
+                    value={manualToken}
+                    onChange={(e) => {
+                      setManualToken(e.target.value.replace(/\D/g, "").slice(0, 6));
+                      setServerError(null);
+                    }}
+                    placeholder="Enter 6-digit code"
+                    className="w-full h-[52px] sm:h-[54px] pl-12 pr-4 rounded-xl border border-dash focus:border-brand-orange focus:ring-4 focus:ring-brand-orange/10 bg-white body-regular text-primary-500 placeholder:text-primary-300 focus:outline-none transition-all font-mono tracking-widest text-lg"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* If email is not in URL and token wasn't in URL, let user enter email */}
+            {!emailParam && !tokenParam && (
+              <div className="space-y-2">
+                <label
+                  htmlFor="manualEmail"
+                  className="block body-sm-regular text-primary-500 font-semibold tracking-tight"
+                >
+                  Account Email
+                </label>
+                <input
+                  id="manualEmail"
+                  type="email"
+                  value={manualEmail}
+                  onChange={(e) => {
+                    setManualEmail(e.target.value);
+                    setServerError(null);
+                  }}
+                  placeholder="admin@edupro.com"
+                  className="w-full h-[52px] sm:h-[54px] px-4 rounded-xl border border-dash focus:border-brand-orange focus:ring-4 focus:ring-brand-orange/10 bg-white body-regular text-primary-500 placeholder:text-primary-300 focus:outline-none transition-all"
+                />
+              </div>
+            )}
+
             {/* New Password */}
             <div className="space-y-2">
               <label
