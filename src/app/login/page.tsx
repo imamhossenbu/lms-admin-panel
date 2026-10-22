@@ -28,7 +28,7 @@ import { AuthCardContainer } from "@/components/auth/AuthCardContainer";
 import { AuthLeftPanel } from "@/components/auth/AuthLeftPanel";
 import { AuthRightPanel } from "@/components/auth/AuthRightPanel";
 import { QuickDemoAccessBar } from "@/components/auth/QuickDemoAccessBar";
-import { GoogleAuthButton } from "@/components/auth/GoogleAuthButton";
+import { LanguageSelector } from "@/components/auth/LanguageSelector";
 import { AuthFeature } from "@/components/auth/AuthFeatureList";
 
 const LOGIN_FEATURES: AuthFeature[] = [
@@ -192,6 +192,7 @@ export default function LoginPage() {
       <AuthRightPanel
         title="Welcome back 👋"
         subtitle="Sign in to continue to your LMS dashboard."
+        topRightAction={<LanguageSelector />}
       >
         {/* Server Error Alert Banner */}
         {serverError && (
@@ -342,9 +343,6 @@ export default function LoginPage() {
             )}
           </button>
         </form>
-
-        {/* Social Authentication */}
-        <GoogleAuthButton />
       </AuthRightPanel>
     </AuthCardContainer>
   );
