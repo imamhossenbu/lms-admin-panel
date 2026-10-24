@@ -19,9 +19,9 @@ export function LearningProgressCard({ student }: LearningProgressCardProps) {
   const strokeDashoffset = circumference - (overallProgress / 100) * circumference;
 
   return (
-    <div className="bg-white rounded-xl border border-dash p-6 space-y-5 shadow-2xs text-left">
+    <div className="bg-white rounded-xl border border-dash p-6 shadow-2xs text-left h-full flex flex-col justify-between">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between pb-1">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-blue-14 text-blue flex items-center justify-center shrink-0">
             <TrendingUp className="w-5 h-5" />
@@ -44,8 +44,8 @@ export function LearningProgressCard({ student }: LearningProgressCardProps) {
         />
       </div>
 
-      {/* Main Content: Donut + Progress Metrics */}
-      <div className="grid grid-cols-1 sm:grid-cols-12 gap-6 items-center">
+      {/* Main Content: Donut + Progress Metrics (Vertically Centered to balance height) */}
+      <div className="grid grid-cols-1 sm:grid-cols-12 gap-6 items-center flex-1 my-auto pt-3">
         {/* Left: Donut Gauge */}
         <div className="sm:col-span-5 flex flex-col items-center justify-center">
           <div className="relative w-36 h-36 flex items-center justify-center">
@@ -85,8 +85,8 @@ export function LearningProgressCard({ student }: LearningProgressCardProps) {
           </div>
         </div>
 
-        {/* Right: 4 Metrics Bars */}
-        <div className="sm:col-span-7 space-y-3.5">
+        {/* Right: 4 Metrics Bars with comfortable vertical breathing room */}
+        <div className="sm:col-span-7 space-y-4">
           {/* Metric 1: Completed Lessons */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between body-xsm-medium">

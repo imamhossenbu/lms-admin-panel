@@ -74,7 +74,7 @@ export function StudentInfoOverviewCard({
   };
 
   return (
-    <div className="bg-white rounded-xl border border-dash p-6 space-y-4 shadow-2xs text-left">
+    <div className="bg-white rounded-xl border border-dash p-6 shadow-2xs text-left h-full flex flex-col justify-between">
       {/* Card Header */}
       <div className="flex items-center justify-between pb-1">
         <div className="flex items-center gap-3">
@@ -126,7 +126,7 @@ export function StudentInfoOverviewCard({
 
       {/* Mode 1: Display Mode with Balanced Vertical Padding */}
       {!isEditing ? (
-        <div className="divide-y divide-dash">
+        <div className="divide-y divide-dash flex-1 flex flex-col justify-between pt-1">
           <div className="flex items-center justify-between py-3.5">
             <span className="body-sm-regular text-primary-400">Full Name</span>
             <span className="body-sm-medium font-semibold text-primary-500">

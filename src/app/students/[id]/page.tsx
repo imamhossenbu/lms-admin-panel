@@ -120,8 +120,8 @@ export default function StudentDetailsPage({ params }: PageProps) {
       {/* 3. Tab Contents */}
       {activeTab === "overview" && (
         <div className="space-y-6">
-          {/* Top Row: Student Information & Learning Progress */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+          {/* Top Row: Student Information & Learning Progress (Same Alignment & Height) */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
             <StudentInfoOverviewCard
               student={student}
               onSave={handleUpdateStudent}
