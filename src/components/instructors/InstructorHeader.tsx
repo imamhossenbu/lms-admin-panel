@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { Home, Plus } from "lucide-react";
 import { PrimaryButton } from "@/components/ui/primary-button";
+import { Breadcrumb } from "@/components/ui/Breadcrumb";
 
 interface InstructorHeaderProps {
   onAddClick: () => void;
@@ -14,16 +15,19 @@ export function InstructorHeader({ onAddClick }: InstructorHeaderProps) {
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-left">
       <div>
         {/* Breadcrumb matching design system */}
-        <div className="flex items-center gap-2 mb-1.5 body-sm-regular text-primary-400">
-          <Link
-            href="/"
-            className="flex items-center gap-1 hover:text-brand-orange transition-colors"
-          >
-            <Home className="w-4 h-4 text-primary-300" />
-          </Link>
-          <span className="text-primary-300">/</span>
-          <span className="text-primary-500 font-semibold">Instructors</span>
-        </div>
+        <Breadcrumb
+          items={[
+            {
+              label: "Home",
+              href: "/",
+              icon: <Home className="w-4 h-4" />,
+            },
+            {
+              label: "Instructors",
+            },
+          ]}
+          className="mb-1.5"
+        />
 
         {/* Page Heading & Subtitle */}
         <h1 className="heading-h3 text-primary-500 font-bold tracking-tight">

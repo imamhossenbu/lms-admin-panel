@@ -1,15 +1,21 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { MOCK_STUDENTS } from "@/data/mockStudentData";
 import { StudentItem, StudentStatus } from "@/types/student";
+import {
+  getStoredStudents,
+  saveNewStudent,
+  updateStoredStudent,
+  deleteStoredStudent,
+} from "@/lib/studentStorage";
 import { StudentHeader } from "@/components/students/StudentHeader";
 import { StudentToolbar } from "@/components/students/StudentToolbar";
 import { StudentTable } from "@/components/students/StudentTable";
 import { StudentPagination } from "@/components/students/StudentPagination";
 import { StudentDetailsDrawer } from "@/components/students/StudentDetailsDrawer";
-import { AddStudentDrawer } from "@/components/students/AddStudentDrawer";
 import { StudentSkeleton } from "@/components/students/StudentSkeleton";
 import { toast } from "sonner";
 
@@ -23,11 +29,24 @@ export default function StudentsPage() {
   const [pageSize, setPageSize] = useState(10);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Sync with client-side storage
+  React.useEffect(() => {
+    setStudents(getStoredStudents());
+
+    const handleStorageUpdate = () => {
+      setStudents(getStoredStudents());
+    };
+
+    window.addEventListener("edupro_students_updated", handleStorageUpdate);
+    return () => {
+      window.removeEventListener("edupro_students_updated", handleStorageUpdate);
+    };
+  }, []);
+
   // Side Drawer states (Details drawer supports smooth inline editing!)
   const [selectedStudent, setSelectedStudent] = useState<StudentItem | null>(null);
   const [isDetailsDrawerOpen, setIsDetailsDrawerOpen] = useState(false);
   const [detailsInitialEditMode, setDetailsInitialEditMode] = useState(false);
-  const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
 
   // Filtering
   const filteredStudents = useMemo(() => {
@@ -60,21 +79,17 @@ export default function StudentsPage() {
 
   const totalPages = Math.ceil(filteredStudents.length / pageSize) || 1;
 
-  // Drawer triggers
+  const router = useRouter();
+
+  // Navigation & Drawer triggers
   const handleViewDetails = (student: StudentItem) => {
-    setSelectedStudent(student);
-    setDetailsInitialEditMode(false);
-    setIsDetailsDrawerOpen(true);
+    router.push(`/students/${student.id}`);
   };
 
   const handleOpenEditFromTable = (student: StudentItem) => {
     setSelectedStudent(student);
     setDetailsInitialEditMode(true);
     setIsDetailsDrawerOpen(true);
-  };
-
-  const handleOpenAdd = () => {
-    setIsAddDrawerOpen(true);
   };
 
   // Update existing student info (called from drawer's inline edit)
@@ -87,6 +102,7 @@ export default function StudentsPage() {
       status: StudentStatus;
     }
   ) => {
+    updateStoredStudent(studentId, updatedData);
     setStudents((prev) =>
       prev.map((s) => (s.id === studentId ? { ...s, ...updatedData } : s))
     );
@@ -152,11 +168,13 @@ export default function StudentsPage() {
       ],
     };
 
+    saveNewStudent(newStd);
     setStudents((prev) => [newStd, ...prev]);
   };
 
   // Remove Student Handler
   const handleDeleteStudent = (student: StudentItem) => {
+    deleteStoredStudent(student.id);
     setStudents((prev) => prev.filter((s) => s.id !== student.id));
     setIsDetailsDrawerOpen(false);
     setSelectedStudent(null);
@@ -203,7 +221,7 @@ export default function StudentsPage() {
       className="space-y-[16px] text-left pb-8"
     >
       {/* 1. Page Header with Breadcrumbs & Add Student CTA */}
-      <StudentHeader onAddClick={handleOpenAdd} />
+      <StudentHeader />
 
       {/* 2. Full-Width Students Card: Toolbar + DataTable + Pagination */}
       <div className="bg-white rounded-xl border border-dash shadow-2xs overflow-hidden flex flex-col justify-between">
@@ -264,15 +282,6 @@ export default function StudentsPage() {
         }}
         onUpdateStudent={handleUpdateStudent}
         onDeleteStudent={handleDeleteStudent}
-      />
-
-      {/* 4. Slide-Over Side Drawer for Add Student */}
-      <AddStudentDrawer
-        isOpen={isAddDrawerOpen}
-        mode="add"
-        student={null}
-        onClose={() => setIsAddDrawerOpen(false)}
-        onSave={handleAddStudent}
       />
     </motion.div>
   );
