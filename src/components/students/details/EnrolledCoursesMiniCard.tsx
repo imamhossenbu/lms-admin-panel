@@ -105,7 +105,7 @@ export function EnrolledCoursesMiniCard({
   ];
 
   return (
-    <div className="bg-white rounded-xl border border-dash p-6 space-y-4 shadow-2xs text-left h-full flex flex-col justify-between">
+    <div className="bg-white rounded-xl border border-dash p-6 space-y-4 shadow-2xs text-left">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -127,14 +127,13 @@ export function EnrolledCoursesMiniCard({
       </div>
 
       {/* Mini Data Table with Column-wise Borders */}
-      <div className="rounded-lg border border-dash overflow-hidden">
-        <DataTable
-          columns={columns}
-          data={miniCourses}
-          verticalBorders={true}
-          tableClassName="border-collapse"
-        />
-      </div>
+      <DataTable
+        columns={columns}
+        data={miniCourses}
+        verticalBorders={true}
+        containerClassName="border-dash rounded-lg"
+        tableClassName="border-collapse"
+      />
     </div>
   );
 }

@@ -18,7 +18,7 @@ export function LearningProgressCard({ student }: LearningProgressCardProps) {
   const strokeDashoffset = circumference - (overallProgress / 100) * circumference;
 
   return (
-    <div className="bg-white rounded-xl border border-dash p-6 space-y-5 shadow-2xs text-left h-full flex flex-col justify-between">
+    <div className="bg-white rounded-xl border border-dash p-6 space-y-5 shadow-2xs text-left">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">

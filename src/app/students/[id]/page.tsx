@@ -100,13 +100,13 @@ export default function StudentDetailsPage({ params }: PageProps) {
       {activeTab === "overview" && (
         <div className="space-y-6">
           {/* Top Row: Student Information & Learning Progress */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
             <StudentInfoOverviewCard student={student} onEdit={handleEdit} />
             <LearningProgressCard student={student} />
           </div>
 
           {/* Bottom Row: Enrolled Courses (Bigger Left Table) & Recent Activity (Smaller Right Card) */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             <div className="lg:col-span-7 xl:col-span-8">
               <EnrolledCoursesMiniCard
                 courses={student.enrolledCourses}

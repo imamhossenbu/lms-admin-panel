@@ -14,7 +14,7 @@ export function StudentInfoOverviewCard({
   onEdit,
 }: StudentInfoOverviewCardProps) {
   return (
-    <div className="bg-white rounded-xl border border-dash p-6 space-y-5 shadow-2xs text-left h-full flex flex-col justify-between">
+    <div className="bg-white rounded-xl border border-dash p-6 space-y-5 shadow-2xs text-left">
       {/* Card Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
