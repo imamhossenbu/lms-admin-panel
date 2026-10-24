@@ -142,23 +142,23 @@ export function AssignmentsTabContent({
       render: (row) => {
         if (row.submissionStatus === "Submitted") {
           return (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#ECFDF5] text-[#059669] border border-[#A7F3D0]">
-              <CheckCircle className="w-3 h-3 text-[#10B981]" />
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#ECFDF5] text-[#059669] border border-[#A7F3D0] whitespace-nowrap shrink-0">
+              <CheckCircle className="w-3 h-3 text-[#10B981] shrink-0" />
               <span>Submitted</span>
             </span>
           );
         }
         if (row.submissionStatus === "Pending") {
           return (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#FFFBEB] text-[#D97706] border border-[#FDE68A]">
-              <Clock className="w-3 h-3 text-[#F59E0B]" />
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#FFFBEB] text-[#D97706] border border-[#FDE68A] whitespace-nowrap shrink-0">
+              <Clock className="w-3 h-3 text-[#F59E0B] shrink-0" />
               <span>Pending</span>
             </span>
           );
         }
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#FEF2F2] text-[#DC2626] border border-[#FECACA]">
-            <XCircle className="w-3 h-3 text-[#EF4444]" />
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#FEF2F2] text-[#DC2626] border border-[#FECACA] whitespace-nowrap shrink-0">
+            <XCircle className="w-3 h-3 text-[#EF4444] shrink-0" />
             <span>Not Submitted</span>
           </span>
         );

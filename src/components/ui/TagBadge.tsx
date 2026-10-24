@@ -43,7 +43,7 @@ export function TagBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-[6px] px-2.5 py-1 body-xsm-medium whitespace-nowrap",
+        "inline-flex items-center gap-1.5 rounded-[6px] px-2.5 py-1 body-xsm-medium whitespace-nowrap shrink-0",
         finalBg,
         finalTextColor,
         className

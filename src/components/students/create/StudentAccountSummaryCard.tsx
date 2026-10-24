@@ -75,9 +75,9 @@ export function StudentAccountSummaryCard({
             <Calendar className="w-4 h-4 text-primary-300 shrink-0" />
             <span className="body-sm-regular text-primary-400">Status</span>
           </div>
-          <div className="flex items-center gap-1.5">
+          <div className="inline-flex items-center gap-1.5 whitespace-nowrap shrink-0">
             <span
-              className={`w-2 h-2 rounded-full ${
+              className={`w-2 h-2 rounded-full shrink-0 ${
                 status === "Active"
                   ? "bg-[#10B981]"
                   : status === "Inactive"
@@ -85,7 +85,7 @@ export function StudentAccountSummaryCard({
                   : "bg-[#F59E0B]"
               }`}
             />
-            <span className="body-sm-medium font-semibold text-primary-500">
+            <span className="body-sm-medium font-semibold text-primary-500 whitespace-nowrap">
               {status}
             </span>
           </div>
@@ -97,7 +97,7 @@ export function StudentAccountSummaryCard({
             <Clock className="w-4 h-4 text-primary-300 shrink-0" />
             <span className="body-sm-regular text-primary-400">Courses to Enroll</span>
           </div>
-          <span className="body-sm-medium font-semibold text-primary-500">
+          <span className="body-sm-medium font-semibold text-primary-500 whitespace-nowrap shrink-0">
             {enrolledCoursesCount} {enrolledCoursesCount === 1 ? "course" : "courses"}
           </span>
         </div>

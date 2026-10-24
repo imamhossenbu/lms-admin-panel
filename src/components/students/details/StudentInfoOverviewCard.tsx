@@ -152,7 +152,7 @@ export function StudentInfoOverviewCard({
           <div className="flex items-center justify-between py-3.5">
             <span className="body-sm-regular text-primary-400">Status</span>
             <span
-              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${
+              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap shrink-0 ${
                 student.status === "Active"
                   ? "bg-[#ECFDF5] text-[#059669] border border-[#A7F3D0]"
                   : student.status === "Suspended"

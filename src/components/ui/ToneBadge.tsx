@@ -51,7 +51,7 @@ export function ToneBadge({ tone, children, className, size = "md" }: ToneBadgeP
   return (
     <span
       className={cn(
-        "body-xsm-medium inline-flex items-center whitespace-nowrap rounded-[6px] transition-colors",
+        "body-xsm-medium inline-flex items-center whitespace-nowrap shrink-0 rounded-[6px] transition-colors",
         SIZE_CLASS[size] || SIZE_CLASS.md,
         TONE_CLASS[tone] || TONE_CLASS.gray,
         className

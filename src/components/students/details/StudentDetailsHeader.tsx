@@ -51,7 +51,7 @@ export function StudentDetailsHeader({
                 {student.name}
               </h1>
               <span
-                className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap shrink-0 ${
                   student.status === "Active"
                     ? "bg-[#ECFDF5] text-[#059669] border border-[#A7F3D0]"
                     : "bg-slate-100 text-slate-600 border border-slate-200"
@@ -67,7 +67,7 @@ export function StudentDetailsHeader({
             </div>
 
             <div className="flex flex-wrap items-center gap-y-2 gap-x-5 text-primary-400 body-sm-regular">
-              <span className="font-mono text-xs bg-slate-100 px-2 py-0.5 rounded-md text-primary-500 font-medium">
+              <span className="font-mono text-xs bg-slate-100 px-2 py-0.5 rounded-md text-primary-500 font-medium whitespace-nowrap shrink-0">
                 ID: {student.studentIdCode}
               </span>
               <div className="flex items-center gap-1.5">

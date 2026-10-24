@@ -74,7 +74,7 @@ export function EnrolledCoursesMiniCard({
       key: "status",
       header: "Status",
       render: (row) => (
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-[#EFF6FF] text-[#1D4ED8] whitespace-nowrap">
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-[#EFF6FF] text-[#1D4ED8] whitespace-nowrap shrink-0">
           {row.status}
         </span>
       ),

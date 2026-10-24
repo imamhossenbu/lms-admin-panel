@@ -58,9 +58,19 @@ These rules are strictly enforced across the `lms-admin-panel` codebase:
 - **English Only**: The entire user interface must always remain in English.
 - **No Language Toggler/Selector**: NEVER include any language selector, dropdown, toggle button, or globe icon anywhere in the application.
 
+---
 
+## 8. Data Tables & Column-Wise Borders
+- **Reusable Data Tables**: Always use or compose data tables with consistent layout, headers, sorting, pagination, and clean hover states.
+- **Mandatory Column Borders**: All tables across the application MUST include column-wise vertical borders (`divide-x divide-dash` or `border-r border-dash`) between cells and header columns, in addition to standard row borders (`divide-y divide-dash` / `border-b border-dash`).
+- **Consistent Cell Geometry**: Maintain aligned padding (`px-3.5 py-3`), clear column header typography (`body-xsm-medium text-primary-400 font-semibold`), and structured action menus.
 
+---
 
+## 9. Badges & Status Pills (Single-Line Policy)
+- **Strict Single-Line Text**: All badges, tone tags, status pills, count indicators, category tags, and course chips MUST always remain strictly on a single line (`whitespace-nowrap shrink-0 inline-flex items-center`).
+- **No Text Wrapping**: Badge text must NEVER wrap onto two or more lines under any viewport, column width, or flex container constraints.
+- **Consistent Layout**: Use `inline-flex items-center whitespace-nowrap shrink-0` across all badge and chip components to guarantee text integrity and aligned geometry.
 
 # Project Development Rules — MUST FOLLOW
 

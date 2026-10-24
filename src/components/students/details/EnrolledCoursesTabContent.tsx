@@ -136,7 +136,7 @@ export function EnrolledCoursesTabContent({
         const isNotStarted = row.status === "Not Started";
         return (
           <span
-            className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-semibold ${
+            className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-semibold whitespace-nowrap shrink-0 ${
               isNotStarted
                 ? "bg-slate-100 text-primary-400"
                 : "bg-[#EFF6FF] text-[#1D4ED8]"
