@@ -27,80 +27,16 @@ interface TabItemConfig {
   label: string;
   icon: LucideIcon;
   count?: number;
-  activeBg: string;
-  activeText: string;
-  activeBadgeBg: string;
-  activeBadgeText: string;
 }
 
 const TABS: TabItemConfig[] = [
-  {
-    key: "overview",
-    label: "Overview",
-    icon: LayoutDashboard,
-    activeBg: "bg-[#EBF4FC]",
-    activeText: "text-[#1C4D8D]",
-    activeBadgeBg: "bg-[#DBEAFE]",
-    activeBadgeText: "text-[#1C4D8D]",
-  },
-  {
-    key: "enrolled-courses",
-    label: "Enrolled Courses",
-    icon: BookOpen,
-    count: 6,
-    activeBg: "bg-[#FFF7ED]",
-    activeText: "text-[#EA580C]",
-    activeBadgeBg: "bg-[#FFEDD5]",
-    activeBadgeText: "text-[#EA580C]",
-  },
-  {
-    key: "assignments",
-    label: "Assignments",
-    icon: FileText,
-    count: 4,
-    activeBg: "bg-[#FAF5FF]",
-    activeText: "text-[#9333EA]",
-    activeBadgeBg: "bg-[#F3E8FF]",
-    activeBadgeText: "text-[#9333EA]",
-  },
-  {
-    key: "quizzes",
-    label: "Quizzes",
-    icon: HelpCircle,
-    count: 8,
-    activeBg: "bg-[#ECFDF5]",
-    activeText: "text-[#059669]",
-    activeBadgeBg: "bg-[#D1FAE5]",
-    activeBadgeText: "text-[#059669]",
-  },
-  {
-    key: "certificates",
-    label: "Certificates",
-    icon: Award,
-    count: 2,
-    activeBg: "bg-[#FFFBEB]",
-    activeText: "text-[#D97706]",
-    activeBadgeBg: "bg-[#FEF3C7]",
-    activeBadgeText: "text-[#D97706]",
-  },
-  {
-    key: "activity-log",
-    label: "Activity Log",
-    icon: Clock,
-    activeBg: "bg-[#F0F9FF]",
-    activeText: "text-[#0284C7]",
-    activeBadgeBg: "bg-[#E0F2FE]",
-    activeBadgeText: "text-[#0284C7]",
-  },
-  {
-    key: "notes",
-    label: "Notes",
-    icon: StickyNote,
-    activeBg: "bg-[#FFF1F2]",
-    activeText: "text-[#E11D48]",
-    activeBadgeBg: "bg-[#FFE4E6]",
-    activeBadgeText: "text-[#E11D48]",
-  },
+  { key: "overview", label: "Overview", icon: LayoutDashboard },
+  { key: "enrolled-courses", label: "Enrolled Courses", icon: BookOpen, count: 6 },
+  { key: "assignments", label: "Assignments", icon: FileText, count: 4 },
+  { key: "quizzes", label: "Quizzes", icon: HelpCircle, count: 8 },
+  { key: "certificates", label: "Certificates", icon: Award, count: 2 },
+  { key: "activity-log", label: "Activity Log", icon: Clock },
+  { key: "notes", label: "Notes", icon: StickyNote },
 ];
 
 interface StudentDetailsTabsProps {
@@ -125,25 +61,25 @@ export function StudentDetailsTabs({
               key={tab.key}
               type="button"
               onClick={() => onTabChange(tab.key)}
-              className={`relative whitespace-nowrap px-3.5 py-2 rounded-xl body-sm-medium transition-all duration-200 cursor-pointer flex items-center gap-2 shrink-0 z-10 select-none ${
+              className={`relative whitespace-nowrap px-4 py-2 rounded-xl body-sm-medium transition-all duration-150 cursor-pointer flex items-center gap-2 shrink-0 z-10 select-none ${
                 isActive
-                  ? `${tab.activeText} font-semibold shadow-2xs`
-                  : "text-primary-400 hover:text-primary-500 hover:bg-white/50"
+                  ? "text-primary-500 font-semibold shadow-xs"
+                  : "text-primary-400 hover:text-primary-500 hover:bg-white/60"
               }`}
             >
-              {/* Distinct Active Animated Background Pill per Tab */}
+              {/* Active Animated White Pill (Consistent background across all tabs) */}
               {isActive && (
                 <motion.div
                   layoutId="studentDetailsActivePill"
-                  className={`absolute inset-0 rounded-xl ${tab.activeBg} -z-10`}
-                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  className="absolute inset-0 rounded-xl bg-white -z-10 shadow-xs"
+                  transition={{ type: "spring", stiffness: 450, damping: 35 }}
                 />
               )}
 
               {/* Icon */}
               <Icon
                 className={`w-4 h-4 transition-colors ${
-                  isActive ? tab.activeText : "text-primary-400"
+                  isActive ? "text-primary-500" : "text-primary-400"
                 }`}
               />
 
@@ -155,7 +91,7 @@ export function StudentDetailsTabs({
                 <span
                   className={`rounded-full px-2 py-0.5 text-[11px] font-semibold leading-none transition-colors ${
                     isActive
-                      ? `${tab.activeBadgeBg} ${tab.activeBadgeText}`
+                      ? "bg-slate-100 text-primary-500"
                       : "bg-slate-200/80 text-primary-400"
                   }`}
                 >

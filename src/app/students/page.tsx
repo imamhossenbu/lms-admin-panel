@@ -17,7 +17,7 @@ import { StudentTable } from "@/components/students/StudentTable";
 import { StudentPagination } from "@/components/students/StudentPagination";
 import { StudentDetailsDrawer } from "@/components/students/StudentDetailsDrawer";
 import { StudentSkeleton } from "@/components/students/StudentSkeleton";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 
 export default function StudentsPage() {
   const [students, setStudents] = useState<StudentItem[]>(MOCK_STUDENTS);
@@ -178,9 +178,7 @@ export default function StudentsPage() {
     setStudents((prev) => prev.filter((s) => s.id !== student.id));
     setIsDetailsDrawerOpen(false);
     setSelectedStudent(null);
-    toast.success("Student Removed", {
-      description: `"${student.name}" has been removed from the platform.`,
-    });
+    toast.success(`"${student.name}" has been removed from the platform.`);
   };
 
   // Export CSV Handler
@@ -204,9 +202,7 @@ export default function StudentsPage() {
     link.click();
     document.body.removeChild(link);
 
-    toast.success("Export Complete", {
-      description: `Exported ${filteredStudents.length} student records to CSV.`,
-    });
+    toast.success(`Exported ${filteredStudents.length} student records to CSV.`);
   };
 
   if (isLoading) {

@@ -70,3 +70,11 @@ export const deleteStoredStudent = (studentId: string): StudentItem[] => {
     return MOCK_STUDENTS;
   }
 };
+
+export const saveStoredStudents = (students: StudentItem[]): void => {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(students));
+    window.dispatchEvent(new Event("edupro_students_updated"));
+  } catch {}
+};

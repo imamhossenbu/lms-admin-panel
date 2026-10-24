@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { toast } from "sonner";
-import { getStoredStudents } from "@/lib/studentStorage";
+import toast from "react-hot-toast";
+import { getStoredStudents, saveStoredStudents } from "@/lib/studentStorage";
 import {
   DEFAULT_STUDENT_DETAILS,
   StudentFullDetails,
@@ -27,6 +28,7 @@ interface PageProps {
 }
 
 export default function StudentDetailsPage({ params }: PageProps) {
+  const router = useRouter();
   const unwrappedParams = React.use(params);
   const studentId = unwrappedParams.id;
 
@@ -69,14 +71,33 @@ export default function StudentDetailsPage({ params }: PageProps) {
   }
 
   const handleEdit = () => {
-    toast.info("Edit Student", {
-      description: `Editing details for ${student.name}`,
-    });
+    router.push(`/students/${studentId}/edit`);
+  };
+
+  const handleUpdateStudent = (updatedData: Partial<StudentFullDetails>) => {
+    setStudent((prev) => ({
+      ...prev,
+      ...updatedData,
+    }));
+
+    // Update in local storage
+    const stored = getStoredStudents();
+    const idx = stored.findIndex((s) => s.id === studentId);
+    if (idx !== -1) {
+      stored[idx] = {
+        ...stored[idx],
+        name: updatedData.name ?? stored[idx].name,
+        email: updatedData.email ?? stored[idx].email,
+        phone: updatedData.phone ?? stored[idx].phone,
+        status: (updatedData.status as any) ?? stored[idx].status,
+      };
+      saveStoredStudents(stored);
+    }
   };
 
   const handleEnrollNew = () => {
-    toast.info("Course Enrollment", {
-      description: "Opening course catalog to select enrollment...",
+    toast("Opening course catalog to select enrollment...", {
+      icon: "📚",
     });
   };
 
@@ -101,7 +122,10 @@ export default function StudentDetailsPage({ params }: PageProps) {
         <div className="space-y-6">
           {/* Top Row: Student Information & Learning Progress */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-            <StudentInfoOverviewCard student={student} onEdit={handleEdit} />
+            <StudentInfoOverviewCard
+              student={student}
+              onSave={handleUpdateStudent}
+            />
             <LearningProgressCard student={student} />
           </div>
 
@@ -112,8 +136,8 @@ export default function StudentDetailsPage({ params }: PageProps) {
                 courses={student.enrolledCourses}
                 onViewAll={() => setActiveTab("enrolled-courses")}
                 onViewCourse={(c) =>
-                  toast.info("Course Details", {
-                    description: `Selected: ${c.title}`,
+                  toast(`Selected course: ${c.title}`, {
+                    icon: "📖",
                   })
                 }
               />

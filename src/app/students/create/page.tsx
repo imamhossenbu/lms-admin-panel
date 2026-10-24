@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 
 import { createStudentSchema, CreateStudentInput } from "@/validations/studentSchema";
 import { saveNewStudent, getStoredStudents } from "@/lib/studentStorage";
@@ -53,9 +53,7 @@ export default function CreateStudentPage() {
 
   const onSubmit = async (data: CreateStudentInput) => {
     setIsSubmitting(true);
-    const toastId = toast.loading("Creating student account...", {
-      description: "Generating secure credentials and setting up courses...",
-    });
+    const toastId = toast.loading("Creating student account...");
 
     try {
       // Simulate network latency for authentic UX
@@ -117,16 +115,14 @@ export default function CreateStudentPage() {
 
       saveNewStudent(newStudent);
 
-      toast.success("Student Created Successfully", {
+      toast.success(`Student account created for "${data.name}"`, {
         id: toastId,
-        description: `Account created for "${data.name}". Credentials sent to ${data.email}.`,
       });
 
       router.push("/students");
     } catch {
-      toast.error("Failed to Create Student", {
+      toast.error("Failed to create student account", {
         id: toastId,
-        description: "An unexpected error occurred while saving student details.",
       });
       setIsSubmitting(false);
     }

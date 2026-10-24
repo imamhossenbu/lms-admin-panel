@@ -21,7 +21,7 @@ import { DataTable, ColumnDef } from "@/components/ui/Datatable";
 import { AppSelect } from "@/components/ui/AppSelect";
 import { AppDropdownMenu } from "@/components/ui/AppDropdownMenu";
 import { StudentAssignment } from "./mockStudentDetails";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 
 interface AssignmentsTabContentProps {
   assignments: StudentAssignment[];
@@ -209,8 +209,8 @@ export function AssignmentsTabContent({
           <button
             type="button"
             onClick={() =>
-              toast.info("Assignment Details", {
-                description: `Viewing details for "${row.title}"`,
+              toast(`Viewing assignment details: "${row.title}"`, {
+                icon: "📝",
               })
             }
             className="px-3 py-1 rounded-md border border-dash bg-white text-primary-500 hover:bg-slate-50 body-xsm-medium transition-colors shadow-2xs cursor-pointer"
@@ -235,8 +235,8 @@ export function AssignmentsTabContent({
                 label: "View Submission",
                 icon: <Eye className="w-3.5 h-3.5 text-primary-400" />,
                 onClick: () =>
-                  toast.info("Submission Details", {
-                    description: `Reviewing submission for ${row.title}`,
+                  toast(`Reviewing submission for ${row.title}`, {
+                    icon: "📄",
                   }),
               },
               {
@@ -244,9 +244,7 @@ export function AssignmentsTabContent({
                 label: "Download File",
                 icon: <Download className="w-3.5 h-3.5 text-primary-400" />,
                 onClick: () =>
-                  toast.success("Download", {
-                    description: `Downloading files for ${row.title}`,
-                  }),
+                  toast.success(`Downloading files for ${row.title}`),
               },
             ]}
           />

@@ -17,7 +17,7 @@ import { AppSelect } from "@/components/ui/AppSelect";
 import { AppDropdownMenu } from "@/components/ui/AppDropdownMenu";
 import { CourseBadgeIcon } from "../create/CourseBadgeIcon";
 import { EnrolledCourseDetail } from "./mockStudentDetails";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 
 interface EnrolledCoursesTabContentProps {
   courses: EnrolledCourseDetail[];
@@ -49,9 +49,7 @@ export function EnrolledCoursesTabContent({
 
   const handleRemoveCourse = (course: EnrolledCourseDetail) => {
     setCourses((prev) => prev.filter((c) => c.id !== course.id));
-    toast.success("Course Removed", {
-      description: `"${course.title}" was unenrolled.`,
-    });
+    toast.success(`"${course.title}" was unenrolled.`);
   };
 
   const columns: ColumnDef<EnrolledCourseDetail>[] = [
@@ -177,8 +175,8 @@ export function EnrolledCoursesTabContent({
           <button
             type="button"
             onClick={() =>
-              toast.info("Course Details", {
-                description: `Opening "${row.title}" curriculum overview.`,
+              toast(`Opening "${row.title}" curriculum overview`, {
+                icon: "📖",
               })
             }
             className="px-3 py-1 rounded-md border border-dash bg-white text-primary-500 hover:bg-slate-50 body-xsm-medium transition-colors shadow-2xs cursor-pointer"
@@ -203,8 +201,8 @@ export function EnrolledCoursesTabContent({
                 label: "View Course",
                 icon: <Eye className="w-3.5 h-3.5 text-primary-400" />,
                 onClick: () =>
-                  toast.info("View Course", {
-                    description: `Viewing details for ${row.title}`,
+                  toast(`Viewing details for ${row.title}`, {
+                    icon: "👀",
                   }),
               },
               {
@@ -212,8 +210,8 @@ export function EnrolledCoursesTabContent({
                 label: "View Progress",
                 icon: <TrendingUp className="w-3.5 h-3.5 text-primary-400" />,
                 onClick: () =>
-                  toast.info("Progress Analytics", {
-                    description: `Progress analytics for ${row.title}: ${row.progress}%`,
+                  toast(`Progress: ${row.progress}% in ${row.title}`, {
+                    icon: "📊",
                   }),
               },
               {
@@ -221,8 +219,8 @@ export function EnrolledCoursesTabContent({
                 label: "Change Enrollment",
                 icon: <RefreshCw className="w-3.5 h-3.5 text-primary-400" />,
                 onClick: () =>
-                  toast.info("Change Enrollment", {
-                    description: "Modifying enrollment batch...",
+                  toast(`Modifying enrollment for ${row.title}...`, {
+                    icon: "🔄",
                   }),
               },
               {
