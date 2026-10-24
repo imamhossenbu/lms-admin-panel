@@ -12,6 +12,7 @@ import {
   StickyNote,
   LucideIcon,
 } from "lucide-react";
+import { ToneBadge } from "@/components/ui/ToneBadge";
 
 export type StudentTabKey =
   | "overview"
@@ -88,15 +89,18 @@ export function StudentDetailsTabs({
 
               {/* Tab Count Badge */}
               {typeof tab.count === "number" && (
-                <span
-                  className={`rounded-full px-2 py-0.5 text-[11px] font-semibold leading-none whitespace-nowrap shrink-0 inline-flex items-center transition-colors ${
+                <ToneBadge
+                  tone="navy"
+                  size="sm"
+                  variant="pill"
+                  className={
                     isActive
-                      ? "bg-slate-100 text-primary-500"
+                      ? "bg-slate-100 text-primary-500 font-semibold"
                       : "bg-slate-200/80 text-primary-400"
-                  }`}
+                  }
                 >
                   {tab.count}
-                </span>
+                </ToneBadge>
               )}
             </button>
           );

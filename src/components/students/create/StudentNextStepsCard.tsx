@@ -27,7 +27,7 @@ export function StudentNextStepsCard() {
       <div className="space-y-3.5 pt-1">
         {steps.map((text, idx) => (
           <div key={idx} className="flex items-start gap-3">
-            <div className="w-5 h-5 rounded-full bg-[#EFF6FF] text-blue font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-[#BFDBFE]">
+            <div className="w-5 h-5 rounded-full bg-blue-14 text-blue font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 border border-blue/30">
               {idx + 1}
             </div>
             <p className="body-sm-regular text-primary-400 leading-snug">

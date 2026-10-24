@@ -30,7 +30,7 @@ export function SelectedCoursesChips({
         {selectedCourses.map((course) => (
           <div
             key={course.id}
-            className="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-dash bg-[#F8FAFC] text-primary-500 body-xsm-medium shadow-2xs group hover:border-primary-300 transition-colors whitespace-nowrap shrink-0"
+            className="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-dash bg-slate-50 text-primary-500 body-xsm-medium shadow-2xs group hover:border-primary-300 transition-colors whitespace-nowrap shrink-0"
           >
             <CourseBadgeIcon type={course.iconType} size="sm" />
             <span className="truncate max-w-[200px] whitespace-nowrap">{course.title}</span>

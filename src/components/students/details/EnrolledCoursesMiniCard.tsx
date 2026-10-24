@@ -4,6 +4,7 @@ import React from "react";
 import { BookOpen } from "lucide-react";
 import { DataTable, ColumnDef } from "@/components/ui/Datatable";
 import { CourseBadgeIcon } from "../create/CourseBadgeIcon";
+import { ToneBadge } from "@/components/ui/ToneBadge";
 import { EnrolledCourseDetail } from "./mockStudentDetails";
 
 interface EnrolledCoursesMiniCardProps {
@@ -74,9 +75,13 @@ export function EnrolledCoursesMiniCard({
       key: "status",
       header: "Status",
       render: (row) => (
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-[#EFF6FF] text-[#1D4ED8] whitespace-nowrap shrink-0">
+        <ToneBadge
+          tone={row.status === "Not Started" ? "gray" : "blue"}
+          size="sm"
+          variant="rounded"
+        >
           {row.status}
-        </span>
+        </ToneBadge>
       ),
     },
     {

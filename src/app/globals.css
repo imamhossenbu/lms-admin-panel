@@ -41,6 +41,10 @@
   --color-red-dark: #be1c23;
   --color-purple-14: #c218fb14;
   --color-purple: #c218fb;
+  --color-yellow: #d97706;
+  --color-yellow-bg: #fffbeb;
+  --color-yellow-14: rgba(217, 119, 6, 0.14);
+  --color-gray-bg: #f1f5f9;
 }
 
 :root {
@@ -76,6 +80,10 @@
   --color-red-dark: #be1c23;
   --color-purple-14: #c218fb14;
   --color-purple: #c218fb;
+  --color-yellow: #d97706;
+  --color-yellow-bg: #fffbeb;
+  --color-yellow-14: rgba(217, 119, 6, 0.14);
+  --color-gray-bg: #f1f5f9;
 
   /* Clean Surface Colors */
   --dash-bg: #FFFFFF;
@@ -123,6 +131,8 @@ body {
 .text-red { color: #df1c41; }
 .text-red-dark { color: #be1c23; }
 .text-purple { color: #c218fb; }
+.text-yellow { color: #d97706; }
+.text-gray { color: #64748B; }
 .text-muted { color: #64748B; }
 .subtext-500 { color: #64748B; }
 
@@ -141,6 +151,9 @@ body {
 .bg-green-bg { background-color: #e6ffee; }
 .bg-red-14 { background-color: #df1c4114; }
 .bg-purple-14 { background-color: #c218fb14; }
+.bg-yellow-14 { background-color: rgba(217, 119, 6, 0.14); }
+.bg-yellow-bg { background-color: #fffbeb; }
+.bg-gray-bg { background-color: #f1f5f9; }
 
 .border-brand-orange { border-color: #FF5B00; }
 .border-brand-primary { border-color: #FF5B00; }
@@ -148,6 +161,10 @@ body {
 .border-brand-accent { border-color: #FF7A29; }
 .border-brand-ice { border-color: #FFF0E5; }
 .border-dash { border-color: #E2E8F0; }
+.border-green { border-color: #a7f3d0; }
+.border-blue { border-color: #bfdbfe; }
+.border-red { border-color: #fecaca; }
+.border-yellow { border-color: #fde68a; }
 
 /* Custom EduPro Glow & Glass Utilities */
 .edupro-glow-ring {

@@ -6,6 +6,7 @@ import { ArrowLeft, Mail, Calendar, Edit3, MoreHorizontal, Trash2, Download, Sen
 import toast from "react-hot-toast";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { AppDropdownMenu } from "@/components/ui/AppDropdownMenu";
+import { ToneBadge } from "@/components/ui/ToneBadge";
 import { StudentFullDetails } from "./mockStudentDetails";
 
 interface StudentDetailsHeaderProps {
@@ -40,7 +41,7 @@ export function StudentDetailsHeader({
           </Link>
 
           {/* Avatar with Initials / Photo */}
-          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-14 to-[#DBEAFE] border-2 border-white shadow-md flex items-center justify-center shrink-0 text-blue font-bold text-2xl tracking-tight">
+          <div className="w-20 h-20 rounded-2xl bg-blue-14 border-2 border-white shadow-md flex items-center justify-center shrink-0 text-blue font-bold text-2xl tracking-tight">
             {student.initials}
           </div>
 
@@ -50,26 +51,20 @@ export function StudentDetailsHeader({
               <h1 className="heading-h3 font-bold text-primary-500">
                 {student.name}
               </h1>
-              <span
-                className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap shrink-0 ${
-                  student.status === "Active"
-                    ? "bg-[#ECFDF5] text-[#059669] border border-[#A7F3D0]"
-                    : "bg-slate-100 text-slate-600 border border-slate-200"
-                }`}
+              <ToneBadge
+                tone={student.status === "Active" ? "green" : student.status === "Suspended" ? "warning" : "red"}
+                dot
+                variant="pill"
+                size="md"
               >
-                <span
-                  className={`w-1.5 h-1.5 rounded-full ${
-                    student.status === "Active" ? "bg-[#10B981]" : "bg-[#94A3B8]"
-                  }`}
-                />
                 {student.status}
-              </span>
+              </ToneBadge>
             </div>
 
             <div className="flex flex-wrap items-center gap-y-2 gap-x-5 text-primary-400 body-sm-regular">
-              <span className="font-mono text-xs bg-slate-100 px-2 py-0.5 rounded-md text-primary-500 font-medium whitespace-nowrap shrink-0">
+              <ToneBadge tone="navy" size="sm" variant="rounded">
                 ID: {student.studentIdCode}
-              </span>
+              </ToneBadge>
               <div className="flex items-center gap-1.5">
                 <Mail className="w-4 h-4 text-primary-300" />
                 <span>{student.email}</span>
@@ -87,7 +82,7 @@ export function StudentDetailsHeader({
           <button
             type="button"
             onClick={onEdit}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue hover:bg-[#1D60E3] active:bg-[#1853C9] text-white body-sm-medium transition-all shadow-sm cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue hover:opacity-90 active:opacity-80 text-white body-sm-medium transition-all shadow-sm cursor-pointer"
           >
             <Edit3 className="w-4 h-4 stroke-[2.2]" />
             <span>Edit Student</span>

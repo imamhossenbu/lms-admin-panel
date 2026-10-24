@@ -12,7 +12,7 @@ These rules are strictly enforced across the `lms-admin-panel` codebase:
 ---
 
 ## 2. Design System: Strict `globals.css` Tokens for Typography & Colors
-- All text styles, fonts, weights, and colors MUST strictly use the predefined classes in `src/app/globals.css`.
+- All text styles, fonts, weights, colors, and background fills MUST strictly use the predefined classes in `src/app/globals.css`.
 - **Typography Tokens**:
   - Headings: `heading-display-h1`, `heading-h1-bold`, `heading-h2-bold`, `heading-h3`, `heading-h4`, `heading-h5`, `heading-h6`.
   - Body: `body-xl-regular`, `body-l-medium`, `body-regular`, `body-medium`, `body-sm-medium`, `body-sm-regular`, `body-xsm-medium`, `body-xsm-regular`, `body-2xsm-regular`.
@@ -20,9 +20,9 @@ These rules are strictly enforced across the `lms-admin-panel` codebase:
 - **Color Tokens**:
   - Brand: `text-brand-orange`, `text-brand-orange-hover`, `bg-brand-orange`, `bg-brand-orange-light`, `border-brand-orange`.
   - Neutral / Text: `text-primary-500` (#0F172A), `text-primary-400` (#334155), `text-primary-300` (#64748B), `subtext-500`.
-  - Status: `text-red`, `text-red-dark`, `bg-red-14`, `text-green`, `bg-green-bg`, `text-blue`, `bg-blue-14`.
+  - Status: `text-red`, `text-red-dark`, `bg-red-14`, `border-red`, `text-green`, `bg-green-bg`, `border-green`, `text-blue`, `bg-blue-14`, `border-blue`, `text-yellow`, `bg-yellow-bg`, `bg-yellow-14`, `border-yellow`, `text-purple`, `bg-purple-14`.
   - Borders & Cards: `border-dash`, `dashboard-card`, `edupro-glow-btn`.
-- **Strict Prohibition**: Never use arbitrary Tailwind classes or inline colors when corresponding tokens exist in `globals.css`.
+- **Strict Prohibition**: NEVER use arbitrary Tailwind classes or inline hex colors (e.g. `text-[11px]`, `bg-[#EFF6FF]`, `text-[#059669]`) when corresponding tokens exist in `globals.css`.
 
 ---
 
@@ -67,10 +67,12 @@ These rules are strictly enforced across the `lms-admin-panel` codebase:
 
 ---
 
-## 9. Badges & Status Pills (Single-Line Policy)
+## 9. Universal Badge Component (`ToneBadge`) & Single-Line Policy
+- **Single Universal Badge Component**: Everywhere across the entire application (tables, headers, profile cards, status pills, count badges, tags), ALWAYS use the unified `ToneBadge` component (`src/components/ui/ToneBadge.tsx`).
+- **No Ad-Hoc Badges**: NEVER write custom `<span>` or `<div>` elements with arbitrary inline colors, borders, or padding for badges or status indicators.
 - **Strict Single-Line Text**: All badges, tone tags, status pills, count indicators, category tags, and course chips MUST always remain strictly on a single line (`whitespace-nowrap shrink-0 inline-flex items-center`).
 - **No Text Wrapping**: Badge text must NEVER wrap onto two or more lines under any viewport, column width, or flex container constraints.
-- **Consistent Layout**: Use `inline-flex items-center whitespace-nowrap shrink-0` across all badge and chip components to guarantee text integrity and aligned geometry.
+- **Consistent Layout**: Use `inline-flex items-center whitespace-nowrap shrink-0` guaranteed by `ToneBadge` across all badge and chip components to ensure visual integrity and geometry.
 
 # Project Development Rules — MUST FOLLOW
 

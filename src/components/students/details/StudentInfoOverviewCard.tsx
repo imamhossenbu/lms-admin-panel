@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { User, Edit2, Check, X } from "lucide-react";
 import toast from "react-hot-toast";
 import { AppSelect } from "@/components/ui/AppSelect";
+import { ToneBadge } from "@/components/ui/ToneBadge";
 import { StudentFullDetails } from "./mockStudentDetails";
 
 interface StudentInfoOverviewCardProps {
@@ -115,7 +116,7 @@ export function StudentInfoOverviewCard({
             <button
               type="button"
               onClick={handleSave}
-              className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-blue hover:bg-[#1D60E3] text-white body-xsm-medium font-medium transition-colors shadow-xs cursor-pointer"
+              className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-blue hover:opacity-90 text-white body-xsm-medium font-medium transition-colors shadow-xs cursor-pointer"
             >
               <Check className="w-3.5 h-3.5 stroke-[2.5]" />
               <span>Save</span>
@@ -151,26 +152,20 @@ export function StudentInfoOverviewCard({
           {/* Status Row: Fixed badge alignment and generous breathing room */}
           <div className="flex items-center justify-between py-3.5">
             <span className="body-sm-regular text-primary-400">Status</span>
-            <span
-              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap shrink-0 ${
+            <ToneBadge
+              tone={
                 student.status === "Active"
-                  ? "bg-[#ECFDF5] text-[#059669] border border-[#A7F3D0]"
+                  ? "green"
                   : student.status === "Suspended"
-                  ? "bg-[#FEF3C7] text-[#D97706] border border-[#FDE68A]"
-                  : "bg-slate-100 text-slate-600 border border-slate-200"
-              }`}
+                  ? "warning"
+                  : "red"
+              }
+              dot
+              variant="pill"
+              size="sm"
             >
-              <span
-                className={`w-1.5 h-1.5 rounded-full ${
-                  student.status === "Active"
-                    ? "bg-[#10B981]"
-                    : student.status === "Suspended"
-                    ? "bg-[#F59E0B]"
-                    : "bg-[#94A3B8]"
-                }`}
-              />
               {student.status}
-            </span>
+            </ToneBadge>
           </div>
 
           <div className="flex items-center justify-between py-3.5">

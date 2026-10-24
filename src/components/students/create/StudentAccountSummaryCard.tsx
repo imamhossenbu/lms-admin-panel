@@ -2,6 +2,7 @@
 
 import React from "react";
 import { FileText, User, Mail, Phone, Calendar, Clock } from "lucide-react";
+import { ToneBadge } from "@/components/ui/ToneBadge";
 
 interface StudentAccountSummaryCardProps {
   name?: string;
@@ -75,20 +76,14 @@ export function StudentAccountSummaryCard({
             <Calendar className="w-4 h-4 text-primary-300 shrink-0" />
             <span className="body-sm-regular text-primary-400">Status</span>
           </div>
-          <div className="inline-flex items-center gap-1.5 whitespace-nowrap shrink-0">
-            <span
-              className={`w-2 h-2 rounded-full shrink-0 ${
-                status === "Active"
-                  ? "bg-[#10B981]"
-                  : status === "Inactive"
-                  ? "bg-[#94A3B8]"
-                  : "bg-[#F59E0B]"
-              }`}
-            />
-            <span className="body-sm-medium font-semibold text-primary-500 whitespace-nowrap">
-              {status}
-            </span>
-          </div>
+          <ToneBadge
+            tone={status === "Active" ? "green" : status === "Suspended" ? "warning" : "gray"}
+            dot
+            size="sm"
+            variant="pill"
+          >
+            {status}
+          </ToneBadge>
         </div>
 
         {/* Courses to Enroll */}
@@ -97,9 +92,9 @@ export function StudentAccountSummaryCard({
             <Clock className="w-4 h-4 text-primary-300 shrink-0" />
             <span className="body-sm-regular text-primary-400">Courses to Enroll</span>
           </div>
-          <span className="body-sm-medium font-semibold text-primary-500 whitespace-nowrap shrink-0">
+          <ToneBadge tone="navy" size="sm" variant="rounded">
             {enrolledCoursesCount} {enrolledCoursesCount === 1 ? "course" : "courses"}
-          </span>
+          </ToneBadge>
         </div>
       </div>
     </div>

@@ -26,7 +26,7 @@ export function CreateStudentActions({
       <button
         type="submit"
         disabled={isSubmitting}
-        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-blue hover:bg-[#1D60E3] active:bg-[#1853C9] text-white body-sm-medium transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-blue hover:opacity-90 active:opacity-80 text-white body-sm-medium transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
       >
         {isSubmitting ? (
           <>

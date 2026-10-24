@@ -8,14 +8,11 @@ import { StudentItem, StudentStatus } from "@/types/student";
 import {
   getStoredStudents,
   saveNewStudent,
-  updateStoredStudent,
-  deleteStoredStudent,
 } from "@/lib/studentStorage";
 import { StudentHeader } from "@/components/students/StudentHeader";
 import { StudentToolbar } from "@/components/students/StudentToolbar";
 import { StudentTable } from "@/components/students/StudentTable";
 import { StudentPagination } from "@/components/students/StudentPagination";
-import { StudentDetailsDrawer } from "@/components/students/StudentDetailsDrawer";
 import { StudentSkeleton } from "@/components/students/StudentSkeleton";
 import toast from "react-hot-toast";
 
@@ -43,10 +40,7 @@ export default function StudentsPage() {
     };
   }, []);
 
-  // Side Drawer states (Details drawer supports smooth inline editing!)
-  const [selectedStudent, setSelectedStudent] = useState<StudentItem | null>(null);
-  const [isDetailsDrawerOpen, setIsDetailsDrawerOpen] = useState(false);
-  const [detailsInitialEditMode, setDetailsInitialEditMode] = useState(false);
+  const router = useRouter();
 
   // Filtering
   const filteredStudents = useMemo(() => {
@@ -79,37 +73,13 @@ export default function StudentsPage() {
 
   const totalPages = Math.ceil(filteredStudents.length / pageSize) || 1;
 
-  const router = useRouter();
-
-  // Navigation & Drawer triggers
+  // Navigation triggers (direct page routing, no drawer)
   const handleViewDetails = (student: StudentItem) => {
     router.push(`/students/${student.id}`);
   };
 
   const handleOpenEditFromTable = (student: StudentItem) => {
-    setSelectedStudent(student);
-    setDetailsInitialEditMode(true);
-    setIsDetailsDrawerOpen(true);
-  };
-
-  // Update existing student info (called from drawer's inline edit)
-  const handleUpdateStudent = (
-    studentId: string,
-    updatedData: {
-      name: string;
-      email: string;
-      phone: string;
-      status: StudentStatus;
-    }
-  ) => {
-    updateStoredStudent(studentId, updatedData);
-    setStudents((prev) =>
-      prev.map((s) => (s.id === studentId ? { ...s, ...updatedData } : s))
-    );
-
-    setSelectedStudent((prev) =>
-      prev && prev.id === studentId ? { ...prev, ...updatedData } : prev
-    );
+    router.push(`/students/${student.id}/edit`);
   };
 
   // Add New Student
@@ -172,14 +142,6 @@ export default function StudentsPage() {
     setStudents((prev) => [newStd, ...prev]);
   };
 
-  // Remove Student Handler
-  const handleDeleteStudent = (student: StudentItem) => {
-    deleteStoredStudent(student.id);
-    setStudents((prev) => prev.filter((s) => s.id !== student.id));
-    setIsDetailsDrawerOpen(false);
-    setSelectedStudent(null);
-    toast.success(`"${student.name}" has been removed from the platform.`);
-  };
 
   // Export CSV Handler
   const handleExport = () => {
@@ -266,19 +228,6 @@ export default function StudentsPage() {
           }}
         />
       </div>
-
-      {/* 3. Slide-Over Side Drawer for Student Details (Supports Smooth Inline Editing of Info!) */}
-      <StudentDetailsDrawer
-        isOpen={isDetailsDrawerOpen}
-        student={selectedStudent}
-        initialEditMode={detailsInitialEditMode}
-        onClose={() => {
-          setIsDetailsDrawerOpen(false);
-          setDetailsInitialEditMode(false);
-        }}
-        onUpdateStudent={handleUpdateStudent}
-        onDeleteStudent={handleDeleteStudent}
-      />
     </motion.div>
   );
 }

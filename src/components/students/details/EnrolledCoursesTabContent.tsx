@@ -16,6 +16,7 @@ import { DataTable, ColumnDef } from "@/components/ui/Datatable";
 import { AppSelect } from "@/components/ui/AppSelect";
 import { AppDropdownMenu } from "@/components/ui/AppDropdownMenu";
 import { CourseBadgeIcon } from "../create/CourseBadgeIcon";
+import { ToneBadge } from "@/components/ui/ToneBadge";
 import { EnrolledCourseDetail } from "./mockStudentDetails";
 import toast from "react-hot-toast";
 
@@ -132,20 +133,15 @@ export function EnrolledCoursesTabContent({
     {
       key: "status",
       header: "Status",
-      render: (row) => {
-        const isNotStarted = row.status === "Not Started";
-        return (
-          <span
-            className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-semibold whitespace-nowrap shrink-0 ${
-              isNotStarted
-                ? "bg-slate-100 text-primary-400"
-                : "bg-[#EFF6FF] text-[#1D4ED8]"
-            }`}
-          >
-            {row.status}
-          </span>
-        );
-      },
+      render: (row) => (
+        <ToneBadge
+          tone={row.status === "Not Started" ? "gray" : "blue"}
+          size="sm"
+          variant="rounded"
+        >
+          {row.status}
+        </ToneBadge>
+      ),
     },
     {
       key: "enrolledDate",
@@ -273,14 +269,14 @@ export function EnrolledCoursesTabContent({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search courses..."
-              className="w-full h-9 pl-9 pr-3 rounded-lg border border-dash bg-[#F8FAFC] body-sm-regular text-primary-500 placeholder:text-primary-300 focus:outline-none focus:border-blue transition-colors"
+              className="w-full h-9 pl-9 pr-3 rounded-lg border border-dash bg-slate-50 body-sm-regular text-primary-500 placeholder:text-primary-300 focus:outline-none focus:border-blue transition-colors"
             />
           </div>
 
           <button
             type="button"
             onClick={onEnrollNew}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-blue hover:bg-[#1D60E3] active:bg-[#1853C9] text-white body-sm-medium transition-all shadow-sm cursor-pointer whitespace-nowrap"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-blue hover:opacity-90 active:opacity-80 text-white body-sm-medium transition-all shadow-sm cursor-pointer whitespace-nowrap"
           >
             <Plus className="w-4 h-4 stroke-[2.2]" />
             <span>Enroll in Course</span>

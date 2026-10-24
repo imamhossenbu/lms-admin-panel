@@ -20,6 +20,7 @@ import {
 import { DataTable, ColumnDef } from "@/components/ui/Datatable";
 import { AppSelect } from "@/components/ui/AppSelect";
 import { AppDropdownMenu } from "@/components/ui/AppDropdownMenu";
+import { ToneBadge } from "@/components/ui/ToneBadge";
 import { StudentAssignment } from "./mockStudentDetails";
 import toast from "react-hot-toast";
 
@@ -44,32 +45,32 @@ export function AssignmentsTabContent({
         );
       case 1:
         return (
-          <div className="w-8 h-8 rounded-lg bg-[#FEF3C7] text-[#D97706] flex items-center justify-center shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-yellow-bg text-yellow flex items-center justify-center shrink-0">
             <Layout className="w-4 h-4" />
           </div>
         );
       case 2:
         return (
-          <div className="w-8 h-8 rounded-lg bg-[#FEE2E2] text-[#DC2626] flex items-center justify-center shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-red-14 text-red flex items-center justify-center shrink-0">
             <Code2 className="w-4 h-4" />
           </div>
         );
       case 3:
         return (
-          <div className="w-8 h-8 rounded-lg bg-[#F3E8FF] text-[#9333EA] flex items-center justify-center shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-purple-14 text-purple flex items-center justify-center shrink-0">
             <FileCode className="w-4 h-4" />
           </div>
         );
       case 4:
         return (
-          <div className="w-8 h-8 rounded-lg bg-[#DCFCE7] text-[#16A34A] flex items-center justify-center shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-green-bg text-green flex items-center justify-center shrink-0">
             <Database className="w-4 h-4" />
           </div>
         );
       case 5:
       default:
         return (
-          <div className="w-8 h-8 rounded-lg bg-[#E0E7FF] text-[#4F46E5] flex items-center justify-center shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-blue-14 text-blue flex items-center justify-center shrink-0">
             <Layers className="w-4 h-4" />
           </div>
         );
@@ -142,25 +143,37 @@ export function AssignmentsTabContent({
       render: (row) => {
         if (row.submissionStatus === "Submitted") {
           return (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#ECFDF5] text-[#059669] border border-[#A7F3D0] whitespace-nowrap shrink-0">
-              <CheckCircle className="w-3 h-3 text-[#10B981] shrink-0" />
-              <span>Submitted</span>
-            </span>
+            <ToneBadge
+              tone="green"
+              icon={<CheckCircle className="w-3 h-3 text-green shrink-0" />}
+              size="sm"
+              variant="pill"
+            >
+              Submitted
+            </ToneBadge>
           );
         }
         if (row.submissionStatus === "Pending") {
           return (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#FFFBEB] text-[#D97706] border border-[#FDE68A] whitespace-nowrap shrink-0">
-              <Clock className="w-3 h-3 text-[#F59E0B] shrink-0" />
-              <span>Pending</span>
-            </span>
+            <ToneBadge
+              tone="warning"
+              icon={<Clock className="w-3 h-3 text-yellow shrink-0" />}
+              size="sm"
+              variant="pill"
+            >
+              Pending
+            </ToneBadge>
           );
         }
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#FEF2F2] text-[#DC2626] border border-[#FECACA] whitespace-nowrap shrink-0">
-            <XCircle className="w-3 h-3 text-[#EF4444] shrink-0" />
-            <span>Not Submitted</span>
-          </span>
+          <ToneBadge
+            tone="red"
+            icon={<XCircle className="w-3 h-3 text-red shrink-0" />}
+            size="sm"
+            variant="pill"
+          >
+            Not Submitted
+          </ToneBadge>
         );
       },
     },
