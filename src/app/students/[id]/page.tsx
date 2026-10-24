@@ -115,7 +115,7 @@ function StudentDetailsContent({ studentId }: { studentId: string }) {
   }, [studentId, tabFromQuery, router]);
 
   if (isLoading) {
-    return <StudentDetailsSkeleton />;
+    return <StudentDetailsSkeleton activeTab={activeTab} />;
   }
 
   const handleEdit = () => {
@@ -223,12 +223,18 @@ function StudentDetailsContent({ studentId }: { studentId: string }) {
   );
 }
 
+function StudentDetailsSuspenseFallback() {
+  const searchParams = useSearchParams();
+  const tab = (searchParams.get("tab") as StudentTabKey) || "overview";
+  return <StudentDetailsSkeleton activeTab={tab} />;
+}
+
 export default function StudentDetailsPage({ params }: PageProps) {
   const unwrappedParams = React.use(params);
   const studentId = unwrappedParams.id;
 
   return (
-    <Suspense fallback={<StudentDetailsSkeleton />}>
+    <Suspense fallback={<StudentDetailsSuspenseFallback />}>
       <StudentDetailsContent studentId={studentId} />
     </Suspense>
   );

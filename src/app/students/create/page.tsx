@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useForm, useWatch } from "react-hook-form";
@@ -17,9 +17,10 @@ import { CourseEnrollmentCard } from "@/components/students/create/CourseEnrollm
 import { StudentAccountSummaryCard } from "@/components/students/create/StudentAccountSummaryCard";
 import { StudentNextStepsCard } from "@/components/students/create/StudentNextStepsCard";
 import { CreateStudentActions } from "@/components/students/create/CreateStudentActions";
+import { CreateStudentSkeleton } from "@/components/students/create/CreateStudentSkeleton";
 import { ENROLLMENT_COURSES } from "@/components/students/create/mockEnrollmentCourses";
 
-export default function CreateStudentPage() {
+function CreateStudentContent() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -172,5 +173,13 @@ export default function CreateStudentPage() {
         </div>
       </form>
     </motion.div>
+  );
+}
+
+export default function CreateStudentPage() {
+  return (
+    <Suspense fallback={<CreateStudentSkeleton />}>
+      <CreateStudentContent />
+    </Suspense>
   );
 }

@@ -1,14 +1,15 @@
 "use client";
 
-import React from "react";
+import React, { Suspense } from "react";
 import { motion } from "framer-motion";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { RevenueChart } from "@/components/dashboard/RevenueChart";
 import { StudentEngagementChart } from "@/components/analytics/StudentEngagementChart";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 import { OverviewStats } from "@/components/dashboard/OverviewStats";
+import { AnalyticsPageSkeleton } from "@/components/analytics/AnalyticsPageSkeleton";
 
-export default function AnalyticsDashboardPage() {
+function AnalyticsDashboardContent() {
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -29,5 +30,13 @@ export default function AnalyticsDashboardPage() {
         <StudentEngagementChart />
       </div>
     </motion.div>
+  );
+}
+
+export default function AnalyticsDashboardPage() {
+  return (
+    <Suspense fallback={<AnalyticsPageSkeleton />}>
+      <AnalyticsDashboardContent />
+    </Suspense>
   );
 }

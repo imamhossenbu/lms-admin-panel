@@ -1,9 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { Suspense } from "react";
 import { motion } from "framer-motion";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { SettingsFormClient } from "@/components/settings/SettingsFormClient";
+import { SettingsSkeleton } from "@/components/settings/SettingsSkeleton";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 
 export default function PlatformSettingsPage() {
@@ -19,7 +20,9 @@ export default function PlatformSettingsPage() {
         description="Manage system-wide environment variables, branding palettes, and security rules."
         badge={<ToneBadge tone="navy">Admin Only</ToneBadge>}
       />
-      <SettingsFormClient />
+      <Suspense fallback={<SettingsSkeleton />}>
+        <SettingsFormClient />
+      </Suspense>
     </motion.div>
   );
 }

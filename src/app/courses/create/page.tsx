@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -22,6 +22,7 @@ import PrimaryButton from "@/components/ui/primary-button";
 import SecondaryButton from "@/components/ui/secondary-button";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 import { CourseBannerPicker } from "@/components/courses/CourseBannerPicker";
+import { CourseCreateSkeleton } from "@/components/courses/create/CourseCreateSkeleton";
 import { coursesApi, categoriesApi } from "@/lib/api";
 import { toast } from "sonner";
 import {
@@ -30,7 +31,7 @@ import {
   CategoryOption,
 } from "@/components/courses/constants";
 
-export default function CreateCoursePage() {
+function CreateCourseContent() {
   const router = useRouter();
 
   // Basic Info
@@ -351,5 +352,13 @@ export default function CreateCoursePage() {
         </div>
       </form>
     </motion.div>
+  );
+}
+
+export default function CreateCoursePage() {
+  return (
+    <Suspense fallback={<CourseCreateSkeleton />}>
+      <CreateCourseContent />
+    </Suspense>
   );
 }

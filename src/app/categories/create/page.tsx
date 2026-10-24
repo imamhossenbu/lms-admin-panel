@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -15,8 +15,9 @@ import { CategoryIcon } from "@/components/ui/CategoryIcon";
 import { categoriesApi, coursesApi } from "@/lib/api";
 import { toast } from "sonner";
 import { EMOJI_OPTIONS } from "@/components/categories/constants";
+import { CategoryFormSkeleton } from "@/components/categories/CategoryFormSkeleton";
 
-export default function CreateCategoryPage() {
+function CreateCategoryContent() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
@@ -254,5 +255,13 @@ export default function CreateCategoryPage() {
         </div>
       </form>
     </motion.div>
+  );
+}
+
+export default function CreateCategoryPage() {
+  return (
+    <Suspense fallback={<CategoryFormSkeleton />}>
+      <CreateCategoryContent />
+    </Suspense>
   );
 }

@@ -23,7 +23,10 @@ import {
 } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { InputField } from "@/components/ui/InputField";
-import { CoursesSkeleton } from "@/components/courses/CoursesSkeleton";
+import {
+  CourseEditSkeleton,
+  CourseEditTabKey,
+} from "@/components/courses/edit/CourseEditSkeleton";
 import { DropdownSelect } from "@/components/ui/DropdownSelect";
 import { RichTextEditor } from "@/components/ui/RichTextEditor";
 import PrimaryButton from "@/components/ui/primary-button";
@@ -555,12 +558,7 @@ function EditCourseContent() {
   };
 
   if (isLoading) {
-    return (
-      <div className="p-20 text-center space-y-3">
-        <Loader2 className="w-8 h-8 animate-spin text-[#1C4D8D] mx-auto" />
-        <p className="body-sm-medium text-primary-400">Loading Course & Curriculum Studio...</p>
-      </div>
-    );
+    return <CourseEditSkeleton activeTab={activeTab} />;
   }
 
   const allCourseLessons = modules.flatMap((m) => m.lessons);
@@ -893,9 +891,15 @@ function EditCourseContent() {
   );
 }
 
+function EditCourseSuspenseFallback() {
+  const searchParams = useSearchParams();
+  const tab = (searchParams.get("tab") as CourseEditTabKey) || "curriculum";
+  return <CourseEditSkeleton activeTab={tab} />;
+}
+
 export default function EditCoursePage() {
   return (
-    <Suspense fallback={<CoursesSkeleton />}>
+    <Suspense fallback={<EditCourseSuspenseFallback />}>
       <EditCourseContent />
     </Suspense>
   );

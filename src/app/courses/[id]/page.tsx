@@ -2,7 +2,10 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { CoursesSkeleton } from "@/components/courses/CoursesSkeleton";
+import {
+  CourseDetailsSkeleton,
+  CourseDetailsTabKey,
+} from "@/components/courses/details/CourseDetailsSkeleton";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -81,12 +84,7 @@ function CourseDetailsContent() {
   }, [courseId]);
 
   if (isLoading) {
-    return (
-      <div className="p-20 text-center space-y-3">
-        <Loader2 className="w-8 h-8 animate-spin text-[#1C4D8D] mx-auto" />
-        <p className="body-sm-medium text-primary-400">Loading Course Overview & Syllabus...</p>
-      </div>
-    );
+    return <CourseDetailsSkeleton activeTab={activeTab} />;
   }
 
   if (!course) {
@@ -189,9 +187,15 @@ function CourseDetailsContent() {
   );
 }
 
+function CourseDetailsSuspenseFallback() {
+  const searchParams = useSearchParams();
+  const tab = (searchParams.get("tab") as CourseDetailsTabKey) || "syllabus";
+  return <CourseDetailsSkeleton activeTab={tab} />;
+}
+
 export default function CourseDetailsPage() {
   return (
-    <Suspense fallback={<CoursesSkeleton />}>
+    <Suspense fallback={<CourseDetailsSuspenseFallback />}>
       <CourseDetailsContent />
     </Suspense>
   );

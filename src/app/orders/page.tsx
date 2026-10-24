@@ -1,14 +1,15 @@
 "use client";
 
-import React from "react";
+import React, { Suspense } from "react";
 import { motion } from "framer-motion";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { RecentOrdersTable } from "@/components/dashboard/RecentOrdersTable";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 import { StatGroupCard } from "@/components/ui/StatGroupCard";
+import { OrdersPageSkeleton } from "@/components/orders/OrdersPageSkeleton";
 import { DollarSign, CheckCircle2, Clock, AlertCircle } from "lucide-react";
 
-export default function OrdersManagementPage() {
+function OrdersManagementContent() {
   const financialStats = [
     {
       label: "Total Collected",
@@ -53,5 +54,13 @@ export default function OrdersManagementPage() {
 
       <RecentOrdersTable />
     </motion.div>
+  );
+}
+
+export default function OrdersManagementPage() {
+  return (
+    <Suspense fallback={<OrdersPageSkeleton />}>
+      <OrdersManagementContent />
+    </Suspense>
   );
 }

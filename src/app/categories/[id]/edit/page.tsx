@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, Suspense } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -15,8 +15,9 @@ import { CategoryIcon } from "@/components/ui/CategoryIcon";
 import { categoriesApi, coursesApi } from "@/lib/api";
 import { toast } from "sonner";
 import { EMOJI_OPTIONS } from "@/components/categories/constants";
+import { CategoryFormSkeleton } from "@/components/categories/CategoryFormSkeleton";
 
-export default function EditCategoryPage() {
+function EditCategoryContent() {
   const router = useRouter();
   const params = useParams();
   const categoryId = params?.id as string;
@@ -114,12 +115,7 @@ export default function EditCategoryPage() {
   };
 
   if (isLoading) {
-    return (
-      <div className="p-16 text-center space-y-3">
-        <Loader2 className="w-8 h-8 animate-spin text-[#1C4D8D] mx-auto" />
-        <p className="body-sm-medium text-primary-400">Loading Category Information...</p>
-      </div>
-    );
+    return <CategoryFormSkeleton />;
   }
 
   return (
@@ -274,5 +270,13 @@ export default function EditCategoryPage() {
         </div>
       </form>
     </motion.div>
+  );
+}
+
+export default function EditCategoryPage() {
+  return (
+    <Suspense fallback={<CategoryFormSkeleton />}>
+      <EditCategoryContent />
+    </Suspense>
   );
 }
