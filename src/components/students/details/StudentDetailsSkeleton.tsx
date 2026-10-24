@@ -25,11 +25,15 @@ export function StudentDetailsSkeleton() {
       <div className="h-10 w-full bg-slate-100 rounded-lg" />
 
       {/* Grid Skeleton */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="h-72 bg-white rounded-xl border border-dash p-6" />
-        <div className="h-72 bg-white rounded-xl border border-dash p-6" />
-        <div className="h-72 bg-white rounded-xl border border-dash p-6" />
-        <div className="h-72 bg-white rounded-xl border border-dash p-6" />
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="h-72 bg-white rounded-xl border border-dash p-6" />
+          <div className="h-72 bg-white rounded-xl border border-dash p-6" />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="lg:col-span-7 xl:col-span-8 h-72 bg-white rounded-xl border border-dash p-6" />
+          <div className="lg:col-span-5 xl:col-span-4 h-72 bg-white rounded-xl border border-dash p-6" />
+        </div>
       </div>
     </div>
   );

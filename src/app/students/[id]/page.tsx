@@ -98,22 +98,33 @@ export default function StudentDetailsPage({ params }: PageProps) {
 
       {/* 3. Tab Contents */}
       {activeTab === "overview" && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-          <StudentInfoOverviewCard student={student} onEdit={handleEdit} />
-          <LearningProgressCard student={student} />
-          <EnrolledCoursesMiniCard
-            courses={student.enrolledCourses}
-            onViewAll={() => setActiveTab("enrolled-courses")}
-            onViewCourse={(c) =>
-              toast.info("Course Details", {
-                description: `Selected: ${c.title}`,
-              })
-            }
-          />
-          <RecentActivityTimelineCard
-            activities={student.recentActivities}
-            onViewAll={() => setActiveTab("activity-log")}
-          />
+        <div className="space-y-6">
+          {/* Top Row: Student Information & Learning Progress */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+            <StudentInfoOverviewCard student={student} onEdit={handleEdit} />
+            <LearningProgressCard student={student} />
+          </div>
+
+          {/* Bottom Row: Enrolled Courses (Bigger Left Table) & Recent Activity (Smaller Right Card) */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+            <div className="lg:col-span-7 xl:col-span-8">
+              <EnrolledCoursesMiniCard
+                courses={student.enrolledCourses}
+                onViewAll={() => setActiveTab("enrolled-courses")}
+                onViewCourse={(c) =>
+                  toast.info("Course Details", {
+                    description: `Selected: ${c.title}`,
+                  })
+                }
+              />
+            </div>
+            <div className="lg:col-span-5 xl:col-span-4">
+              <RecentActivityTimelineCard
+                activities={student.recentActivities}
+                onViewAll={() => setActiveTab("activity-log")}
+              />
+            </div>
+          </div>
         </div>
       )}
 

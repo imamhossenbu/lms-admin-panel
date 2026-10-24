@@ -38,7 +38,7 @@ export function EnrolledCoursesMiniCard({
       render: (row) => (
         <div className="flex items-center gap-2.5">
           <CourseBadgeIcon type={row.iconType} size="sm" />
-          <span className="body-sm-medium text-primary-500 font-semibold truncate max-w-[170px]">
+          <span className="body-sm-medium text-primary-500 font-semibold truncate max-w-[220px] xl:max-w-[280px]">
             {row.title}
           </span>
         </div>
@@ -56,7 +56,7 @@ export function EnrolledCoursesMiniCard({
             : "bg-[#F97316]";
 
         return (
-          <div className="flex items-center gap-2 min-w-[100px]">
+          <div className="flex items-center gap-2 min-w-[95px]">
             <span className="body-xsm-medium font-semibold text-primary-500 w-7">
               {row.progress}%
             </span>
@@ -74,7 +74,7 @@ export function EnrolledCoursesMiniCard({
       key: "status",
       header: "Status",
       render: (row) => (
-        <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold bg-[#EFF6FF] text-[#1D4ED8]">
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-[#EFF6FF] text-[#1D4ED8] whitespace-nowrap">
           {row.status}
         </span>
       ),
@@ -96,7 +96,7 @@ export function EnrolledCoursesMiniCard({
         <button
           type="button"
           onClick={() => onViewCourse?.(row)}
-          className="px-3 py-1 rounded-md border border-dash bg-white text-primary-500 hover:bg-slate-50 body-xsm-medium transition-colors shadow-2xs cursor-pointer"
+          className="px-3 py-1 rounded-md border border-dash bg-white text-primary-500 hover:bg-slate-50 body-xsm-medium transition-colors shadow-2xs cursor-pointer whitespace-nowrap"
         >
           View
         </button>
@@ -105,7 +105,7 @@ export function EnrolledCoursesMiniCard({
   ];
 
   return (
-    <div className="bg-white rounded-xl border border-dash p-6 space-y-4 shadow-2xs text-left">
+    <div className="bg-white rounded-xl border border-dash p-6 space-y-4 shadow-2xs text-left h-full flex flex-col justify-between">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
