@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { CoursesGridClient } from "@/components/courses/CoursesGridClient";
 import { CoursesSkeleton } from "@/components/courses/CoursesSkeleton";
@@ -84,11 +84,13 @@ export default function CoursesManagementPage() {
         </PrimaryButton>
       </PageHeader>
 
-      <CoursesGridClient
-        isAiModalOpen={isAiOpen}
-        setIsAiModalOpen={setIsAiOpen}
-        refreshTrigger={refreshTrigger}
-      />
+      <Suspense fallback={<CoursesSkeleton />}>
+        <CoursesGridClient
+          isAiModalOpen={isAiOpen}
+          setIsAiModalOpen={setIsAiOpen}
+          refreshTrigger={refreshTrigger}
+        />
+      </Suspense>
     </motion.div>
   );
 }

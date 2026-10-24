@@ -34,51 +34,66 @@ export function CategorySkeleton() {
         </div>
 
         {/* Table Header Skeleton */}
-        <div className="bg-[#F1F3F5] border-b border-dash px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <div className="h-4 w-6 bg-slate-200 rounded" />
-            <div className="h-4 w-28 bg-slate-200 rounded" />
-            <div className="h-4 w-40 bg-slate-200 rounded hidden md:block" />
-          </div>
-          <div className="flex items-center gap-8">
-            <div className="h-4 w-20 bg-slate-200 rounded" />
-            <div className="h-4 w-16 bg-slate-200 rounded" />
-            <div className="h-4 w-14 bg-slate-200 rounded" />
-            <div className="h-4 w-6 bg-slate-200 rounded" />
-          </div>
+        <div className="bg-slate-50 border-b border-dash grid grid-cols-12 divide-x divide-dash px-3.5 py-3 text-left">
+          <div className="col-span-1 pr-2 text-center"><div className="h-4 w-5 bg-slate-200 rounded mx-auto" /></div>
+          <div className="col-span-3 px-3"><div className="h-4 w-24 bg-slate-200 rounded" /></div>
+          <div className="col-span-3 px-3 hidden md:block"><div className="h-4 w-32 bg-slate-200 rounded" /></div>
+          <div className="col-span-1 px-2 text-center hidden sm:block"><div className="h-4 w-12 bg-slate-200 rounded mx-auto" /></div>
+          <div className="col-span-1 px-2 text-center hidden sm:block"><div className="h-4 w-12 bg-slate-200 rounded mx-auto" /></div>
+          <div className="col-span-1 px-2"><div className="h-4 w-14 bg-slate-200 rounded" /></div>
+          <div className="col-span-1 px-2 hidden lg:block"><div className="h-4 w-14 bg-slate-200 rounded" /></div>
+          <div className="col-span-1 pl-2 text-right"><div className="h-4 w-8 bg-slate-200 rounded ml-auto" /></div>
         </div>
 
         {/* Table Rows Skeleton */}
         <div className="divide-y divide-dash">
-          {[1, 2, 3, 4, 5].map((rowIdx) => (
+          {[1, 2, 3, 4, 5, 6].map((rowIdx) => (
             <React.Fragment key={rowIdx}>
-              <div className="px-4 py-3.5 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-7 h-7 bg-slate-100 rounded-lg shrink-0" />
+              <div className="grid grid-cols-12 divide-x divide-dash px-3.5 py-3 items-center">
+                <div className="col-span-1 pr-2 text-center">
+                  <div className="w-6 h-6 bg-slate-100 rounded mx-auto" />
+                </div>
+                <div className="col-span-3 px-3 flex items-center gap-3">
                   <div className="w-8 h-8 bg-slate-200 rounded-lg shrink-0" />
-                  <div className="space-y-1">
-                    <div className="h-4 w-32 bg-slate-200 rounded" />
+                  <div className="space-y-1 min-w-0 flex-1">
+                    <div className="h-4 w-24 bg-slate-200 rounded" />
                     <div className="h-3 w-16 bg-slate-100 rounded" />
                   </div>
                 </div>
-
-                <div className="flex items-center gap-8">
-                  <div className="h-4 w-48 bg-slate-100 rounded hidden lg:block" />
-                  <div className="h-4 w-8 bg-slate-200 rounded" />
-                  <div className="h-4 w-8 bg-slate-200 rounded" />
-                  <div className="h-5 w-16 bg-slate-100 rounded-md" />
-                  <div className="h-4 w-20 bg-slate-100 rounded hidden sm:block" />
-                  <div className="w-6 h-6 bg-slate-100 rounded-lg" />
+                <div className="col-span-3 px-3 hidden md:block">
+                  <div className="h-3.5 w-44 bg-slate-100 rounded" />
+                </div>
+                <div className="col-span-1 px-2 text-center hidden sm:block">
+                  <div className="h-4 w-8 bg-slate-200 rounded mx-auto" />
+                </div>
+                <div className="col-span-1 px-2 text-center hidden sm:block">
+                  <div className="h-4 w-8 bg-slate-200 rounded mx-auto" />
+                </div>
+                <div className="col-span-1 px-2">
+                  <div className="h-5 w-14 bg-slate-100 rounded-full" />
+                </div>
+                <div className="col-span-1 px-2 hidden lg:block">
+                  <div className="h-3.5 w-16 bg-slate-100 rounded" />
+                </div>
+                <div className="col-span-1 pl-2 flex items-center justify-end gap-1.5">
+                  <div className="w-7 h-7 bg-slate-100 rounded-md" />
+                  <div className="w-7 h-7 bg-slate-100 rounded-md" />
                 </div>
               </div>
 
-              {/* One expanded row sample preview in skeleton */}
+              {/* Sample expanded subcategories preview */}
               {rowIdx === 1 && (
-                <div className="bg-[#F8FAFC] border-y border-dash px-6 py-3 space-y-2">
-                  <div className="h-4 w-44 bg-slate-200 rounded" />
-                  <div className="rounded-lg border border-dash bg-white p-3 space-y-2">
-                    <div className="h-4 w-full bg-slate-100 rounded" />
-                    <div className="h-4 w-5/6 bg-slate-100 rounded" />
+                <div className="bg-slate-50 border-y border-dash px-6 py-3 space-y-2">
+                  <div className="h-4 w-40 bg-slate-200 rounded" />
+                  <div className="rounded-lg border border-dash bg-white p-3 space-y-2 divide-y divide-dash">
+                    <div className="flex items-center justify-between pb-2">
+                      <div className="h-3.5 w-36 bg-slate-200 rounded" />
+                      <div className="h-4 w-12 bg-slate-100 rounded" />
+                    </div>
+                    <div className="flex items-center justify-between pt-2">
+                      <div className="h-3.5 w-28 bg-slate-200 rounded" />
+                      <div className="h-4 w-12 bg-slate-100 rounded" />
+                    </div>
                   </div>
                 </div>
               )}

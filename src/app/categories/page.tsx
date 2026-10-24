@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, Suspense } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { MOCK_CATEGORIES } from "@/data/mockCategoryData";
 import {
@@ -17,13 +18,45 @@ import { CategoryPagination } from "@/components/categories/CategoryPagination";
 import { CategoryDrawer } from "@/components/categories/CategoryDrawer";
 import { CategorySkeleton } from "@/components/categories/CategorySkeleton";
 
-export default function CategoriesPage() {
+function CategoriesContent() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const urlPage = parseInt(searchParams.get("page") || "1", 10);
+  const urlStatus = searchParams.get("status") || "All";
+  const urlView = (searchParams.get("view") as "table" | "grid") || "table";
+  const urlSearch = searchParams.get("q") || "";
+
   const [categories, setCategories] = useState<CategoryItem[]>(MOCK_CATEGORIES);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("All");
-  const [viewMode, setViewMode] = useState<"table" | "grid">("table");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState(urlSearch);
+  const [statusFilter, setStatusFilter] = useState(urlStatus);
+  const [viewMode, setViewMode] = useState<"table" | "grid">(urlView);
+  const [currentPage, setCurrentPage] = useState(isNaN(urlPage) ? 1 : urlPage);
   const [isLoading, setIsLoading] = useState(false);
+
+  // URL sync helper
+  const updateUrlParams = (
+    nextPage: number,
+    nextStatus: string,
+    nextView: "table" | "grid",
+    nextQuery: string
+  ) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (nextPage > 1) params.set("page", nextPage.toString());
+    else params.delete("page");
+
+    if (nextStatus && nextStatus !== "All") params.set("status", nextStatus);
+    else params.delete("status");
+
+    if (nextView && nextView !== "table") params.set("view", nextView);
+    else params.delete("view");
+
+    if (nextQuery) params.set("q", nextQuery);
+    else params.delete("q");
+
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
 
   // Drawer state management (create, edit, details, including sub-category editing)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -214,14 +247,19 @@ export default function CategoriesPage() {
           onSearchChange={(q) => {
             setSearchQuery(q);
             setCurrentPage(1);
+            updateUrlParams(1, statusFilter, viewMode, q);
           }}
           statusFilter={statusFilter}
           onStatusChange={(s) => {
             setStatusFilter(s);
             setCurrentPage(1);
+            updateUrlParams(1, s, viewMode, searchQuery);
           }}
           viewMode={viewMode}
-          onViewModeChange={setViewMode}
+          onViewModeChange={(m) => {
+            setViewMode(m);
+            updateUrlParams(currentPage, statusFilter, m, searchQuery);
+          }}
         />
 
         {/* Table or Grid View */}
@@ -246,10 +284,14 @@ export default function CategoriesPage() {
           totalPages={totalPages}
           totalCount={filteredCategories.length}
           pageSize={pageSize}
-          onPageChange={setCurrentPage}
+          onPageChange={(page) => {
+            setCurrentPage(page);
+            updateUrlParams(page, statusFilter, viewMode, searchQuery);
+          }}
           onPageSizeChange={(newSize) => {
             setPageSize(newSize);
             setCurrentPage(1);
+            updateUrlParams(1, statusFilter, viewMode, searchQuery);
           }}
         />
       </div>
@@ -267,5 +309,13 @@ export default function CategoriesPage() {
         onOpenEditSubCategory={handleOpenEditSubCategory}
       />
     </motion.div>
+  );
+}
+
+export default function CategoriesPage() {
+  return (
+    <Suspense fallback={<CategorySkeleton />}>
+      <CategoriesContent />
+    </Suspense>
   );
 }

@@ -86,8 +86,14 @@ Follow these rules for every new feature, page, component, and UI modification. 
 - Handle API errors, loading states, and failed requests properly.
 - Prevent duplicate submissions when a request is in progress.
 
-### 2. Proper Skeleton Loading
+### 2. Proper Content-Filled Skeleton Loading (Strictly No Empty/Hollow Cards)
 - Always implement appropriate skeleton loading states for data-driven pages and components.
+- **Strictly No Hollow/Blank Cards**: Skeletons must NEVER render empty placeholder cards (`<div className="h-72 ..."/>` or large blank grey containers).
+- **Replicate Full Internal Content**: Every skeleton component MUST accurately replicate the internal geometry and structure of its final content:
+  - Tables: Realistic header cells and body rows with avatars, text lines, badges, and vertical column borders (`divide-x divide-dash`).
+  - Charts: Realistic vertical bar columns of varying heights, horizontal progress tracks, or circular donut rings with central metric counters and legend pills.
+  - Forms: Actual input field outlines, labels, alert boxes with checklists, and action buttons.
+  - Profile & Header Banners: Back buttons, avatar circles, name lines, status badges, and tab bars.
 - Skeletons must match the layout and dimensions of the actual content.
 - Use reusable skeleton components wherever possible.
 - Avoid unnecessary layout shifts, blank screens, and excessive loading spinners.
@@ -118,6 +124,11 @@ Follow these rules for every new feature, page, component, and UI modification. 
 - Use reusable column definitions and appropriate cell renderers.
 - Handle loading, empty, and error states consistently with the project's existing DataTable conventions.
 - If the DataTable lacks a required feature, extend the reusable component rather than creating a duplicate implementation.
+
+### 6. Persistent URL State & Tab/Page Preservation Across Reloads
+- **URL Parameter Synchronization**: Every tabbed interface, sub-view, active filter, pagination state, and search term MUST synchronize with the URL (via `?tab=...`, `?page=...`, `?status=...`, `?q=...` query parameters) and persist in `sessionStorage` where appropriate.
+- **Strict Reload Preservation**: When a user refreshes or reloads the browser from any tab or page (`load dile`), the application MUST stay on that exact tab/page without resetting to the default view or the first tab.
+- **App Router `<Suspense>` Requirement**: In Next.js App Router, every page or component that reads `useSearchParams()` MUST be wrapped inside a `<Suspense>` boundary with a matching rich skeleton fallback to guarantee optimal streaming and static export safety.
 
 ### Final Requirement
 Before implementing anything, inspect the existing project structure and identify the available shared components, DataTable, toast system, validation utilities, skeleton components, and global CSS classes.

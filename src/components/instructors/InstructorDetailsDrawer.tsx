@@ -57,7 +57,15 @@ export function InstructorDetailsDrawer({
   onUpdateInstructor,
   onDeleteInstructor,
 }: InstructorDetailsDrawerProps) {
-  const [activeTab, setActiveTab] = useState<TabKey>("overview");
+  const [activeTab, setActiveTab] = useState<TabKey>(() => {
+    if (typeof window !== "undefined") {
+      const saved = sessionStorage.getItem("edupro_instructor_drawer_tab");
+      if (saved && ["overview", "courses", "students", "revenue", "settings"].includes(saved)) {
+        return saved as TabKey;
+      }
+    }
+    return "overview";
+  });
   const [isEditingInfo, setIsEditingInfo] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -266,7 +274,12 @@ export function InstructorDetailsDrawer({
                   <button
                     key={tab.key}
                     type="button"
-                    onClick={() => setActiveTab(tab.key)}
+                    onClick={() => {
+                      setActiveTab(tab.key);
+                      if (typeof window !== "undefined") {
+                        sessionStorage.setItem("edupro_instructor_drawer_tab", tab.key);
+                      }
+                    }}
                     className={`py-3 body-sm-medium font-semibold relative transition-colors whitespace-nowrap cursor-pointer ${
                       isActive
                         ? "text-brand-orange"

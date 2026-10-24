@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
+import React, { useState, useEffect, Suspense } from "react";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { InputField } from "@/components/ui/InputField";
+import { CoursesSkeleton } from "@/components/courses/CoursesSkeleton";
 import { DropdownSelect } from "@/components/ui/DropdownSelect";
 import { RichTextEditor } from "@/components/ui/RichTextEditor";
 import PrimaryButton from "@/components/ui/primary-button";
@@ -43,12 +44,29 @@ import {
   CategoryOption,
 } from "@/components/courses/constants";
 
-export default function EditCoursePage() {
+function EditCourseContent() {
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const courseId = params?.id as string;
 
-  const [activeTab, setActiveTab] = useState<"curriculum" | "details">("curriculum");
+  const urlTab = searchParams.get("tab") as "curriculum" | "details";
+  const [activeTab, setActiveTab] = useState<"curriculum" | "details">(
+    urlTab && ["curriculum", "details"].includes(urlTab) ? urlTab : "curriculum"
+  );
+
+  useEffect(() => {
+    if (urlTab && ["curriculum", "details"].includes(urlTab)) {
+      setActiveTab(urlTab);
+    }
+  }, [urlTab]);
+
+  const handleTabChange = (newTab: "curriculum" | "details") => {
+    setActiveTab(newTab);
+    const p = new URLSearchParams(window.location.search);
+    p.set("tab", newTab);
+    router.replace(`?${p.toString()}`, { scroll: false });
+  };
   const [isLoading, setIsLoading] = useState(true);
   const [course, setCourse] = useState<AdminCourseItem | null>(null);
 
@@ -593,13 +611,13 @@ export default function EditCoursePage() {
       </PageHeader>
 
       {/* Navigation Tabs */}
-      <div className="flex items-center gap-2 border-b border-[#EDEDED] pb-2">
+      <div className="flex items-center gap-2 border-b border-dash pb-2">
         <button
           type="button"
-          onClick={() => setActiveTab("curriculum")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-[8px] text-sm font-semibold transition-all cursor-pointer ${
+          onClick={() => handleTabChange("curriculum")}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
             activeTab === "curriculum"
-              ? "bg-[#1C4D8D] text-white shadow-2xs"
+              ? "bg-blue text-white shadow-2xs"
               : "text-primary-400 hover:text-primary-500 hover:bg-slate-50"
           }`}
         >
@@ -609,10 +627,10 @@ export default function EditCoursePage() {
 
         <button
           type="button"
-          onClick={() => setActiveTab("details")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-[8px] text-sm font-semibold transition-all cursor-pointer ${
+          onClick={() => handleTabChange("details")}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
             activeTab === "details"
-              ? "bg-[#1C4D8D] text-white shadow-2xs"
+              ? "bg-blue text-white shadow-2xs"
               : "text-primary-400 hover:text-primary-500 hover:bg-slate-50"
           }`}
         >
@@ -872,5 +890,13 @@ export default function EditCoursePage() {
         onSave={handleSaveLesson}
       />
     </motion.div>
+  );
+}
+
+export default function EditCoursePage() {
+  return (
+    <Suspense fallback={<CoursesSkeleton />}>
+      <EditCourseContent />
+    </Suspense>
   );
 }

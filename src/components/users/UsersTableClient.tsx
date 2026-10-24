@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Search, Edit3, ShieldAlert, CheckCircle2 } from "lucide-react";
 import { Datatable, Column } from "@/components/ui/Datatable";
 import { ToneBadge } from "@/components/ui/ToneBadge";
@@ -20,10 +21,59 @@ const INITIAL_USERS: AdminUserItem[] = [
 ];
 
 export function UsersTableClient() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const urlRole = searchParams.get("role");
+  const urlSearch = searchParams.get("q") || "";
+
   const [users, setUsers] = useState<AdminUserItem[]>(INITIAL_USERS);
-  const [selectedRole, setSelectedRole] = useState("ALL");
-  const [search, setSearch] = useState("");
+  const [selectedRole, setSelectedRole] = useState<string>(() => {
+    if (urlRole) return urlRole;
+    if (typeof window !== "undefined") {
+      const saved = sessionStorage.getItem("edupro_users_role");
+      if (saved) return saved;
+    }
+    return "ALL";
+  });
+  const [search, setSearch] = useState(urlSearch);
   const [editingUser, setEditingUser] = useState<AdminUserItem | null>(null);
+
+  // Sync state if URL changes externally
+  useEffect(() => {
+    if (urlRole && urlRole !== selectedRole) {
+      setSelectedRole(urlRole);
+    }
+  }, [urlRole, selectedRole]);
+
+  const updateUrl = (role: string, q: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (role && role !== "ALL") {
+      params.set("role", role);
+    } else {
+      params.delete("role");
+    }
+    if (q) {
+      params.set("q", q);
+    } else {
+      params.delete("q");
+    }
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
+
+  const handleRoleChange = (role: string) => {
+    setSelectedRole(role);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("edupro_users_role", role);
+    }
+    updateUrl(role, search);
+  };
+
+  const handleSearchChange = (val: string) => {
+    setSearch(val);
+    updateUrl(selectedRole, val);
+  };
 
   const filteredUsers = useMemo(() => {
     return users.filter((u) => {
@@ -113,7 +163,7 @@ export function UsersTableClient() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <PillTabs
           activeTab={selectedRole}
-          onChange={setSelectedRole}
+          onChange={handleRoleChange}
           tabs={[
             { id: "ALL", label: "All Users", count: users.length },
             { id: "STUDENT", label: "Students", count: users.filter((u) => u.role === "STUDENT").length },
@@ -128,7 +178,7 @@ export function UsersTableClient() {
             type="text"
             placeholder="Search by name, email or phone..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
             className="w-full h-[40px] pl-10 pr-3.5 rounded-[8px] border border-[#EDEDED] body-sm-regular text-primary-500 bg-white placeholder:text-[#969696] focus:outline-none focus:border-[#1C4D8D]"
           />
         </div>

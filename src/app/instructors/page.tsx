@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, Suspense } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { InstructorItem, InstructorStatus } from "@/types/instructor";
 import { MOCK_INSTRUCTORS } from "@/data/mockInstructorData";
@@ -13,19 +14,51 @@ import { AddInstructorDrawer } from "@/components/instructors/AddInstructorDrawe
 import { InstructorSkeleton } from "@/components/instructors/InstructorSkeleton";
 import { toast } from "sonner";
 
-export default function InstructorsPage() {
+function InstructorsContent() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const urlPage = parseInt(searchParams.get("page") || "1", 10);
+  const urlStatus = searchParams.get("status") || "All";
+  const urlExpertise = searchParams.get("expertise") || "All";
+  const urlSearch = searchParams.get("q") || "";
+
   const [instructors, setInstructors] = useState<InstructorItem[]>(MOCK_INSTRUCTORS);
   const [isLoading, setIsLoading] = useState(true);
 
   // Filters state
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("All");
-  const [expertiseFilter, setExpertiseFilter] = useState("All");
+  const [searchQuery, setSearchQuery] = useState(urlSearch);
+  const [statusFilter, setStatusFilter] = useState(urlStatus);
+  const [expertiseFilter, setExpertiseFilter] = useState(urlExpertise);
   const [dateFilter, setDateFilter] = useState("All");
 
   // Pagination state
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(isNaN(urlPage) ? 1 : urlPage);
   const [pageSize, setPageSize] = useState(10);
+
+  // URL sync helper
+  const updateUrlParams = (
+    nextPage: number,
+    nextStatus: string,
+    nextExpertise: string,
+    nextQuery: string
+  ) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (nextPage > 1) params.set("page", nextPage.toString());
+    else params.delete("page");
+
+    if (nextStatus && nextStatus !== "All") params.set("status", nextStatus);
+    else params.delete("status");
+
+    if (nextExpertise && nextExpertise !== "All") params.set("expertise", nextExpertise);
+    else params.delete("expertise");
+
+    if (nextQuery) params.set("q", nextQuery);
+    else params.delete("q");
+
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
 
   // Drawer states
   const [selectedInstructor, setSelectedInstructor] = useState<InstructorItem | null>(null);
@@ -245,16 +278,19 @@ export default function InstructorsPage() {
           onSearchChange={(q) => {
             setSearchQuery(q);
             setCurrentPage(1);
+            updateUrlParams(1, statusFilter, expertiseFilter, q);
           }}
           statusFilter={statusFilter}
           onStatusChange={(s) => {
             setStatusFilter(s);
             setCurrentPage(1);
+            updateUrlParams(1, s, expertiseFilter, searchQuery);
           }}
           expertiseFilter={expertiseFilter}
           onExpertiseChange={(e) => {
             setExpertiseFilter(e);
             setCurrentPage(1);
+            updateUrlParams(1, statusFilter, e, searchQuery);
           }}
           dateFilter={dateFilter}
           onDateChange={(d) => {
@@ -277,10 +313,14 @@ export default function InstructorsPage() {
           totalPages={totalPages}
           totalCount={filteredInstructors.length}
           pageSize={pageSize}
-          onPageChange={setCurrentPage}
+          onPageChange={(page) => {
+            setCurrentPage(page);
+            updateUrlParams(page, statusFilter, expertiseFilter, searchQuery);
+          }}
           onPageSizeChange={(newSize) => {
             setPageSize(newSize);
             setCurrentPage(1);
+            updateUrlParams(1, statusFilter, expertiseFilter, searchQuery);
           }}
         />
       </div>
@@ -307,5 +347,13 @@ export default function InstructorsPage() {
         onSave={handleAddInstructor}
       />
     </motion.div>
+  );
+}
+
+export default function InstructorsPage() {
+  return (
+    <Suspense fallback={<InstructorSkeleton />}>
+      <InstructorsContent />
+    </Suspense>
   );
 }

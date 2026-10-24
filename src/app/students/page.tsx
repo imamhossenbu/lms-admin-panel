@@ -1,13 +1,12 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useMemo, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { MOCK_STUDENTS } from "@/data/mockStudentData";
-import { StudentItem, StudentStatus } from "@/types/student";
+import { StudentItem } from "@/types/student";
 import {
   getStoredStudents,
-  saveNewStudent,
 } from "@/lib/studentStorage";
 import { StudentHeader } from "@/components/students/StudentHeader";
 import { StudentToolbar } from "@/components/students/StudentToolbar";
@@ -16,13 +15,21 @@ import { StudentPagination } from "@/components/students/StudentPagination";
 import { StudentSkeleton } from "@/components/students/StudentSkeleton";
 import toast from "react-hot-toast";
 
-export default function StudentsPage() {
+function StudentsContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Read initial page and filter state from URL parameters so refreshing keeps the current page and filter
+  const initialPage = parseInt(searchParams.get("page") || "1", 10) || 1;
+  const initialStatus = searchParams.get("status") || "All";
+  const initialSearch = searchParams.get("q") || "";
+
   const [students, setStudents] = useState<StudentItem[]>(MOCK_STUDENTS);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("All");
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
+  const [statusFilter, setStatusFilter] = useState(initialStatus);
   const [courseFilter, setCourseFilter] = useState("All");
   const [dateFilter, setDateFilter] = useState("All");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(initialPage);
   const [pageSize, setPageSize] = useState(10);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -40,7 +47,26 @@ export default function StudentsPage() {
     };
   }, []);
 
-  const router = useRouter();
+  // Update URL helper to persist query, page, status on reload
+  const updateUrlParams = (page: number, status: string, q: string) => {
+    const params = new URLSearchParams(window.location.search);
+    if (page > 1) {
+      params.set("page", page.toString());
+    } else {
+      params.delete("page");
+    }
+    if (status !== "All") {
+      params.set("status", status);
+    } else {
+      params.delete("status");
+    }
+    if (q.trim()) {
+      params.set("q", q.trim());
+    } else {
+      params.delete("q");
+    }
+    router.replace(params.toString() ? `?${params.toString()}` : "/students", { scroll: false });
+  };
 
   // Filtering
   const filteredStudents = useMemo(() => {
@@ -81,67 +107,6 @@ export default function StudentsPage() {
   const handleOpenEditFromTable = (student: StudentItem) => {
     router.push(`/students/${student.id}/edit`);
   };
-
-  // Add New Student
-  const handleAddStudent = (payload: {
-    name: string;
-    email: string;
-    phone: string;
-    status: StudentStatus;
-    initialCourse?: string;
-  }) => {
-    const newStd: StudentItem = {
-      id: `std-${Date.now()}`,
-      orderNumber: students.length + 1,
-      name: payload.name,
-      email: payload.email,
-      phone: payload.phone,
-      status: payload.status,
-      enrolledCoursesCount: payload.initialCourse ? 1 : 0,
-      completedCoursesCount: 0,
-      completionRate: 0,
-      joinDate: new Date().toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      }),
-      totalWatchTime: "0h 0m",
-      averageScore: 0,
-      avatarUrl: `https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&auto=format&fit=crop&q=80`,
-      enrolledCourses: payload.initialCourse
-        ? [
-            {
-              id: `c-${Date.now()}`,
-              title: payload.initialCourse,
-              progress: 0,
-              enrolledDate: "Today",
-              completedLessons: 0,
-              totalLessons: 20,
-              instructor: "EduPro Faculty",
-              category: "General",
-            },
-          ]
-        : [],
-      recentActivities: [
-        {
-          id: `act-${Date.now()}-1`,
-          action: `Welcome email with temporary password (EduPro#${Math.floor(1000 + Math.random() * 9000)}) sent to ${payload.email}`,
-          timestamp: "Just now",
-          iconType: "enroll",
-        },
-        {
-          id: `act-${Date.now()}-2`,
-          action: "Account registered and onboarded",
-          timestamp: "Just now",
-          iconType: "enroll",
-        },
-      ],
-    };
-
-    saveNewStudent(newStd);
-    setStudents((prev) => [newStd, ...prev]);
-  };
-
 
   // Export CSV Handler
   const handleExport = () => {
@@ -189,11 +154,13 @@ export default function StudentsPage() {
           onSearchChange={(q) => {
             setSearchQuery(q);
             setCurrentPage(1);
+            updateUrlParams(1, statusFilter, q);
           }}
           statusFilter={statusFilter}
           onStatusChange={(s) => {
             setStatusFilter(s);
             setCurrentPage(1);
+            updateUrlParams(1, s, searchQuery);
           }}
           courseFilter={courseFilter}
           onCourseChange={(c) => {
@@ -221,13 +188,25 @@ export default function StudentsPage() {
           totalPages={totalPages}
           totalCount={filteredStudents.length}
           pageSize={pageSize}
-          onPageChange={setCurrentPage}
+          onPageChange={(page) => {
+            setCurrentPage(page);
+            updateUrlParams(page, statusFilter, searchQuery);
+          }}
           onPageSizeChange={(newSize) => {
             setPageSize(newSize);
             setCurrentPage(1);
+            updateUrlParams(1, statusFilter, searchQuery);
           }}
         />
       </div>
     </motion.div>
+  );
+}
+
+export default function StudentsPage() {
+  return (
+    <Suspense fallback={<StudentSkeleton />}>
+      <StudentsContent />
+    </Suspense>
   );
 }

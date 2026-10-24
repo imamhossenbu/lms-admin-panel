@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import React, { useState, useEffect, Suspense } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { CoursesSkeleton } from "@/components/courses/CoursesSkeleton";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -27,15 +28,33 @@ import { CourseDetailsLearners } from "@/components/courses/details/CourseDetail
 import { AdminCourseItem, CourseModuleItem } from "@/lib/types";
 import { coursesApi } from "@/lib/api";
 
-export default function CourseDetailsPage() {
+function CourseDetailsContent() {
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const courseId = params?.id as string;
 
+  const urlTab = searchParams.get("tab") as "syllabus" | "outcomes" | "learners";
+  const [activeTab, setActiveTab] = useState<"syllabus" | "outcomes" | "learners">(
+    urlTab && ["syllabus", "outcomes", "learners"].includes(urlTab) ? urlTab : "syllabus"
+  );
   const [course, setCourse] = useState<AdminCourseItem | null>(null);
   const [modules, setModules] = useState<CourseModuleItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"syllabus" | "outcomes" | "learners">("syllabus");
+
+  useEffect(() => {
+    if (urlTab && ["syllabus", "outcomes", "learners"].includes(urlTab)) {
+      setActiveTab(urlTab);
+    }
+  }, [urlTab]);
+
+  const handleTabChange = (newTab: string) => {
+    const valid = newTab as "syllabus" | "outcomes" | "learners";
+    setActiveTab(valid);
+    const p = new URLSearchParams(window.location.search);
+    p.set("tab", valid);
+    router.replace(`?${p.toString()}`, { scroll: false });
+  };
 
   const fetchCourseData = async () => {
     if (!courseId) return;
@@ -146,7 +165,7 @@ export default function CourseDetailsPage() {
       {/* Tabs */}
       <PillTabs
         activeId={activeTab}
-        onChange={(id) => setActiveTab(id as any)}
+        onChange={handleTabChange}
         tabs={[
           { id: "syllabus", label: `Curriculum & Syllabus (${totalLessons} Lessons)` },
           { id: "outcomes", label: "Learning Outcomes & Prerequisites" },
@@ -167,5 +186,13 @@ export default function CourseDetailsPage() {
 
       {activeTab === "learners" && <CourseDetailsLearners course={course} />}
     </div>
+  );
+}
+
+export default function CourseDetailsPage() {
+  return (
+    <Suspense fallback={<CoursesSkeleton />}>
+      <CourseDetailsContent />
+    </Suspense>
   );
 }

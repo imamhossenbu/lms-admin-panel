@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, Suspense } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { MOCK_DASHBOARD_DATA } from "@/data/mockDashboardData";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
@@ -15,17 +16,43 @@ import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton";
 import { CreateCourseModal } from "@/components/dashboard/CreateCourseModal";
 import { toast } from "sonner";
 
-export default function DashboardOverviewPage() {
-  const [selectedPeriod, setSelectedPeriod] = useState("Last 30 days");
+function DashboardOverviewContent() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const urlPeriod = searchParams.get("period");
+  const [selectedPeriod, setSelectedPeriod] = useState<string>(() => {
+    if (urlPeriod) return urlPeriod;
+    if (typeof window !== "undefined") {
+      const saved = sessionStorage.getItem("edupro_dashboard_period");
+      if (saved) return saved;
+    }
+    return "Last 30 days";
+  });
+
   const [isLoading, setIsLoading] = useState(false);
   const [isCreateCourseOpen, setIsCreateCourseOpen] = useState(false);
   const [dashboardData, setDashboardData] = useState(MOCK_DASHBOARD_DATA);
 
-  // Smooth period change with skeleton loading transition
+  // Sync state if URL changes externally
+  useEffect(() => {
+    if (urlPeriod && urlPeriod !== selectedPeriod) {
+      setSelectedPeriod(urlPeriod);
+    }
+  }, [urlPeriod, selectedPeriod]);
+
+  // Smooth period change with URL sync and skeleton loading transition
   const handlePeriodChange = (period: string) => {
     setSelectedPeriod(period);
-    setIsLoading(true);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("edupro_dashboard_period", period);
+    }
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("period", period);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
 
+    setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
       toast.success("Analytics Updated", {
@@ -35,7 +62,6 @@ export default function DashboardOverviewPage() {
   };
 
   const handleCourseCreated = (course: any) => {
-    // Add 1 to published courses in stat cards
     setDashboardData((prev) => ({
       ...prev,
       stats: prev.stats.map((s) =>
@@ -94,5 +120,13 @@ export default function DashboardOverviewPage() {
         onCourseCreated={handleCourseCreated}
       />
     </motion.div>
+  );
+}
+
+export default function DashboardOverviewPage() {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <DashboardOverviewContent />
+    </Suspense>
   );
 }

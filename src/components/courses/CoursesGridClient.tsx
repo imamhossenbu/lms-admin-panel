@@ -18,8 +18,7 @@ import { AdminCourseItem, CourseModuleItem, CourseLessonItem } from "@/lib/types
 import { coursesApi, categoriesApi } from "@/lib/api";
 import { toast } from "sonner";
 import { CoursesSkeleton } from "./CoursesSkeleton";
-
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
 export interface CoursesGridClientProps {
   isCreateModalOpen?: boolean;
@@ -41,16 +40,57 @@ export function CoursesGridClient({
   refreshTrigger,
 }: CoursesGridClientProps = {}) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const urlPage = parseInt(searchParams.get("page") || "1", 10);
+  const urlStatus = searchParams.get("status") || "ALL";
+  const urlCategory = searchParams.get("category") || "ALL";
+  const urlLevel = searchParams.get("level") || "ALL";
+  const urlView = (searchParams.get("view") as "grid" | "table") || "grid";
+  const urlSearch = searchParams.get("q") || "";
+
   const [courses, setCourses] = useState<AdminCourseItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("ALL");
-  const [levelFilter, setLevelFilter] = useState("ALL");
-  const [statusFilter, setStatusFilter] = useState("ALL");
-  const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState(urlSearch);
+  const [categoryFilter, setCategoryFilter] = useState(urlCategory);
+  const [levelFilter, setLevelFilter] = useState(urlLevel);
+  const [statusFilter, setStatusFilter] = useState(urlStatus);
+  const [viewMode, setViewMode] = useState<"grid" | "table">(urlView);
+  const [currentPage, setCurrentPage] = useState(isNaN(urlPage) ? 1 : urlPage);
   const pageSize = 6;
+
+  // URL sync helper
+  const updateUrlParams = (
+    nextPage: number,
+    nextStatus: string,
+    nextCategory: string,
+    nextLevel: string,
+    nextView: "grid" | "table",
+    nextQuery: string
+  ) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (nextPage > 1) params.set("page", nextPage.toString());
+    else params.delete("page");
+
+    if (nextStatus && nextStatus !== "ALL") params.set("status", nextStatus);
+    else params.delete("status");
+
+    if (nextCategory && nextCategory !== "ALL") params.set("category", nextCategory);
+    else params.delete("category");
+
+    if (nextLevel && nextLevel !== "ALL") params.set("level", nextLevel);
+    else params.delete("level");
+
+    if (nextView && nextView !== "grid") params.set("view", nextView);
+    else params.delete("view");
+
+    if (nextQuery) params.set("q", nextQuery);
+    else params.delete("q");
+
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
 
   // Local modal states (fallbacks when not provided by parent)
   const [localCreateOpen, setLocalCreateOpen] = useState(false);
@@ -283,17 +323,36 @@ export function CoursesGridClient({
       {/* Filter and View Toolbar */}
       <CoursesFilterToolbar
         searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
+        onSearchChange={(q) => {
+          setSearchQuery(q);
+          setCurrentPage(1);
+          updateUrlParams(1, statusFilter, categoryFilter, levelFilter, viewMode, q);
+        }}
         categoryFilter={categoryFilter}
-        onCategoryFilterChange={setCategoryFilter}
+        onCategoryFilterChange={(c) => {
+          setCategoryFilter(c);
+          setCurrentPage(1);
+          updateUrlParams(1, statusFilter, c, levelFilter, viewMode, searchQuery);
+        }}
         categoryOptions={categoryOptions}
         levelFilter={levelFilter}
-        onLevelFilterChange={setLevelFilter}
+        onLevelFilterChange={(lvl) => {
+          setLevelFilter(lvl);
+          setCurrentPage(1);
+          updateUrlParams(1, statusFilter, categoryFilter, lvl, viewMode, searchQuery);
+        }}
         statusFilter={statusFilter}
-        onStatusFilterChange={setStatusFilter}
+        onStatusFilterChange={(s) => {
+          setStatusFilter(s);
+          setCurrentPage(1);
+          updateUrlParams(1, s, categoryFilter, levelFilter, viewMode, searchQuery);
+        }}
         statusTabs={statusTabs}
         viewMode={viewMode}
-        onViewModeChange={setViewMode}
+        onViewModeChange={(m) => {
+          setViewMode(m);
+          updateUrlParams(currentPage, statusFilter, categoryFilter, levelFilter, m, searchQuery);
+        }}
       />
 
       {/* Course Catalog View (Grid / Table) */}
@@ -364,7 +423,10 @@ export function CoursesGridClient({
             page={currentPage}
             totalPages={totalPages}
             totalItems={filteredCourses.length}
-            onPageChange={setCurrentPage}
+            onPageChange={(p) => {
+              setCurrentPage(p);
+              updateUrlParams(p, statusFilter, categoryFilter, levelFilter, viewMode, searchQuery);
+            }}
           />
         </div>
       )}

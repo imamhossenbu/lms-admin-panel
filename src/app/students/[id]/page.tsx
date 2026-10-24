@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import { getStoredStudents, saveStoredStudents } from "@/lib/studentStorage";
@@ -23,20 +23,68 @@ import { AssignmentsTabContent } from "@/components/students/details/Assignments
 import { StudentTabPlaceholder } from "@/components/students/details/StudentTabPlaceholder";
 import { StudentDetailsSkeleton } from "@/components/students/details/StudentDetailsSkeleton";
 
+const VALID_STUDENT_TABS: StudentTabKey[] = [
+  "overview",
+  "enrolled-courses",
+  "assignments",
+  "quizzes",
+  "certificates",
+  "activity-log",
+  "notes",
+];
+
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-export default function StudentDetailsPage({ params }: PageProps) {
+function StudentDetailsContent({ studentId }: { studentId: string }) {
   const router = useRouter();
-  const unwrappedParams = React.use(params);
-  const studentId = unwrappedParams.id;
+  const searchParams = useSearchParams();
 
-  const [activeTab, setActiveTab] = useState<StudentTabKey>("overview");
+  // Read active tab from URL search params with fallback to sessionStorage & default
+  const tabFromQuery = searchParams.get("tab") as StudentTabKey;
+  const initialTab =
+    tabFromQuery && VALID_STUDENT_TABS.includes(tabFromQuery)
+      ? tabFromQuery
+      : "overview";
+
+  const [activeTab, setActiveTab] = useState<StudentTabKey>(initialTab);
   const [student, setStudent] = useState<StudentFullDetails>(DEFAULT_STUDENT_DETAILS);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Sync state if URL query param changes (browser back/forward or direct navigation)
   useEffect(() => {
+    if (tabFromQuery && VALID_STUDENT_TABS.includes(tabFromQuery)) {
+      setActiveTab(tabFromQuery);
+    }
+  }, [tabFromQuery]);
+
+  // Tab change handler that keeps URL synchronized so refreshing stays on the active tab
+  const handleTabChange = (newTab: StudentTabKey) => {
+    setActiveTab(newTab);
+    try {
+      sessionStorage.setItem(`edupro_student_tab_${studentId}`, newTab);
+    } catch {}
+
+    const params = new URLSearchParams(window.location.search);
+    params.set("tab", newTab);
+    router.replace(`?${params.toString()}`, { scroll: false });
+  };
+
+  useEffect(() => {
+    // Check session storage on initial mount if URL didn't have tab
+    if (!tabFromQuery && typeof window !== "undefined") {
+      try {
+        const saved = sessionStorage.getItem(`edupro_student_tab_${studentId}`) as StudentTabKey;
+        if (saved && VALID_STUDENT_TABS.includes(saved) && saved !== "overview") {
+          setActiveTab(saved);
+          const params = new URLSearchParams(window.location.search);
+          params.set("tab", saved);
+          router.replace(`?${params.toString()}`, { scroll: false });
+        }
+      } catch {}
+    }
+
     // Look up student from storage if matching ID or hydrate
     const stored = getStoredStudents();
     const found = stored.find((s) => s.id === studentId);
@@ -64,7 +112,7 @@ export default function StudentDetailsPage({ params }: PageProps) {
     }, 200);
 
     return () => clearTimeout(timer);
-  }, [studentId]);
+  }, [studentId, tabFromQuery, router]);
 
   if (isLoading) {
     return <StudentDetailsSkeleton />;
@@ -111,10 +159,10 @@ export default function StudentDetailsPage({ params }: PageProps) {
       {/* 1. Header with Breadcrumbs, Avatar & Actions */}
       <StudentDetailsHeader student={student} onEdit={handleEdit} />
 
-      {/* 2. Tab Navigation */}
+      {/* 2. Tab Navigation (URL-synchronized) */}
       <StudentDetailsTabs
         activeTab={activeTab}
-        onTabChange={(tab) => setActiveTab(tab)}
+        onTabChange={handleTabChange}
       />
 
       {/* 3. Tab Contents */}
@@ -134,7 +182,7 @@ export default function StudentDetailsPage({ params }: PageProps) {
             <div className="lg:col-span-7 xl:col-span-8">
               <EnrolledCoursesMiniCard
                 courses={student.enrolledCourses}
-                onViewAll={() => setActiveTab("enrolled-courses")}
+                onViewAll={() => handleTabChange("enrolled-courses")}
                 onViewCourse={(c) =>
                   toast(`Selected course: ${c.title}`, {
                     icon: "📖",
@@ -145,7 +193,7 @@ export default function StudentDetailsPage({ params }: PageProps) {
             <div className="lg:col-span-5 xl:col-span-4">
               <RecentActivityTimelineCard
                 activities={student.recentActivities}
-                onViewAll={() => setActiveTab("activity-log")}
+                onViewAll={() => handleTabChange("activity-log")}
               />
             </div>
           </div>
@@ -172,5 +220,16 @@ export default function StudentDetailsPage({ params }: PageProps) {
       )}
       {activeTab === "notes" && <StudentTabPlaceholder title="Notes" />}
     </motion.div>
+  );
+}
+
+export default function StudentDetailsPage({ params }: PageProps) {
+  const unwrappedParams = React.use(params);
+  const studentId = unwrappedParams.id;
+
+  return (
+    <Suspense fallback={<StudentDetailsSkeleton />}>
+      <StudentDetailsContent studentId={studentId} />
+    </Suspense>
   );
 }
