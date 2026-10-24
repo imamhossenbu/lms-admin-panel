@@ -4,7 +4,6 @@ import React, { useState, useMemo } from "react";
 import {
   BookOpen,
   Search,
-  ChevronDown,
   FileText,
   Layout,
   Code2,
@@ -19,6 +18,8 @@ import {
   Download,
 } from "lucide-react";
 import { DataTable, ColumnDef } from "@/components/ui/Datatable";
+import { AppSelect } from "@/components/ui/AppSelect";
+import { AppDropdownMenu } from "@/components/ui/AppDropdownMenu";
 import { StudentAssignment } from "./mockStudentDetails";
 import { toast } from "sonner";
 
@@ -32,7 +33,6 @@ export function AssignmentsTabContent({
   const [courseFilter, setCourseFilter] = useState("All Courses");
   const [statusFilter, setStatusFilter] = useState("All Status");
   const [searchQuery, setSearchQuery] = useState("");
-  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
   const getAssignmentIcon = (idx: number) => {
     switch (idx % 6) {
@@ -204,75 +204,54 @@ export function AssignmentsTabContent({
       header: "Actions",
       align: "center",
       width: "120px",
-      render: (row) => {
-        const isMenuOpen = openMenuId === row.id;
+      render: (row) => (
+        <div className="flex items-center justify-center gap-1.5">
+          <button
+            type="button"
+            onClick={() =>
+              toast.info("Assignment Details", {
+                description: `Viewing details for "${row.title}"`,
+              })
+            }
+            className="px-3 py-1 rounded-md border border-dash bg-white text-primary-500 hover:bg-slate-50 body-xsm-medium transition-colors shadow-2xs cursor-pointer"
+          >
+            View
+          </button>
 
-        return (
-          <div className="flex items-center justify-center gap-1.5 relative">
-            <button
-              type="button"
-              onClick={() =>
-                toast.info("Assignment Details", {
-                  description: `Viewing details for "${row.title}"`,
-                })
-              }
-              className="px-3 py-1 rounded-md border border-dash bg-white text-primary-500 hover:bg-slate-50 body-xsm-medium transition-colors shadow-2xs cursor-pointer"
-            >
-              View
-            </button>
-
-            {/* Options Button */}
-            <div className="relative">
+          {/* Radix UI Dropdown Menu */}
+          <AppDropdownMenu
+            trigger={
               <button
                 type="button"
-                onClick={() => setOpenMenuId(isMenuOpen ? null : row.id)}
                 className="p-1 rounded-md border border-dash bg-white text-primary-400 hover:text-primary-500 hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer"
                 title="More options"
               >
                 <MoreHorizontal className="w-3.5 h-3.5" />
               </button>
-
-              {isMenuOpen && (
-                <>
-                  <div
-                    className="fixed inset-0 z-20"
-                    onClick={() => setOpenMenuId(null)}
-                  />
-                  <div className="absolute right-0 mt-1 w-40 bg-white rounded-lg border border-dash shadow-lg py-1 z-30 divide-y divide-dash text-left">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setOpenMenuId(null);
-                        toast.info("Submission Details", {
-                          description: `Reviewing submission for ${row.title}`,
-                        });
-                      }}
-                      className="w-full px-3 py-1.5 text-left body-xsm-medium text-primary-500 hover:bg-slate-50 flex items-center gap-2 cursor-pointer"
-                    >
-                      <Eye className="w-3.5 h-3.5 text-primary-400" />
-                      <span>View Submission</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setOpenMenuId(null);
-                        toast.success("Download", {
-                          description: `Downloading files for ${row.title}`,
-                        });
-                      }}
-                      className="w-full px-3 py-1.5 text-left body-xsm-medium text-primary-500 hover:bg-slate-50 flex items-center gap-2 cursor-pointer"
-                    >
-                      <Download className="w-3.5 h-3.5 text-primary-400" />
-                      <span>Download File</span>
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-        );
-      },
+            }
+            items={[
+              {
+                key: "view-submission",
+                label: "View Submission",
+                icon: <Eye className="w-3.5 h-3.5 text-primary-400" />,
+                onClick: () =>
+                  toast.info("Submission Details", {
+                    description: `Reviewing submission for ${row.title}`,
+                  }),
+              },
+              {
+                key: "download",
+                label: "Download File",
+                icon: <Download className="w-3.5 h-3.5 text-primary-400" />,
+                onClick: () =>
+                  toast.success("Download", {
+                    description: `Downloading files for ${row.title}`,
+                  }),
+              },
+            ]}
+          />
+        </div>
+      ),
     },
   ];
 
@@ -296,38 +275,32 @@ export function AssignmentsTabContent({
 
         {/* Filter Controls: All Courses + All Status + Search (Side-by-side) */}
         <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 shrink-0">
-          {/* Courses Dropdown */}
-          <div className="relative">
-            <select
-              value={courseFilter}
-              onChange={(e) => setCourseFilter(e.target.value)}
-              className="h-9 pl-3 pr-8 rounded-lg border border-dash bg-[#F8FAFC] body-sm-medium text-primary-500 appearance-none focus:outline-none focus:border-blue cursor-pointer whitespace-nowrap"
-            >
-              <option value="All Courses">All Courses</option>
-              <option value="HTML Fundamentals">HTML Fundamentals</option>
-              <option value="CSS & Responsive Design">CSS &amp; Responsive Design</option>
-              <option value="JavaScript Essentials">JavaScript Essentials</option>
-              <option value="React for Beginners">React for Beginners</option>
-              <option value="Node.js Backend Basics">Node.js Backend Basics</option>
-              <option value="UI/UX Design Basics">UI/UX Design Basics</option>
-            </select>
-            <ChevronDown className="w-4 h-4 text-primary-300 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          </div>
+          {/* Radix UI Courses Dropdown */}
+          <AppSelect
+            value={courseFilter}
+            onValueChange={setCourseFilter}
+            options={[
+              "All Courses",
+              "HTML Fundamentals",
+              "CSS & Responsive Design",
+              "JavaScript Essentials",
+              "React for Beginners",
+              "Node.js Backend Basics",
+              "UI/UX Design Basics",
+            ]}
+          />
 
-          {/* Status Dropdown */}
-          <div className="relative">
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="h-9 pl-3 pr-8 rounded-lg border border-dash bg-[#F8FAFC] body-sm-medium text-primary-500 appearance-none focus:outline-none focus:border-blue cursor-pointer whitespace-nowrap"
-            >
-              <option value="All Status">All Status</option>
-              <option value="Submitted">Submitted</option>
-              <option value="Pending">Pending</option>
-              <option value="Not Submitted">Not Submitted</option>
-            </select>
-            <ChevronDown className="w-4 h-4 text-primary-300 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          </div>
+          {/* Radix UI Status Dropdown */}
+          <AppSelect
+            value={statusFilter}
+            onValueChange={setStatusFilter}
+            options={[
+              "All Status",
+              "Submitted",
+              "Pending",
+              "Not Submitted",
+            ]}
+          />
 
           {/* Search Box */}
           <div className="relative w-48 sm:w-56">

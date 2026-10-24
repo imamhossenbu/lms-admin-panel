@@ -13,6 +13,8 @@ import {
   Trash2,
 } from "lucide-react";
 import { DataTable, ColumnDef } from "@/components/ui/Datatable";
+import { AppSelect } from "@/components/ui/AppSelect";
+import { AppDropdownMenu } from "@/components/ui/AppDropdownMenu";
 import { CourseBadgeIcon } from "../create/CourseBadgeIcon";
 import { EnrolledCourseDetail } from "./mockStudentDetails";
 import { toast } from "sonner";
@@ -28,24 +30,25 @@ export function EnrolledCoursesTabContent({
 }: EnrolledCoursesTabContentProps) {
   const [courses, setCourses] = useState<EnrolledCourseDetail[]>(initialCourses);
   const [searchQuery, setSearchQuery] = useState("");
-  const [openMenuCourseId, setOpenMenuCourseId] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState("All Status");
 
   // Filter courses
   const filteredCourses = useMemo(() => {
     return courses.filter((c) => {
       const q = searchQuery.toLowerCase().trim();
-      return (
+      const matchesSearch =
         !q ||
         c.title.toLowerCase().includes(q) ||
         c.category.toLowerCase().includes(q) ||
-        c.instructor.name.toLowerCase().includes(q)
-      );
+        c.instructor.name.toLowerCase().includes(q);
+      const matchesStatus =
+        statusFilter === "All Status" || c.status === statusFilter;
+      return matchesSearch && matchesStatus;
     });
-  }, [courses, searchQuery]);
+  }, [courses, searchQuery, statusFilter]);
 
   const handleRemoveCourse = (course: EnrolledCourseDetail) => {
     setCourses((prev) => prev.filter((c) => c.id !== course.id));
-    setOpenMenuCourseId(null);
     toast.success("Course Removed", {
       description: `"${course.title}" was unenrolled.`,
     });
@@ -169,100 +172,71 @@ export function EnrolledCoursesTabContent({
       header: "Actions",
       align: "center",
       width: "120px",
-      render: (row) => {
-        const isMenuOpen = openMenuCourseId === row.id;
+      render: (row) => (
+        <div className="flex items-center justify-center gap-1.5">
+          <button
+            type="button"
+            onClick={() =>
+              toast.info("Course Details", {
+                description: `Opening "${row.title}" curriculum overview.`,
+              })
+            }
+            className="px-3 py-1 rounded-md border border-dash bg-white text-primary-500 hover:bg-slate-50 body-xsm-medium transition-colors shadow-2xs cursor-pointer"
+          >
+            View
+          </button>
 
-        return (
-          <div className="flex items-center justify-center gap-1.5 relative">
-            <button
-              type="button"
-              onClick={() =>
-                toast.info("Course Details", {
-                  description: `Opening "${row.title}" curriculum overview.`,
-                })
-              }
-              className="px-3 py-1 rounded-md border border-dash bg-white text-primary-500 hover:bg-slate-50 body-xsm-medium transition-colors shadow-2xs cursor-pointer"
-            >
-              View
-            </button>
-
-            {/* Dropdown Options */}
-            <div className="relative">
+          {/* Radix UI Dropdown Menu */}
+          <AppDropdownMenu
+            trigger={
               <button
                 type="button"
-                onClick={() =>
-                  setOpenMenuCourseId(isMenuOpen ? null : row.id)
-                }
                 className="p-1 rounded-md border border-dash bg-white text-primary-400 hover:text-primary-500 hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer"
                 title="Course Options"
               >
                 <MoreHorizontal className="w-3.5 h-3.5" />
               </button>
-
-              {isMenuOpen && (
-                <>
-                  <div
-                    className="fixed inset-0 z-20"
-                    onClick={() => setOpenMenuCourseId(null)}
-                  />
-                  <div className="absolute right-0 mt-1 w-44 bg-white rounded-lg border border-dash shadow-lg py-1 z-30 divide-y divide-dash text-left">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setOpenMenuCourseId(null);
-                        toast.info("View Course", {
-                          description: `Viewing details for ${row.title}`,
-                        });
-                      }}
-                      className="w-full px-3 py-1.5 text-left body-xsm-medium text-primary-500 hover:bg-slate-50 flex items-center gap-2 cursor-pointer"
-                    >
-                      <Eye className="w-3.5 h-3.5 text-primary-400" />
-                      <span>View Course</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setOpenMenuCourseId(null);
-                        toast.info("Progress Analytics", {
-                          description: `Progress analytics for ${row.title}: ${row.progress}%`,
-                        });
-                      }}
-                      className="w-full px-3 py-1.5 text-left body-xsm-medium text-primary-500 hover:bg-slate-50 flex items-center gap-2 cursor-pointer"
-                    >
-                      <TrendingUp className="w-3.5 h-3.5 text-primary-400" />
-                      <span>View Progress</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setOpenMenuCourseId(null);
-                        toast.info("Change Enrollment", {
-                          description: "Modifying enrollment batch...",
-                        });
-                      }}
-                      className="w-full px-3 py-1.5 text-left body-xsm-medium text-primary-500 hover:bg-slate-50 flex items-center gap-2 cursor-pointer"
-                    >
-                      <RefreshCw className="w-3.5 h-3.5 text-primary-400" />
-                      <span>Change Enrollment</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveCourse(row)}
-                      className="w-full px-3 py-1.5 text-left body-xsm-medium text-red hover:bg-red-14/10 flex items-center gap-2 cursor-pointer"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                      <span>Remove from Course</span>
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-        );
-      },
+            }
+            items={[
+              {
+                key: "view-course",
+                label: "View Course",
+                icon: <Eye className="w-3.5 h-3.5 text-primary-400" />,
+                onClick: () =>
+                  toast.info("View Course", {
+                    description: `Viewing details for ${row.title}`,
+                  }),
+              },
+              {
+                key: "view-progress",
+                label: "View Progress",
+                icon: <TrendingUp className="w-3.5 h-3.5 text-primary-400" />,
+                onClick: () =>
+                  toast.info("Progress Analytics", {
+                    description: `Progress analytics for ${row.title}: ${row.progress}%`,
+                  }),
+              },
+              {
+                key: "change-enrollment",
+                label: "Change Enrollment",
+                icon: <RefreshCw className="w-3.5 h-3.5 text-primary-400" />,
+                onClick: () =>
+                  toast.info("Change Enrollment", {
+                    description: "Modifying enrollment batch...",
+                  }),
+              },
+              {
+                key: "remove-course",
+                label: "Remove from Course",
+                icon: <Trash2 className="w-3.5 h-3.5" />,
+                danger: true,
+                separatorBefore: true,
+                onClick: () => handleRemoveCourse(row),
+              },
+            ]}
+          />
+        </div>
+      ),
     },
   ];
 
@@ -284,8 +258,16 @@ export function EnrolledCoursesTabContent({
           </div>
         </div>
 
-        {/* Right Search & CTA Button */}
-        <div className="flex items-center gap-2.5 shrink-0 flex-nowrap">
+        {/* Right Search, Filter & CTA Button (Side-by-side) */}
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 shrink-0">
+          {/* Radix UI Status Dropdown */}
+          <AppSelect
+            value={statusFilter}
+            onValueChange={setStatusFilter}
+            options={["All Status", "In Progress", "Completed"]}
+          />
+
+          {/* Search Box */}
           <div className="relative w-48 sm:w-56">
             <Search className="w-4 h-4 text-primary-300 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input

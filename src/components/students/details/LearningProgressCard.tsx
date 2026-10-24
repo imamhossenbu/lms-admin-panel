@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { TrendingUp, CheckCircle, Clock, FileText, Award, ChevronDown } from "lucide-react";
+import { TrendingUp, CheckCircle, Clock, FileText, Award } from "lucide-react";
+import { AppSelect } from "@/components/ui/AppSelect";
 import { StudentFullDetails } from "./mockStudentDetails";
 
 interface LearningProgressCardProps {
@@ -30,19 +31,17 @@ export function LearningProgressCard({ student }: LearningProgressCardProps) {
           </h2>
         </div>
 
-        {/* Course Filter Dropdown */}
-        <div className="relative">
-          <select
-            value={selectedCourseFilter}
-            onChange={(e) => setSelectedCourseFilter(e.target.value)}
-            className="h-8 pl-3 pr-7 rounded-lg border border-dash bg-[#F8FAFC] body-xsm-medium text-primary-500 appearance-none focus:outline-none focus:border-blue cursor-pointer"
-          >
-            <option value="All Courses">All Courses</option>
-            <option value="HTML Fundamentals">HTML Fundamentals</option>
-            <option value="CSS & Responsive Design">CSS &amp; Responsive Design</option>
-          </select>
-          <ChevronDown className="w-3.5 h-3.5 text-primary-300 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
-        </div>
+        {/* Course Filter Dropdown powered by Radix UI */}
+        <AppSelect
+          value={selectedCourseFilter}
+          onValueChange={setSelectedCourseFilter}
+          size="sm"
+          options={[
+            "All Courses",
+            "HTML Fundamentals",
+            "CSS & Responsive Design",
+          ]}
+        />
       </div>
 
       {/* Main Content: Donut + Progress Metrics */}

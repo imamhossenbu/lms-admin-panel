@@ -1,8 +1,9 @@
 "use client";
 
 import React from "react";
-import { User, Mail, Phone, ChevronDown } from "lucide-react";
+import { User, Mail, Phone } from "lucide-react";
 import { UseFormRegister, FieldErrors, Control, Controller } from "react-hook-form";
+import { AppSelect } from "@/components/ui/AppSelect";
 import { CreateStudentInput } from "@/validations/studentSchema";
 import { StudentPasswordSection } from "./StudentPasswordSection";
 
@@ -112,29 +113,35 @@ export function StudentInformationCard({
             name="status"
             defaultValue="Active"
             render={({ field }) => (
-              <div className="relative">
-                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">
-                  <span
-                    className={`w-2 h-2 rounded-full ${
-                      field.value === "Active"
-                        ? "bg-[#10B981]"
-                        : field.value === "Inactive"
-                        ? "bg-[#94A3B8]"
-                        : "bg-[#F59E0B]"
-                    }`}
-                  />
-                </div>
-                <select
-                  value={field.value}
-                  onChange={(e) => field.onChange(e.target.value)}
-                  className="w-full h-10 pl-8 pr-9 rounded-lg border border-dash bg-white body-sm-medium text-primary-500 appearance-none focus:outline-none focus:border-blue cursor-pointer"
-                >
-                  <option value="Active">Active</option>
-                  <option value="Inactive">Inactive</option>
-                  <option value="Suspended">Suspended</option>
-                </select>
-                <ChevronDown className="w-4 h-4 text-primary-300 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-              </div>
+              <AppSelect
+                value={field.value}
+                onValueChange={field.onChange}
+                className="w-full"
+                triggerClassName="w-full h-10 bg-white"
+                options={[
+                  {
+                    value: "Active",
+                    label: "Active",
+                    icon: (
+                      <span className="w-2 h-2 rounded-full bg-[#10B981] inline-block" />
+                    ),
+                  },
+                  {
+                    value: "Inactive",
+                    label: "Inactive",
+                    icon: (
+                      <span className="w-2 h-2 rounded-full bg-[#94A3B8] inline-block" />
+                    ),
+                  },
+                  {
+                    value: "Suspended",
+                    label: "Suspended",
+                    icon: (
+                      <span className="w-2 h-2 rounded-full bg-[#F59E0B] inline-block" />
+                    ),
+                  },
+                ]}
+              />
             )}
           />
         </div>

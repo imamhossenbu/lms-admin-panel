@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { BookOpen, Search, ChevronDown } from "lucide-react";
+import { BookOpen, Search } from "lucide-react";
+import { AppSelect } from "@/components/ui/AppSelect";
 import { ENROLLMENT_COURSES, EnrollmentCourse } from "./mockEnrollmentCourses";
 import { CourseEnrollmentTable } from "./CourseEnrollmentTable";
 import { SelectedCoursesChips } from "./SelectedCoursesChips";
@@ -102,19 +103,16 @@ export function CourseEnrollmentCard({
             />
           </div>
 
-          {/* Category Dropdown */}
-          <div className="relative">
-            <select
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-              className="h-9 pl-3 pr-8 rounded-lg border border-dash bg-[#F8FAFC] body-sm-medium text-primary-500 appearance-none focus:outline-none focus:border-blue cursor-pointer whitespace-nowrap"
-            >
-              <option value="All">All Categories</option>
-              <option value="Web Development">Web Development</option>
-              <option value="Design">Design</option>
-            </select>
-            <ChevronDown className="w-4 h-4 text-primary-300 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          </div>
+          {/* Category Dropdown powered by Radix UI */}
+          <AppSelect
+            value={categoryFilter}
+            onValueChange={setCategoryFilter}
+            options={[
+              { value: "All", label: "All Categories" },
+              { value: "Web Development", label: "Web Development" },
+              { value: "Design", label: "Design" },
+            ]}
+          />
         </div>
       </div>
 
