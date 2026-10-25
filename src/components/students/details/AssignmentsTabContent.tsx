@@ -16,6 +16,8 @@ import {
   XCircle,
   Eye,
   Download,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { DataTable, ColumnDef } from "@/components/ui/Datatable";
 import { AppSelect } from "@/components/ui/AppSelect";
@@ -321,7 +323,7 @@ export function AssignmentsTabContent({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search assignments..."
-              className="w-full h-9 pl-9 pr-3 rounded-lg border border-dash bg-[#F8FAFC] body-sm-regular text-primary-500 placeholder:text-primary-300 focus:outline-none focus:border-blue transition-colors"
+              className="w-full h-10 pl-9 pr-3 rounded-lg border border-dash bg-[#F8FAFC] body-sm-regular text-primary-500 placeholder:text-primary-300 focus:outline-none focus:border-brand-orange transition-colors"
             />
           </div>
         </div>
@@ -347,22 +349,24 @@ export function AssignmentsTabContent({
           <button
             type="button"
             disabled
-            className="w-8 h-8 rounded-lg border border-dash bg-white text-primary-300 flex items-center justify-center body-sm-medium disabled:opacity-50 cursor-not-allowed"
+            className="w-8 h-8 rounded-lg border border-dash bg-white text-primary-300 flex items-center justify-center body-sm-medium disabled:opacity-50 cursor-not-allowed hover:bg-slate-50 transition-colors"
+            title="Previous Page"
           >
-            &lt;
+            <ChevronLeft className="w-4 h-4" />
           </button>
           <button
             type="button"
-            className="w-8 h-8 rounded-lg bg-blue text-white flex items-center justify-center body-sm-medium font-semibold shadow-xs"
+            className="w-8 h-8 rounded-lg bg-brand-orange text-white flex items-center justify-center body-sm-medium font-bold shadow-2xs"
           >
             1
           </button>
           <button
             type="button"
             disabled
-            className="w-8 h-8 rounded-lg border border-dash bg-white text-primary-300 flex items-center justify-center body-sm-medium disabled:opacity-50 cursor-not-allowed"
+            className="w-8 h-8 rounded-lg border border-dash bg-white text-primary-300 flex items-center justify-center body-sm-medium disabled:opacity-50 cursor-not-allowed hover:bg-slate-50 transition-colors"
+            title="Next Page"
           >
-            &gt;
+            <ChevronRight className="w-4 h-4" />
           </button>
         </div>
       </div>

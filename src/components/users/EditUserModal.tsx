@@ -8,7 +8,7 @@ import { ModalShell } from "@/components/ui/ModalShell";
 import { InputField } from "@/components/ui/InputField";
 import { DropdownSelect } from "@/components/ui/DropdownSelect";
 import { PrimaryButton } from "@/components/ui/primary-button";
-import { OutlineButton } from "@/components/ui/outline-button";
+import { SecondaryButton } from "@/components/ui/secondary-button";
 import { AdminUserItem } from "@/lib/types";
 import { toast } from "sonner";
 
@@ -103,9 +103,9 @@ export function EditUserModal({ user, isOpen, onClose, onSave }: EditUserModalPr
         </div>
 
         <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#EDEDED]">
-          <OutlineButton onClick={onClose} type="button">
+          <SecondaryButton onClick={onClose} type="button">
             Cancel
-          </OutlineButton>
+          </SecondaryButton>
           <PrimaryButton type="submit" isLoading={isSubmitting}>
             Save Changes
           </PrimaryButton>

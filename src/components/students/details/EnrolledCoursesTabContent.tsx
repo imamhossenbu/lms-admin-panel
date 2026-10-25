@@ -11,12 +11,15 @@ import {
   TrendingUp,
   RefreshCw,
   Trash2,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { DataTable, ColumnDef } from "@/components/ui/Datatable";
 import { AppSelect } from "@/components/ui/AppSelect";
 import { AppDropdownMenu } from "@/components/ui/AppDropdownMenu";
 import { CourseBadgeIcon } from "../create/CourseBadgeIcon";
 import { ToneBadge } from "@/components/ui/ToneBadge";
+import { PrimaryButton } from "@/components/ui/primary-button";
 import { EnrolledCourseDetail } from "./mockStudentDetails";
 import toast from "react-hot-toast";
 
@@ -269,18 +272,18 @@ export function EnrolledCoursesTabContent({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search courses..."
-              className="w-full h-9 pl-9 pr-3 rounded-lg border border-dash bg-slate-50 body-sm-regular text-primary-500 placeholder:text-primary-300 focus:outline-none focus:border-blue transition-colors"
+              className="w-full h-10 pl-9 pr-3 rounded-lg border border-dash bg-slate-50 body-sm-regular text-primary-500 placeholder:text-primary-300 focus:outline-none focus:border-brand-orange transition-colors"
             />
           </div>
 
-          <button
+          <PrimaryButton
+            size="md"
             type="button"
             onClick={onEnrollNew}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-blue hover:opacity-90 active:opacity-80 text-white body-sm-medium transition-all shadow-sm cursor-pointer whitespace-nowrap"
+            icon={<Plus className="w-4 h-4 stroke-[2.2]" />}
           >
-            <Plus className="w-4 h-4 stroke-[2.2]" />
-            <span>Enroll in Course</span>
-          </button>
+            Enroll in Course
+          </PrimaryButton>
         </div>
       </div>
 
@@ -304,22 +307,24 @@ export function EnrolledCoursesTabContent({
           <button
             type="button"
             disabled
-            className="w-8 h-8 rounded-lg border border-dash bg-white text-primary-300 flex items-center justify-center body-sm-medium disabled:opacity-50 cursor-not-allowed"
+            className="w-8 h-8 rounded-lg border border-dash bg-white text-primary-300 flex items-center justify-center body-sm-medium disabled:opacity-50 cursor-not-allowed hover:bg-slate-50 transition-colors"
+            title="Previous Page"
           >
-            &lt;
+            <ChevronLeft className="w-4 h-4" />
           </button>
           <button
             type="button"
-            className="w-8 h-8 rounded-lg bg-blue text-white flex items-center justify-center body-sm-medium font-semibold shadow-xs"
+            className="w-8 h-8 rounded-lg bg-brand-orange text-white flex items-center justify-center body-sm-medium font-bold shadow-2xs"
           >
             1
           </button>
           <button
             type="button"
             disabled
-            className="w-8 h-8 rounded-lg border border-dash bg-white text-primary-300 flex items-center justify-center body-sm-medium disabled:opacity-50 cursor-not-allowed"
+            className="w-8 h-8 rounded-lg border border-dash bg-white text-primary-300 flex items-center justify-center body-sm-medium disabled:opacity-50 cursor-not-allowed hover:bg-slate-50 transition-colors"
+            title="Next Page"
           >
-            &gt;
+            <ChevronRight className="w-4 h-4" />
           </button>
         </div>
       </div>

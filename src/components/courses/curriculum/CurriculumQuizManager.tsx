@@ -306,7 +306,7 @@ export function CurriculumQuizManager({
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label className="body-sm-medium text-primary-500 font-semibold flex items-center gap-1.5">
-                  <FileText className="w-4 h-4 text-[#1C4D8D]" />
+                  <FileText className="w-4 h-4 text-brand-orange" />
                   <span>Select Source Lessons for Assessment Context:</span>
                 </label>
 
@@ -314,7 +314,7 @@ export function CurriculumQuizManager({
                   <button
                     type="button"
                     onClick={handleSelectAllLessons}
-                    className="text-[#1C4D8D] hover:underline font-medium cursor-pointer"
+                    className="text-brand-orange hover:underline font-medium cursor-pointer"
                   >
                     Select All
                   </button>
@@ -476,7 +476,7 @@ export function CurriculumQuizManager({
                           marks: Number(e.target.value) || 1,
                         })
                       }
-                      className="w-14 h-8 px-2 text-xs rounded border border-[#EDEDED] bg-white text-center focus:outline-none focus:border-[#1C4D8D]"
+                      className="w-14 h-8 px-2 text-xs rounded border border-[#EDEDED] bg-white text-center focus:outline-none focus:border-brand-orange"
                     />
                   </div>
 
@@ -524,8 +524,8 @@ export function CurriculumQuizManager({
                         key={optIndex}
                         className={`flex items-center gap-2 p-1.5 rounded-[8px] border transition-all ${
                           isCorrect
-                            ? "border-emerald-500 bg-emerald-50/50 ring-1 ring-emerald-500"
-                            : "border-[#EDEDED] bg-white hover:border-gray-300"
+                            ? "border-green bg-green-bg"
+                            : "border-dash bg-white hover:border-slate-300"
                         }`}
                       >
                         {/* Radio Button to select correct answer */}
@@ -534,8 +534,8 @@ export function CurriculumQuizManager({
                           onClick={() => handleSelectCorrectAnswer(qIndex, optText)}
                           className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 border transition-all cursor-pointer ${
                             isCorrect
-                              ? "bg-emerald-600 border-emerald-600 text-white font-bold"
-                              : "border-gray-300 bg-gray-50 text-gray-500 hover:bg-gray-100"
+                              ? "bg-green border-green text-white font-bold"
+                              : "border-slate-300 bg-slate-50 text-slate-500 hover:bg-slate-100"
                           }`}
                           title="Set as Correct Answer"
                         >

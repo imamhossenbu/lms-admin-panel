@@ -235,7 +235,7 @@ export function CreateCourseModal({
             <button
               type="button"
               onClick={() => setIsQuickCategoryOpen((prev) => !prev)}
-              className="body-xsm-medium text-[#1C4D8D] hover:underline flex items-center gap-1 cursor-pointer"
+              className="body-xsm-medium text-brand-orange hover:text-brand-orange-hover hover:underline flex items-center gap-1 cursor-pointer"
             >
               <FolderPlus className="w-3.5 h-3.5" />
               <span>+ Add New Category</span>
@@ -281,7 +281,7 @@ export function CreateCourseModal({
                 id="isFree"
                 checked={isFree}
                 onChange={(e) => setIsFree(e.target.checked)}
-                className="w-4 h-4 rounded border-gray-300 text-[#1C4D8D] focus:ring-[#1C4D8D] cursor-pointer"
+                className="w-4 h-4 rounded border-gray-300 accent-brand-orange cursor-pointer"
               />
               <span className="body-sm-regular text-primary-500">
                 Offer as Free Open-Access Course

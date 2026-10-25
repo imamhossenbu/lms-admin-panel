@@ -44,8 +44,8 @@ export function AppSelect({
 
   const sizeClasses =
     size === "sm"
-      ? "h-8 px-2.5 text-xs gap-1.5"
-      : "h-9 px-3 text-sm gap-2";
+      ? "h-8 px-2.5 body-sm-medium gap-1.5"
+      : "h-10 px-3.5 body-md-medium gap-2";
 
   return (
     <div className={cn("relative inline-block", className)}>
@@ -56,7 +56,7 @@ export function AppSelect({
       >
         <Select.Trigger
           className={cn(
-            "inline-flex items-center justify-between rounded-lg border border-dash bg-[#F8FAFC] text-primary-500 font-medium hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue/20 focus:border-blue transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-2xs whitespace-nowrap",
+            "inline-flex items-center justify-between rounded-lg border border-dash bg-white text-primary-500 hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:border-brand-orange transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-2xs whitespace-nowrap",
             sizeClasses,
             triggerClassName
           )}
@@ -71,7 +71,7 @@ export function AppSelect({
             </Select.Value>
           </div>
           <Select.Icon asChild>
-            <ChevronDown className="w-3.5 h-3.5 text-primary-300 ml-1.5 shrink-0" />
+            <ChevronDown className="w-4 h-4 text-primary-300 ml-1.5 shrink-0" />
           </Select.Icon>
         </Select.Trigger>
 
@@ -93,14 +93,14 @@ export function AppSelect({
                 <Select.Item
                   key={opt.value}
                   value={opt.value}
-                  className="relative flex items-center justify-between select-none py-1.5 px-2.5 rounded-lg text-xs font-medium text-primary-400 hover:text-primary-500 hover:bg-[#F8FAFC] focus:bg-[#EFF6FF] focus:text-[#1D4ED8] focus:outline-none cursor-pointer transition-colors data-[state=checked]:bg-[#EFF6FF] data-[state=checked]:text-[#1D4ED8] data-[state=checked]:font-semibold"
+                  className="relative flex items-center justify-between select-none py-2 px-3 rounded-lg body-md-medium text-primary-500 hover:bg-slate-50 focus:bg-brand-orange-light focus:text-brand-orange focus:outline-none cursor-pointer transition-colors data-[state=checked]:bg-brand-orange-light data-[state=checked]:text-brand-orange data-[state=checked]:font-semibold"
                 >
                   <div className="flex items-center gap-2 truncate">
                     {opt.icon && <span className="shrink-0">{opt.icon}</span>}
                     <Select.ItemText>{opt.label}</Select.ItemText>
                   </div>
-                  <Select.ItemIndicator className="ml-2 shrink-0 text-[#1D4ED8]">
-                    <Check className="w-3.5 h-3.5" />
+                  <Select.ItemIndicator className="ml-2 shrink-0 text-brand-orange">
+                    <Check className="w-4 h-4" />
                   </Select.ItemIndicator>
                 </Select.Item>
               ))}

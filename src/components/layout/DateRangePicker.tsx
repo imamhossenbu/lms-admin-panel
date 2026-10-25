@@ -3,6 +3,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Calendar as CalendarIcon, ChevronDown, ChevronLeft, ChevronRight, Check } from "lucide-react";
 import { toast } from "sonner";
+import { PrimaryButton } from "@/components/ui/primary-button";
+import { SecondaryButton } from "@/components/ui/secondary-button";
 
 interface DateRangePickerProps {
   initialRange?: string;
@@ -95,11 +97,11 @@ export function DateRangePicker({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 rounded-lg border border-dash bg-white body-sm-medium text-primary-500 shadow-2xs hover:bg-slate-50 transition-colors cursor-pointer"
+        className="h-10 flex items-center gap-2 px-3.5 rounded-lg border border-dash bg-white body-md-medium text-primary-500 shadow-2xs hover:bg-slate-50 transition-colors cursor-pointer"
       >
         <CalendarIcon className="w-4 h-4 text-primary-400 shrink-0" />
-        <span className="whitespace-nowrap text-xs sm:text-sm">{displayedRange}</span>
-        <ChevronDown className="w-3.5 h-3.5 text-primary-300 shrink-0" />
+        <span className="whitespace-nowrap body-md-medium">{displayedRange}</span>
+        <ChevronDown className="w-4 h-4 text-primary-300 shrink-0" />
       </button>
 
       {/* Floating Date Range Picker Card */}
@@ -116,7 +118,7 @@ export function DateRangePicker({
                   key={p}
                   type="button"
                   onClick={() => handlePresetSelect(p)}
-                  className={`w-full text-left px-2.5 py-1.5 rounded-lg body-sm-medium transition-colors flex items-center justify-between cursor-pointer ${
+                  className={`w-full text-left px-2.5 py-2 rounded-lg body-md-medium transition-colors flex items-center justify-between cursor-pointer ${
                     selectedPreset === p
                       ? "bg-brand-orange-light text-brand-orange font-bold"
                       : "text-primary-400 hover:bg-slate-100 hover:text-primary-500"
@@ -210,20 +212,18 @@ export function DateRangePicker({
             </span>
 
             <div className="flex items-center gap-2 shrink-0">
-              <button
-                type="button"
+              <SecondaryButton
+                size="sm"
                 onClick={() => setIsOpen(false)}
-                className="px-3 py-1.5 rounded-lg border border-dash body-xsm-medium text-primary-400 hover:bg-slate-100 transition-colors cursor-pointer"
               >
                 Cancel
-              </button>
-              <button
-                type="button"
+              </SecondaryButton>
+              <PrimaryButton
+                size="sm"
                 onClick={handleApply}
-                className="px-3.5 py-1.5 rounded-lg bg-brand-orange hover:bg-brand-orange-hover text-white body-xsm-medium font-semibold shadow-xs transition-colors cursor-pointer"
               >
                 Apply Range
-              </button>
+              </PrimaryButton>
             </div>
           </div>
         </div>

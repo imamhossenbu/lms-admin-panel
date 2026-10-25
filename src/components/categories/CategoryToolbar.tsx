@@ -40,7 +40,6 @@ export function CategoryToolbar({
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search categories..."
             leftElement={<Search className="w-4 h-4 text-primary-300" />}
-            className="!h-[38px] text-[13.5px]"
           />
         </div>
 
@@ -55,11 +54,11 @@ export function CategoryToolbar({
       </div>
 
       {/* View Mode Toggle Buttons */}
-      <div className="flex items-center gap-1.5 self-end sm:self-auto bg-slate-50 p-1 rounded-lg border border-dash">
+      <div className="h-10 flex items-center gap-1 self-end sm:self-auto bg-slate-50 p-1 rounded-lg border border-dash">
         <button
           type="button"
           onClick={() => onViewModeChange("table")}
-          className={`flex items-center gap-1.5 px-3 py-1 rounded-md body-sm-medium transition-all cursor-pointer ${
+          className={`h-full flex items-center gap-1.5 px-3 rounded-md body-sm-medium transition-all cursor-pointer ${
             viewMode === "table"
               ? "bg-white text-primary-500 font-semibold shadow-2xs border border-dash"
               : "text-primary-400 hover:text-primary-500"
@@ -73,7 +72,7 @@ export function CategoryToolbar({
         <button
           type="button"
           onClick={() => onViewModeChange("grid")}
-          className={`flex items-center gap-1.5 px-3 py-1 rounded-md body-sm-medium transition-all cursor-pointer ${
+          className={`h-full flex items-center gap-1.5 px-3 rounded-md body-sm-medium transition-all cursor-pointer ${
             viewMode === "grid"
               ? "bg-white text-primary-500 font-semibold shadow-2xs border border-dash"
               : "text-primary-400 hover:text-primary-500"

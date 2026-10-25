@@ -53,9 +53,9 @@ export function AppDropdownMenu({
                 disabled={item.disabled}
                 onSelect={item.onClick}
                 className={cn(
-                  "relative flex items-center gap-2 select-none py-1.5 px-2.5 rounded-lg text-xs font-medium cursor-pointer transition-colors outline-none",
+                  "relative flex items-center gap-2.5 select-none py-2 px-3 rounded-lg body-md-medium cursor-pointer transition-colors outline-none",
                   item.danger
-                    ? "text-[#DC2626] hover:bg-rose-50 focus:bg-rose-50"
+                    ? "text-red hover:bg-red-14 focus:bg-red-14"
                     : "text-primary-500 hover:bg-slate-50 focus:bg-slate-50",
                   item.disabled && "opacity-50 cursor-not-allowed pointer-events-none"
                 )}

@@ -134,23 +134,23 @@ export function UsersTableClient() {
     {
       header: "Actions",
       cell: (u) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <button
             onClick={() => setEditingUser(u)}
-            className="p-1.5 rounded-[6px] hover:bg-[#F3F4F6] text-[#1C4D8D] transition-colors cursor-pointer"
+            className="w-7 h-7 flex items-center justify-center rounded-lg border border-dash bg-white hover:bg-brand-orange-light text-primary-400 hover:text-brand-orange hover:border-brand-orange/40 transition-colors cursor-pointer shadow-2xs"
             title="Edit User"
           >
-            <Edit3 className="w-4 h-4" />
+            <Edit3 className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={() => handleToggleStatus(u)}
-            className="p-1.5 rounded-[6px] hover:bg-[#F3F4F6] transition-colors cursor-pointer"
+            className="w-7 h-7 flex items-center justify-center rounded-lg border border-dash bg-white hover:bg-slate-50 transition-colors cursor-pointer shadow-2xs"
             title={u.status === "ACTIVE" ? "Block User" : "Activate User"}
           >
             {u.status === "ACTIVE" ? (
-              <ShieldAlert className="w-4 h-4 text-rose-500" />
+              <ShieldAlert className="w-3.5 h-3.5 text-red" />
             ) : (
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-green" />
             )}
           </button>
         </div>
@@ -179,7 +179,7 @@ export function UsersTableClient() {
             placeholder="Search by name, email or phone..."
             value={search}
             onChange={(e) => handleSearchChange(e.target.value)}
-            className="w-full h-[40px] pl-10 pr-3.5 rounded-[8px] border border-[#EDEDED] body-sm-regular text-primary-500 bg-white placeholder:text-[#969696] focus:outline-none focus:border-[#1C4D8D]"
+            className="w-full h-[40px] pl-10 pr-3.5 rounded-[8px] border border-dash body-sm-regular text-primary-500 bg-white placeholder:text-[#969696] focus:outline-none focus:border-brand-orange"
           />
         </div>
       </div>

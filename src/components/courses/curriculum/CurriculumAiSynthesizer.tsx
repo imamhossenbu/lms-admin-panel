@@ -107,7 +107,7 @@ export function CurriculumAiSynthesizer({
           <SecondaryButton
             type="button"
             onClick={onDiscard}
-            className="h-[32px] px-3 text-xs"
+            size="sm"
           >
             Discard
           </SecondaryButton>
@@ -115,7 +115,7 @@ export function CurriculumAiSynthesizer({
             type="button"
             onClick={onApply}
             isLoading={isApplying}
-            className="h-[32px] px-3.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-700"
+            size="sm"
           >
             Apply All to Course
           </PrimaryButton>
@@ -134,14 +134,14 @@ export function CurriculumAiSynthesizer({
                 type="text"
                 value={mod.moduleTitle}
                 onChange={(e) => handleModuleTitleChange(mIdx, e.target.value)}
-                className="body-sm-medium text-[#0F2854] font-bold flex-1 px-2 py-1 rounded bg-[#F8F9FA] border border-transparent focus:border-[#1C4D8D] focus:bg-white outline-none transition-all"
+                className="body-sm-medium text-[#0F2854] font-bold flex-1 px-2 py-1 rounded bg-[#F8F9FA] border border-transparent focus:border-brand-orange focus:bg-white outline-none transition-all"
               />
 
               <div className="flex items-center gap-1.5 shrink-0">
                 <button
                   type="button"
                   onClick={() => handleAddLesson(mIdx)}
-                  className="px-2 py-0.5 rounded text-[11px] font-medium text-[#1C4D8D] bg-blue-50 hover:bg-blue-100 flex items-center gap-1 cursor-pointer"
+                  className="px-2 py-0.5 rounded text-[11px] font-medium text-brand-orange bg-brand-orange-light hover:bg-[#FFE8D9] flex items-center gap-1 cursor-pointer"
                 >
                   <Plus className="w-3 h-3" />
                   <span>Lesson</span>

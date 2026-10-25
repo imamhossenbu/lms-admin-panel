@@ -83,9 +83,9 @@ export function QuickCategoryAdd({
   };
 
   return (
-    <div className="p-3.5 rounded-[10px] bg-blue-50/50 border border-blue-200/60 space-y-3 animate-in fade-in duration-200">
+    <div className="p-3.5 rounded-[10px] bg-brand-orange-soft border border-brand-orange/20 space-y-3 animate-in fade-in duration-200">
       <div className="flex items-center justify-between">
-        <span className="body-xs-medium text-[#1C4D8D] font-bold flex items-center gap-1.5">
+        <span className="body-xs-medium text-brand-orange font-bold flex items-center gap-1.5">
           <FolderPlus className="w-3.5 h-3.5" />
           <span>Quick Create New Category</span>
         </span>
@@ -93,7 +93,7 @@ export function QuickCategoryAdd({
           <button
             type="button"
             onClick={onOpenCategoryManager}
-            className="body-xsm-regular text-primary-400 hover:text-[#1C4D8D] underline cursor-pointer"
+            className="body-xsm-regular text-primary-400 hover:text-brand-orange hover:underline cursor-pointer"
           >
             Open Category Hub →
           </button>

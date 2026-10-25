@@ -39,7 +39,7 @@ export function PillTabs({
             onClick={() => onChange(tab.id)}
             className={`relative whitespace-nowrap px-3 py-1.5 rounded-[6px] body-xsm-medium transition-colors duration-150 cursor-pointer flex items-center shrink-0 z-10 ${
               isActive
-                ? "text-[#1C4D8D] font-semibold"
+                ? "text-brand-orange font-semibold"
                 : "text-primary-300 hover:text-primary-500"
             }`}
           >
@@ -55,7 +55,7 @@ export function PillTabs({
               <span
                 className={`ml-1.5 rounded-full px-1.5 py-0.5 body-xsm-medium font-semibold leading-none ${
                   isActive
-                    ? "bg-[#EBF4FC] text-[#1C4D8D]"
+                    ? "bg-brand-orange-light text-brand-orange"
                     : "bg-[#E5E7EB] text-primary-400"
                 }`}
               >

@@ -185,7 +185,7 @@ function CreateCategoryContent() {
                 onClick={() => setIcon(em)}
                 className={`w-9 h-9 text-lg rounded-[6px] flex items-center justify-center transition-transform hover:scale-110 cursor-pointer ${
                   icon === em
-                    ? "bg-[#1C4D8D] text-white shadow-sm ring-2 ring-[#1C4D8D]/30"
+                    ? "bg-brand-orange text-white shadow-sm ring-2 ring-brand-orange/30"
                     : "bg-white hover:bg-slate-100 border border-gray-200"
                 }`}
               >
@@ -204,7 +204,7 @@ function CreateCategoryContent() {
               type="button"
               onClick={() => iconInputRef.current?.click()}
               disabled={isUploadingIcon}
-              className="h-9 px-3 rounded-[6px] bg-white border border-[#EDEDED] hover:border-[#1C4D8D] text-[#1C4D8D] text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 ml-auto"
+              className="h-9 px-3 rounded-[6px] bg-white border border-[#EDEDED] hover:border-brand-orange text-brand-orange text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 ml-auto"
             >
               {isUploadingIcon ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -226,7 +226,7 @@ function CreateCategoryContent() {
             value={desc}
             onChange={(e) => setDesc(e.target.value)}
             placeholder="Describe what courses belong to this category and the core competencies learners will achieve..."
-            className="w-full px-3.5 py-2.5 rounded-[8px] border border-[#EDEDED] bg-white body-sm-regular text-primary-500 placeholder:text-gray-400 focus:outline-none focus:border-[#1C4D8D] focus:ring-1 focus:ring-[#1C4D8D] transition-all resize-y"
+            className="w-full px-3.5 py-2.5 rounded-[8px] border border-[#EDEDED] bg-white body-sm-regular text-primary-500 placeholder:text-gray-400 focus:outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange transition-all resize-y"
           />
         </div>
 

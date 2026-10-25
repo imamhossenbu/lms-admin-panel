@@ -39,13 +39,13 @@ export function RevenueChart() {
       action={
         <div className="flex items-center gap-2">
           {/* Metric Selector Pills */}
-          <div className="inline-flex items-center p-1 bg-[#F3F4F6] rounded-[8px] border border-[#EDEDED]">
+          <div className="inline-flex items-center p-1 bg-slate-100 rounded-[8px] border border-dash">
             <button
               type="button"
               onClick={() => setMetric("revenue")}
               className={`px-3 py-1 body-xsm-medium rounded-[6px] transition-all flex items-center gap-1.5 cursor-pointer ${
                 metric === "revenue"
-                  ? "bg-white text-[#FF5B00] shadow-2xs border border-[#EDEDED]"
+                  ? "bg-white text-brand-orange shadow-2xs border border-dash font-semibold"
                   : "text-primary-400 hover:text-primary-500"
               }`}
             >
@@ -57,7 +57,7 @@ export function RevenueChart() {
               onClick={() => setMetric("enrollments")}
               className={`px-3 py-1 body-xsm-medium rounded-[6px] transition-all flex items-center gap-1.5 cursor-pointer ${
                 metric === "enrollments"
-                  ? "bg-white text-[#FF5B00] shadow-2xs border border-[#EDEDED]"
+                  ? "bg-white text-brand-orange shadow-2xs border border-dash font-semibold"
                   : "text-primary-400 hover:text-primary-500"
               }`}
             >

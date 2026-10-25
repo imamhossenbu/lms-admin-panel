@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { ModalShell } from "@/components/ui/ModalShell";
 import { PrimaryButton } from "@/components/ui/primary-button";
+import { SecondaryButton } from "@/components/ui/secondary-button";
 import { InputField } from "@/components/ui/InputField";
 import { DropdownSelect } from "@/components/ui/DropdownSelect";
 import { aiApi } from "@/lib/api";
@@ -244,7 +245,7 @@ export function AiSyllabusModal({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={2}
-              className="w-full p-3 rounded-[8px] border border-[#EDEDED] text-primary-500 body-sm-regular focus:border-[#1C4D8D] focus:outline-none transition-colors"
+              className="w-full p-3 rounded-[8px] border border-[#EDEDED] text-primary-500 body-sm-regular focus:border-brand-orange focus:outline-none transition-colors"
               style={{ boxShadow: "0px 1px 2px 0px rgba(13, 13, 18, 0.05)" }}
               placeholder="Provide context, required tools, or target learning outcomes..."
             />
@@ -254,7 +255,7 @@ export function AiSyllabusModal({
             type="submit"
             fullWidth
             isLoading={isGenerating}
-            leftIcon={<Sparkles className="w-4 h-4 text-sky-200" />}
+            leftIcon={<Sparkles className="w-4 h-4 text-white/80" />}
           >
             {isGenerating ? "Compiling Syllabus with Gemini..." : "Generate Curriculum Outline"}
           </PrimaryButton>
@@ -266,7 +267,7 @@ export function AiSyllabusModal({
             <div className="flex items-center justify-between">
               <div>
                 <h4 className="body-sm-medium text-primary-500 font-bold flex items-center gap-1.5">
-                  <ListChecks className="w-4 h-4 text-[#1C4D8D]" />
+                  <ListChecks className="w-4 h-4 text-brand-orange" />
                   <span>Synthesized Course Structure ({generatedResult.modules?.length || 0} Modules)</span>
                 </h4>
                 <p className="body-xsm-regular subtext-500 mt-0.5">
@@ -274,22 +275,22 @@ export function AiSyllabusModal({
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                <button
+                <SecondaryButton
+                  size="sm"
                   type="button"
                   onClick={handleAddModule}
-                  className="px-2.5 h-[34px] rounded-[8px] border border-[#EDEDED] hover:bg-[#F8F9FA] text-primary-500 body-xsm-medium font-bold flex items-center gap-1 cursor-pointer"
+                  leftIcon={<Plus className="w-3.5 h-3.5" />}
                 >
-                  <Plus className="w-3.5 h-3.5 text-[#1C4D8D]" />
-                  <span>Add Module</span>
-                </button>
-                <button
+                  Add Module
+                </SecondaryButton>
+                <PrimaryButton
+                  size="sm"
                   type="button"
                   onClick={handleApply}
-                  className="px-3.5 h-[34px] rounded-[8px] bg-emerald-600 hover:bg-emerald-700 text-white body-sm-medium font-bold shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+                  rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
                 >
-                  <span>Draft as Course</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
+                  Draft as Course
+                </PrimaryButton>
               </div>
             </div>
 
@@ -304,11 +305,11 @@ export function AiSyllabusModal({
                       type="text"
                       value={m.title}
                       onChange={(e) => handleEditModuleTitle(mIdx, e.target.value)}
-                      className="body-sm-medium text-primary-500 font-bold w-full bg-transparent border-b border-transparent hover:border-[#EDEDED] focus:border-[#1C4D8D] focus:bg-white px-1.5 py-0.5 rounded transition-all focus:outline-none"
+                      className="body-sm-medium text-primary-500 font-bold w-full bg-transparent border-b border-transparent hover:border-[#EDEDED] focus:border-brand-orange focus:bg-white px-1.5 py-0.5 rounded transition-all focus:outline-none"
                     />
 
                     <div className="flex items-center gap-1 shrink-0">
-                      <span className="body-xsm-medium text-[#1C4D8D] bg-blue-50 px-2 py-0.5 rounded border border-[#BDE8F5]/60">
+                      <span className="body-xsm-medium text-brand-orange bg-brand-orange-light px-2 py-0.5 rounded border border-brand-orange/20">
                         Phase {mIdx + 1}
                       </span>
                       <button

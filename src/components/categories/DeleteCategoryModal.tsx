@@ -50,9 +50,9 @@ export function DeleteCategoryModal({
           </SecondaryButton>
           <PrimaryButton
             type="button"
+            variant="danger"
             onClick={handleDelete}
             disabled={isDeleting}
-            className="bg-rose-600 hover:bg-rose-700 text-white"
           >
             {isDeleting ? "Deleting..." : "Delete Permanently"}
           </PrimaryButton>

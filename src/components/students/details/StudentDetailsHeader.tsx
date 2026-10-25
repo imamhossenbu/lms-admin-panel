@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { AppDropdownMenu } from "@/components/ui/AppDropdownMenu";
 import { ToneBadge } from "@/components/ui/ToneBadge";
+import { PrimaryButton } from "@/components/ui/primary-button";
 import { StudentFullDetails } from "./mockStudentDetails";
 
 interface StudentDetailsHeaderProps {
@@ -79,21 +80,20 @@ export function StudentDetailsHeader({
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2.5 self-start lg:self-auto shrink-0 relative">
-          <button
+          <PrimaryButton
             type="button"
             onClick={onEdit}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue hover:opacity-90 active:opacity-80 text-white body-sm-medium transition-all shadow-sm cursor-pointer"
+            icon={<Edit3 className="w-4 h-4 stroke-[2.2]" />}
           >
-            <Edit3 className="w-4 h-4 stroke-[2.2]" />
-            <span>Edit Student</span>
-          </button>
+            Edit Student
+          </PrimaryButton>
 
           {/* More options button with Radix UI dropdown menu */}
           <AppDropdownMenu
             trigger={
               <button
                 type="button"
-                className="p-2 rounded-lg border border-dash bg-white text-primary-400 hover:text-primary-500 hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer"
+                className="w-10 h-10 rounded-lg border border-dash bg-white text-primary-400 hover:text-primary-500 hover:bg-slate-50 transition-colors shadow-2xs flex items-center justify-center cursor-pointer"
                 title="More options"
               >
                 <MoreHorizontal className="w-4 h-4" />

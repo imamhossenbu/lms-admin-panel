@@ -52,7 +52,7 @@ export function CoursesFilterToolbar({
             placeholder="Search courses by title, topic, or instructor..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full h-10 pl-9 pr-3 rounded-[8px] border border-[#EDEDED] body-sm-regular text-primary-500 placeholder:text-primary-300 focus:outline-none focus:border-[#1C4D8D]"
+            className="w-full h-10 pl-9 pr-3 rounded-[8px] border border-dash body-sm-regular text-primary-500 placeholder:text-primary-300 focus:outline-none focus:border-brand-orange"
           />
         </div>
 
@@ -75,13 +75,13 @@ export function CoursesFilterToolbar({
           </div>
 
           {/* Grid / Table View Toggle */}
-          <div className="flex items-center p-1 rounded-[8px] bg-[#F8F9FA] border border-[#EDEDED]">
+          <div className="h-10 flex items-center p-1 rounded-[8px] bg-[#F8F9FA] border border-dash">
             <button
               type="button"
               onClick={() => onViewModeChange("grid")}
-              className={`p-1.5 rounded-[6px] transition-all cursor-pointer ${
+              className={`h-full px-2.5 rounded-[6px] flex items-center justify-center transition-all cursor-pointer ${
                 viewMode === "grid"
-                  ? "bg-white text-[#1C4D8D] shadow-2xs"
+                  ? "bg-white text-brand-orange shadow-2xs"
                   : "text-primary-400 hover:text-primary-500"
               }`}
               title="Grid View"
@@ -91,9 +91,9 @@ export function CoursesFilterToolbar({
             <button
               type="button"
               onClick={() => onViewModeChange("table")}
-              className={`p-1.5 rounded-[6px] transition-all cursor-pointer ${
+              className={`h-full px-2.5 rounded-[6px] flex items-center justify-center transition-all cursor-pointer ${
                 viewMode === "table"
-                  ? "bg-white text-[#1C4D8D] shadow-2xs"
+                  ? "bg-white text-brand-orange shadow-2xs"
                   : "text-primary-400 hover:text-primary-500"
               }`}
               title="Table View"

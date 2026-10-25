@@ -53,12 +53,12 @@ export const OutlineButton = React.forwardRef<
         transition={{ duration: 0.12 }}
         className={`
           inline-flex items-center justify-center whitespace-nowrap
-          bg-white text-[#1C4D8D] border border-[#1C4D8D]
-          hover:bg-[#EBF4FC] active:bg-[#D8EBF9]
-          shadow-[0px_1px_2px_rgba(28,77,141,0.06)]
+          bg-white text-brand-orange border border-brand-orange/40
+          hover:bg-brand-orange-light hover:border-brand-orange active:bg-brand-orange-soft
+          shadow-2xs
           transition-colors duration-150 select-none
           cursor-pointer disabled:cursor-not-allowed disabled:opacity-50
-          focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1C4D8D] focus-visible:ring-offset-2
+          focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/30 focus-visible:ring-offset-2
           ${sizeStyles[size]}
           ${fullWidth ? "w-full" : "w-auto min-w-fit"}
           ${className}
@@ -68,7 +68,7 @@ export const OutlineButton = React.forwardRef<
         {/* Loading Spinner */}
         {isLoading && (
           <svg
-            className="animate-spin w-4 h-4 shrink-0 text-[#1C4D8D]"
+            className="animate-spin w-4 h-4 shrink-0 text-brand-orange"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"

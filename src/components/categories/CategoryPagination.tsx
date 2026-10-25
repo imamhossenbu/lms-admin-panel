@@ -45,6 +45,7 @@ export function CategoryPagination({
             onClick={() => onPageChange(Math.max(1, currentPage - 1))}
             disabled={currentPage === 1}
             className="w-8 h-8 rounded-lg border border-dash flex items-center justify-center text-primary-400 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+            title="Previous Page"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
@@ -74,6 +75,7 @@ export function CategoryPagination({
             onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
             disabled={currentPage >= totalPages}
             className="w-8 h-8 rounded-lg border border-dash flex items-center justify-center text-primary-400 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+            title="Next Page"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
@@ -86,7 +88,7 @@ export function CategoryPagination({
               options={PAGE_SIZE_OPTIONS}
               value={String(pageSize)}
               onChange={(val) => onPageSizeChange(Number(val))}
-              buttonClassName="!h-8 !py-1 text-[13px] border-dash rounded-lg px-2.5"
+              buttonClassName="!h-8 !py-1 body-sm-medium border-dash rounded-lg px-2.5"
               menuClassName="min-w-[116px] w-[116px]"
               align="right"
               direction="up"

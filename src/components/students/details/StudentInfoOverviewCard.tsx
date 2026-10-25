@@ -5,6 +5,8 @@ import { User, Edit2, Check, X } from "lucide-react";
 import toast from "react-hot-toast";
 import { AppSelect } from "@/components/ui/AppSelect";
 import { ToneBadge } from "@/components/ui/ToneBadge";
+import { PrimaryButton } from "@/components/ui/primary-button";
+import { SecondaryButton } from "@/components/ui/secondary-button";
 import { StudentFullDetails } from "./mockStudentDetails";
 
 interface StudentInfoOverviewCardProps {
@@ -95,32 +97,29 @@ export function StudentInfoOverviewCard({
         </div>
 
         {!isEditing ? (
-          <button
-            type="button"
+          <SecondaryButton
+            size="sm"
             onClick={handleStartEditing}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-dash bg-white text-primary-500 hover:bg-slate-50 body-xsm-medium transition-colors shadow-2xs cursor-pointer"
+            leftIcon={<Edit2 className="w-3.5 h-3.5 text-primary-400" />}
           >
-            <Edit2 className="w-3.5 h-3.5 text-primary-400" />
-            <span>Edit</span>
-          </button>
+            Edit
+          </SecondaryButton>
         ) : (
           <div className="flex items-center gap-2">
-            <button
-              type="button"
+            <SecondaryButton
+              size="sm"
               onClick={handleCancel}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-dash bg-white text-primary-400 hover:text-primary-500 hover:bg-slate-50 body-xsm-medium transition-colors cursor-pointer"
+              leftIcon={<X className="w-3.5 h-3.5" />}
             >
-              <X className="w-3.5 h-3.5" />
-              <span>Cancel</span>
-            </button>
-            <button
-              type="button"
+              Cancel
+            </SecondaryButton>
+            <PrimaryButton
+              size="sm"
               onClick={handleSave}
-              className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-blue hover:opacity-90 text-white body-xsm-medium font-medium transition-colors shadow-xs cursor-pointer"
+              leftIcon={<Check className="w-3.5 h-3.5 stroke-[2.5]" />}
             >
-              <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-              <span>Save</span>
-            </button>
+              Save
+            </PrimaryButton>
           </div>
         )}
       </div>

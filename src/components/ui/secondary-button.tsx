@@ -53,12 +53,12 @@ export const SecondaryButton = React.forwardRef<
         transition={{ duration: 0.12 }}
         className={`
           inline-flex items-center justify-center whitespace-nowrap
-          bg-white text-primary-500 border border-[#EDEDED]
-          hover:bg-[#F9FAFB] hover:border-[#D1D5DB] active:bg-[#F3F4F6]
-          shadow-[0px_1px_2px_rgba(16,24,40,0.05)]
+          bg-white text-primary-500 border border-dash
+          hover:bg-slate-50 hover:border-slate-300 active:bg-slate-100
+          shadow-2xs
           transition-colors duration-150 select-none
           cursor-pointer disabled:cursor-not-allowed disabled:opacity-50
-          focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1C4D8D] focus-visible:ring-offset-2
+          focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/30 focus-visible:ring-offset-2
           ${sizeStyles[size]}
           ${fullWidth ? "w-full" : "w-auto min-w-fit"}
           ${className}

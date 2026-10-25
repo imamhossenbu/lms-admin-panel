@@ -706,20 +706,19 @@ export function InstructorDetailsDrawer({
                           This will deactivate their portal access and unassign their courses.
                         </p>
                         <div className="flex items-center gap-2 pt-1">
-                          <button
-                            type="button"
+                          <PrimaryButton
+                            variant="danger"
+                            size="sm"
                             onClick={handleDelete}
-                            className="px-3 py-1.5 rounded-lg bg-red text-white body-sm-medium font-semibold hover:bg-red-dark transition-colors cursor-pointer"
                           >
                             Yes, Remove
-                          </button>
-                          <button
-                            type="button"
+                          </PrimaryButton>
+                          <SecondaryButton
+                            size="sm"
                             onClick={() => setShowDeleteConfirm(false)}
-                            className="px-3 py-1.5 rounded-lg border border-dash bg-white text-primary-400 body-sm-medium hover:bg-slate-50 transition-colors cursor-pointer"
                           >
                             Cancel
-                          </button>
+                          </SecondaryButton>
                         </div>
                       </div>
                     ) : (
@@ -734,14 +733,14 @@ export function InstructorDetailsDrawer({
                     )}
 
                     {!showDeleteConfirm && (
-                      <button
-                        type="button"
+                      <PrimaryButton
+                        size="md"
                         onClick={() => setIsSendMessageOpen((prev) => !prev)}
-                        className="py-2.5 px-3 rounded-xl bg-brand-orange text-white hover:bg-brand-orange-hover body-sm-medium font-semibold flex items-center justify-center gap-2 transition-colors shadow-2xs cursor-pointer"
+                        leftIcon={<Send className="w-4 h-4 shrink-0" />}
+                        className="w-full justify-center"
                       >
-                        <Send className="w-4 h-4 shrink-0" />
-                        <span className="truncate">Send Message</span>
-                      </button>
+                        Send Message
+                      </PrimaryButton>
                     )}
                   </div>
                 </div>

@@ -26,7 +26,7 @@ export function QuickDemoAccessBar({
   };
 
   return (
-    <div className="mb-5 p-3 rounded-xl bg-[#FFF4ED] border border-[#FF5B00]/20 flex items-center justify-between gap-3 text-left">
+    <div className="mb-5 p-3 rounded-xl bg-brand-orange-light border border-brand-orange/20 flex items-center justify-between gap-3 text-left">
       <div className="min-w-0">
         <span className="body-xsm-medium font-bold text-brand-orange uppercase tracking-wider block">
           Quick Demo Access
@@ -38,7 +38,7 @@ export function QuickDemoAccessBar({
       <button
         type="button"
         onClick={handleFill}
-        className="px-2.5 py-1 rounded-lg bg-brand-orange hover:bg-[#EA5200] text-white body-xsm-medium font-semibold shrink-0 transition-colors shadow-2xs flex items-center gap-1 cursor-pointer"
+        className="px-2.5 py-1 rounded-lg bg-brand-orange hover:bg-brand-orange-hover text-white body-xsm-medium font-semibold shrink-0 transition-colors shadow-2xs flex items-center gap-1 cursor-pointer"
       >
         {copied ? (
           <>

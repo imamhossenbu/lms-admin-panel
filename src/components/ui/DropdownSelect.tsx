@@ -95,11 +95,11 @@ export function DropdownSelect({
           className="block body-sm-regular text-primary-400 mb-2 select-none"
         >
           {effectiveLabel}
-          {required && <span className="text-[#F04438] ml-0.5">*</span>}
+          {required && <span className="text-red ml-0.5">*</span>}
         </label>
       )}
 
-      {/* Trigger Button styled matching agency's exact spec */}
+      {/* Trigger Button styled with strict globals.css tokens & body-md-medium typography */}
       <button
         type="button"
         id={id}
@@ -111,11 +111,11 @@ export function DropdownSelect({
           boxShadow: "0px 1px 2px 0px rgba(13, 13, 18, 0.05)",
         }}
         className={cn(
-          "flex h-[40px] w-full items-center justify-between gap-2 rounded-[8px] border border-[#EDEDED] bg-white px-3.5 py-2 body-sm-regular leading-tight transition-all outline-none cursor-pointer select-none",
-          "hover:border-[#D1D5DB] focus:border-[#1C4D8D]",
-          open && "border-[#1C4D8D] ring-2 ring-[#1C4D8D]/10",
+          "flex h-[40px] w-full items-center justify-between gap-2.5 rounded-lg border border-dash bg-white px-3.5 py-2 body-md-medium transition-all outline-none cursor-pointer select-none",
+          "hover:border-slate-300 focus:border-brand-orange",
+          open && "border-brand-orange ring-2 ring-brand-orange/10",
           disabled && "opacity-50 cursor-not-allowed",
-          value ? "text-primary-500 font-medium" : "text-[#7F8482]",
+          value ? "text-primary-500 font-medium" : "subtext-500",
           buttonClassName
         )}
       >
@@ -135,7 +135,7 @@ export function DropdownSelect({
         />
       </button>
 
-      {/* Card System Popover Dropdown (Metabari Agency Elevated Card) */}
+      {/* Card System Popover Dropdown with globals tokens */}
       <AnimatePresence>
         {open && (
           <motion.div
@@ -144,14 +144,8 @@ export function DropdownSelect({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: isUp ? 6 : -6, scale: 0.98 }}
             transition={{ duration: 0.15, ease: "easeOut" }}
-            style={{
-              background: "#FFFFFF",
-              border: "1px solid #EDEDED",
-              boxShadow:
-                "0px 10px 25px -5px rgba(14, 32, 56, 0.1), 0px 8px 10px -6px rgba(14, 32, 56, 0.05)",
-            }}
             className={cn(
-              "absolute z-50 min-w-[200px] w-full rounded-[10px] p-1.5 bg-white max-h-64 overflow-y-auto scrollbar-none",
+              "absolute z-50 min-w-[200px] w-full rounded-xl p-1.5 bg-white border border-dash shadow-lg max-h-64 overflow-y-auto scrollbar-none",
               isUp ? "bottom-full mb-1.5" : "mt-1.5",
               alignClass,
               menuClassName
@@ -170,10 +164,10 @@ export function DropdownSelect({
                     setOpen(false);
                   }}
                   className={cn(
-                    "w-full rounded-[6px] px-3 py-2 text-left body-sm-regular transition-colors cursor-pointer flex items-center justify-between gap-2",
+                    "w-full rounded-lg px-3 py-2 text-left body-md-medium transition-colors cursor-pointer flex items-center justify-between gap-2.5",
                     isSelected
-                      ? "bg-[#F3F4F6] text-[#1C4D8D] font-semibold"
-                      : "text-primary-500 hover:bg-[#F8F9FA]",
+                      ? "bg-brand-orange-light text-brand-orange font-semibold"
+                      : "text-primary-500 hover:bg-slate-50",
                     optionClassName
                   )}
                 >
@@ -182,7 +176,7 @@ export function DropdownSelect({
                     <span className="truncate">{opt.label}</span>
                   </div>
                   {isSelected && (
-                    <Check className="w-3.5 h-3.5 text-[#1C4D8D] shrink-0" />
+                    <Check className="w-4 h-4 text-brand-orange shrink-0" />
                   )}
                 </button>
               );

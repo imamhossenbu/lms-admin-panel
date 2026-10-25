@@ -8,6 +8,8 @@ import { X, ChevronDown, Loader2 } from "lucide-react";
 import { CATEGORY_ICONS } from "@/data/mockCategoryData";
 import { CategoryIconRenderer } from "./CategoryIconRenderer";
 import { CategoryItem } from "@/types/category";
+import { PrimaryButton } from "@/components/ui/primary-button";
+import { SecondaryButton } from "@/components/ui/secondary-button";
 import { toast } from "sonner";
 
 const categorySchema = z.object({
@@ -230,32 +232,25 @@ export function AddCategoryCard({
 
         {/* Action Buttons */}
         <div className="pt-3 border-t border-dash flex items-center justify-between gap-3">
-          <button
+          <SecondaryButton
             type="button"
             onClick={() => {
               reset();
               setDescriptionCount(0);
               onClose?.();
             }}
-            className="px-4 py-2 rounded-lg border border-dash body-sm-medium text-primary-400 hover:bg-slate-50 transition-colors cursor-pointer"
+            disabled={isSubmitting}
           >
             Cancel
-          </button>
+          </SecondaryButton>
 
-          <button
+          <PrimaryButton
             type="submit"
+            isLoading={isSubmitting}
             disabled={isSubmitting}
-            className="px-5 py-2 rounded-lg bg-brand-orange hover:bg-brand-orange-hover text-white body-sm-medium font-semibold shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
           >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                <span>Creating...</span>
-              </>
-            ) : (
-              <span>Create Category</span>
-            )}
-          </button>
+            Create Category
+          </PrimaryButton>
         </div>
       </form>
     </div>

@@ -32,7 +32,7 @@ export function CourseEnrollmentTable({
                 onClick={onSelectAll}
                 className={`w-4 h-4 rounded border flex items-center justify-center transition-colors cursor-pointer ${
                   allSelected
-                    ? "bg-blue border-blue text-white"
+                    ? "bg-brand-orange border-brand-orange text-white"
                     : "border-dash bg-white hover:border-primary-300"
                 }`}
                 title="Select all courses"
@@ -57,7 +57,7 @@ export function CourseEnrollmentTable({
                 onClick={() => onToggleSelect(course.id)}
                 className={`transition-colors cursor-pointer select-none ${
                   isSelected
-                    ? "bg-[#EFF6FF]/60 hover:bg-[#EFF6FF]"
+                    ? "bg-brand-orange-soft/60 hover:bg-brand-orange-soft"
                     : "hover:bg-slate-50/70"
                 }`}
               >
@@ -68,7 +68,7 @@ export function CourseEnrollmentTable({
                     onClick={() => onToggleSelect(course.id)}
                     className={`w-4 h-4 rounded border flex items-center justify-center transition-colors cursor-pointer ${
                       isSelected
-                        ? "bg-blue border-blue text-white"
+                        ? "bg-brand-orange border-brand-orange text-white"
                         : "border-dash bg-white hover:border-primary-300"
                     }`}
                   >

@@ -175,8 +175,8 @@ export function NotificationDropdown() {
                 <div
                   key={item.id}
                   onClick={() => handleItemClick(item.id)}
-                  className={`p-4 flex items-start gap-3 transition-colors cursor-pointer hover:bg-slate-50/80 text-left ${
-                    !item.isRead ? "bg-[#FFF9F5]/60" : "bg-white"
+                  className={`p-4 flex items-start gap-3 transition-colors cursor-pointer hover:bg-slate-50 text-left ${
+                    !item.isRead ? "bg-brand-orange-light/30" : "bg-white"
                   }`}
                 >
                   <div
@@ -187,14 +187,14 @@ export function NotificationDropdown() {
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
-                      <p className="body-sm-medium text-primary-500 font-semibold truncate">
+                      <p className="body-md-medium text-primary-500 font-bold truncate">
                         {item.title}
                       </p>
-                      <span className="body-2xsm-regular text-primary-300 shrink-0">
+                      <span className="body-xsm-regular text-primary-300 shrink-0">
                         {item.timestamp}
                       </span>
                     </div>
-                    <p className="body-2xsm-regular text-primary-400 mt-0.5 line-clamp-2">
+                    <p className="body-sm-regular text-primary-400 mt-0.5 line-clamp-2">
                       {item.description}
                     </p>
                   </div>

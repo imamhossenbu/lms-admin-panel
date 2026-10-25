@@ -615,7 +615,7 @@ function EditCourseContent() {
           onClick={() => handleTabChange("curriculum")}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
             activeTab === "curriculum"
-              ? "bg-blue text-white shadow-2xs"
+              ? "bg-brand-orange text-white shadow-2xs"
               : "text-primary-400 hover:text-primary-500 hover:bg-slate-50"
           }`}
         >
@@ -628,7 +628,7 @@ function EditCourseContent() {
           onClick={() => handleTabChange("details")}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
             activeTab === "details"
-              ? "bg-blue text-white shadow-2xs"
+              ? "bg-brand-orange text-white shadow-2xs"
               : "text-primary-400 hover:text-primary-500 hover:bg-slate-50"
           }`}
         >

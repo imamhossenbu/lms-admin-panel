@@ -225,7 +225,7 @@ export function CategoryManagementModal({
           >
             <div className="flex items-center justify-between pb-3 border-b border-[#EDEDED]">
               <h4 className="body-sm-medium text-primary-500 font-semibold flex items-center gap-2">
-                <FolderPlus className="w-4 h-4 text-[#1C4D8D]" />
+                <FolderPlus className="w-4 h-4 text-brand-orange" />
                 <span>Create New Learning Category</span>
               </h4>
               <button
@@ -266,7 +266,7 @@ export function CategoryManagementModal({
                   maxLength={4}
                   value={icon}
                   onChange={(e) => setIcon(e.target.value)}
-                  className="w-12 h-[38px] text-center text-lg rounded-[8px] border border-[#EDEDED] bg-white focus:outline-none focus:border-[#1C4D8D]"
+                  className="w-12 h-[38px] text-center text-lg rounded-[8px] border border-[#EDEDED] bg-white focus:outline-none focus:border-brand-orange"
                 />
                 <span className="body-xsm-regular subtext-500 mr-2">Or choose:</span>
                 {emojiPresets.map((em) => (
@@ -276,7 +276,7 @@ export function CategoryManagementModal({
                     onClick={() => setIcon(em)}
                     className={`w-9 h-9 rounded-[8px] text-base flex items-center justify-center border transition-all cursor-pointer ${
                       icon === em
-                        ? "border-[#1C4D8D] bg-[#EBF4FC] shadow-2xs"
+                        ? "border-brand-orange bg-brand-orange-light text-brand-orange shadow-2xs"
                         : "border-[#EDEDED] bg-white hover:bg-gray-100"
                     }`}
                   >
@@ -295,7 +295,7 @@ export function CategoryManagementModal({
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Describe the scope of courses that belong in this department..."
-                className="w-full p-3 rounded-[8px] border border-[#EDEDED] text-primary-500 body-sm-regular outline-none focus:border-[#1C4D8D] bg-white"
+                className="w-full p-3 rounded-[8px] border border-[#EDEDED] text-primary-500 body-sm-regular outline-none focus:border-brand-orange bg-white"
               />
             </div>
 
@@ -356,8 +356,8 @@ export function CategoryManagementModal({
                 </div>
 
                 <div className="flex items-center gap-3 shrink-0">
-                  <span className="inline-flex items-center gap-1 body-xsm-medium text-[#1C4D8D] bg-blue-50 px-2.5 py-1 rounded-md border border-[#BDE8F5]/60">
-                    <BookOpen className="w-3.5 h-3.5 text-[#1C4D8D]" />
+                  <span className="inline-flex items-center gap-1 body-xsm-medium text-brand-orange bg-brand-orange-light px-2.5 py-1 rounded-md border border-brand-orange/20">
+                    <BookOpen className="w-3.5 h-3.5 text-brand-orange" />
                     <span>{cat._count?.courses || 0} Courses</span>
                   </span>
 

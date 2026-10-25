@@ -9,7 +9,7 @@ export interface PrimaryButtonProps
   icon?: React.ReactNode;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
-  variant?: "primary" | "secondary" | "outline" | "ghost";
+  variant?: "primary" | "secondary" | "outline" | "danger" | "ghost";
   size?: "sm" | "md" | "lg";
   fullWidth?: boolean;
   isLoading?: boolean;
@@ -38,16 +38,18 @@ export const PrimaryButton = React.forwardRef<
   ) => {
     const effectiveLeftIcon = leftIcon || icon;
 
-    // EduPro Brand Palette (#FF5B00)
+    // EduPro Unified Button Design Palette (Brand Orange #FF5B00, Red for Destructive)
     const variantStyles: Record<string, string> = {
       primary:
-        "bg-[#FF5B00] hover:bg-[#EA5200] active:bg-[#D44900] text-white shadow-sm border border-transparent",
+        "bg-brand-orange hover:bg-brand-orange-hover active:bg-brand-orange-active text-white shadow-2xs border border-transparent focus-visible:ring-brand-orange/40",
       secondary:
-        "bg-[#FFF4ED] hover:bg-[#FFE8D9] active:bg-[#FFDEC9] text-[#FF5B00] border border-[#FF5B00]/20",
+        "bg-brand-orange-light hover:bg-[#FFE8D9] active:bg-[#FFDEC9] text-brand-orange border border-brand-orange/20 focus-visible:ring-brand-orange/30",
       outline:
-        "bg-white hover:bg-[#F8FAFC] active:bg-[#F1F5F9] text-[#0E2038] border border-[#E5E7EB]",
+        "bg-white hover:bg-slate-50 active:bg-slate-100 text-primary-500 border border-dash hover:border-slate-300 shadow-2xs focus-visible:ring-brand-orange/30",
+      danger:
+        "bg-red hover:bg-red-dark active:bg-red-dark text-white shadow-2xs border border-transparent focus-visible:ring-red/40",
       ghost:
-        "bg-transparent hover:bg-[#F1F5F9] active:bg-[#E2E8F0] text-[#0E2038] border border-transparent",
+        "bg-transparent hover:bg-slate-100 active:bg-slate-200 text-primary-500 border border-transparent focus-visible:ring-brand-orange/30",
     };
 
     // Unified Button Heights: Default md is 40px
@@ -68,7 +70,7 @@ export const PrimaryButton = React.forwardRef<
         className={`
           inline-flex items-center justify-center whitespace-nowrap
           select-none cursor-pointer disabled:cursor-not-allowed disabled:opacity-50
-          focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1C4D8D] focus-visible:ring-offset-2
+          focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
           transition-colors duration-150
           ${variantStyles[variant]}
           ${sizeStyles[size]}

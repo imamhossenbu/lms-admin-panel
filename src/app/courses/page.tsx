@@ -52,7 +52,7 @@ export default function CoursesManagementPage() {
           leftIcon={
             <RotateCw
               className={`w-4 h-4 text-primary-300 ${
-                isRefreshing ? "animate-spin text-[#1C4D8D]" : ""
+                isRefreshing ? "animate-spin text-brand-orange" : ""
               }`}
             />
           }
@@ -63,7 +63,7 @@ export default function CoursesManagementPage() {
         </SecondaryButton>
 
         <SecondaryButton
-          leftIcon={<FolderPlus className="w-4 h-4 text-[#1C4D8D]" />}
+          leftIcon={<FolderPlus className="w-4 h-4 text-brand-orange" />}
           onClick={() => router.push("/categories")}
         >
           Categories

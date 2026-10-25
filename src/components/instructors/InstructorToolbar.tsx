@@ -68,7 +68,6 @@ export function InstructorToolbar({
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search instructors by name, email..."
             leftElement={<Search className="w-4 h-4 text-primary-300" />}
-            className="!h-[38px] text-[13.5px]"
           />
         </div>
 
@@ -105,8 +104,7 @@ export function InstructorToolbar({
         <SecondaryButton
           onClick={onExport}
           leftIcon={<Download className="w-4 h-4" />}
-          size="sm"
-          className="!h-[38px]"
+          size="md"
         >
           Export
         </SecondaryButton>

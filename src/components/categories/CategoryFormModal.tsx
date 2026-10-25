@@ -193,7 +193,7 @@ export function CategoryFormModal({
                 type="button"
                 onClick={() => iconInputRef.current?.click()}
                 disabled={isUploadingIcon}
-                className="px-3 py-1.5 rounded-[8px] bg-white border border-[#EDEDED] hover:border-[#1C4D8D] text-[#1C4D8D] body-xsm-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
+                className="px-3 py-1.5 rounded-[8px] bg-white border border-[#EDEDED] hover:border-brand-orange text-brand-orange body-xsm-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
               >
                 {isUploadingIcon ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -221,7 +221,7 @@ export function CategoryFormModal({
                   onClick={() => setIcon(emoji)}
                   className={`w-8 h-8 rounded-[6px] border text-base flex items-center justify-center transition-all cursor-pointer ${
                     icon === emoji
-                      ? "border-[#1C4D8D] bg-blue-50 ring-2 ring-[#1C4D8D]/20"
+                      ? "border-brand-orange bg-brand-orange-light ring-2 ring-brand-orange/20"
                       : "border-[#EDEDED] bg-white hover:bg-gray-50"
                   }`}
                 >

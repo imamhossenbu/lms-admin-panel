@@ -145,7 +145,7 @@ export function AdminNavbar() {
                     setDropdownOpen(false);
                     router.push("/settings");
                   }}
-                  className="w-full flex items-center gap-2.5 px-4 py-2 text-left body-sm-regular text-primary-500 hover:bg-slate-50 transition-colors cursor-pointer"
+                  className="w-full flex items-center gap-2.5 px-4 py-2.5 text-left body-md-medium text-primary-500 hover:bg-slate-50 transition-colors cursor-pointer"
                 >
                   <Settings className="w-4 h-4 text-primary-300" />
                   <span>Settings</span>
@@ -156,7 +156,7 @@ export function AdminNavbar() {
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="w-full flex items-center gap-2.5 px-4 py-2 text-left body-sm-medium text-red-dark hover:bg-red-14 transition-colors cursor-pointer"
+                  className="w-full flex items-center gap-2.5 px-4 py-2.5 text-left body-md-medium text-red-dark hover:bg-red-14 transition-colors cursor-pointer"
                 >
                   <LogOut className="w-4 h-4 text-red-dark" />
                   <span>Sign Out</span>

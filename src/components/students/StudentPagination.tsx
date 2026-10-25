@@ -138,7 +138,7 @@ export function StudentPagination({
               options={PAGE_SIZE_OPTIONS}
               value={String(pageSize)}
               onChange={(val) => onPageSizeChange(Number(val))}
-              buttonClassName="!h-8 !py-1 text-[13px] border-dash rounded-lg px-2.5"
+              buttonClassName="!h-8 !py-1 body-sm-medium border-dash rounded-lg px-2.5"
               menuClassName="min-w-[116px] w-[116px]"
               align="right"
               direction="up"
