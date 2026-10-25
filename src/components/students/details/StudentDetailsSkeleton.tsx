@@ -646,24 +646,29 @@ export function StudentDetailsSkeleton({ activeTab = "overview" }: StudentDetail
       </div>
 
       {/* 2. Tabs Bar Skeleton with Highlighted Active Tab */}
-      <div className="mb-6 border-b border-dash overflow-x-auto scrollbar-none">
-        <div className="flex items-center gap-7 sm:gap-8 min-w-max px-1">
-          {TAB_CONFIGS.map((tab) => {
-            const isActive = tab.key === activeTab;
-            return (
-              <div key={tab.key} className="relative pb-3 shrink-0">
-                <div
-                  className={`h-4 ${
-                    isActive ? "w-20 bg-slate-300" : "w-16 bg-slate-200"
-                  } rounded`}
-                />
-                {isActive && (
-                  <div className="absolute bottom-0 inset-x-0 h-[2.5px] bg-blue rounded-full" />
-                )}
-              </div>
-            );
-          })}
-        </div>
+      <div className="p-1.5 bg-slate-100 rounded-xl flex items-center gap-2 overflow-x-auto border border-dash">
+        {TAB_CONFIGS.map((tab) => {
+          const isActive = tab.key === activeTab;
+          return (
+            <div
+              key={tab.key}
+              className={`h-9 px-3.5 rounded-lg shrink-0 flex items-center gap-2 ${
+                isActive
+                  ? "bg-white shadow-xs border border-dash"
+                  : "bg-slate-200/50"
+              }`}
+            >
+              <div
+                className={`h-3.5 ${
+                  isActive ? "w-20 bg-slate-300" : "w-16 bg-slate-200"
+                } rounded`}
+              />
+              {tab.count !== undefined && (
+                <div className="w-5 h-4 bg-slate-200 rounded-full" />
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* 3. Tab-Specific Content Skeleton */}
