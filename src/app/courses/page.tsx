@@ -1,96 +1,284 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
-import { PageHeader } from "@/components/ui/PageHeader";
-import { CoursesGridClient } from "@/components/courses/CoursesGridClient";
-import { CoursesSkeleton } from "@/components/courses/CoursesSkeleton";
-import { motion } from "framer-motion";
-import { ToneBadge } from "@/components/ui/ToneBadge";
-import PrimaryButton from "@/components/ui/primary-button";
-import SecondaryButton from "@/components/ui/secondary-button";
-import { RotateCw, Sparkles, Plus, FolderPlus } from "lucide-react";
-import { toast } from "sonner";
-
+import React, { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import { toast } from "sonner";
+import { Eye, Pencil, Layers, Sparkles, Send, Archive, Trash2 } from "lucide-react";
 
-export default function CoursesManagementPage() {
+import { coursesApi, categoriesApi } from "@/lib/api";
+import { AdminCourseItem } from "@/lib/types";
+import { useUrlParams } from "@/lib/useUrlParams";
+import { COURSE_LEVEL_OPTIONS, COURSE_STATUS_OPTIONS, apiErrorMessage } from "@/lib/courseView";
+import { DropdownActionItem } from "@/components/ui/AppDropdownMenu";
+import { ListFilters } from "@/components/ui/ListFilters";
+import { TablePagination } from "@/components/ui/TablePagination";
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { CoursesSkeleton } from "@/components/courses/CoursesSkeleton";
+import { CourseCard } from "@/components/courses/CourseCard";
+import { AiSyllabusModal } from "@/components/courses/AiSyllabusModal";
+import { CoursesHeader } from "@/components/courses/list/CoursesHeader";
+import { CourseStatsRow } from "@/components/courses/list/CourseStatsRow";
+import { CoursesTable } from "@/components/courses/list/CoursesTable";
+import { CoursesLoadError } from "@/components/courses/list/CoursesLoadError";
+import { useCourseAiOutline } from "@/components/courses/list/useCourseAiOutline";
+
+const TABLE_PAGE_SIZES = [10, 20, 50];
+const GRID_PAGE_SIZES = [6, 12, 24];
+const ICON = "w-3.5 h-3.5 text-primary-400";
+
+function CoursesContent() {
   const router = useRouter();
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const [isAiOpen, setIsAiOpen] = useState(false);
+  const { get, getPage, set } = useUrlParams();
 
-  const handleRefresh = () => {
-    setIsRefreshing(true);
-    setRefreshTrigger((prev) => prev + 1);
-    setTimeout(() => {
-      setIsRefreshing(false);
-      toast.success("Catalog Synchronized", {
-        description: "Course registrations and syllabus definitions up to date.",
-        icon: <Sparkles className="w-4 h-4 text-[#1C4D8D]" />,
+  const [courses, setCourses] = useState<AdminCourseItem[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<AdminCourseItem | null>(null);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
+
+  const query = get("q");
+  const status = get("status", "All");
+  const category = get("category", "All");
+  const level = get("level", "All");
+  const view = get("view") === "grid" ? "grid" : "table";
+  const pageSizes = view === "grid" ? GRID_PAGE_SIZES : TABLE_PAGE_SIZES;
+  const sizeParam = Number(get("size"));
+  const pageSize = pageSizes.includes(sizeParam) ? sizeParam : pageSizes[0];
+  const page = getPage();
+
+  const loadCourses = useCallback(async () => {
+    setIsLoading(true);
+    setLoadError(null);
+    try {
+      const [courseData, categoryData] = await Promise.all([
+        coursesApi.getAll(),
+        categoriesApi.getAll().catch(() => []),
+      ]);
+      const list: AdminCourseItem[] = Array.isArray(courseData) ? courseData : [];
+      setCourses(list);
+      const names = Array.isArray(categoryData) ? categoryData.map((c: { name: string }) => c.name) : [];
+      setCategories(names.length ? names : Array.from(new Set(list.map((c) => c.category?.name).filter(Boolean) as string[])));
+    } catch (error) {
+      setLoadError(apiErrorMessage(error, "The course service is not responding. Check your connection and try again."));
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Initial fetch from the courses API
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadCourses();
+  }, [loadCourses]);
+
+  const ai = useCourseAiOutline(courses, loadCourses);
+
+  const filtered = useMemo(() => {
+    const q = query.toLowerCase().trim();
+    return courses.filter(
+      (c) =>
+        (status === "All" || c.status === status) &&
+        (category === "All" || c.category?.name === category) &&
+        (level === "All" || c.level === level) &&
+        (!q ||
+          c.title.toLowerCase().includes(q) ||
+          c.slug.toLowerCase().includes(q) ||
+          (c.instructorName ?? "").toLowerCase().includes(q))
+    );
+  }, [courses, query, status, category, level]);
+
+  if (isLoading) return <CoursesSkeleton view={view} />;
+  if (loadError) return <CoursesLoadError message={loadError} onRetry={loadCourses} />;
+
+  const rows = filtered.slice((page - 1) * pageSize, page * pageSize);
+  const isFiltered = !!query || status !== "All" || category !== "All" || level !== "All";
+
+  const toggleStatus = async (course: AdminCourseItem) => {
+    const next = course.status === "PUBLISHED" ? "DRAFT" : "PUBLISHED";
+    setUpdatingId(course.id);
+    const toastId = toast.loading(next === "PUBLISHED" ? "Publishing course..." : "Moving to drafts...", {
+      description: course.title,
+    });
+    try {
+      await coursesApi.update(course.id, { status: next });
+      setCourses((prev) => prev.map((c) => (c.id === course.id ? { ...c, status: next } : c)));
+      toast.success(next === "PUBLISHED" ? "Course published" : "Course unpublished", {
+        id: toastId,
+        description: next === "PUBLISHED" ? "Students can now find and enroll in it." : "It is hidden from students until published again.",
       });
-    }, 400);
+    } catch (error) {
+      toast.error("Could not update course", { id: toastId, description: apiErrorMessage(error, "Please try again.") });
+    } finally {
+      setUpdatingId(null);
+    }
   };
+
+  const deleteCourse = async () => {
+    if (!deleting) return;
+    const course = deleting;
+    const toastId = toast.loading("Deleting course...", { description: course.title });
+    try {
+      await coursesApi.delete(course.id);
+      setCourses((prev) => prev.filter((c) => c.id !== course.id));
+      toast.success("Course deleted", { id: toastId, description: `"${course.title}" was removed from the catalog.` });
+    } catch (error) {
+      toast.error("Could not delete course", {
+        id: toastId,
+        description: apiErrorMessage(error, "The course is still in the catalog. Please try again."),
+      });
+      throw error;
+    }
+  };
+
+  const getMenuItems = (course: AdminCourseItem): DropdownActionItem[] => [
+    { key: "view", label: "View Details", icon: <Eye className={ICON} />, onClick: () => router.push(`/courses/${course.id}`) },
+    { key: "edit", label: "Edit Course", icon: <Pencil className={ICON} />, onClick: () => router.push(`/courses/${course.id}/edit`) },
+    { key: "curriculum", label: "Manage Curriculum", icon: <Layers className={ICON} />, onClick: () => router.push(`/courses/${course.id}/edit`) },
+    { key: "ai", label: "Generate AI Outline", icon: <Sparkles className={ICON} />, onClick: () => ai.open(course) },
+    {
+      key: "status",
+      label: course.status === "PUBLISHED" ? "Unpublish" : "Publish",
+      icon: course.status === "PUBLISHED" ? <Archive className={ICON} /> : <Send className={ICON} />,
+      separatorBefore: true,
+      disabled: updatingId === course.id,
+      onClick: () => toggleStatus(course),
+    },
+    {
+      key: "delete",
+      label: "Delete Course",
+      icon: <Trash2 className="w-3.5 h-3.5" />,
+      danger: true,
+      separatorBefore: true,
+      onClick: () => setDeleting(course),
+    },
+  ];
+
+  const pagination = (
+    <TablePagination
+      variant={view === "grid" ? "plain" : "attached"}
+      currentPage={page}
+      pageSize={pageSize}
+      totalCount={filtered.length}
+      itemLabel="courses"
+      onPageChange={(next) => set({ page: next })}
+      onPageSizeChange={(size) => set({ size: size === pageSizes[0] ? null : size, page: null })}
+      pageSizeOptions={pageSizes}
+    />
+  );
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8 }}
+      initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.28, ease: "easeOut" }}
-      className="space-y-5 text-left bg-white"
+      transition={{ duration: 0.25, ease: "easeOut" }}
+      className="space-y-5 text-left pb-8"
     >
-      <PageHeader
-        title="Curriculum & Course Catalog"
-        subtitle="Author institutional learning modules, compile automated AI syllabi, and audit course publication status."
-        badge={
-          <ToneBadge tone="green" className="gap-1.5 font-medium">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#0dc34a] animate-pulse" />
-            <span>AI Neural Active</span>
-          </ToneBadge>
-        }
-      >
-        <SecondaryButton
-          leftIcon={
-            <RotateCw
-              className={`w-4 h-4 text-primary-300 ${
-                isRefreshing ? "animate-spin text-brand-orange" : ""
-              }`}
+      <CoursesHeader
+        onCreate={() => router.push("/courses/create")}
+        onCategories={() => router.push("/categories")}
+        onAiSyllabus={() => ai.open()}
+      />
+      <CourseStatsRow courses={courses} />
+
+      <div className="bg-white rounded-xl border border-dash shadow-2xs p-5 space-y-4">
+        <div className="flex flex-col xl:flex-row gap-3">
+          <div className="flex-1 min-w-0">
+            <ListFilters
+              query={query}
+              searchPlaceholder="Search courses by title, slug or instructor..."
+              onQueryChange={(q) => set({ q, page: null })}
+              selects={[
+                {
+                  key: "status",
+                  value: status,
+                  options: [{ value: "All", label: "All Status" }, ...COURSE_STATUS_OPTIONS],
+                  onChange: (value) => set({ status: value, page: null }),
+                  className: "xl:w-40",
+                },
+                {
+                  key: "category",
+                  value: category,
+                  options: [{ value: "All", label: "All Categories" }, ...categories],
+                  onChange: (value) => set({ category: value, page: null }),
+                  className: "xl:w-48",
+                },
+                {
+                  key: "level",
+                  value: level,
+                  options: [{ value: "All", label: "All Levels" }, ...COURSE_LEVEL_OPTIONS],
+                  onChange: (value) => set({ level: value, page: null }),
+                  className: "xl:w-40",
+                },
+              ]}
+              onReset={() => set({ q: null, status: null, category: null, level: null, page: null })}
+              isFiltered={isFiltered}
             />
-          }
-          onClick={handleRefresh}
-          disabled={isRefreshing}
-        >
-          <span className="hidden sm:inline">Sync</span>
-        </SecondaryButton>
+          </div>
+          <SegmentedControl<"table" | "grid">
+            className="self-start h-10"
+            value={view}
+            onChange={(next) => set({ view: next === "table" ? null : next, size: null, page: null })}
+            options={[
+              { value: "table", label: "Table" },
+              { value: "grid", label: "Grid" },
+            ]}
+          />
+        </div>
 
-        <SecondaryButton
-          leftIcon={<FolderPlus className="w-4 h-4 text-brand-orange" />}
-          onClick={() => router.push("/categories")}
-        >
-          Categories
-        </SecondaryButton>
+        {view === "table" ? (
+          <CoursesTable
+            courses={rows}
+            onView={(course) => router.push(`/courses/${course.id}`)}
+            getMenuItems={getMenuItems}
+            footer={pagination}
+          />
+        ) : rows.length > 0 ? (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+              {rows.map((course) => (
+                <CourseCard
+                  key={course.id}
+                  course={course}
+                  onViewDetails={(c) => router.push(`/courses/${c.id}`)}
+                  onEdit={(c) => router.push(`/courses/${c.id}/edit`)}
+                  onManageCurriculum={(c) => router.push(`/courses/${c.id}/edit`)}
+                  onGenerateOutline={(c) => ai.open(c)}
+                  onDelete={(courseId) => setDeleting(courses.find((c) => c.id === courseId) ?? null)}
+                />
+              ))}
+            </div>
+            {pagination}
+          </>
+        ) : (
+          <p className="body-sm-regular text-primary-300 text-center py-12 rounded-lg border border-dashed border-dash">
+            {courses.length ? "No courses match your filters." : "No courses yet. Create your first course to get started."}
+          </p>
+        )}
+      </div>
 
-        <SecondaryButton
-          leftIcon={<Sparkles className="w-4 h-4 text-purple-600" />}
-          onClick={() => setIsAiOpen(true)}
-        >
-          AI Syllabus
-        </SecondaryButton>
-
-        <PrimaryButton
-          leftIcon={<Plus className="w-4 h-4" />}
-          onClick={() => router.push("/courses/create")}
-        >
-          Add New Course
-        </PrimaryButton>
-      </PageHeader>
-
-      <Suspense fallback={<CoursesSkeleton />}>
-        <CoursesGridClient
-          isAiModalOpen={isAiOpen}
-          setIsAiModalOpen={setIsAiOpen}
-          refreshTrigger={refreshTrigger}
-        />
-      </Suspense>
+      <ConfirmModal
+        isOpen={!!deleting}
+        title="Delete Course"
+        subtitle={deleting ? `"${deleting.title}"` : undefined}
+        message="This removes the course with its modules, lessons and enrollment records. This action cannot be undone."
+        confirmLabel="Delete Course"
+        pendingLabel="Deleting..."
+        confirmIcon={<Trash2 className="w-4 h-4" />}
+        onClose={() => setDeleting(null)}
+        onConfirm={deleteCourse}
+      />
+      <AiSyllabusModal isOpen={ai.isOpen} onClose={ai.close} defaultTitle={ai.defaultTitle} onApplyOutline={ai.apply} />
     </motion.div>
+  );
+}
+
+export default function CoursesPage() {
+  return (
+    <Suspense fallback={<CoursesSkeleton />}>
+      <CoursesContent />
+    </Suspense>
   );
 }

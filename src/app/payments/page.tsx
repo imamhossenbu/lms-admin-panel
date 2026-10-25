@@ -18,7 +18,7 @@ import {
 import { PAYMENT_METHODS } from "@/data/mockOrderData";
 import { TablePagination } from "@/components/ui/TablePagination";
 import { isInDateRange } from "@/components/ui/DateRangeFilter";
-import { CommerceFilters } from "@/components/commerce/CommerceFilters";
+import { ListFilters } from "@/components/ui/ListFilters";
 import { downloadFile, toCsv, todayStamp } from "@/components/commerce/exportFile";
 import { OrdersPageSkeleton } from "@/components/orders/OrdersPageSkeleton";
 import { formatOrderDateTime } from "@/components/orders/orderFormat";
@@ -115,7 +115,7 @@ function PaymentsContent() {
       <PaymentStatsRow orders={orders} />
 
       <div className="bg-white rounded-xl border border-dash shadow-2xs p-5 space-y-4">
-        <CommerceFilters
+        <ListFilters
           query={query}
           searchPlaceholder="Search by transaction ID, student name, order ID..."
           onQueryChange={(q) => set({ q, page: null })}

@@ -6,7 +6,7 @@ import { AppSelect, AppSelectOption } from "@/components/ui/AppSelect";
 import { DateRange, DateRangeFilter } from "@/components/ui/DateRangeFilter";
 import { cn } from "@/lib/cn";
 
-export interface CommerceSelectFilter {
+export interface ListSelectFilter {
   key: string;
   value: string;
   options: (string | AppSelectOption)[];
@@ -14,20 +14,21 @@ export interface CommerceSelectFilter {
   className?: string;
 }
 
-interface CommerceFiltersProps {
+interface ListFiltersProps {
   query: string;
   searchPlaceholder: string;
   onQueryChange: (value: string) => void;
-  selects: CommerceSelectFilter[];
-  dateRange: DateRange;
-  onDateRangeChange: (range: DateRange) => void;
+  selects: ListSelectFilter[];
+  /** Optional date range picker (omit both to hide it). */
+  dateRange?: DateRange;
+  onDateRangeChange?: (range: DateRange) => void;
   onReset: () => void;
   /** Disables Reset when nothing is filtered. */
   isFiltered: boolean;
 }
 
-/** Search + dropdown filters + date range + Reset, shared by Orders and Payments. */
-export function CommerceFilters({
+/** Search + dropdown filters + optional date range + Reset, shared by list pages. */
+export function ListFilters({
   query,
   searchPlaceholder,
   onQueryChange,
@@ -36,7 +37,7 @@ export function CommerceFilters({
   onDateRangeChange,
   onReset,
   isFiltered,
-}: CommerceFiltersProps) {
+}: ListFiltersProps) {
   return (
     <div className="flex flex-col xl:flex-row xl:items-center gap-3">
       <div className="relative xl:flex-1 min-w-0">
@@ -61,7 +62,9 @@ export function CommerceFilters({
             triggerClassName="w-full bg-white"
           />
         ))}
-        <DateRangeFilter value={dateRange} onChange={onDateRangeChange} className="w-full xl:w-64" />
+        {dateRange && onDateRangeChange && (
+          <DateRangeFilter value={dateRange} onChange={onDateRangeChange} className="w-full xl:w-64" />
+        )}
       </div>
 
       <button
@@ -76,4 +79,4 @@ export function CommerceFilters({
   );
 }
 
-export default CommerceFilters;
+export default ListFilters;

@@ -1,121 +1,136 @@
+"use client";
+
 import React from "react";
-import { Skeleton } from "@/components/ui/Skeleton";
 
-export function CoursesSkeleton({ showHeader = false }: { showHeader?: boolean } = {}) {
+const Bar = ({ className }: { className: string }) => <div className={`rounded bg-slate-200 ${className}`} />;
+const SoftBar = ({ className }: { className: string }) => <div className={`rounded bg-slate-100 ${className}`} />;
+
+const COLUMNS = ["course", "person", "badge", "text", "text", "text", "text", "badge", "menu"] as const;
+
+function TableSkeleton() {
   return (
-    <div className="space-y-5 text-left animate-in fade-in duration-300">
-      {/* 1. Header Skeleton (optional) */}
-      {showHeader && (
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 w-full mb-[20px]">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2.5">
-              <Skeleton className="h-7 w-64 rounded-[8px]" />
-              <Skeleton className="h-6 w-24 rounded-[6px]" />
-            </div>
-            <Skeleton className="h-4 w-96 max-w-full rounded-[6px]" />
-          </div>
-          <div className="flex items-center gap-2.5">
-            <Skeleton className="h-10 w-20 rounded-[8px]" />
-            <Skeleton className="h-10 w-28 rounded-[8px]" />
-            <Skeleton className="h-10 w-36 rounded-[8px]" />
-          </div>
-        </div>
-      )}
-
-      {/* 2. KPI Metrics Ribbon Skeleton (4 cards) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 w-full">
-        {[...Array(4)].map((_, i) => (
-          <div
-            key={i}
-            className="flex flex-col justify-between w-full h-[132px] rounded-[10px] border border-[#E9E9E9] bg-white p-4"
-            style={{
-              boxShadow: "0px 1px 2px 0px rgba(228, 229, 231, 0.24)",
-            }}
-          >
-            <div className="flex items-center gap-2">
-              <Skeleton className="h-6 w-6 rounded-[6px]" />
-              <Skeleton className="h-4 w-28 rounded-[4px]" />
-            </div>
-            <div className="my-auto">
-              <Skeleton className="h-7 w-24 rounded-[6px]" />
-            </div>
-            <div className="flex items-center gap-1.5 pt-2">
-              <Skeleton className="h-3.5 w-16 rounded-[4px]" />
-              <Skeleton className="h-3.5 w-20 rounded-[4px]" />
-            </div>
+    <div className="rounded-lg border border-dash overflow-hidden">
+      <div className="flex bg-slate-50 border-b border-dash divide-x divide-dash">
+        {COLUMNS.map((kind, i) => (
+          <div key={i} className={`py-3 px-3.5 ${kind === "course" ? "flex-3" : "flex-1"}`}>
+            <Bar className="h-3.5 w-14" />
           </div>
         ))}
       </div>
-
-      {/* 3. Toolbar Skeleton */}
-      <div className="space-y-3">
-        {/* Row 1: Pilltabs in one line */}
-        <div className="w-full overflow-x-auto pb-1">
-          <div className="flex items-center gap-1 bg-[#F3F4F6] rounded-[8px] p-1 w-fit">
-            <Skeleton className="h-7 w-24 rounded-[6px] shrink-0" />
-            <Skeleton className="h-7 w-32 rounded-[6px] shrink-0" />
-            <Skeleton className="h-7 w-28 rounded-[6px] shrink-0" />
-            <Skeleton className="h-7 w-28 rounded-[6px] shrink-0" />
-            <Skeleton className="h-7 w-36 rounded-[6px] shrink-0" />
-          </div>
-        </div>
-
-        {/* Row 2: Search (left) & Filters (right) */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 w-full">
-          <Skeleton className="h-[46px] w-full sm:w-80 md:w-96 rounded-[10px]" />
-          <div className="flex items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-end flex-wrap sm:flex-nowrap">
-            <Skeleton className="h-10 w-36 rounded-[10px]" />
-            <Skeleton className="h-10 w-44 rounded-[10px]" />
-            <Skeleton className="h-10 w-20 rounded-[8px]" />
-            <Skeleton className="h-10 w-32 rounded-[8px]" />
-          </div>
-        </div>
-      </div>
-
-      {/* 4. Course Cards Grid Skeleton (6 cards) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {[...Array(6)].map((_, i) => (
-          <div
-            key={i}
-            className="rounded-[12px] border border-[#EDEDED] bg-white p-5 flex flex-col justify-between"
-            style={{
-              boxShadow: "0px 1px 2px 0px rgba(13, 13, 18, 0.05)",
-            }}
-          >
-            <div>
-              {/* Header: Badges & Action Button */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Skeleton className="h-6 w-24 rounded-[6px]" />
-                  <Skeleton className="h-6 w-16 rounded-[6px]" />
-                </div>
-                <Skeleton className="h-8 w-8 rounded-[8px]" />
-              </div>
-
-              {/* Info block with icon */}
-              <div className="flex items-start gap-3.5 mt-4">
-                <Skeleton className="w-10 h-10 rounded-[10px] shrink-0" />
-                <div className="flex-1 space-y-2">
-                  <Skeleton className="h-5 w-full rounded-[6px]" />
-                  <Skeleton className="h-5 w-3/4 rounded-[6px]" />
-                  <div className="flex items-center gap-2 pt-1">
-                    <Skeleton className="w-6 h-6 rounded-full" />
-                    <Skeleton className="h-3.5 w-24 rounded-[4px]" />
+      <div className="divide-y divide-dash">
+        {Array.from({ length: 10 }, (_, r) => (
+          <div key={r} className="flex items-center divide-x divide-dash min-h-16">
+            {COLUMNS.map((kind, i) => (
+              <div key={i} className={`px-3.5 py-3 ${kind === "course" ? "flex-3" : "flex-1"}`}>
+                {kind === "course" ? (
+                  <div className="flex items-center gap-3">
+                    <div className="w-16 h-11 rounded-lg bg-slate-200 shrink-0" />
+                    <div className="space-y-1.5 flex-1">
+                      <Bar className="h-4 w-40" />
+                      <SoftBar className="h-3 w-28" />
+                    </div>
                   </div>
-                </div>
+                ) : kind === "person" ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-full bg-slate-200" />
+                    <SoftBar className="h-3.5 w-20" />
+                  </div>
+                ) : kind === "badge" ? (
+                  <SoftBar className="h-6 w-20 rounded-md" />
+                ) : kind === "menu" ? (
+                  <div className="w-9 h-9 rounded-lg border border-dash mx-auto" />
+                ) : (
+                  <SoftBar className="h-4 w-14" />
+                )}
               </div>
-            </div>
+            ))}
+          </div>
+        ))}
+      </div>
+      <div className="p-4 border-t border-dash flex items-center justify-between">
+        <SoftBar className="h-4 w-44" />
+        <div className="flex items-center gap-1">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className={`w-8 h-8 rounded-lg ${i === 1 ? "bg-slate-200" : "border border-dash"}`} />
+          ))}
+          <div className="h-8 w-29 ml-2 rounded-lg border border-dash" />
+        </div>
+      </div>
+    </div>
+  );
+}
 
-            {/* Footer Stats & Price */}
-            <div className="pt-4 mt-4 border-t border-[#F0F0F0] flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Skeleton className="h-4 w-16 rounded-[4px]" />
-                <Skeleton className="h-4 w-12 rounded-[4px]" />
+function GridSkeleton() {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+      {Array.from({ length: 6 }, (_, i) => (
+        <div key={i} className="rounded-xl border border-dash overflow-hidden bg-white">
+          <div className="h-40 bg-slate-200" />
+          <div className="p-4 space-y-3">
+            <div className="flex gap-2">
+              <SoftBar className="h-5 w-20 rounded-md" />
+              <SoftBar className="h-5 w-16 rounded-md" />
+            </div>
+            <Bar className="h-5 w-3/4" />
+            <SoftBar className="h-3.5 w-full" />
+            <div className="flex items-center justify-between pt-2 border-t border-dash">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-full bg-slate-200" />
+                <SoftBar className="h-3.5 w-20" />
               </div>
-              <Skeleton className="h-6 w-14 rounded-[6px]" />
+              <Bar className="h-5 w-12" />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** Skeleton for the Courses list page (header, KPI cards, filters, table or grid). */
+export function CoursesSkeleton({ view = "table" }: { view?: "table" | "grid" }) {
+  return (
+    <div className="space-y-5 text-left animate-pulse pb-8">
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+        <div className="space-y-2">
+          <Bar className="h-4 w-28" />
+          <Bar className="h-8 w-32" />
+          <SoftBar className="h-4 w-80 max-w-full" />
+        </div>
+        <div className="flex gap-3">
+          <div className="h-11 w-32 rounded-lg border border-dash bg-white" />
+          <div className="h-11 w-32 rounded-lg border border-dash bg-white" />
+          <div className="h-11 w-40 rounded-lg bg-slate-200" />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5 gap-4">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <div key={i} className="bg-white rounded-xl border border-dash p-4 flex items-center gap-4">
+            <div className="w-14 h-14 rounded-xl bg-slate-100 shrink-0" />
+            <div className="flex-1 space-y-2">
+              <SoftBar className="h-3.5 w-24" />
+              <Bar className="h-7 w-16" />
             </div>
           </div>
         ))}
+      </div>
+
+      <div className="bg-white rounded-xl border border-dash p-5 space-y-4">
+        <div className="flex flex-col xl:flex-row gap-3">
+          <div className="h-10 flex-1 rounded-lg border border-dash bg-white flex items-center gap-3 px-3.5">
+            <div className="w-4 h-4 rounded bg-slate-100" />
+            <SoftBar className="h-3.5 w-56" />
+          </div>
+          {["w-40", "w-48", "w-40"].map((w, i) => (
+            <div key={i} className={`h-10 ${w} rounded-lg border border-dash bg-white flex items-center px-3.5`}>
+              <Bar className="h-3.5 w-3/4" />
+            </div>
+          ))}
+          <div className="h-10 w-20 rounded-lg border border-dash bg-white" />
+          <div className="h-10 w-36 rounded-lg border border-dash bg-white" />
+        </div>
+        {view === "grid" ? <GridSkeleton /> : <TableSkeleton />}
       </div>
     </div>
   );
