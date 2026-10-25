@@ -4,7 +4,7 @@ import React, { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { TablePagination } from "@/components/ui/TablePagination";
 import { useUrlParams } from "@/lib/useUrlParams";
-import { InstructorDetailCard } from "./InstructorDetailCard";
+import { DetailCard } from "@/components/ui/DetailCard";
 import { InstructorCourseRow, InstructorReviewRow } from "./instructorDetailsData";
 import { TabFilterBar } from "./TabFilterBar";
 import { ReviewSummary } from "./reviews/ReviewSummary";
@@ -54,7 +54,7 @@ export function InstructorReviewsTab({ reviews, courses }: InstructorReviewsTabP
   };
 
   return (
-    <InstructorDetailCard
+    <DetailCard
       title={`Reviews (${visible.length.toLocaleString()})`}
       description="What students are saying about this instructor."
       action={visible.length > 0 ? <ReviewSummary reviews={visible} /> : undefined}
@@ -112,7 +112,7 @@ export function InstructorReviewsTab({ reviews, courses }: InstructorReviewsTabP
           onPageChange={(next) => set({ page: next })}
         />
       </div>
-    </InstructorDetailCard>
+    </DetailCard>
   );
 }
 

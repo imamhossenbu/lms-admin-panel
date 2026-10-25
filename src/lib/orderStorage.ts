@@ -1,8 +1,8 @@
 import { OrderItem } from "@/types/order";
 import { buildMockOrders } from "@/data/mockOrderData";
 
-// v2: statuses aligned with the backend (Paid / Pending / Failed / Cancelled / Refunded)
-const STORAGE_KEY = "edupro_orders_list_v2";
+// v3: separate order/payment status views, bundles, notes and additional info
+const STORAGE_KEY = "edupro_orders_list_v3";
 export const ORDERS_UPDATED_EVENT = "edupro_orders_updated";
 
 export const getStoredOrders = (): OrderItem[] => {
@@ -28,4 +28,11 @@ export const updateStoredOrder = (orderId: string, updates: Partial<OrderItem>):
     localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
     window.dispatchEvent(new Event(ORDERS_UPDATED_EVENT));
   } catch {}
+};
+
+/** Adds a newly created order at the top of the list. */
+export const saveStoredOrder = (order: OrderItem): void => {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify([order, ...getStoredOrders()]));
+  window.dispatchEvent(new Event(ORDERS_UPDATED_EVENT));
 };

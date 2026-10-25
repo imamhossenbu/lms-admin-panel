@@ -1,0 +1,79 @@
+"use client";
+
+import React from "react";
+import { Search } from "lucide-react";
+import { AppSelect, AppSelectOption } from "@/components/ui/AppSelect";
+import { DateRange, DateRangeFilter } from "@/components/ui/DateRangeFilter";
+import { cn } from "@/lib/cn";
+
+export interface CommerceSelectFilter {
+  key: string;
+  value: string;
+  options: (string | AppSelectOption)[];
+  onChange: (value: string) => void;
+  className?: string;
+}
+
+interface CommerceFiltersProps {
+  query: string;
+  searchPlaceholder: string;
+  onQueryChange: (value: string) => void;
+  selects: CommerceSelectFilter[];
+  dateRange: DateRange;
+  onDateRangeChange: (range: DateRange) => void;
+  onReset: () => void;
+  /** Disables Reset when nothing is filtered. */
+  isFiltered: boolean;
+}
+
+/** Search + dropdown filters + date range + Reset, shared by Orders and Payments. */
+export function CommerceFilters({
+  query,
+  searchPlaceholder,
+  onQueryChange,
+  selects,
+  dateRange,
+  onDateRangeChange,
+  onReset,
+  isFiltered,
+}: CommerceFiltersProps) {
+  return (
+    <div className="flex flex-col xl:flex-row xl:items-center gap-3">
+      <div className="relative xl:flex-1 min-w-0">
+        <Search className="w-4 h-4 text-primary-300 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+        <input
+          type="search"
+          value={query}
+          onChange={(e) => onQueryChange(e.target.value)}
+          placeholder={searchPlaceholder}
+          className="w-full h-10 pl-10 pr-3.5 rounded-lg border border-dash bg-white body-sm-regular text-primary-500 placeholder:text-primary-300 focus:outline-none focus:border-brand-orange transition-colors"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:flex items-center gap-3">
+        {selects.map((select) => (
+          <AppSelect
+            key={select.key}
+            value={select.value}
+            onValueChange={select.onChange}
+            options={select.options}
+            className={cn("w-full", select.className ?? "xl:w-44")}
+            triggerClassName="w-full bg-white"
+          />
+        ))}
+        <DateRangeFilter value={dateRange} onChange={onDateRangeChange} className="w-full xl:w-64" />
+      </div>
+
+      <button
+        type="button"
+        onClick={onReset}
+        disabled={!isFiltered}
+        className="h-10 px-5 rounded-lg border border-dash bg-white body-sm-medium text-blue hover:bg-blue-14 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+      >
+        Reset
+      </button>
+    </div>
+  );
+}
+
+export default CommerceFilters;

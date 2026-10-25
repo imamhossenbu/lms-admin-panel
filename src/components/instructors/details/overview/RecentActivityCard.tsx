@@ -13,7 +13,7 @@ import {
   Wallet,
   Mail,
 } from "lucide-react";
-import { InstructorDetailCard } from "../InstructorDetailCard";
+import { DetailCard } from "@/components/ui/DetailCard";
 import { InstructorTimelineItem, TimelineKind } from "../instructorDetailsData";
 import { ViewAllButton } from "./RecentCoursesCard";
 
@@ -36,7 +36,7 @@ interface RecentActivityCardProps {
 
 export function RecentActivityCard({ activities, onViewAll }: RecentActivityCardProps) {
   return (
-    <InstructorDetailCard icon={<Clock />} title="Recent Activity" action={<ViewAllButton onClick={onViewAll} />}>
+    <DetailCard icon={<Clock />} title="Recent Activity" action={<ViewAllButton onClick={onViewAll} />}>
       {activities.length > 0 ? (
         <ol className="space-y-4">
           {activities.slice(0, 5).map((activity) => {
@@ -67,7 +67,7 @@ export function RecentActivityCard({ activities, onViewAll }: RecentActivityCard
       ) : (
         <p className="body-sm-regular text-primary-300 text-center py-6">No recent activity.</p>
       )}
-    </InstructorDetailCard>
+    </DetailCard>
   );
 }
 

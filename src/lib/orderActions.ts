@@ -1,4 +1,6 @@
-import { OrderItem, OrderStatus, OrderTimelineStep, PaymentMethod } from "@/types/order";
+import { CommerceNote, OrderItem, OrderStatus, OrderTimelineStep, PaymentMethod } from "@/types/order";
+import { CURRENT_ADMIN, ORDER_COURSES, PAYMENT_METHODS, addMinutes, buildTimeline, maskedAccount, orderReference, toOrderStudent } from "@/data/mockOrderData";
+import { MOCK_STUDENTS } from "@/data/mockStudentData";
 
 /**
  * Order lifecycle used by the admin "Change Status" action (mirrors the backend:
@@ -56,9 +58,6 @@ export const getAllowedActions = (status: OrderStatus): OrderActionKey[] => ALLO
 
 export const ADMIN_ACTOR = "Admin";
 
-const addMinutes = (iso: string, minutes: number) =>
-  new Date(new Date(iso).getTime() + minutes * 60000).toISOString();
-
 const placedStep = (order: OrderItem) => order.timeline.filter((s) => s.label === "Order Placed");
 
 /** Fills the "paid" steps of the timeline once payment is confirmed. */
@@ -113,6 +112,13 @@ export interface StatusChangeInput {
   note?: string;
 }
 
+export const newNote = (content: string): CommerceNote => ({
+  id: `note-${Date.now()}-${Math.floor(Math.random() * 1e4)}`,
+  author: CURRENT_ADMIN,
+  content,
+  createdAt: new Date().toISOString(),
+});
+
 /** Validates the transition for the given scope and returns the order patch. */
 export const applyStatusChange = (order: OrderItem, scope: StatusScope, input: StatusChangeInput): Partial<OrderItem> => {
   assertTransition(order, input.target, scope);
@@ -128,7 +134,7 @@ export const applyStatusChange = (order: OrderItem, scope: StatusScope, input: S
         transactionId: input.payment.reference,
         paidAt,
         manuallyPaid: true,
-        adminNote: input.note || undefined,
+        paymentNotes: input.note ? [newNote(input.note), ...order.paymentNotes] : order.paymentNotes,
         timeline: paidTimeline(order, paidAt, {
           label: "Marked as Paid",
           at: now,
@@ -155,7 +161,7 @@ export const applyStatusChange = (order: OrderItem, scope: StatusScope, input: S
         transactionId: "",
         paidAt: undefined,
         cancelReason: undefined,
-        adminNote: input.note || undefined,
+        adminNotes: input.note ? [newNote(input.note), ...order.adminNotes] : order.adminNotes,
         timeline: [
           ...placedStep(order),
           { label: "Order Reopened", at: now, by: ADMIN_ACTOR, note: input.note || "Awaiting a new payment" },
@@ -176,4 +182,131 @@ export const applyStatusChange = (order: OrderItem, scope: StatusScope, input: S
         ],
       };
   }
+};
+
+// ---------------------------------------------------------------------------
+// Other admin edits
+// ---------------------------------------------------------------------------
+
+/** Receipts can be (re)sent once money has been received. */
+export const applyReceiptSent = (order: OrderItem): Partial<OrderItem> => {
+  if (!getAllowedActions(order.status).includes("resendInvoice")) {
+    throw new Error("Receipts can only be sent for paid orders.");
+  }
+  return { receiptSentAt: new Date().toISOString() };
+};
+
+export interface AdditionalInfoInput {
+  referralSource: string;
+  couponCode?: string;
+  notes?: string;
+}
+
+export const applyAdditionalInfo = (_order: OrderItem, input: AdditionalInfoInput): Partial<OrderItem> => ({
+  referralSource: input.referralSource,
+  couponCode: input.couponCode || undefined,
+  notes: input.notes || undefined,
+});
+
+export type NoteScope = "order" | "payment";
+const noteKey = (scope: NoteScope) => (scope === "order" ? "adminNotes" : "paymentNotes");
+
+export const applyNoteSave = (order: OrderItem, scope: NoteScope, content: string, noteId?: string): Partial<OrderItem> => {
+  const key = noteKey(scope);
+  const notes = order[key];
+  if (!noteId) return { [key]: [newNote(content), ...notes] };
+  if (!notes.some((n) => n.id === noteId)) throw new Error("This note no longer exists.");
+  return {
+    [key]: notes.map((n) => (n.id === noteId ? { ...n, content, updatedAt: new Date().toISOString() } : n)),
+  };
+};
+
+export const applyNoteDelete = (order: OrderItem, scope: NoteScope, noteId: string): Partial<OrderItem> => {
+  const key = noteKey(scope);
+  return { [key]: order[key].filter((n) => n.id !== noteId) };
+};
+
+export interface EditPaymentInput {
+  method: PaymentMethod;
+  account: string;
+  /** Only editable once the payment has been received. */
+  reference?: string;
+}
+
+export const applyPaymentEdit = (order: OrderItem, input: EditPaymentInput): Partial<OrderItem> => {
+  const hasMoney = order.status === "Paid" || order.status === "Refunded";
+  if (!hasMoney && input.reference) throw new Error("Unpaid payments don't have a transaction reference yet.");
+  return {
+    paymentMethod: input.method,
+    paymentAccount: input.account,
+    ...(hasMoney && input.reference ? { transactionId: input.reference } : {}),
+  };
+};
+
+export interface CreateOrderInput {
+  studentId: string;
+  courseId: string;
+  method: PaymentMethod;
+  couponCode?: string;
+  markAsPaid: boolean;
+  reference?: string;
+  note?: string;
+}
+
+const COUPON_RATES: Record<string, number> = { WELCOME10: 0.1, EDU20: 0.2 };
+export const KNOWN_COUPONS = Object.keys(COUPON_RATES);
+
+/** Discount (rounded, in currency units) a coupon gives on a price; 0 for unknown codes. */
+export const couponDiscount = (code: string | undefined, price: number) => {
+  const rate = code ? COUPON_RATES[code.toUpperCase()] : undefined;
+  return rate ? Math.round(price * rate) : 0;
+};
+
+/** Builds a manual (admin-created) order, e.g. for offline / bank payments. */
+export const buildManualOrder = (input: CreateOrderInput, existing: OrderItem[]): OrderItem => {
+  const studentIndex = MOCK_STUDENTS.findIndex((s) => s.id === input.studentId);
+  const course = ORDER_COURSES.find((c) => c.id === input.courseId);
+  if (studentIndex === -1 || !course) throw new Error("Please choose a valid student and course.");
+  if (!PAYMENT_METHODS.includes(input.method)) throw new Error("Please choose a valid payment method.");
+
+  const nextNumber = Math.max(0, ...existing.map((o) => Number(o.orderNumber.replace(/\D/g, "")))) + 1;
+  const now = new Date().toISOString();
+  const code = input.couponCode?.toUpperCase();
+  const discount = couponDiscount(code, course.price);
+  const status: OrderStatus = input.markAsPaid ? "Paid" : "Pending";
+
+  const base: OrderItem = {
+    id: `ord-${nextNumber}`,
+    orderNumber: `#ORD-${String(nextNumber).padStart(6, "0")}`,
+    reference: orderReference(now, nextNumber),
+    student: toOrderStudent(studentIndex),
+    courses: [course],
+    subtotal: course.price,
+    discount,
+    tax: 0,
+    amount: course.price - discount,
+    currency: "USD",
+    couponCode: discount ? code : undefined,
+    paymentMethod: input.method,
+    paymentAccount: maskedAccount(input.method, nextNumber),
+    transactionId: "",
+    status: "Pending",
+    createdAt: now,
+    timeline: buildTimeline("Pending", now),
+    ipAddress: "Admin panel",
+    device: "Created by admin",
+    referralSource: "Direct",
+    adminNotes: input.note ? [newNote(input.note)] : [],
+    paymentNotes: [],
+  };
+
+  if (status === "Pending") return base;
+  return {
+    ...base,
+    ...applyStatusChange(base, "order", {
+      target: "Paid",
+      payment: { method: input.method, reference: input.reference ?? "", paidOn: now.slice(0, 10) },
+    }),
+    receiptSentAt: addMinutes(now, 1),
+  };
 };

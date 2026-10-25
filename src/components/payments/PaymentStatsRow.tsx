@@ -1,58 +1,49 @@
 import React from "react";
-import { DollarSign, CreditCard, CircleCheck, Clock, CircleX, RotateCcw } from "lucide-react";
+import { Wallet, CircleDollarSign, CircleCheck, Clock, CircleX } from "lucide-react";
 import { TrendStatCard } from "@/components/ui/TrendStatCard";
-import { PaymentRecord } from "@/lib/paymentData";
+import { OrderItem } from "@/types/order";
 import { formatCurrency } from "@/components/orders/orderFormat";
 
-export function PaymentStatsRow({ payments }: { payments: PaymentRecord[] }) {
-  const count = (status: PaymentRecord["status"]) => payments.filter((p) => p.status === status).length;
-  const revenue = payments
-    .filter((p) => p.status === "Completed")
-    .reduce((sum, p) => sum + p.order.amount, 0);
+export function PaymentStatsRow({ orders }: { orders: OrderItem[] }) {
+  const count = (...statuses: OrderItem["status"][]) => orders.filter((o) => statuses.includes(o.status)).length;
+  const revenue = orders.filter((o) => o.status === "Paid").reduce((sum, o) => sum + o.amount, 0);
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5 gap-4">
       <TrendStatCard
-        icon={<DollarSign />}
-        iconClassName="bg-green-bg text-green"
-        value={formatCurrency(revenue).replace(/\.00$/, "")}
-        label="Total Revenue"
-        trend={{ direction: "up", value: "18%" }}
+        icon={<Wallet />}
+        iconClassName="bg-blue-14 text-blue"
+        label="Total Payments"
+        value={orders.length.toLocaleString()}
+        trend={{ direction: "up", value: "12%", caption: "vs last month" }}
       />
       <TrendStatCard
-        icon={<CreditCard />}
-        iconClassName="bg-blue-14 text-blue"
-        value={payments.length.toLocaleString()}
-        label="Total Payments"
-        trend={{ direction: "up", value: "12%" }}
+        icon={<CircleDollarSign />}
+        iconClassName="bg-green-bg text-green"
+        label="Total Revenue"
+        value={formatCurrency(revenue).replace(/\.00$/, "")}
+        trend={{ direction: "up", value: "15%", caption: "vs last month" }}
       />
       <TrendStatCard
         icon={<CircleCheck />}
-        iconClassName="bg-green-bg text-green"
-        value={count("Completed").toLocaleString()}
-        label="Successful"
-        trend={{ direction: "up", value: "15%" }}
+        iconClassName="bg-purple-14 text-purple"
+        label="Successful Payments"
+        value={count("Paid").toLocaleString()}
+        trend={{ direction: "up", value: "16%", caption: "vs last month" }}
       />
       <TrendStatCard
         icon={<Clock />}
         iconClassName="bg-yellow-bg text-yellow"
+        label="Pending Payments"
         value={count("Pending").toLocaleString()}
-        label="Pending"
-        trend={{ direction: "down", value: "5%" }}
+        trend={{ direction: "up", value: "8%", caption: "vs last month" }}
       />
       <TrendStatCard
         icon={<CircleX />}
         iconClassName="bg-red-14 text-red"
-        value={count("Failed").toLocaleString()}
-        label="Failed"
-        trend={{ direction: "down", value: "2%" }}
-      />
-      <TrendStatCard
-        icon={<RotateCcw />}
-        iconClassName="bg-purple-14 text-purple"
-        value={count("Refunded").toLocaleString()}
-        label="Refunded"
-        trend={{ direction: "down", value: "1%" }}
+        label="Failed / Refunded"
+        value={count("Failed", "Cancelled", "Refunded").toLocaleString()}
+        trend={{ direction: "down", value: "22%", caption: "vs last month" }}
       />
     </div>
   );

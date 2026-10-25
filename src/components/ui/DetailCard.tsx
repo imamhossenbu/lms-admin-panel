@@ -3,7 +3,7 @@
 import React from "react";
 import { cn } from "@/lib/cn";
 
-interface InstructorDetailCardProps {
+interface DetailCardProps {
   title: React.ReactNode;
   description?: React.ReactNode;
   /** Optional icon shown in a soft blue tile before the title (overview cards). */
@@ -14,8 +14,8 @@ interface InstructorDetailCardProps {
   bodyClassName?: string;
 }
 
-/** White card used by every section on the instructor details page. */
-export function InstructorDetailCard({
+/** White section card (title, optional icon/description/action) used on details pages. */
+export function DetailCard({
   title,
   description,
   icon,
@@ -23,7 +23,7 @@ export function InstructorDetailCard({
   children,
   className,
   bodyClassName,
-}: InstructorDetailCardProps) {
+}: DetailCardProps) {
   return (
     <section className={cn("bg-white rounded-xl border border-dash shadow-2xs p-5 text-left", className)}>
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-4">
@@ -49,4 +49,4 @@ export function InstructorDetailCard({
   );
 }
 
-export default InstructorDetailCard;
+export default DetailCard;

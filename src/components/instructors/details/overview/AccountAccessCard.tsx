@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Lock, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { InstructorDetailCard } from "../InstructorDetailCard";
+import { DetailCard } from "@/components/ui/DetailCard";
 import { InstructorFullDetails } from "../instructorDetailsData";
 import { InfoRow } from "./InfoRow";
 
@@ -37,7 +37,7 @@ export function AccountAccessCard({ email, account }: AccountAccessCardProps) {
   };
 
   return (
-    <InstructorDetailCard icon={<Lock />} title="Account & Access">
+    <DetailCard icon={<Lock />} title="Account & Access">
       <div className="divide-y divide-dash">
         <InfoRow
           label="Password"
@@ -65,7 +65,7 @@ export function AccountAccessCard({ email, account }: AccountAccessCardProps) {
         <InfoRow label="Account Created">{account.createdAt}</InfoRow>
         <InfoRow label="Last Login">{account.lastLogin}</InfoRow>
       </div>
-    </InstructorDetailCard>
+    </DetailCard>
   );
 }
 

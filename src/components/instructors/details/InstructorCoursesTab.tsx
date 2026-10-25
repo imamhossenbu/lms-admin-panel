@@ -8,7 +8,7 @@ import { PrimaryButton } from "@/components/ui/primary-button";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 import { TablePagination } from "@/components/ui/TablePagination";
 import { useUrlParams } from "@/lib/useUrlParams";
-import { InstructorDetailCard } from "./InstructorDetailCard";
+import { DetailCard } from "@/components/ui/DetailCard";
 import { InstructorCourseRow } from "./instructorDetailsData";
 import { CourseThumb } from "./CourseThumb";
 import { StatusPill } from "./StatusPill";
@@ -113,7 +113,7 @@ export function InstructorCoursesTab({ courses, onAssignCourse, getCourseActions
   ];
 
   return (
-    <InstructorDetailCard
+    <DetailCard
       title={`Courses (${courses.length})`}
       description="Courses assigned to this instructor. You can add or remove courses from here."
       action={
@@ -175,7 +175,7 @@ export function InstructorCoursesTab({ courses, onAssignCourse, getCourseActions
           onPageChange={(next) => set({ page: next })}
         />
       </div>
-    </InstructorDetailCard>
+    </DetailCard>
   );
 }
 

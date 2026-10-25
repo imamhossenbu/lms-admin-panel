@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { AppSelect } from "@/components/ui/AppSelect";
 import { useUrlParams } from "@/lib/useUrlParams";
-import { InstructorDetailCard } from "./InstructorDetailCard";
+import { DetailCard } from "@/components/ui/DetailCard";
 import { InstructorCourseRow } from "./instructorDetailsData";
 import {
   CalendarView,
@@ -75,7 +75,7 @@ export function InstructorScheduleTab({ instructorId, instructorEmail, courses }
   };
 
   return (
-    <InstructorDetailCard
+    <DetailCard
       title="Schedule"
       description="View and manage this instructor's upcoming and past classes."
       action={
@@ -128,7 +128,7 @@ export function InstructorScheduleTab({ instructorId, instructorEmail, courses }
           />
         </div>
       </div>
-    </InstructorDetailCard>
+    </DetailCard>
   );
 }
 

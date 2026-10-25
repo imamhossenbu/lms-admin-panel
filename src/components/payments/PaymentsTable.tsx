@@ -1,34 +1,35 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
+import Link from "next/link";
 import { DataTable, ColumnDef } from "@/components/ui/Datatable";
 import { DropdownActionItem } from "@/components/ui/AppDropdownMenu";
 import { Avatar } from "@/components/ui/Avatar";
 import { RowMoreMenu } from "@/components/ui/RowMoreMenu";
-import { PaymentRecord } from "@/lib/paymentData";
-import { PaymentMethodBadge } from "@/components/orders/OrderBadges";
+import { OrderItem } from "@/types/order";
+import { PaymentMethodBadge, PaymentStatusBadge } from "@/components/commerce/CommerceBadges";
+import { courseTitle, transactionCode, transactionHash } from "@/lib/orderView";
 import { formatCurrency, formatOrderDate, formatOrderTime } from "@/components/orders/orderFormat";
-import { PaymentStatusBadge } from "./PaymentStatusBadge";
 
 interface PaymentsTableProps {
-  payments: PaymentRecord[];
-  activePaymentId?: string;
-  onViewDetails: (payment: PaymentRecord) => void;
-  getMenuItems: (payment: PaymentRecord) => DropdownActionItem[];
+  orders: OrderItem[];
+  onViewDetails: (order: OrderItem) => void;
+  getMenuItems: (order: OrderItem) => DropdownActionItem[];
   /** Rendered inside the table card, under the rows (pagination). */
   footer?: React.ReactNode;
 }
 
-export function PaymentsTable({ payments, activePaymentId, onViewDetails, getMenuItems, footer }: PaymentsTableProps) {
-  const columns: ColumnDef<PaymentRecord>[] = [
+/** One row per payment attempt (payments are derived from orders). */
+export function PaymentsTable({ orders, onViewDetails, getMenuItems, footer }: PaymentsTableProps) {
+  const columns: ColumnDef<OrderItem>[] = [
     {
-      key: "reference",
+      key: "transaction",
       header: "Transaction ID",
       render: (row) => (
-        <span className={`body-sm-regular whitespace-nowrap ${row.id === activePaymentId ? "text-brand-orange" : "text-primary-500"}`}>
-          {row.reference}
-        </span>
+        <div className="whitespace-nowrap">
+          <p className="body-sm-medium text-blue">{transactionCode(row)}</p>
+          <p className="body-xsm-regular text-primary-300">{transactionHash(row)}</p>
+        </div>
       ),
     },
     {
@@ -36,57 +37,73 @@ export function PaymentsTable({ payments, activePaymentId, onViewDetails, getMen
       header: "Student",
       render: (row) => (
         <div className="flex items-center gap-3 min-w-48">
-          <Avatar src={row.order.student.avatarUrl} name={row.order.student.name} size={36} />
+          <Avatar src={row.student.avatarUrl} name={row.student.name} size={40} />
           <div className="min-w-0">
-            <p className="body-sm-medium text-primary-500 truncate">{row.order.student.name}</p>
-            <p className="body-xsm-regular text-primary-300 truncate">{row.order.student.email}</p>
+            <p className="body-sm-medium text-primary-500 truncate">{row.student.name}</p>
+            <p className="body-xsm-regular text-primary-300 truncate">{row.student.email}</p>
           </div>
         </div>
       ),
     },
     {
-      key: "course",
-      header: "Course",
+      key: "order",
+      header: "Order ID",
       render: (row) => (
-        <div className="flex items-center gap-3 min-w-52">
-          <span className="relative w-10 h-10 rounded-lg overflow-hidden bg-slate-100 shrink-0">
-            <Image src={row.order.course.thumbnailUrl} alt="" fill unoptimized className="object-cover" />
-          </span>
-          <span className="body-sm-regular text-primary-500 line-clamp-2">{row.order.course.title}</span>
-        </div>
+        <Link
+          href={`/orders/${row.id}`}
+          onClick={(e) => e.stopPropagation()}
+          className="body-sm-medium text-blue hover:underline whitespace-nowrap"
+        >
+          {row.orderNumber}
+        </Link>
       ),
     },
     {
-      key: "amount",
-      header: "Amount",
-      render: (row) => <span className="body-sm-medium text-primary-500">{formatCurrency(row.order.amount)}</span>,
+      key: "courses",
+      header: "Course(s)",
+      render: (row) => (
+        <div className="min-w-44">
+          <p className="body-sm-regular text-primary-500 truncate">{courseTitle(row)}</p>
+          <p className="body-xsm-regular text-primary-300">
+            {row.courses.length} {row.courses.length === 1 ? "Course" : "Courses"}
+          </p>
+        </div>
+      ),
     },
     {
       key: "method",
       header: "Payment Method",
-      render: (row) => <PaymentMethodBadge method={row.order.paymentMethod} />,
+      render: (row) => <PaymentMethodBadge method={row.paymentMethod} />,
+    },
+    {
+      key: "amount",
+      header: "Amount",
+      render: (row) => <span className="body-sm-medium text-primary-500">{formatCurrency(row.amount)}</span>,
     },
     {
       key: "status",
-      header: "Status",
+      header: "Payment Status",
       render: (row) => <PaymentStatusBadge status={row.status} />,
     },
     {
       key: "date",
-      header: "Date",
-      render: (row) => (
-        <div className="whitespace-nowrap">
-          <p className="body-sm-regular text-primary-500">{formatOrderDate(row.date)}</p>
-          <p className="body-xsm-regular text-primary-300">{formatOrderTime(row.date)}</p>
-        </div>
-      ),
+      header: "Payment Date",
+      render: (row) => {
+        const date = row.paidAt ?? row.createdAt;
+        return (
+          <div className="whitespace-nowrap">
+            <p className="body-sm-regular text-primary-500">{formatOrderDate(date)}</p>
+            <p className="body-xsm-regular text-primary-300">{formatOrderTime(date)}</p>
+          </div>
+        );
+      },
     },
     {
       key: "actions",
       header: "Actions",
       align: "center",
       width: "76px",
-      render: (row) => <RowMoreMenu label={`Actions for ${row.reference}`} items={getMenuItems(row)} />,
+      render: (row) => <RowMoreMenu label={`Actions for ${transactionCode(row)}`} items={getMenuItems(row)} />,
     },
   ];
 
@@ -95,7 +112,7 @@ export function PaymentsTable({ payments, activePaymentId, onViewDetails, getMen
       <div className="overflow-x-auto">
         <DataTable
           columns={columns}
-          data={payments}
+          data={orders}
           rowKey={(row) => row.id}
           onRowClick={onViewDetails}
           verticalBorders

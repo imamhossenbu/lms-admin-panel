@@ -8,7 +8,7 @@ import { PrimaryButton } from "@/components/ui/primary-button";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { InstructorNoteItem } from "@/types/instructor";
 import { deleteInstructorNote, saveInstructorNote } from "@/lib/instructorStorage";
-import { InstructorDetailCard } from "./InstructorDetailCard";
+import { DetailCard } from "@/components/ui/DetailCard";
 import { InstructorNoteCard } from "./notes/InstructorNoteCard";
 
 interface InstructorNotesTabProps {
@@ -40,7 +40,7 @@ export function InstructorNotesTab({ instructorId, notes }: InstructorNotesTabPr
   };
 
   return (
-    <InstructorDetailCard
+    <DetailCard
       title={`Notes (${notes.length})`}
       description="Keep internal notes about this instructor. These notes are only visible to admins."
       action={
@@ -87,7 +87,7 @@ export function InstructorNotesTab({ instructorId, notes }: InstructorNotesTabPr
         onClose={() => setPendingDelete(null)}
         onConfirm={handleDelete}
       />
-    </InstructorDetailCard>
+    </DetailCard>
   );
 }
 

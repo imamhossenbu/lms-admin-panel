@@ -7,7 +7,7 @@ import { DataTable, ColumnDef } from "@/components/ui/Datatable";
 import { Avatar } from "@/components/ui/Avatar";
 import { TablePagination } from "@/components/ui/TablePagination";
 import { useUrlParams } from "@/lib/useUrlParams";
-import { InstructorDetailCard } from "./InstructorDetailCard";
+import { DetailCard } from "@/components/ui/DetailCard";
 import { InstructorCourseRow, InstructorStudentRow } from "./instructorDetailsData";
 import { CourseThumb } from "./CourseThumb";
 import { StatusPill } from "./StatusPill";
@@ -154,7 +154,7 @@ export function InstructorStudentsTab({ instructorName, students, courses, onVie
   ];
 
   return (
-    <InstructorDetailCard
+    <DetailCard
       title={`Students (${students.length.toLocaleString()})`}
       description="Students enrolled in this instructor's courses."
       action={
@@ -249,7 +249,7 @@ export function InstructorStudentsTab({ instructorName, students, courses, onVie
           onPageChange={(next) => set({ page: next })}
         />
       </div>
-    </InstructorDetailCard>
+    </DetailCard>
   );
 }
 

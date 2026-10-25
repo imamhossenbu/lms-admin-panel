@@ -2,7 +2,7 @@
 
 import React from "react";
 import { FileText, ExternalLink, Globe } from "lucide-react";
-import { InstructorDetailCard } from "../InstructorDetailCard";
+import { DetailCard } from "@/components/ui/DetailCard";
 import { InstructorFullDetails } from "../instructorDetailsData";
 import { InfoRow } from "./InfoRow";
 
@@ -41,7 +41,7 @@ function SocialLink({ href, label, children }: { href: string; label: string; ch
 
 export function AdditionalInfoCard({ specialization, website, socials }: AdditionalInfoCardProps) {
   return (
-    <InstructorDetailCard icon={<FileText />} title="Additional Information">
+    <DetailCard icon={<FileText />} title="Additional Information">
       <div className="divide-y divide-dash">
         <InfoRow label="Specialization">{specialization}</InfoRow>
         <InfoRow label="Website (Optional)">
@@ -69,7 +69,7 @@ export function AdditionalInfoCard({ specialization, website, socials }: Additio
           </div>
         </InfoRow>
       </div>
-    </InstructorDetailCard>
+    </DetailCard>
   );
 }
 

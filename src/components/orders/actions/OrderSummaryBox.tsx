@@ -1,7 +1,8 @@
 import React from "react";
 import { Avatar } from "@/components/ui/Avatar";
 import { OrderItem } from "@/types/order";
-import { OrderStatusBadge } from "../OrderBadges";
+import { PaymentStatusBadge } from "@/components/commerce/CommerceBadges";
+import { courseTitle } from "@/lib/orderView";
 import { formatCurrency } from "../orderFormat";
 
 /** Compact "which order am I acting on" card shown at the top of action modals. */
@@ -13,11 +14,11 @@ export function OrderSummaryBox({ order }: { order: OrderItem }) {
         <p className="body-sm-medium text-primary-500 truncate">
           {order.orderNumber} · {order.student.name}
         </p>
-        <p className="body-xsm-regular text-primary-300 truncate">{order.course.title}</p>
+        <p className="body-xsm-regular text-primary-300 truncate">{courseTitle(order)}</p>
       </div>
       <div className="text-right shrink-0 space-y-1">
         <p className="body-sm-medium text-primary-500">{formatCurrency(order.amount)}</p>
-        <OrderStatusBadge status={order.status} size="sm" />
+        <PaymentStatusBadge status={order.status} size="sm" />
       </div>
     </div>
   );

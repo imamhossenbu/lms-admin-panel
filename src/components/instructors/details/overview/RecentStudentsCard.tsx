@@ -3,7 +3,7 @@
 import React from "react";
 import { Users } from "lucide-react";
 import { ColumnDef } from "@/components/ui/Datatable";
-import { InstructorDetailCard } from "../InstructorDetailCard";
+import { DetailCard } from "@/components/ui/DetailCard";
 import { InstructorStudentRow } from "../instructorDetailsData";
 import { StatusPill } from "../StatusPill";
 import { CompactTable } from "./CompactTable";
@@ -45,9 +45,9 @@ export function RecentStudentsCard({ students, onViewAll }: RecentStudentsCardPr
   ];
 
   return (
-    <InstructorDetailCard icon={<Users />} title="Recent Students" action={<ViewAllButton onClick={onViewAll} />}>
+    <DetailCard icon={<Users />} title="Recent Students" action={<ViewAllButton onClick={onViewAll} />}>
       <CompactTable columns={columns} data={students.slice(0, 5)} emptyMessage="No students enrolled yet." />
-    </InstructorDetailCard>
+    </DetailCard>
   );
 }
 

@@ -21,7 +21,7 @@ import { Avatar } from "@/components/ui/Avatar";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 import { TablePagination } from "@/components/ui/TablePagination";
 import { useUrlParams } from "@/lib/useUrlParams";
-import { InstructorDetailCard } from "./InstructorDetailCard";
+import { DetailCard } from "@/components/ui/DetailCard";
 import { TabFilterBar } from "./TabFilterBar";
 import {
   ACTIVITY_TYPE_META,
@@ -154,7 +154,7 @@ export function InstructorActivityLogTab({ entries }: InstructorActivityLogTabPr
   ];
 
   return (
-    <InstructorDetailCard
+    <DetailCard
       title="Activity Log"
       description="Track all important activities related to this instructor."
       action={
@@ -218,7 +218,7 @@ export function InstructorActivityLogTab({ entries }: InstructorActivityLogTabPr
           onPageChange={(next) => set({ page: next })}
         />
       </div>
-    </InstructorDetailCard>
+    </DetailCard>
   );
 }
 

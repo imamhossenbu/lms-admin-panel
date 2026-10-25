@@ -3,13 +3,13 @@
 import React from "react";
 import { User } from "lucide-react";
 import { InstructorItem } from "@/types/instructor";
-import { InstructorDetailCard } from "../InstructorDetailCard";
+import { DetailCard } from "@/components/ui/DetailCard";
 import { InfoRow } from "./InfoRow";
 
 export function InstructorInfoCard({ instructor }: { instructor: InstructorItem }) {
   const isActive = instructor.status === "Active";
   return (
-    <InstructorDetailCard icon={<User />} title="Instructor Information">
+    <DetailCard icon={<User />} title="Instructor Information">
       <div className="divide-y divide-dash">
         <InfoRow label="Full Name">{instructor.name}</InfoRow>
         <InfoRow label="Email Address">
@@ -29,7 +29,7 @@ export function InstructorInfoCard({ instructor }: { instructor: InstructorItem 
           <p className="max-w-md leading-relaxed">{instructor.bio || "—"}</p>
         </InfoRow>
       </div>
-    </InstructorDetailCard>
+    </DetailCard>
   );
 }
 

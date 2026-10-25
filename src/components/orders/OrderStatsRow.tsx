@@ -1,43 +1,53 @@
 import React from "react";
-import { ShoppingCart, DollarSign, CircleCheck, Clock } from "lucide-react";
+import { ShoppingBag, CircleDollarSign, Users, Clock, CircleX } from "lucide-react";
 import { TrendStatCard } from "@/components/ui/TrendStatCard";
 import { OrderItem } from "@/types/order";
 import { formatCurrency } from "./orderFormat";
 
+const pct = (part: number, total: number) => `${total ? Math.round((part / total) * 100) : 0}%`;
+
 export function OrderStatsRow({ orders }: { orders: OrderItem[] }) {
   const paid = orders.filter((o) => o.status === "Paid");
   const pending = orders.filter((o) => o.status === "Pending").length;
+  const failed = orders.filter((o) => o.status === "Failed" || o.status === "Cancelled").length;
   const revenue = paid.reduce((sum, o) => sum + o.amount, 0);
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5 gap-4">
       <TrendStatCard
-        icon={<ShoppingCart />}
-        iconClassName="bg-brand-orange-light text-brand-orange"
-        value={orders.length.toLocaleString()}
+        icon={<ShoppingBag />}
+        iconClassName="bg-blue-14 text-blue"
         label="Total Orders"
-        trend={{ direction: "up", value: "12%" }}
+        value={orders.length.toLocaleString()}
+        trend={{ direction: "up", value: "12%", caption: "vs last month" }}
       />
       <TrendStatCard
-        icon={<DollarSign />}
+        icon={<CircleDollarSign />}
         iconClassName="bg-green-bg text-green"
-        value={formatCurrency(revenue).replace(/\.00$/, "")}
         label="Total Revenue"
-        trend={{ direction: "up", value: "18%" }}
+        value={formatCurrency(revenue).replace(/\.00$/, "")}
+        trend={{ direction: "up", value: "15%", caption: "vs last month" }}
       />
       <TrendStatCard
-        icon={<CircleCheck />}
-        iconClassName="bg-green-bg text-green"
-        value={paid.length.toLocaleString()}
+        icon={<Users />}
+        iconClassName="bg-purple-14 text-purple"
         label="Paid Orders"
-        trend={{ direction: "up", value: "15%" }}
+        value={paid.length.toLocaleString()}
+        trend={{ direction: "up", value: pct(paid.length, orders.length), caption: "of total orders" }}
       />
       <TrendStatCard
         icon={<Clock />}
         iconClassName="bg-yellow-bg text-yellow"
-        value={pending.toLocaleString()}
         label="Pending Orders"
-        trend={{ direction: "down", value: "5%" }}
+        value={pending.toLocaleString()}
+        trend={{ direction: "up", value: pct(pending, orders.length), caption: "of total orders" }}
+      />
+      <TrendStatCard
+        icon={<CircleX />}
+        iconClassName="bg-red-14 text-red"
+        label="Failed Orders"
+        value={failed.toLocaleString()}
+        trend={{ direction: "down", value: pct(failed, orders.length), caption: "of total orders" }}
       />
     </div>
   );

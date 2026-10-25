@@ -19,7 +19,8 @@ import {
   STATUS_REASONS,
   statusNeedsReason,
 } from "@/validations/orderSchema";
-import { OrderStatusBadge } from "../OrderBadges";
+import { ToneBadge } from "@/components/ui/ToneBadge";
+import { statusTone, targetLabel } from "@/lib/orderView";
 import { OrderSummaryBox } from "./OrderSummaryBox";
 
 export interface ChangeStatusTarget {
@@ -35,10 +36,6 @@ interface ChangeStatusModalProps {
   /** Throw to keep the modal open. */
   onConfirm: (order: OrderItem, scope: StatusScope, input: StatusChangeInput) => Promise<void>;
 }
-
-/** Payment pages call a paid order "Completed". */
-export const statusLabel = (status: OrderStatus, scope: StatusScope) =>
-  scope === "payment" && status === "Paid" ? "Completed" : status;
 
 const DESCRIPTIONS: Record<StatusScope, Partial<Record<OrderStatus, string>>> = {
   order: {
@@ -143,7 +140,7 @@ export function ChangeStatusModal({ target, onClose, onConfirm }: ChangeStatusMo
             disabled={isSubmitting || !selected}
             leftIcon={<RefreshCw className="w-4 h-4" />}
           >
-            {isSubmitting ? "Updating..." : selected ? `Change to ${statusLabel(selected, scope)}` : "Change Status"}
+            {isSubmitting ? "Updating..." : selected ? `Change to ${targetLabel(selected, scope)}` : "Change Status"}
           </PrimaryButton>
         </>
       }
@@ -158,9 +155,18 @@ export function ChangeStatusModal({ target, onClose, onConfirm }: ChangeStatusMo
               New Status <span className="text-red">*</span>
             </p>
             <div className="flex items-center gap-2 mb-3 body-sm-regular text-primary-400">
-              Current: <OrderStatusBadge status={target.order.status} size="sm" />
+              Current:
+              <ToneBadge tone={statusTone(target.order.status, scope)} size="sm">
+                {targetLabel(target.order.status, scope)}
+              </ToneBadge>
               <ArrowRight className="w-4 h-4 text-primary-300" />
-              {selected ? <OrderStatusBadge status={selected} size="sm" /> : <span>choose below</span>}
+              {selected ? (
+                <ToneBadge tone={statusTone(selected, scope)} size="sm">
+                  {targetLabel(selected, scope)}
+                </ToneBadge>
+              ) : (
+                <span>choose below</span>
+              )}
             </div>
             <Controller
               control={control}
@@ -193,7 +199,7 @@ export function ChangeStatusModal({ target, onClose, onConfirm }: ChangeStatusMo
                           >
                             {isActive && <span className="w-2 h-2 rounded-full bg-brand-orange" />}
                           </span>
-                          <span className="body-sm-medium text-primary-500">{statusLabel(option, scope)}</span>
+                          <span className="body-sm-medium text-primary-500">{targetLabel(option, scope)}</span>
                         </span>
                         <span className="block body-xsm-regular text-primary-400 mt-1 pl-6">
                           {DESCRIPTIONS[scope][option]}

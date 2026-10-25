@@ -4,7 +4,7 @@ import React from "react";
 import { BookOpen } from "lucide-react";
 import { ColumnDef } from "@/components/ui/Datatable";
 import { DropdownActionItem } from "@/components/ui/AppDropdownMenu";
-import { InstructorDetailCard } from "../InstructorDetailCard";
+import { DetailCard } from "@/components/ui/DetailCard";
 import { InstructorCourseRow } from "../instructorDetailsData";
 import { CourseThumb } from "../CourseThumb";
 import { StatusPill } from "../StatusPill";
@@ -70,7 +70,7 @@ export function RecentCoursesCard({ courses, onViewAll, onViewCourse, getCourseA
   ];
 
   return (
-    <InstructorDetailCard
+    <DetailCard
       icon={<BookOpen />}
       title="Recent Courses"
       action={<ViewAllButton onClick={onViewAll} />}
@@ -81,7 +81,7 @@ export function RecentCoursesCard({ courses, onViewAll, onViewCourse, getCourseA
         onRowClick={onViewCourse}
         emptyMessage="No courses assigned yet."
       />
-    </InstructorDetailCard>
+    </DetailCard>
   );
 }
 
