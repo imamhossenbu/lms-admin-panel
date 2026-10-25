@@ -3,7 +3,7 @@
 import React from "react";
 
 interface CourseBadgeIconProps {
-  type: "html" | "css" | "javascript" | "react" | "node" | "uiux";
+  type: "html" | "css" | "javascript" | "react" | "node" | "uiux" | "tools" | "design";
   size?: "sm" | "md";
 }
 
@@ -71,6 +71,21 @@ export function CourseBadgeIcon({ type, size = "md" }: CourseBadgeIconProps) {
             <path d="M12 2L2 7l10 5 10-5-10-5z" />
             <path d="M2 17l10 5 10-5" />
             <path d="M2 12l10 5 10-5" />
+          </svg>
+        </div>
+      );
+    case "tools":
+    case "design":
+      return (
+        <div
+          className={`${dimClass} rounded-md bg-[#F59E0B] text-white font-bold flex items-center justify-center shrink-0 shadow-xs`}
+          title="Design Tools"
+        >
+          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <rect x="3" y="3" width="7" height="7" rx="1.5" />
+            <rect x="14" y="3" width="7" height="7" rx="1.5" />
+            <rect x="14" y="14" width="7" height="7" rx="1.5" />
+            <rect x="3" y="14" width="7" height="7" rx="1.5" />
           </svg>
         </div>
       );

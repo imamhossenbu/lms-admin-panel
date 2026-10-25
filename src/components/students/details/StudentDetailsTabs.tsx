@@ -2,17 +2,6 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import {
-  LayoutDashboard,
-  BookOpen,
-  FileText,
-  HelpCircle,
-  Award,
-  Clock,
-  StickyNote,
-  LucideIcon,
-} from "lucide-react";
-import { ToneBadge } from "@/components/ui/ToneBadge";
 
 export type StudentTabKey =
   | "overview"
@@ -26,18 +15,16 @@ export type StudentTabKey =
 interface TabItemConfig {
   key: StudentTabKey;
   label: string;
-  icon: LucideIcon;
-  count?: number;
 }
 
 const TABS: TabItemConfig[] = [
-  { key: "overview", label: "Overview", icon: LayoutDashboard },
-  { key: "enrolled-courses", label: "Enrolled Courses", icon: BookOpen, count: 6 },
-  { key: "assignments", label: "Assignments", icon: FileText, count: 4 },
-  { key: "quizzes", label: "Quizzes", icon: HelpCircle, count: 8 },
-  { key: "certificates", label: "Certificates", icon: Award, count: 2 },
-  { key: "activity-log", label: "Activity Log", icon: Clock },
-  { key: "notes", label: "Notes", icon: StickyNote },
+  { key: "overview", label: "Overview" },
+  { key: "enrolled-courses", label: "Enrolled Courses" },
+  { key: "assignments", label: "Assignments" },
+  { key: "quizzes", label: "Quizzes" },
+  { key: "certificates", label: "Certificates" },
+  { key: "activity-log", label: "Activity Log" },
+  { key: "notes", label: "Notes" },
 ];
 
 interface StudentDetailsTabsProps {
@@ -50,57 +37,31 @@ export function StudentDetailsTabs({
   onTabChange,
 }: StudentDetailsTabsProps) {
   return (
-    <div className="mb-6 overflow-x-auto scrollbar-none py-1">
-      {/* Full background container without borders */}
-      <div className="bg-[#F1F5F9] p-1.5 rounded-2xl flex items-center gap-1.5 w-fit min-w-full sm:min-w-0">
+    <div className="mb-6 border-b border-dash overflow-x-auto scrollbar-none">
+      <div className="flex items-center gap-7 sm:gap-8 min-w-max px-1">
         {TABS.map((tab) => {
           const isActive = activeTab === tab.key;
-          const Icon = tab.icon;
 
           return (
             <button
               key={tab.key}
               type="button"
               onClick={() => onTabChange(tab.key)}
-              className={`relative whitespace-nowrap px-4 py-2 rounded-xl body-sm-medium transition-all duration-150 cursor-pointer flex items-center gap-2 shrink-0 z-10 select-none ${
+              className={`relative pb-3 body-sm-medium transition-colors cursor-pointer select-none whitespace-nowrap ${
                 isActive
-                  ? "text-primary-500 font-semibold shadow-xs"
-                  : "text-primary-400 hover:text-primary-500 hover:bg-white/60"
+                  ? "text-blue font-semibold"
+                  : "text-primary-400 hover:text-primary-500 font-medium"
               }`}
             >
-              {/* Active Animated White Pill (Consistent background across all tabs) */}
-              {isActive && (
-                <motion.div
-                  layoutId="studentDetailsActivePill"
-                  className="absolute inset-0 rounded-xl bg-white -z-10 shadow-xs"
-                  transition={{ type: "spring", stiffness: 450, damping: 35 }}
-                />
-              )}
-
-              {/* Icon */}
-              <Icon
-                className={`w-4 h-4 transition-colors ${
-                  isActive ? "text-primary-500" : "text-primary-400"
-                }`}
-              />
-
-              {/* Tab Label */}
               <span>{tab.label}</span>
 
-              {/* Tab Count Badge */}
-              {typeof tab.count === "number" && (
-                <ToneBadge
-                  tone="navy"
-                  size="sm"
-                  variant="pill"
-                  className={
-                    isActive
-                      ? "bg-slate-100 text-primary-500 font-semibold"
-                      : "bg-slate-200/80 text-primary-400"
-                  }
-                >
-                  {tab.count}
-                </ToneBadge>
+              {/* Active Underline Indicator Bar */}
+              {isActive && (
+                <motion.div
+                  layoutId="studentDetailsActiveTabUnderline"
+                  className="absolute bottom-0 inset-x-0 h-[2.5px] bg-blue rounded-full"
+                  transition={{ type: "spring", stiffness: 450, damping: 35 }}
+                />
               )}
             </button>
           );

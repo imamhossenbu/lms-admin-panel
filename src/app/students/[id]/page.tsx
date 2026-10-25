@@ -20,6 +20,10 @@ import { EnrolledCoursesMiniCard } from "@/components/students/details/EnrolledC
 import { RecentActivityTimelineCard } from "@/components/students/details/RecentActivityTimelineCard";
 import { EnrolledCoursesTabContent } from "@/components/students/details/EnrolledCoursesTabContent";
 import { AssignmentsTabContent } from "@/components/students/details/AssignmentsTabContent";
+import { QuizzesTabContent } from "@/components/students/details/QuizzesTabContent";
+import { CertificatesTabContent } from "@/components/students/details/CertificatesTabContent";
+import { ActivityLogTabContent } from "@/components/students/details/ActivityLogTabContent";
+import { NotesTabContent } from "@/components/students/details/NotesTabContent";
 import { StudentTabPlaceholder } from "@/components/students/details/StudentTabPlaceholder";
 import { StudentDetailsSkeleton } from "@/components/students/details/StudentDetailsSkeleton";
 
@@ -211,14 +215,16 @@ function StudentDetailsContent({ studentId }: { studentId: string }) {
         <AssignmentsTabContent assignments={student.assignments} />
       )}
 
-      {activeTab === "quizzes" && <StudentTabPlaceholder title="Quizzes" />}
+      {activeTab === "quizzes" && (
+        <QuizzesTabContent quizzes={student.quizzes} />
+      )}
       {activeTab === "certificates" && (
-        <StudentTabPlaceholder title="Certificates" />
+        <CertificatesTabContent certificates={student.certificates} />
       )}
       {activeTab === "activity-log" && (
-        <StudentTabPlaceholder title="Activity Log" />
+        <ActivityLogTabContent activities={student.activityLogs} />
       )}
-      {activeTab === "notes" && <StudentTabPlaceholder title="Notes" />}
+      {activeTab === "notes" && <NotesTabContent notes={student.notes} />}
     </motion.div>
   );
 }
