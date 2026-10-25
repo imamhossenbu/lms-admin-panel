@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { RefreshCw, Trash2 } from "lucide-react";
+import { RefreshCw, Sparkles, Trash2 } from "lucide-react";
 import { ModalShell } from "@/components/ui/ModalShell";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { SecondaryButton } from "@/components/ui/secondary-button";
@@ -173,6 +173,8 @@ export function AiOutlineReviewModal({
         // Sub-dialogs handle Escape themselves; don't close the whole review behind them.
         onClose={dialog ? () => {} : handleClose}
         title="AI Generated Outline"
+        titleIcon={<Sparkles className="text-purple" />}
+        headerVariant="hero"
         subtitle="Review and edit the generated course structure. You can customize modules, lessons, and lesson types before adding it to your curriculum."
         maxWidth="2xl"
         bodyClassName="bg-white"

@@ -34,6 +34,10 @@ export interface AiOutlineModule {
   id: string;
   title: string;
   description?: string;
+  /** Module learning objectives (saved into the module description; the API has no column for them). */
+  objectives?: string[];
+  /** Optional module cover (preview only; the API has no module thumbnail field). */
+  thumbnailUrl?: string;
   lessons: AiOutlineLesson[];
 }
 
@@ -135,13 +139,21 @@ export const formatMinutes = (minutes: number) => {
   return m ? `${h} hr ${m} min` : `${h} hr`;
 };
 
+/** Module description sent to the API, with learning objectives appended as a list. */
+export const moduleDescriptionForApi = (m: AiOutlineModule) => {
+  const objectives = (m.objectives ?? []).map((o) => o.trim()).filter(Boolean);
+  const parts = [m.description?.trim() ?? ""];
+  if (objectives.length) parts.push(`Learning objectives:\n${objectives.map((o) => `- ${o}`).join("\n")}`);
+  return parts.filter(Boolean).join("\n\n");
+};
+
 /** Creates every module and lesson of the outline under an existing course (sequential to keep order). */
 export async function saveOutlineToCourse(courseId: string, outline: AiOutline): Promise<void> {
   for (let mi = 0; mi < outline.modules.length; mi++) {
     const outlineModule = outline.modules[mi];
     const created = await coursesApi.createModule(courseId, {
       title: outlineModule.title,
-      description: outlineModule.description ?? "",
+      description: moduleDescriptionForApi(outlineModule),
       order: mi + 1,
     });
     if (!created?.id) continue;

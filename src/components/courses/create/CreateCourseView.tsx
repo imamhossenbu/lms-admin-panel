@@ -1,13 +1,15 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { useUrlParams } from "@/lib/useUrlParams";
 import { courseBasicInfoSchema, type CourseBasicInfoInput } from "@/validations/courseSchema";
+import type { CurriculumModuleInput } from "@/validations/courseOutlineSchema";
 import { CreateCourseHeader } from "./CreateCourseHeader";
 import { CourseStepper } from "./CourseStepper";
 import { BasicInformationCard } from "./BasicInformationCard";
@@ -17,16 +19,27 @@ import { CreateCourseActions } from "./CreateCourseActions";
 import { CourseCreateSkeleton } from "./CourseCreateSkeleton";
 import { GenerateCourseAiModal } from "./GenerateCourseAiModal";
 import { AiOutlineReviewModal } from "./AiOutlineReviewModal";
+import { CourseCurriculumCard } from "./curriculum/CourseCurriculumCard";
+import { ModulePanel } from "./curriculum/ModulePanel";
+import { moduleToPanel, saveModuleFromPanel } from "./curriculum/curriculumEditing";
+import { EMPTY_OUTLINE, getOutlineIssues } from "./outline/outlineEditing";
 import { EMPTY_BASIC_INFO, levelLabel, listItemsFromHtml } from "./createCourseOptions";
+import type { AiOutline } from "./aiOutline";
 import { useCreateCourseData } from "./hooks/useCreateCourseData";
 import { useCourseAiFlow } from "./hooks/useCourseAiFlow";
 import { usePreviewTab } from "./hooks/usePreviewTab";
 import { useSaveCourse, type SaveIntent } from "./hooks/useSaveCourse";
+import { clearCreateCourseDraft, useCreateCourseDraft } from "./hooks/useCreateCourseDraft";
 import type { CoursePreviewData } from "./preview/previewTypes";
 
-/** Create Course — Step 1 (Basic Information) with live preview and the AI curriculum flow. */
+type ModulePanelState = { mode: "create" } | { mode: "edit"; moduleId: string } | null;
+
+/** Create Course: Step 1 (Basic Information) and Step 2 (Curriculum), with live preview and the AI flow. */
 export function CreateCourseView() {
   const router = useRouter();
+  const { get, set } = useUrlParams();
+  const step = get("step") === "curriculum" ? 2 : 1;
+
   const { categories, instructors, isLoading } = useCreateCourseData();
   const [previewTab, setPreviewTab] = usePreviewTab();
   const { save, savingIntent } = useSaveCourse();
@@ -38,15 +51,28 @@ export function CreateCourseView() {
   });
   const ai = useCourseAiFlow(form);
   const values = useWatch({ control: form.control }) as CourseBasicInfoInput;
+  const { isRestored } = useCreateCourseDraft(form, ai.acceptedOutline, ai.setAcceptedOutline, !isLoading);
 
   const [instructorId, setInstructorId] = useState("");
-  const [uploads, setUploads] = useState({ thumbnail: false, video: false });
+  const [uploads, setUploads] = useState({ thumbnail: false, video: false, module: false });
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isDiscardOpen, setIsDiscardOpen] = useState(false);
+  const [panel, setPanel] = useState<ModulePanelState>(null);
 
-  const isUploading = uploads.thumbnail || uploads.video;
+  const isUploading = uploads.thumbnail || uploads.video || uploads.module;
   const isSaving = savingIntent !== null;
   const instructor = instructors.find((i) => i.id === instructorId) ?? instructors[0] ?? null;
+  const curriculum: AiOutline = ai.acceptedOutline ?? { ...EMPTY_OUTLINE, title: values.title ?? "", level: values.level ?? "BEGINNER" };
+
+  // Opening step 2 directly (reload/bookmark) needs valid basic info; otherwise go back to step 1.
+  useEffect(() => {
+    if (!isRestored || step !== 2) return;
+    if (!courseBasicInfoSchema.safeParse(form.getValues()).success) {
+      set({ step: null });
+      toast.info("Complete the basic information first", { description: "Course details are required before building the curriculum." });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isRestored, step]);
 
   const previewData = useMemo<CoursePreviewData>(() => {
     const outcomes = ai.acceptedOutline?.learningOutcomes ?? [];
@@ -73,31 +99,64 @@ export function CreateCourseView() {
     onInstructorChange: setInstructorId,
   };
 
+  const invalidFormToast = () =>
+    toast.error("Please complete the required fields", {
+      description: "Some course details are missing or invalid. Check the highlighted fields.",
+    });
+
   const submit = (intent: SaveIntent) => {
     if (isUploading) {
       toast.error("Upload in progress", { description: "Please wait for your media to finish uploading." });
       return;
     }
-    void form.handleSubmit(
-      async (data) => {
-        const courseId = await save(data, ai.acceptedOutline, intent);
-        if (!courseId) return;
-        form.reset(data);
-        router.push(intent === "draft" ? "/courses" : `/courses/${courseId}/edit`);
-      },
-      () =>
-        toast.error("Please complete the required fields", {
-          description: "Some course details are missing or invalid. Check the highlighted fields.",
-        })
-    )();
+    void form.handleSubmit(async (data) => {
+      const courseId = await save(data, ai.acceptedOutline, intent);
+      if (!courseId) return;
+      clearCreateCourseDraft();
+      form.reset(data);
+      router.push(intent === "draft" ? "/courses" : `/courses/${courseId}/edit`);
+    }, step === 2 ? () => { set({ step: null }); invalidFormToast(); } : invalidFormToast)();
   };
+
+  const goToCurriculum = () => {
+    if (isUploading) {
+      toast.error("Upload in progress", { description: "Please wait for your media to finish uploading." });
+      return;
+    }
+    void form.handleSubmit(() => {
+      set({ step: "curriculum" });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }, invalidFormToast)();
+  };
+
+  const continueToPricing = () => {
+    const issues = getOutlineIssues(curriculum);
+    if (issues.messages.length) {
+      toast.error("Curriculum isn't ready yet", { description: issues.messages.slice(0, 3).join(" ") });
+      return;
+    }
+    submit("continue");
+  };
+
+  const setCurriculum = (next: AiOutline) => ai.setAcceptedOutline(next);
+
+  const handlePanelSubmit = (panelValues: CurriculumModuleInput) => {
+    if (!panel) return;
+    const result = saveModuleFromPanel(curriculum, panelValues, panel.mode === "edit" ? panel.moduleId : undefined);
+    setCurriculum(result.outline);
+    toast.success(panel.mode === "edit" ? "Module updated" : "Module created", { description: panelValues.title.trim() });
+    setPanel(null);
+  };
+
+  const editingModule = panel?.mode === "edit" ? curriculum.modules.find((m) => m.id === panel.moduleId) : undefined;
+  const panelInitialValues = useMemo(() => (editingModule ? moduleToPanel(editingModule) : undefined), [editingModule]);
 
   const handleCancel = () => {
     if (form.formState.isDirty || ai.acceptedOutline) setIsDiscardOpen(true);
     else router.push("/courses");
   };
 
-  if (isLoading) return <CourseCreateSkeleton />;
+  if (isLoading || !isRestored) return <CourseCreateSkeleton />;
 
   return (
     <FormProvider {...form}>
@@ -114,42 +173,92 @@ export function CreateCourseView() {
           onPreview={() => setIsPreviewOpen(true)}
         />
 
-        <CourseStepper activeStep={1} />
+        <CourseStepper activeStep={step} onStepClick={(target) => target === 1 && set({ step: null })} />
 
-        <form
-          noValidate
-          onSubmit={(e) => {
-            e.preventDefault();
-            submit("continue");
-          }}
-          className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start"
-        >
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.08, ease: "easeOut" }}
-            className="lg:col-span-8 min-w-0"
-          >
-            <BasicInformationCard
-              categories={categories}
-              acceptedOutline={ai.acceptedOutline}
-              onGenerateAi={ai.openGenerate}
-              onViewOutline={ai.viewAccepted}
-              onRemoveOutline={ai.removeAccepted}
-              onUploadingChange={(kind, uploading) => setUploads((prev) => ({ ...prev, [kind]: uploading }))}
-            />
-          </motion.div>
-
-          <div className="lg:col-span-4 min-w-0 space-y-5 lg:sticky lg:top-6">
-            <CoursePreviewCard {...previewProps} onExpand={() => setIsPreviewOpen(true)} />
-            <CreateCourseActions
-              isContinuing={savingIntent === "continue"}
-              disabled={isSaving}
-              onCancel={handleCancel}
-              onContinue={() => submit("continue")}
-            />
-          </div>
-        </form>
+        <AnimatePresence mode="wait" initial={false}>
+          {step === 1 ? (
+            <motion.form
+              key="basic"
+              noValidate
+              onSubmit={(e) => {
+                e.preventDefault();
+                goToCurriculum();
+              }}
+              initial={{ opacity: 0, x: -16 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -16 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start"
+            >
+              <div className="lg:col-span-8 min-w-0">
+                <BasicInformationCard
+                  categories={categories}
+                  acceptedOutline={ai.acceptedOutline}
+                  onGenerateAi={ai.openGenerate}
+                  onViewOutline={ai.viewAccepted}
+                  onRemoveOutline={ai.removeAccepted}
+                  onUploadingChange={(kind, uploading) => setUploads((prev) => ({ ...prev, [kind]: uploading }))}
+                />
+              </div>
+              <div className="lg:col-span-4 min-w-0 space-y-5 lg:sticky lg:top-6">
+                <CoursePreviewCard {...previewProps} onExpand={() => setIsPreviewOpen(true)} />
+                <CreateCourseActions
+                  isContinuing={false}
+                  disabled={isSaving}
+                  onCancel={handleCancel}
+                  onContinue={goToCurriculum}
+                />
+              </div>
+            </motion.form>
+          ) : (
+            <motion.div
+              key="curriculum"
+              initial={{ opacity: 0, x: 16 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 16 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start"
+            >
+              <div className="lg:col-span-8 min-w-0">
+                <CourseCurriculumCard
+                  curriculum={curriculum}
+                  onChange={setCurriculum}
+                  activeModuleId={panel?.mode === "edit" ? panel.moduleId : undefined}
+                  onAddModule={() => setPanel({ mode: "create" })}
+                  onEditModule={(m) => setPanel({ mode: "edit", moduleId: m.id })}
+                  onGenerateAi={ai.openGenerate}
+                />
+              </div>
+              <div className="lg:col-span-4 min-w-0 space-y-5 lg:sticky lg:top-6">
+                <AnimatePresence mode="wait" initial={false}>
+                  {panel ? (
+                    <ModulePanel
+                      key={panel.mode === "edit" ? panel.moduleId : "create"}
+                      mode={panel.mode}
+                      initialValues={panelInitialValues}
+                      onCancel={() => setPanel(null)}
+                      onSubmit={handlePanelSubmit}
+                      onUploadingChange={(uploading) => setUploads((prev) => ({ ...prev, module: uploading }))}
+                    />
+                  ) : (
+                    <motion.div key="preview" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-5">
+                      <CoursePreviewCard {...previewProps} onExpand={() => setIsPreviewOpen(true)} />
+                      <CreateCourseActions
+                        isContinuing={savingIntent === "continue"}
+                        disabled={isSaving}
+                        cancelLabel="Back"
+                        continueLabel="Continue to Pricing"
+                        continuingLabel="Saving course..."
+                        onCancel={() => set({ step: null })}
+                        onContinue={continueToPricing}
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
 
       <CoursePreviewModal isOpen={isPreviewOpen} onClose={() => setIsPreviewOpen(false)} {...previewProps} />
@@ -165,6 +274,7 @@ export function CreateCourseView() {
         confirmLabel="Discard & Leave"
         onClose={() => setIsDiscardOpen(false)}
         onConfirm={async () => {
+          clearCreateCourseDraft();
           router.push("/courses");
         }}
       />

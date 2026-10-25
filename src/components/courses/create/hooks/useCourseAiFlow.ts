@@ -141,6 +141,8 @@ export function useCourseAiFlow(form: UseFormReturn<CourseBasicInfoInput>) {
 
   return {
     acceptedOutline,
+    /** The curriculum step edits the accepted outline directly. */
+    setAcceptedOutline,
     generateModal: {
       isOpen: isGenerateOpen,
       onClose: () => setIsGenerateOpen(false),

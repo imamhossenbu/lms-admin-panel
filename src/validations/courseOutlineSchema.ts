@@ -30,3 +30,30 @@ export const outlineLessonSchema = z.object({
 });
 
 export type OutlineLessonInput = z.infer<typeof outlineLessonSchema>;
+
+export const CURRICULUM_MODULE_TITLE_MAX = 100;
+export const CURRICULUM_MODULE_DESCRIPTION_MAX = 500;
+export const CURRICULUM_MODULE_OBJECTIVES_MAX = 10;
+
+/** Add / Edit Module side panel on the Curriculum step. */
+export const curriculumModuleSchema = z.object({
+  title: z
+    .string()
+    .trim()
+    .min(3, "Module title must be at least 3 characters")
+    .max(CURRICULUM_MODULE_TITLE_MAX, `Module title must be ${CURRICULUM_MODULE_TITLE_MAX} characters or less`),
+  description: z
+    .string()
+    .trim()
+    .max(CURRICULUM_MODULE_DESCRIPTION_MAX, `Description must be ${CURRICULUM_MODULE_DESCRIPTION_MAX} characters or less`),
+  thumbnailUrl: z.string(),
+  objectives: z
+    .array(
+      z.object({
+        value: z.string().trim().max(150, "Objective must be 150 characters or less"),
+      })
+    )
+    .max(CURRICULUM_MODULE_OBJECTIVES_MAX, `Add up to ${CURRICULUM_MODULE_OBJECTIVES_MAX} objectives`),
+});
+
+export type CurriculumModuleInput = z.infer<typeof curriculumModuleSchema>;

@@ -25,6 +25,8 @@ interface MediaUploadFieldProps {
   onChange: (url: string) => void;
   config: MediaUploadConfig;
   upload: (file: File) => Promise<{ url: string }>;
+  /** "split": preview tile + dropzone side by side. "single": dropzone that becomes the preview once uploaded. */
+  layout?: "split" | "single";
   error?: string;
   /** Reports uploads in progress so the page can block saving meanwhile. */
   onUploadingChange?: (uploading: boolean) => void;
@@ -37,6 +39,7 @@ export function MediaUploadField({
   value,
   onChange,
   config,
+  layout = "split",
   upload,
   error,
   onUploadingChange,
@@ -93,7 +96,7 @@ export function MediaUploadField({
 
   return (
     <div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className={layout === "split" ? "grid grid-cols-1 sm:grid-cols-2 gap-4" : "grid"}>
         <AnimatePresence initial={false} mode="wait">
           {shownSrc ? (
             <MediaPreviewTile
@@ -103,10 +106,11 @@ export function MediaUploadField({
               isUploading={isUploading}
               onRemove={() => onChange("")}
             />
-          ) : (
+          ) : layout === "split" ? (
             <MediaEmptyTile key="empty" kind={kind} />
-          )}
+          ) : null}
         </AnimatePresence>
+        {(layout === "split" || !shownSrc) && (
         <UploadDropzone
           kind={kind}
           accept={config.accept}
@@ -117,6 +121,7 @@ export function MediaUploadField({
           hasError={!!error}
           onFile={handleFile}
         />
+        )}
       </div>
       {footer}
       <FieldError message={error} />

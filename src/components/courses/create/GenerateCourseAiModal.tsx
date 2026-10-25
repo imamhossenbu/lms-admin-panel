@@ -179,12 +179,13 @@ function GenerateCourseAiContent({ onClose, initialValues, onGenerated }: Omit<G
       isOpen
       onClose={handleClose}
       title="Generate Course with AI"
-      subtitle={
-        isGenerating
-          ? "Hang tight, this usually takes a few seconds."
-          : "Create a complete course outline in seconds with AI. Just provide a few details and we'll generate modules, lessons and suggested content for you."
-      }
-      maxWidth="xl"
+      titleIcon={<Sparkles className="text-purple" />}
+      headerVariant={isGenerating ? "none" : "hero"}
+      subtitle="Create a complete course outline in seconds with AI. Just provide a few details and we'll generate modules, lessons and suggested content for you."
+      maxWidth={isGenerating ? "2xl" : "xl"}
+      className={isGenerating ? "max-w-5xl" : undefined}
+      bodyClassName={isGenerating ? "px-6 py-12 sm:px-14" : "px-8 pt-5 pb-6"}
+      footerClassName="px-8 py-5"
       footer={
         isGenerating ? undefined : (
           <>
@@ -222,10 +223,14 @@ function GenerateCourseAiContent({ onClose, initialValues, onGenerated }: Omit<G
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
-            className="grid grid-cols-1 gap-8 lg:grid-cols-2"
+            className="grid grid-cols-1 gap-10 lg:grid-cols-12"
           >
-            <AiGenerateForm formId={formId} form={form} onSubmit={onSubmit} />
-            <AiBenefitsPanel />
+            <div className="lg:col-span-7">
+              <AiGenerateForm formId={formId} form={form} onSubmit={onSubmit} />
+            </div>
+            <div className="lg:col-span-5">
+              <AiBenefitsPanel />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

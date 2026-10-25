@@ -11,9 +11,20 @@ interface CreateCourseActionsProps {
   disabled: boolean;
   onCancel: () => void;
   onContinue: () => void;
+  cancelLabel?: string;
+  continueLabel?: string;
+  continuingLabel?: string;
 }
 
-export function CreateCourseActions({ isContinuing, disabled, onCancel, onContinue }: CreateCourseActionsProps) {
+export function CreateCourseActions({
+  isContinuing,
+  disabled,
+  onCancel,
+  onContinue,
+  cancelLabel = "Cancel",
+  continueLabel = "Continue to Curriculum",
+  continuingLabel = "Saving course...",
+}: CreateCourseActionsProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -22,7 +33,7 @@ export function CreateCourseActions({ isContinuing, disabled, onCancel, onContin
       className="bg-white rounded-xl border border-dash shadow-2xs p-4 flex items-center justify-end gap-3"
     >
       <SecondaryButton onClick={onCancel} disabled={isContinuing}>
-        Cancel
+        {cancelLabel}
       </SecondaryButton>
       <PrimaryButton
         onClick={onContinue}
@@ -31,7 +42,7 @@ export function CreateCourseActions({ isContinuing, disabled, onCancel, onContin
         rightIcon={<ArrowRight />}
         className="edupro-glow-btn"
       >
-        {isContinuing ? "Saving course..." : "Continue to Curriculum"}
+        {isContinuing ? continuingLabel : continueLabel}
       </PrimaryButton>
     </motion.div>
   );
