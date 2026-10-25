@@ -68,7 +68,7 @@ export function CreateOrderModal({ isOpen, onClose, onCreate }: CreateOrderModal
       onClose={isSubmitting ? () => {} : onClose}
       title="Create Order"
       subtitle="Create a manual order, e.g. for bank transfers or offline enrollment."
-      maxWidth="md"
+      maxWidth="lg"
       footer={
         <>
           <SecondaryButton type="button" onClick={onClose} disabled={isSubmitting}>
