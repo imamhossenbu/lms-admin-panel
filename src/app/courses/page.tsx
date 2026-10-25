@@ -4,7 +4,7 @@ import React, { Suspense, useCallback, useEffect, useMemo, useState } from "reac
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "sonner";
-import { Eye, Pencil, Layers, Sparkles, Send, Archive, Trash2, List, LayoutGrid } from "lucide-react";
+import { Eye, Pencil, Layers, Send, Archive, Trash2, List, LayoutGrid } from "lucide-react";
 
 import { coursesApi, categoriesApi } from "@/lib/api";
 import { AdminCourseItem } from "@/lib/types";
@@ -17,12 +17,10 @@ import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { CoursesSkeleton } from "@/components/courses/CoursesSkeleton";
 import { CourseCard } from "@/components/courses/CourseCard";
-import { AiSyllabusModal } from "@/components/courses/AiSyllabusModal";
 import { CoursesHeader } from "@/components/courses/list/CoursesHeader";
 import { CourseStatsRow } from "@/components/courses/list/CourseStatsRow";
 import { CoursesTable } from "@/components/courses/list/CoursesTable";
 import { CoursesLoadError } from "@/components/courses/list/CoursesLoadError";
-import { useCourseAiOutline } from "@/components/courses/list/useCourseAiOutline";
 
 const TABLE_PAGE_SIZES = [10, 20, 50];
 const GRID_PAGE_SIZES = [6, 12, 24];
@@ -73,8 +71,6 @@ function CoursesContent() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     loadCourses();
   }, [loadCourses]);
-
-  const ai = useCourseAiOutline(courses, loadCourses);
 
   const filtered = useMemo(() => {
     const q = query.toLowerCase().trim();
@@ -137,7 +133,6 @@ function CoursesContent() {
     { key: "view", label: "View Details", icon: <Eye className={ICON} />, onClick: () => router.push(`/courses/${course.id}`) },
     { key: "edit", label: "Edit Course", icon: <Pencil className={ICON} />, onClick: () => router.push(`/courses/${course.id}/edit`) },
     { key: "curriculum", label: "Manage Curriculum", icon: <Layers className={ICON} />, onClick: () => router.push(`/courses/${course.id}/edit`) },
-    { key: "ai", label: "Generate AI Outline", icon: <Sparkles className={ICON} />, onClick: () => ai.open(course) },
     {
       key: "status",
       label: course.status === "PUBLISHED" ? "Unpublish" : "Publish",
@@ -179,7 +174,6 @@ function CoursesContent() {
       <CoursesHeader
         onCreate={() => router.push("/courses/create")}
         onCategories={() => router.push("/categories")}
-        onAiSyllabus={() => ai.open()}
       />
       <CourseStatsRow courses={courses} />
 
@@ -253,7 +247,6 @@ function CoursesContent() {
                   onViewDetails={(c) => router.push(`/courses/${c.id}`)}
                   onEdit={(c) => router.push(`/courses/${c.id}/edit`)}
                   onManageCurriculum={(c) => router.push(`/courses/${c.id}/edit`)}
-                  onGenerateOutline={(c) => ai.open(c)}
                   onDelete={(courseId) => setDeleting(courses.find((c) => c.id === courseId) ?? null)}
                 />
                 </motion.div>
@@ -280,7 +273,6 @@ function CoursesContent() {
         onClose={() => setDeleting(null)}
         onConfirm={deleteCourse}
       />
-      <AiSyllabusModal isOpen={ai.isOpen} onClose={ai.close} defaultTitle={ai.defaultTitle} onApplyOutline={ai.apply} />
     </motion.div>
   );
 }

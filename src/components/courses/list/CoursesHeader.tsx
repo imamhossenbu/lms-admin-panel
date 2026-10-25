@@ -1,20 +1,19 @@
 "use client";
 
 import React from "react";
-import { Home, Plus, FolderTree, Sparkles } from "lucide-react";
+import { Home, Plus, FolderTree } from "lucide-react";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { PrimaryButton } from "@/components/ui/primary-button";
 
 interface CoursesHeaderProps {
   onCreate: () => void;
   onCategories: () => void;
-  onAiSyllabus: () => void;
 }
 
 const OUTLINE =
   "h-11 px-4 rounded-lg border border-dash bg-white body-sm-medium text-primary-500 hover:bg-slate-50 transition-colors inline-flex items-center gap-2 cursor-pointer whitespace-nowrap";
 
-export function CoursesHeader({ onCreate, onCategories, onAiSyllabus }: CoursesHeaderProps) {
+export function CoursesHeader({ onCreate, onCategories }: CoursesHeaderProps) {
   return (
     <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 text-left">
       <div>
@@ -26,10 +25,6 @@ export function CoursesHeader({ onCreate, onCategories, onAiSyllabus }: CoursesH
         <button type="button" onClick={onCategories} className={OUTLINE}>
           <FolderTree className="w-4 h-4 text-primary-400" />
           Categories
-        </button>
-        <button type="button" onClick={onAiSyllabus} className={OUTLINE}>
-          <Sparkles className="w-4 h-4 text-purple" />
-          AI Syllabus
         </button>
         <PrimaryButton type="button" size="lg" onClick={onCreate} leftIcon={<Plus className="w-4 h-4" />}>
           Create Course

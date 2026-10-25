@@ -6,7 +6,6 @@ import {
   Users,
   Star,
   BookOpen,
-  Sparkles,
   Trash2,
   Edit3,
   PlayCircle,
@@ -26,7 +25,6 @@ interface CourseCardProps {
   course: AdminCourseItem;
   onEdit?: (course: AdminCourseItem) => void;
   onDelete?: (id: string) => void;
-  onGenerateOutline?: (course: AdminCourseItem) => void;
   onViewDetails?: (course: AdminCourseItem) => void;
   onManageCurriculum?: (course: AdminCourseItem) => void;
 }
@@ -55,7 +53,6 @@ export function CourseCard({
   course,
   onEdit,
   onDelete,
-  onGenerateOutline,
   onViewDetails,
   onManageCurriculum,
 }: CourseCardProps) {
@@ -78,12 +75,6 @@ export function CourseCard({
       label: "View Syllabus & Details",
       icon: <PlayCircle className="w-4 h-4 text-primary-400" />,
       onClick: () => onViewDetails?.(course),
-    },
-    {
-      label: "AI Syllabus Builder",
-      icon: <Sparkles className="w-4 h-4 text-purple-600" />,
-      onClick: () => onGenerateOutline?.(course),
-      className: "text-purple-700 hover:bg-purple-50",
     },
     {
       label: "Edit Course Metadata",
