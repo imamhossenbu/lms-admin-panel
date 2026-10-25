@@ -7,7 +7,15 @@ const SoftBar = ({ className }: { className: string }) => <div className={`round
 
 const COLUMNS = ["w-16", "w-24", "w-24", "w-12", "w-24", "w-14", "w-16", "w-10"];
 
-export function OrdersPageSkeleton() {
+interface OrdersPageSkeletonProps {
+  /** Number of KPI cards in the stats row (Payments shows 6). */
+  statCards?: number;
+  /** Status pill tabs above the toolbar (Orders only). */
+  showTabs?: boolean;
+}
+
+/** Skeleton for the commerce list pages (Orders, Payments). */
+export function OrdersPageSkeleton({ statCards = 4, showTabs = true }: OrdersPageSkeletonProps) {
   return (
     <div className="space-y-5 text-left animate-pulse pb-8">
       {/* Breadcrumb + title */}
@@ -23,8 +31,12 @@ export function OrdersPageSkeleton() {
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        {[1, 2, 3, 4].map((i) => (
+      <div
+        className={`grid grid-cols-1 sm:grid-cols-2 gap-4 ${
+          statCards === 6 ? "lg:grid-cols-3 2xl:grid-cols-6" : "xl:grid-cols-4"
+        }`}
+      >
+        {Array.from({ length: statCards }, (_, i) => (
           <div key={i} className="bg-white rounded-xl border border-dash p-4 flex items-center gap-3.5">
             <div className="w-12 h-12 rounded-xl bg-slate-100 shrink-0" />
             <div className="flex-1 space-y-2">
@@ -38,14 +50,16 @@ export function OrdersPageSkeleton() {
 
       <div className="bg-white rounded-xl border border-dash p-5 space-y-4">
         {/* Pill tabs */}
-        <div className="bg-gray-bg p-1.5 rounded-2xl flex items-center gap-1.5 w-fit max-w-full overflow-hidden">
-          {["w-16", "w-10", "w-14", "w-12", "w-16", "w-16"].map((w, i) => (
-            <div key={i} className={`flex items-center gap-2 px-4 py-2 rounded-xl shrink-0 ${i === 0 ? "bg-white shadow-xs" : ""}`}>
-              <Bar className={`h-4 ${w}`} />
-              <div className="h-4 w-8 rounded-full bg-slate-200" />
-            </div>
-          ))}
-        </div>
+        {showTabs && (
+          <div className="bg-gray-bg p-1.5 rounded-2xl flex items-center gap-1.5 w-fit max-w-full overflow-hidden">
+            {["w-16", "w-10", "w-14", "w-12", "w-16", "w-16"].map((w, i) => (
+              <div key={i} className={`flex items-center gap-2 px-4 py-2 rounded-xl shrink-0 ${i === 0 ? "bg-white shadow-xs" : ""}`}>
+                <Bar className={`h-4 ${w}`} />
+                <div className="h-4 w-8 rounded-full bg-slate-200" />
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Toolbar */}
         <div className="flex flex-col xl:flex-row gap-3">

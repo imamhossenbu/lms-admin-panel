@@ -48,14 +48,16 @@ export function useOrderActions({ onOpenDetails }: { onOpenDetails: (order: Orde
 
   const viewStudent = (order: OrderItem) => router.push(`/students/${order.student.id}`);
 
-  const copyTransaction = async (order: OrderItem) => {
+  const copyText = async (text: string, successTitle: string) => {
     try {
-      await navigator.clipboard.writeText(order.transactionId);
-      toast.success("Transaction ID copied", { description: order.transactionId });
+      await navigator.clipboard.writeText(text);
+      toast.success(successTitle, { description: text });
     } catch {
       toast.error("Could not copy", { description: "Your browser blocked clipboard access." });
     }
   };
+
+  const copyTransaction = (order: OrderItem) => copyText(order.transactionId, "Transaction ID copied");
 
   const verifyPayment = async (order: OrderItem) => {
     setVerifyingId(order.id);
@@ -229,6 +231,7 @@ export function useOrderActions({ onOpenDetails }: { onOpenDetails: (order: Orde
     modals,
     verifyingId,
     viewStudent,
+    copyText,
     copyTransaction,
     verifyPayment,
     downloadInvoice: handleDownloadInvoice,

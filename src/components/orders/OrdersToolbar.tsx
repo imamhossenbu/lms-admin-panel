@@ -15,7 +15,12 @@ interface OrdersToolbarProps {
   onCourseChange: (value: string) => void;
   onStatusChange: (value: string) => void;
   onExport: () => void;
+  /** Lets other commerce pages (e.g. Payments) reuse the toolbar. */
+  searchPlaceholder?: string;
+  statusOptions?: string[];
 }
+
+const ORDER_STATUS_OPTIONS = ["Paid", "Pending", "Failed", "Cancelled", "Refunded"];
 
 export function OrdersToolbar({
   query,
@@ -27,6 +32,8 @@ export function OrdersToolbar({
   onCourseChange,
   onStatusChange,
   onExport,
+  searchPlaceholder = "Search orders by ID, student name or email...",
+  statusOptions = ORDER_STATUS_OPTIONS,
 }: OrdersToolbarProps) {
   return (
     <div className="flex flex-col xl:flex-row xl:items-center gap-3">
@@ -36,7 +43,7 @@ export function OrdersToolbar({
           type="search"
           value={query}
           onChange={(e) => onQueryChange(e.target.value)}
-          placeholder="Search orders by ID, student name or email..."
+          placeholder={searchPlaceholder}
           className="w-full h-10 pl-10 pr-3.5 rounded-lg border border-dash bg-white body-sm-regular text-primary-500 placeholder:text-primary-300 focus:outline-none focus:border-brand-orange transition-colors"
         />
       </div>
@@ -59,7 +66,7 @@ export function OrdersToolbar({
         <AppSelect
           value={status}
           onValueChange={onStatusChange}
-          options={[{ value: "All", label: "All Status" }, "Paid", "Pending", "Failed", "Cancelled", "Refunded"]}
+          options={[{ value: "All", label: "All Status" }, ...statusOptions]}
           className="w-full xl:w-40"
           triggerClassName="w-full bg-white"
         />

@@ -1,18 +1,27 @@
 import React from "react";
 import { Check, X, RotateCcw, Ban, Lock } from "lucide-react";
 import { cn } from "@/lib/cn";
-import { OrderTimelineLabel, OrderTimelineStep } from "@/types/order";
+
 import { formatOrderDateTime } from "../orderFormat";
 
+/** Any timeline row (order or payment); `at` is undefined while the step is still pending. */
+export interface TimelineStep {
+  label: string;
+  at?: string;
+  by?: string;
+  note?: string;
+}
+
 /** Negative / terminal steps get their own icon and colour; everything else is a green check. */
-const STEP_STYLE: Partial<Record<OrderTimelineLabel, { icon: React.ReactNode; dot: string; line: string }>> = {
+const STEP_STYLE: Record<string, { icon: React.ReactNode; dot: string; line: string } | undefined> = {
   "Payment Failed": { icon: <X className="w-3 h-3" />, dot: "bg-red text-white", line: "bg-red" },
   "Order Cancelled": { icon: <Ban className="w-3 h-3" />, dot: "bg-primary-300 text-white", line: "bg-slate-200" },
+  "Payment Cancelled": { icon: <Ban className="w-3 h-3" />, dot: "bg-primary-300 text-white", line: "bg-slate-200" },
   "Refund Issued": { icon: <RotateCcw className="w-3 h-3" />, dot: "bg-purple text-white", line: "bg-purple" },
   "Course Access Revoked": { icon: <Lock className="w-3 h-3" />, dot: "bg-purple text-white", line: "bg-purple" },
 };
 
-export function OrderTimeline({ steps }: { steps: OrderTimelineStep[] }) {
+export function OrderTimeline({ steps, pendingText = "Waiting for payment confirmation" }: { steps: TimelineStep[]; pendingText?: string }) {
   return (
     <ol className="relative">
       {steps.map((step, idx) => {
@@ -44,7 +53,7 @@ export function OrderTimeline({ steps }: { steps: OrderTimelineStep[] }) {
                 {step.by && <span className="body-xsm-regular text-primary-300"> · by {step.by}</span>}
               </p>
               <p className="body-xsm-regular text-primary-300 mt-0.5">
-                {step.at ? formatOrderDateTime(step.at) : "Waiting for payment confirmation"}
+                {step.at ? formatOrderDateTime(step.at) : pendingText}
               </p>
               {step.note && <p className="body-xsm-regular text-primary-400 mt-0.5">{step.note}</p>}
             </div>
