@@ -18,6 +18,7 @@ export interface AppSelectProps {
   placeholder?: string;
   icon?: React.ReactNode;
   size?: "sm" | "md";
+  fullWidth?: boolean;
   className?: string;
   triggerClassName?: string;
   contentClassName?: string;
@@ -31,11 +32,14 @@ export function AppSelect({
   placeholder = "Select...",
   icon,
   size = "md",
+  fullWidth = false,
   className,
   triggerClassName,
   contentClassName,
   disabled = false,
 }: AppSelectProps) {
+  const isFullWidth = fullWidth || className?.includes("w-full");
+
   const normalizedOptions: AppSelectOption[] = options.map((opt) =>
     typeof opt === "string" ? { value: opt, label: opt } : opt
   );
@@ -48,7 +52,13 @@ export function AppSelect({
       : "h-10 px-3.5 body-md-medium gap-2";
 
   return (
-    <div className={cn("relative inline-block", className)}>
+    <div
+      className={cn(
+        "relative",
+        isFullWidth ? "w-full block" : "inline-block",
+        className
+      )}
+    >
       <Select.Root
         value={value}
         onValueChange={onValueChange}
@@ -56,7 +66,10 @@ export function AppSelect({
       >
         <Select.Trigger
           className={cn(
-            "inline-flex items-center justify-between rounded-lg border border-dash bg-white text-primary-500 hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:border-brand-orange transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-2xs whitespace-nowrap",
+            "rounded-lg border border-dash bg-white text-primary-500 hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:border-brand-orange transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-2xs whitespace-nowrap",
+            isFullWidth
+              ? "flex w-full items-center justify-between"
+              : "inline-flex items-center justify-between",
             sizeClasses,
             triggerClassName
           )}
@@ -80,7 +93,8 @@ export function AppSelect({
             position="popper"
             sideOffset={4}
             className={cn(
-              "z-50 min-w-[8rem] overflow-hidden rounded-xl border border-dash bg-white p-1 text-primary-500 shadow-xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+              "z-[200] min-w-[8rem] overflow-hidden rounded-xl border border-dash bg-white p-1 text-primary-500 shadow-xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+              isFullWidth && "w-[var(--radix-select-trigger-width)]",
               contentClassName
             )}
           >
