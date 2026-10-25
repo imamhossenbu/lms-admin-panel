@@ -2,9 +2,9 @@
 
 import React, { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "sonner";
-import { Eye, Pencil, Layers, Sparkles, Send, Archive, Trash2 } from "lucide-react";
+import { Eye, Pencil, Layers, Sparkles, Send, Archive, Trash2, List, LayoutGrid } from "lucide-react";
 
 import { coursesApi, categoriesApi } from "@/lib/api";
 import { AdminCourseItem } from "@/lib/types";
@@ -222,8 +222,8 @@ function CoursesContent() {
             value={view}
             onChange={(next) => set({ view: next === "table" ? null : next, size: null, page: null })}
             options={[
-              { value: "table", label: "Table" },
-              { value: "grid", label: "Grid" },
+              { value: "table", label: "Table view", icon: <List />, iconOnly: true },
+              { value: "grid", label: "Grid view", icon: <LayoutGrid />, iconOnly: true },
             ]}
           />
         </div>
@@ -237,10 +237,18 @@ function CoursesContent() {
           />
         ) : rows.length > 0 ? (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-              {rows.map((course) => (
-                <CourseCard
+            <motion.div layout className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+              <AnimatePresence mode="popLayout">
+              {rows.map((course, idx) => (
+                <motion.div
                   key={course.id}
+                  layout
+                  initial={{ opacity: 0, y: 12, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.96 }}
+                  transition={{ duration: 0.25, ease: "easeOut", delay: Math.min(idx, 8) * 0.04 }}
+                >
+                <CourseCard
                   course={course}
                   onViewDetails={(c) => router.push(`/courses/${c.id}`)}
                   onEdit={(c) => router.push(`/courses/${c.id}/edit`)}
@@ -248,8 +256,10 @@ function CoursesContent() {
                   onGenerateOutline={(c) => ai.open(c)}
                   onDelete={(courseId) => setDeleting(courses.find((c) => c.id === courseId) ?? null)}
                 />
+                </motion.div>
               ))}
-            </div>
+              </AnimatePresence>
+            </motion.div>
             {pagination}
           </>
         ) : (

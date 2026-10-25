@@ -130,6 +130,16 @@ Follow these rules for every new feature, page, component, and UI modification. 
 - **Strict Reload Preservation**: When a user refreshes or reloads the browser from any tab or page (`load dile`), the application MUST stay on that exact tab/page without resetting to the default view or the first tab.
 - **App Router `<Suspense>` Requirement**: In Next.js App Router, every page or component that reads `useSearchParams()` MUST be wrapped inside a `<Suspense>` boundary with a matching rich skeleton fallback to guarantee optimal streaming and static export safety.
 
+
+### 7. Framer Motion Everywhere (Mandatory Animations)
+- **Single Animation Library**: All UI animation MUST use `framer-motion` (already installed). Do not add other animation libraries or hand-written CSS keyframes for interactive UI.
+- **Page Entry**: Every page's root content animates in (`motion.div` with `initial={{ opacity: 0, y: 6 }}` → `animate={{ opacity: 1, y: 0 }}`, ~0.25s `easeOut`).
+- **Lists, Tables & Grids**: Rows and cards animate in with a short stagger (the shared `DataTable` already does this for every table). Grids that add/remove items use `AnimatePresence` + `layout`.
+- **Overlays**: Modals, drawers, dropdowns and popovers animate open/close with `AnimatePresence` (fade + slight scale/slide). `ModalShell` already does this — reuse it.
+- **Active Indicators**: Tabs, segmented controls and toggles use an animated indicator (`layoutId` shared-layout pill or spring `animate`), e.g. `PillTabs`, `SegmentedControl`, `ToggleSwitch`.
+- **Feedback**: Clickable controls give tactile feedback (`whileTap={{ scale: 0.92–0.97 }}`; cards may `whileHover={{ y: -2 }}`).
+- **Keep it subtle**: Durations 0.15–0.3s, springs for indicators; never block interaction or delay content noticeably. Prefer adding motion to shared `ui/` components so every page inherits it.
+
 ### Final Requirement
 Before implementing anything, inspect the existing project structure and identify the available shared components, DataTable, toast system, validation utilities, skeleton components, and global CSS classes.
 

@@ -2,6 +2,7 @@
 "use client";
 
 import React from "react";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/cn";
 
 export interface ColumnDef<T> {
@@ -259,7 +260,11 @@ export function DataTable<T extends Record<string, any>>({
 
               return (
                 <React.Fragment key={key}>
-                  <tr
+                  <motion.tr
+                    // Staggered fade-in whenever rows change (page, filter, sort)
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.22, ease: "easeOut", delay: Math.min(rowIndex, 12) * 0.025 }}
                     className={cn(
                       "border-b border-[#EDEDED] transition-colors hover:bg-gray-50/50",
                       onRowClick && "cursor-pointer",
@@ -308,7 +313,7 @@ export function DataTable<T extends Record<string, any>>({
                         </td>
                       );
                     })}
-                  </tr>
+                  </motion.tr>
                   {renderExpandedRow && (
                     <tr
                       className={cn(

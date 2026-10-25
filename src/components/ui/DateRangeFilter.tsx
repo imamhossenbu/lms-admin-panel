@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { CalendarDays, ChevronDown, X } from "lucide-react";
 import { cn } from "@/lib/cn";
 
@@ -136,11 +137,16 @@ export function DateRangeFilter({ value, onChange, placeholder = "Select Date Ra
         )}
       </button>
 
+      <AnimatePresence>
       {isOpen && (
-        <div
+        <motion.div
           role="dialog"
           aria-label="Choose a date range"
-          className="absolute right-0 top-full mt-2 z-50 w-72 rounded-xl border border-dash bg-white shadow-xl p-4 space-y-4 text-left"
+          initial={{ opacity: 0, y: -6, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -6, scale: 0.98 }}
+          transition={{ duration: 0.16, ease: "easeOut" }}
+          className="absolute right-0 top-full mt-2 z-50 w-72 rounded-xl border border-dash bg-white shadow-xl p-4 space-y-4 text-left origin-top-right"
         >
           <div className="grid grid-cols-2 gap-2">
             {PRESETS.map((preset) => (
@@ -196,8 +202,9 @@ export function DateRangeFilter({ value, onChange, placeholder = "Select Date Ra
               Apply
             </button>
           </div>
-        </div>
+        </motion.div>
       )}
+      </AnimatePresence>
     </div>
   );
 }

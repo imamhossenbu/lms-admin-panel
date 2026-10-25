@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { DropdownSelect } from "@/components/ui/DropdownSelect";
 import { cn } from "@/lib/cn";
@@ -67,7 +68,7 @@ export function TablePagination({
 
       <div className="flex items-center gap-2 self-end sm:self-auto">
         <div className="flex items-center gap-1">
-          <button
+          <motion.button whileTap={{ scale: 0.92 }}
             type="button"
             onClick={() => onPageChange(Math.max(1, currentPage - 1))}
             disabled={currentPage <= 1}
@@ -75,7 +76,7 @@ export function TablePagination({
             title="Previous Page"
           >
             <ChevronLeft className="w-4 h-4" />
-          </button>
+          </motion.button>
 
           {pages.map((item, idx) =>
             item === "..." ? (
@@ -83,7 +84,7 @@ export function TablePagination({
                 ...
               </span>
             ) : (
-              <button
+              <motion.button whileTap={{ scale: 0.92 }}
                 key={item}
                 type="button"
                 onClick={() => onPageChange(item)}
@@ -96,11 +97,11 @@ export function TablePagination({
                 )}
               >
                 {item}
-              </button>
+              </motion.button>
             )
           )}
 
-          <button
+          <motion.button whileTap={{ scale: 0.92 }}
             type="button"
             onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
             disabled={currentPage >= totalPages}
@@ -108,7 +109,7 @@ export function TablePagination({
             title="Next Page"
           >
             <ChevronRight className="w-4 h-4" />
-          </button>
+          </motion.button>
         </div>
 
         {onPageSizeChange && (

@@ -1,4 +1,7 @@
+"use client";
+
 import React from "react";
+import { motion } from "framer-motion";
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { cn } from "@/lib/cn";
 
@@ -21,7 +24,13 @@ export interface TrendStatCardProps {
 export function TrendStatCard({ icon, iconClassName, label, value, trend, className }: TrendStatCardProps) {
   const isUp = trend?.direction === "up";
   return (
-    <div className={cn("bg-white rounded-xl border border-dash shadow-2xs p-4 flex items-center gap-4", className)}>
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -2 }}
+      transition={{ duration: 0.25, ease: "easeOut" }}
+      className={cn("bg-white rounded-xl border border-dash shadow-2xs p-4 flex items-center gap-4 hover:shadow-md transition-shadow", className)}
+    >
       <span className={cn("w-14 h-14 rounded-xl flex items-center justify-center shrink-0 [&>svg]:w-7 [&>svg]:h-7", iconClassName)}>
         {icon}
       </span>
@@ -45,7 +54,7 @@ export function TrendStatCard({ icon, iconClassName, label, value, trend, classN
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
