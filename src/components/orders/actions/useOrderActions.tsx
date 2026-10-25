@@ -3,47 +3,42 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import {
-  Eye,
-  UserRound,
-  Copy,
-  ShieldCheck,
-  BadgeCheck,
-  Ban,
-  RotateCcw,
-  FileDown,
-  Send,
-} from "lucide-react";
+import { Eye, UserRound, Copy, ShieldCheck, FileDown, Send, RefreshCw } from "lucide-react";
 import { DropdownActionItem } from "@/components/ui/AppDropdownMenu";
-import { OrderItem } from "@/types/order";
+import { OrderItem, OrderStatus } from "@/types/order";
 import { updateStoredOrder } from "@/lib/orderStorage";
 import {
-  applyCancellation,
-  applyManualPayment,
-  applyRefund,
+  StatusChangeInput,
+  StatusScope,
+  applyStatusChange,
   applyVerifiedPayment,
+  canChangeStatus,
   getAllowedActions,
   queryGatewayPayment,
 } from "@/lib/orderActions";
-import { CANCEL_REASONS, REFUND_REASONS, cancelOrderSchema, refundOrderSchema, MarkPaidInput } from "@/validations/orderSchema";
 import { formatCurrency } from "../orderFormat";
-import { OrderReasonModal } from "./OrderReasonModal";
-import { MarkAsPaidModal } from "./MarkAsPaidModal";
+import { ChangeStatusModal, ChangeStatusTarget, statusLabel } from "./ChangeStatusModal";
 import { downloadInvoice } from "./orderInvoice";
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 const errorText = (error: unknown) =>
   error instanceof Error ? error.message : "Something went wrong. Please try again.";
 
+const STATUS_TOAST: Record<OrderStatus, { loading: string; success: string }> = {
+  Paid: { loading: "Recording payment...", success: "Marked as paid" },
+  Pending: { loading: "Reopening...", success: "Reopened" },
+  Failed: { loading: "Updating status...", success: "Marked as failed" },
+  Cancelled: { loading: "Cancelling order...", success: "Order cancelled" },
+  Refunded: { loading: "Processing refund...", success: "Refund issued" },
+};
+
 /**
- * All admin actions on orders (gated by status via `getAllowedActions`), plus the modals they need.
- * Shared by the table's ••• menu and the details drawer so both behave identically.
+ * Admin actions on orders/payments plus the Change Status modal.
+ * Shared by Orders and Payments (table ••• menus and drawers) so behaviour stays identical.
  */
 export function useOrderActions({ onOpenDetails }: { onOpenDetails: (order: OrderItem) => void }) {
   const router = useRouter();
-  const [refundTarget, setRefundTarget] = useState<OrderItem | null>(null);
-  const [cancelTarget, setCancelTarget] = useState<OrderItem | null>(null);
-  const [markPaidTarget, setMarkPaidTarget] = useState<OrderItem | null>(null);
+  const [statusTarget, setStatusTarget] = useState<ChangeStatusTarget | null>(null);
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
 
   const viewStudent = (order: OrderItem) => router.push(`/students/${order.student.id}`);
@@ -76,7 +71,7 @@ export function useOrderActions({ onOpenDetails }: { onOpenDetails: (order: Orde
       } else {
         toast.warning("No payment found yet", {
           id: toastId,
-          description: "The gateway has no successful payment for this order. Try again later or mark it paid manually.",
+          description: "The gateway has no successful payment for this order. Try again later or change the status manually.",
         });
       }
     } catch (error) {
@@ -86,46 +81,23 @@ export function useOrderActions({ onOpenDetails }: { onOpenDetails: (order: Orde
     }
   };
 
-  const confirmMarkPaid = async (order: OrderItem, data: MarkPaidInput) => {
-    const toastId = toast.loading("Recording payment...", { description: `${order.orderNumber} · Ref ${data.reference}` });
-    try {
-      await wait(700);
-      updateStoredOrder(order.id, applyManualPayment(order, data));
-      toast.success("Order marked as paid", {
-        id: toastId,
-        description: `${order.student.name} has been enrolled and an invoice was generated.`,
-      });
-    } catch (error) {
-      toast.error("Could not mark as paid", { id: toastId, description: errorText(error) });
-      throw error;
-    }
-  };
-
-  const confirmCancel = async (order: OrderItem, reason: string) => {
-    const toastId = toast.loading("Cancelling order...", { description: order.orderNumber });
-    try {
-      await wait(600);
-      updateStoredOrder(order.id, applyCancellation(order, reason));
-      toast.success("Order cancelled", { id: toastId, description: `${order.orderNumber} will no longer accept payment.` });
-    } catch (error) {
-      toast.error("Could not cancel order", { id: toastId, description: errorText(error) });
-      throw error;
-    }
-  };
-
-  const confirmRefund = async (order: OrderItem, reason: string) => {
-    const toastId = toast.loading("Processing refund...", {
-      description: `Refunding ${formatCurrency(order.amount)} via ${order.paymentMethod}.`,
+  const confirmStatusChange = async (order: OrderItem, scope: StatusScope, input: StatusChangeInput) => {
+    const copy = STATUS_TOAST[input.target];
+    const toastId = toast.loading(copy.loading, {
+      description: `${order.orderNumber} → ${statusLabel(input.target, scope)}`,
     });
     try {
-      await wait(900);
-      updateStoredOrder(order.id, applyRefund(order, reason));
-      toast.success("Refund issued", {
-        id: toastId,
-        description: `${formatCurrency(order.amount)} will be returned to ${order.student.name}. Course access was revoked.`,
-      });
+      await wait(700);
+      updateStoredOrder(order.id, applyStatusChange(order, scope, input));
+      const description =
+        input.target === "Refunded"
+          ? `${formatCurrency(order.amount)} will be returned to ${order.student.name}. Course access was revoked.`
+          : input.target === "Paid"
+            ? `${order.student.name} has been enrolled and an invoice was generated.`
+            : `${order.orderNumber} is now ${statusLabel(input.target, scope).toLowerCase()}.`;
+      toast.success(copy.success, { id: toastId, description });
     } catch (error) {
-      toast.error("Refund failed", { id: toastId, description: errorText(error) });
+      toast.error("Could not change status", { id: toastId, description: errorText(error) });
       throw error;
     }
   };
@@ -149,9 +121,12 @@ export function useOrderActions({ onOpenDetails }: { onOpenDetails: (order: Orde
     }
   };
 
+  const openChangeStatus = (order: OrderItem, scope: StatusScope, preset?: OrderStatus) =>
+    setStatusTarget({ order, scope, preset });
+
   const ICON = "w-3.5 h-3.5 text-primary-400";
 
-  /** ••• menu items: general items, then only the actions this status allows. */
+  /** Orders-page ••• menu: general items, invoices, then Verify / Change Status. */
   const getMenuItems = (order: OrderItem): DropdownActionItem[] => {
     const allowed = getAllowedActions(order.status);
     const items: DropdownActionItem[] = [
@@ -177,53 +152,19 @@ export function useOrderActions({ onOpenDetails }: { onOpenDetails: (order: Orde
         onClick: () => verifyPayment(order),
       });
     }
-    if (allowed.includes("markPaid")) {
-      items.push({ key: "markPaid", label: "Mark as Paid", icon: <BadgeCheck className={ICON} />, onClick: () => setMarkPaidTarget(order) });
-    }
-    if (allowed.includes("cancel")) {
-      items.push({ key: "cancel", label: "Cancel Order", icon: <Ban className="w-3.5 h-3.5" />, danger: true, separatorBefore: true, onClick: () => setCancelTarget(order) });
-    }
-    if (allowed.includes("refund")) {
-      items.push({ key: "refund", label: "Refund Order", icon: <RotateCcw className="w-3.5 h-3.5" />, danger: true, separatorBefore: true, onClick: () => setRefundTarget(order) });
-    }
+    items.push({
+      key: "status",
+      label: "Change Status",
+      icon: <RefreshCw className={ICON} />,
+      separatorBefore: !allowed.includes("verify"),
+      disabled: !canChangeStatus(order, "order"),
+      onClick: () => openChangeStatus(order, "order"),
+    });
     return items;
   };
 
   const modals = (
-    <>
-      <OrderReasonModal
-        order={refundTarget}
-        title="Refund Order"
-        warning={
-          refundTarget && (
-            <>
-              <span className="font-semibold">{formatCurrency(refundTarget.amount)}</span> will be returned via{" "}
-              {refundTarget.paymentMethod} and the student will lose access to &quot;{refundTarget.course.title}&quot;.
-            </>
-          )
-        }
-        reasons={REFUND_REASONS}
-        schema={refundOrderSchema}
-        confirmLabel="Issue Refund"
-        pendingLabel="Refunding..."
-        confirmIcon={<RotateCcw className="w-4 h-4" />}
-        onClose={() => setRefundTarget(null)}
-        onConfirm={confirmRefund}
-      />
-      <OrderReasonModal
-        order={cancelTarget}
-        title="Cancel Order"
-        warning="The order will be closed and can no longer be paid. The student would need to place a new order."
-        reasons={CANCEL_REASONS}
-        schema={cancelOrderSchema}
-        confirmLabel="Cancel Order"
-        pendingLabel="Cancelling..."
-        confirmIcon={<Ban className="w-4 h-4" />}
-        onClose={() => setCancelTarget(null)}
-        onConfirm={confirmCancel}
-      />
-      <MarkAsPaidModal order={markPaidTarget} onClose={() => setMarkPaidTarget(null)} onConfirm={confirmMarkPaid} />
-    </>
+    <ChangeStatusModal target={statusTarget} onClose={() => setStatusTarget(null)} onConfirm={confirmStatusChange} />
   );
 
   return {
@@ -236,9 +177,7 @@ export function useOrderActions({ onOpenDetails }: { onOpenDetails: (order: Orde
     verifyPayment,
     downloadInvoice: handleDownloadInvoice,
     resendInvoice,
-    openMarkPaid: setMarkPaidTarget,
-    openCancel: setCancelTarget,
-    openRefund: setRefundTarget,
+    openChangeStatus,
   };
 }
 

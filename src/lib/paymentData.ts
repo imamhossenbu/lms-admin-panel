@@ -61,7 +61,13 @@ export const buildPaymentTimeline = (order: OrderItem): PaymentTimelineStep[] =>
   ];
 
   if (order.status === "Failed") {
-    steps.push({ label: "Payment Failed", at: find("Payment Failed")?.at, note: `Declined by ${order.paymentMethod}.` });
+    const failed = find("Payment Failed");
+    steps.push({
+      label: "Payment Failed",
+      at: failed?.at,
+      by: failed?.by,
+      note: failed?.by ? failed.note : `Declined by ${order.paymentMethod}.`,
+    });
     return steps;
   }
   if (order.status === "Cancelled") {

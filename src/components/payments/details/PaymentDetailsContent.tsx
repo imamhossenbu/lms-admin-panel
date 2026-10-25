@@ -6,10 +6,11 @@ import Link from "next/link";
 import { Copy, ExternalLink, Download } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
 import { ToneBadge } from "@/components/ui/ToneBadge";
-import { getAllowedActions } from "@/lib/orderActions";
+import { canChangeStatus, getAllowedActions } from "@/lib/orderActions";
 import { PaymentRecord, buildPaymentTimeline, invoiceNumber } from "@/lib/paymentData";
 import { PaymentMethodBadge } from "@/components/orders/OrderBadges";
 import { OrderTimeline } from "@/components/orders/details/OrderTimeline";
+import { ChangeStatusLink } from "@/components/orders/actions/ChangeStatusLink";
 import { formatCurrency, formatOrderDateTime } from "@/components/orders/orderFormat";
 import { PaymentStatusBadge } from "../PaymentStatusBadge";
 
@@ -38,9 +39,10 @@ interface PaymentDetailsContentProps {
   payment: PaymentRecord;
   onCopyReference: (payment: PaymentRecord) => void;
   onDownloadInvoice: (payment: PaymentRecord) => void;
+  onChangeStatus?: (payment: PaymentRecord) => void;
 }
 
-export function PaymentDetailsContent({ payment, onCopyReference, onDownloadInvoice }: PaymentDetailsContentProps) {
+export function PaymentDetailsContent({ payment, onCopyReference, onDownloadInvoice, onChangeStatus }: PaymentDetailsContentProps) {
   const { order } = payment;
   const hasInvoice = getAllowedActions(order.status).includes("downloadInvoice");
 
@@ -49,7 +51,12 @@ export function PaymentDetailsContent({ payment, onCopyReference, onDownloadInvo
       {/* Status, amount and transaction */}
       <div className="px-6 py-5 border-b border-dash space-y-3">
         <div className="flex items-center justify-between gap-3">
-          <PaymentStatusBadge status={payment.status} size="lg" />
+          <div className="flex items-center gap-2">
+            <PaymentStatusBadge status={payment.status} size="lg" />
+            {onChangeStatus && canChangeStatus(order, "payment") && (
+              <ChangeStatusLink onClick={() => onChangeStatus(payment)} />
+            )}
+          </div>
           <span className="body-sm-regular text-primary-300">{formatOrderDateTime(payment.date)}</span>
         </div>
         <p className="heading-h2-bold text-primary-500">{formatCurrency(order.amount)}</p>

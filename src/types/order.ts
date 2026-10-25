@@ -27,6 +27,7 @@ export type OrderTimelineLabel =
   | "Course Access Granted"
   | "Payment Failed"
   | "Order Cancelled"
+  | "Order Reopened"
   | "Refund Issued"
   | "Course Access Revoked";
 

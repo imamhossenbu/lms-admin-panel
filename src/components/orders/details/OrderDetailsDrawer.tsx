@@ -1,11 +1,11 @@
 "use client";
 
 import React from "react";
-import { RotateCcw, UserRound, ShieldCheck, BadgeCheck, Ban, Info } from "lucide-react";
+import { UserRound, ShieldCheck, RefreshCw, Info } from "lucide-react";
 import { SideDrawer } from "@/components/ui/SideDrawer";
 import { PrimaryButton } from "@/components/ui/primary-button";
 import { OrderItem } from "@/types/order";
-import { getAllowedActions } from "@/lib/orderActions";
+import { canChangeStatus, getAllowedActions, lockedStatusHint } from "@/lib/orderActions";
 import { OrderActions } from "../actions/useOrderActions";
 import { OrderDetailsContent } from "./OrderDetailsContent";
 
@@ -15,65 +15,22 @@ interface OrderDetailsDrawerProps {
   onClose: () => void;
 }
 
-const OutlineButton = ({
-  onClick,
-  icon,
-  danger,
-  disabled,
-  children,
-}: {
-  onClick: () => void;
-  icon: React.ReactNode;
-  danger?: boolean;
-  disabled?: boolean;
-  children: React.ReactNode;
-}) => (
-  <button
-    type="button"
-    onClick={onClick}
-    disabled={disabled}
-    className={`h-11 rounded-lg border bg-white body-sm-medium font-semibold inline-flex items-center justify-center gap-2 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
-      danger ? "border-red text-red hover:bg-red-14" : "border-dash text-primary-500 hover:bg-slate-50"
-    }`}
-  >
-    {icon}
-    {children}
-  </button>
-);
-
-const FINAL_STATE_HINT: Record<string, string> = {
-  Failed: "Payment failed at the gateway. The student can place a new order.",
-  Cancelled: "This order is closed. The student can place a new order.",
-  Refunded: "This order was refunded and course access was revoked.",
-};
-
-/** Footer actions depend on the order status (see getAllowedActions). */
+/** Footer: Verify Payment (pending only), then Change Status + View Student. No refunds on Orders. */
 function DrawerFooter({ order, actions }: { order: OrderItem; actions: OrderActions }) {
-  const allowed = getAllowedActions(order.status);
-  const viewStudent = (
-    <PrimaryButton
-      type="button"
-      size="lg"
-      onClick={() => actions.viewStudent(order)}
-      leftIcon={<UserRound className="w-4 h-4" />}
-      className="w-full justify-center"
-    >
-      View Student
-    </PrimaryButton>
-  );
+  const canVerify = getAllowedActions(order.status).includes("verify");
+  const canChange = canChangeStatus(order, "order");
+  const hint = lockedStatusHint(order, "order");
+  const isVerifying = actions.verifyingId === order.id;
 
-  if (allowed.includes("verify")) {
-    const isVerifying = actions.verifyingId === order.id;
-    return (
-      <div className="space-y-3">
-        <div className="grid grid-cols-2 gap-3">
-          <OutlineButton danger onClick={() => actions.openCancel(order)} icon={<Ban className="w-4 h-4" />}>
-            Cancel Order
-          </OutlineButton>
-          <OutlineButton onClick={() => actions.openMarkPaid(order)} icon={<BadgeCheck className="w-4 h-4" />}>
-            Mark as Paid
-          </OutlineButton>
-        </div>
+  return (
+    <div className="space-y-3">
+      {hint && (
+        <p className="flex items-start gap-2 body-xsm-regular text-primary-400">
+          <Info className="w-4 h-4 shrink-0 text-primary-300" />
+          {hint}
+        </p>
+      )}
+      {canVerify && (
         <PrimaryButton
           type="button"
           size="lg"
@@ -85,30 +42,29 @@ function DrawerFooter({ order, actions }: { order: OrderItem; actions: OrderActi
         >
           {isVerifying ? "Verifying..." : "Verify Payment"}
         </PrimaryButton>
-      </div>
-    );
-  }
-
-  if (allowed.includes("refund")) {
-    return (
-      <div className="grid grid-cols-2 gap-3">
-        <OutlineButton danger onClick={() => actions.openRefund(order)} icon={<RotateCcw className="w-4 h-4" />}>
-          Refund
-        </OutlineButton>
-        {viewStudent}
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-3">
-      {FINAL_STATE_HINT[order.status] && (
-        <p className="flex items-start gap-2 body-xsm-regular text-primary-400">
-          <Info className="w-4 h-4 shrink-0 text-primary-300" />
-          {FINAL_STATE_HINT[order.status]}
-        </p>
       )}
-      {viewStudent}
+      <div className={canChange ? "grid grid-cols-2 gap-3" : "grid"}>
+        {canChange && (
+          <button
+            type="button"
+            onClick={() => actions.openChangeStatus(order, "order")}
+            className="h-11 rounded-lg border border-dash bg-white body-sm-medium font-semibold text-primary-500 hover:bg-slate-50 inline-flex items-center justify-center gap-2 transition-colors cursor-pointer"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Change Status
+          </button>
+        )}
+        <PrimaryButton
+          type="button"
+          size="lg"
+          variant={canVerify ? "outline" : "primary"}
+          onClick={() => actions.viewStudent(order)}
+          leftIcon={<UserRound className="w-4 h-4" />}
+          className="w-full justify-center"
+        >
+          View Student
+        </PrimaryButton>
+      </div>
     </div>
   );
 }
@@ -128,6 +84,7 @@ export function OrderDetailsDrawer({ order, actions, onClose }: OrderDetailsDraw
           onCopyTransaction={actions.copyTransaction}
           onDownloadInvoice={actions.downloadInvoice}
           onResendInvoice={actions.resendInvoice}
+          onChangeStatus={(o) => actions.openChangeStatus(o, "order")}
         />
       )}
     </SideDrawer>

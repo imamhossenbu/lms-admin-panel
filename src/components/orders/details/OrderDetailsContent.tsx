@@ -7,7 +7,8 @@ import { ExternalLink, Copy, FileDown, Send } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 import { OrderItem } from "@/types/order";
-import { getAllowedActions } from "@/lib/orderActions";
+import { canChangeStatus, getAllowedActions } from "@/lib/orderActions";
+import { ChangeStatusLink } from "../actions/ChangeStatusLink";
 import { OrderStatusBadge, PaymentMethodBadge } from "../OrderBadges";
 import { formatCurrency, formatOrderDateTime } from "../orderFormat";
 import { OrderTimeline } from "./OrderTimeline";
@@ -49,15 +50,21 @@ interface OrderDetailsContentProps {
   onCopyTransaction: (order: OrderItem) => void;
   onDownloadInvoice: (order: OrderItem) => void;
   onResendInvoice: (order: OrderItem) => void;
+  onChangeStatus?: (order: OrderItem) => void;
 }
 
-export function OrderDetailsContent({ order, onCopyTransaction, onDownloadInvoice, onResendInvoice }: OrderDetailsContentProps) {
+export function OrderDetailsContent({ order, onCopyTransaction, onDownloadInvoice, onResendInvoice, onChangeStatus }: OrderDetailsContentProps) {
   const allowed = getAllowedActions(order.status);
 
   return (
     <div>
       <div className="px-6 py-5 border-b border-dash flex items-start justify-between gap-4">
-        <OrderStatusBadge status={order.status} size="lg" />
+        <div className="flex items-center gap-2">
+          <OrderStatusBadge status={order.status} size="lg" />
+          {onChangeStatus && canChangeStatus(order, "order") && (
+            <ChangeStatusLink onClick={() => onChangeStatus(order)} />
+          )}
+        </div>
         <div className="text-right">
           <p className="heading-h6 font-bold text-primary-500">{order.orderNumber}</p>
           <p className="body-sm-regular text-primary-300 mt-0.5">{formatOrderDateTime(order.createdAt)}</p>

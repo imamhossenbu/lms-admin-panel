@@ -4,11 +4,11 @@ import React, { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { Eye, UserRound, FileText, Copy, FileDown, ShieldCheck, RotateCcw } from "lucide-react";
+import { Eye, UserRound, FileText, Copy, FileDown, ShieldCheck, RotateCcw, RefreshCw } from "lucide-react";
 
 import { OrderItem } from "@/types/order";
 import { getStoredOrders, ORDERS_UPDATED_EVENT } from "@/lib/orderStorage";
-import { getAllowedActions } from "@/lib/orderActions";
+import { canChangeStatus, getAllowedActions, getStatusTargets } from "@/lib/orderActions";
 import { PAYMENT_STATUSES, PaymentRecord, PaymentStatus, toPayment } from "@/lib/paymentData";
 import { useUrlParams } from "@/lib/useUrlParams";
 import { DropdownActionItem } from "@/components/ui/AppDropdownMenu";
@@ -115,14 +115,22 @@ function PaymentsContent() {
         onClick: () => actions.verifyPayment(order),
       });
     }
-    if (allowed.includes("refund")) {
+    items.push({
+      key: "status",
+      label: "Change Status",
+      icon: <RefreshCw className={ICON} />,
+      separatorBefore: !allowed.includes("verify"),
+      disabled: !canChangeStatus(order, "payment"),
+      onClick: () => actions.openChangeStatus(order, "payment"),
+    });
+    if (getStatusTargets(order, "payment").includes("Refunded")) {
       items.push({
         key: "refund",
         label: "Refund Payment",
         icon: <RotateCcw className="w-3.5 h-3.5" />,
         danger: true,
         separatorBefore: true,
-        onClick: () => actions.openRefund(order),
+        onClick: () => actions.openChangeStatus(order, "payment", "Refunded"),
       });
     }
     return items;
