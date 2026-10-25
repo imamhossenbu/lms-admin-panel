@@ -7,6 +7,7 @@ export interface EnrollmentCourse {
     name: string;
     avatarUrl: string;
   };
+  studentsCount: number;
   duration: string;
   price: string;
   iconType: "html" | "css" | "javascript" | "react" | "node" | "uiux";
@@ -22,6 +23,7 @@ export const ENROLLMENT_COURSES: EnrollmentCourse[] = [
       name: "John Doe",
       avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&auto=format&fit=crop&q=80",
     },
+    studentsCount: 120,
     duration: "4h 30m",
     price: "Free",
     iconType: "html",
@@ -35,6 +37,7 @@ export const ENROLLMENT_COURSES: EnrollmentCourse[] = [
       name: "Sarah Khan",
       avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&auto=format&fit=crop&q=80",
     },
+    studentsCount: 85,
     duration: "5h 20m",
     price: "Free",
     iconType: "css",
@@ -48,6 +51,7 @@ export const ENROLLMENT_COURSES: EnrollmentCourse[] = [
       name: "John Doe",
       avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&auto=format&fit=crop&q=80",
     },
+    studentsCount: 64,
     duration: "6h 15m",
     price: "$49",
     iconType: "javascript",
@@ -61,6 +65,7 @@ export const ENROLLMENT_COURSES: EnrollmentCourse[] = [
       name: "Michael Lee",
       avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&auto=format&fit=crop&q=80",
     },
+    studentsCount: 42,
     duration: "7h 40m",
     price: "$79",
     iconType: "react",
@@ -74,6 +79,7 @@ export const ENROLLMENT_COURSES: EnrollmentCourse[] = [
       name: "Michael Lee",
       avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&auto=format&fit=crop&q=80",
     },
+    studentsCount: 38,
     duration: "8h 10m",
     price: "$69",
     iconType: "node",
@@ -87,6 +93,7 @@ export const ENROLLMENT_COURSES: EnrollmentCourse[] = [
       name: "Emma Wilson",
       avatarUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&auto=format&fit=crop&q=80",
     },
+    studentsCount: 51,
     duration: "5h 30m",
     price: "$59",
     iconType: "uiux",

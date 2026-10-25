@@ -3,14 +3,13 @@
 import React, { useState, useMemo, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { InstructorItem, InstructorStatus } from "@/types/instructor";
+import { InstructorItem } from "@/types/instructor";
 import { MOCK_INSTRUCTORS } from "@/data/mockInstructorData";
+import { getStoredInstructors, INSTRUCTORS_UPDATED_EVENT } from "@/lib/instructorStorage";
 import { InstructorHeader } from "@/components/instructors/InstructorHeader";
 import { InstructorToolbar } from "@/components/instructors/InstructorToolbar";
 import { InstructorTable } from "@/components/instructors/InstructorTable";
-import { InstructorPagination } from "@/components/instructors/InstructorPagination";
-import { InstructorDetailsDrawer } from "@/components/instructors/InstructorDetailsDrawer";
-import { AddInstructorDrawer } from "@/components/instructors/AddInstructorDrawer";
+import { TablePagination } from "@/components/ui/TablePagination";
 import { InstructorSkeleton } from "@/components/instructors/InstructorSkeleton";
 import { toast } from "sonner";
 
@@ -60,11 +59,13 @@ function InstructorsContent() {
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
-  // Drawer states
-  const [selectedInstructor, setSelectedInstructor] = useState<InstructorItem | null>(null);
-  const [isDetailsDrawerOpen, setIsDetailsDrawerOpen] = useState(false);
-  const [detailsInitialEditMode, setDetailsInitialEditMode] = useState(false);
-  const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
+  // Sync with client-side storage so creates/edits/deletes on sub-pages show up here
+  useEffect(() => {
+    const sync = () => setInstructors(getStoredInstructors());
+    sync();
+    window.addEventListener(INSTRUCTORS_UPDATED_EVENT, sync);
+    return () => window.removeEventListener(INSTRUCTORS_UPDATED_EVENT, sync);
+  }, []);
 
   // Simulate initial loading for polished skeleton transition
   useEffect(() => {
@@ -101,135 +102,14 @@ function InstructorsContent() {
     return filteredInstructors.slice(startIndex, startIndex + pageSize);
   }, [filteredInstructors, currentPage, pageSize]);
 
-  const totalPages = Math.ceil(filteredInstructors.length / pageSize) || 1;
 
-  // View Details Handler
+  // Navigation triggers (dedicated pages, no drawers)
   const handleViewDetails = (instructor: InstructorItem) => {
-    setSelectedInstructor(instructor);
-    setDetailsInitialEditMode(false);
-    setIsDetailsDrawerOpen(true);
+    router.push(`/instructors/${instructor.id}`);
   };
 
-  // Direct Edit from Table Handler
   const handleOpenEditFromTable = (instructor: InstructorItem) => {
-    setSelectedInstructor(instructor);
-    setDetailsInitialEditMode(true);
-    setIsDetailsDrawerOpen(true);
-  };
-
-  // Open Add Instructor Drawer
-  const handleOpenAdd = () => {
-    setIsAddDrawerOpen(true);
-  };
-
-  // Update Instructor Handler
-  const handleUpdateInstructor = (
-    instructorId: string,
-    updatedData: {
-      name: string;
-      email: string;
-      phone: string;
-      title: string;
-      expertise: string;
-      bio: string;
-      status: InstructorStatus;
-    }
-  ) => {
-    setInstructors((prev) =>
-      prev.map((inst) =>
-        inst.id === instructorId
-          ? {
-              ...inst,
-              name: updatedData.name,
-              email: updatedData.email,
-              phone: updatedData.phone,
-              title: updatedData.title,
-              expertise: updatedData.expertise,
-              bio: updatedData.bio,
-              status: updatedData.status,
-            }
-          : inst
-      )
-    );
-
-    setSelectedInstructor((prev) =>
-      prev && prev.id === instructorId
-        ? {
-            ...prev,
-            name: updatedData.name,
-            email: updatedData.email,
-            phone: updatedData.phone,
-            title: updatedData.title,
-            expertise: updatedData.expertise,
-            bio: updatedData.bio,
-            status: updatedData.status,
-          }
-        : prev
-    );
-  };
-
-  // Add Instructor Handler
-  const handleAddInstructor = (payload: {
-    name: string;
-    email: string;
-    phone: string;
-    expertise: string;
-    title?: string;
-    bio: string;
-    status: InstructorStatus;
-  }) => {
-    const tempPassword = `EduPro#${Math.floor(1000 + Math.random() * 9000)}`;
-    const newInst: InstructorItem = {
-      id: `inst-${Date.now()}`,
-      orderNumber: instructors.length + 1,
-      name: payload.name,
-      title: payload.title || `${payload.expertise} Instructor`,
-      expertise: payload.expertise,
-      email: payload.email,
-      phone: payload.phone,
-      avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80",
-      coursesCount: 0,
-      studentsCount: 0,
-      totalRevenue: "$0",
-      numericRevenue: 0,
-      rating: 5.0,
-      reviewsCount: 0,
-      status: payload.status,
-      joinDate: new Date().toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      }),
-      bio: payload.bio,
-      skills: [payload.expertise, "Instruction", "Curriculum Design"],
-      courses: [],
-      recentActivities: [
-        {
-          id: `act-${Date.now()}-1`,
-          action: `Welcome email with temporary password (${tempPassword}) sent to ${payload.email}`,
-          timestamp: "Just now",
-          iconType: "message",
-        },
-        {
-          id: `act-${Date.now()}-2`,
-          action: "Instructor account created & verified",
-          timestamp: "Just now",
-          iconType: "course",
-        },
-      ],
-    };
-
-    setInstructors((prev) => [newInst, ...prev]);
-  };
-
-  // Remove Instructor Handler
-  const handleDeleteInstructor = (instructor: InstructorItem) => {
-    setInstructors((prev) => prev.filter((i) => i.id !== instructor.id));
-    setIsDetailsDrawerOpen(false);
-    setSelectedInstructor(null);
-    toast.success("Instructor Removed", {
-      description: `"${instructor.name}" has been removed from the platform.`,
-    });
+    router.push(`/instructors/${instructor.id}/edit`);
   };
 
   // Export CSV Handler
@@ -268,7 +148,7 @@ function InstructorsContent() {
       className="space-y-[16px] text-left pb-8"
     >
       {/* 1. Page Header with Breadcrumbs & Add Instructor CTA */}
-      <InstructorHeader onAddClick={handleOpenAdd} />
+      <InstructorHeader onAddClick={() => router.push("/instructors/create")} />
 
       {/* 2. Full-Width Instructors Card: Toolbar + DataTable + Pagination */}
       <div className="bg-white rounded-xl border border-dash shadow-2xs overflow-hidden flex flex-col justify-between">
@@ -308,9 +188,9 @@ function InstructorsContent() {
         />
 
         {/* Dynamic Pagination with reusable DropdownSelect */}
-        <InstructorPagination
+        <TablePagination
           currentPage={currentPage}
-          totalPages={totalPages}
+          itemLabel="instructors"
           totalCount={filteredInstructors.length}
           pageSize={pageSize}
           onPageChange={(page) => {
@@ -325,27 +205,6 @@ function InstructorsContent() {
         />
       </div>
 
-      {/* 3. Slide-Over Side Drawer for Instructor Details & Inline Editing */}
-      <InstructorDetailsDrawer
-        isOpen={isDetailsDrawerOpen}
-        instructor={selectedInstructor}
-        initialEditMode={detailsInitialEditMode}
-        onClose={() => {
-          setIsDetailsDrawerOpen(false);
-          setDetailsInitialEditMode(false);
-        }}
-        onUpdateInstructor={handleUpdateInstructor}
-        onDeleteInstructor={handleDeleteInstructor}
-      />
-
-      {/* 4. Slide-Over Side Drawer for Add Instructor */}
-      <AddInstructorDrawer
-        isOpen={isAddDrawerOpen}
-        mode="add"
-        instructor={null}
-        onClose={() => setIsAddDrawerOpen(false)}
-        onSave={handleAddInstructor}
-      />
     </motion.div>
   );
 }

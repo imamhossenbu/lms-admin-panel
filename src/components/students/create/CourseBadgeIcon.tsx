@@ -4,11 +4,12 @@ import React from "react";
 
 interface CourseBadgeIconProps {
   type: "html" | "css" | "javascript" | "react" | "node" | "uiux" | "tools" | "design";
-  size?: "sm" | "md";
+  size?: "sm" | "md" | "lg";
 }
 
 export function CourseBadgeIcon({ type, size = "md" }: CourseBadgeIconProps) {
-  const dimClass = size === "sm" ? "w-5 h-5 text-[10px]" : "w-7 h-7 text-xs";
+  const dimClass =
+    size === "sm" ? "w-5 h-5 text-[10px]" : size === "lg" ? "w-10 h-10 text-base rounded-lg" : "w-7 h-7 text-xs";
 
   switch (type) {
     case "html":

@@ -52,3 +52,30 @@ export interface InstructorItem {
   recentStudents?: InstructorStudentItem[];
   recentActivities?: InstructorActivityItem[];
 }
+
+export type InstructorNoteType =
+  | "General"
+  | "Performance"
+  | "Content Update"
+  | "Onboarding"
+  | "Meeting"
+  | "Issue"
+  | "Payment";
+
+export type InstructorNotePriority = "Low" | "Medium" | "High";
+
+export interface InstructorNoteItem {
+  id: string;
+  instructorId: string;
+  title: string;
+  /** Sanitized HTML from the rich text editor. */
+  content: string;
+  type: InstructorNoteType;
+  priority: InstructorNotePriority;
+  tags: string[];
+  /** ISO date (yyyy-mm-dd) when a reminder is set. */
+  reminderDate?: string;
+  author: { name: string; avatarUrl?: string };
+  createdAt: string;
+  updatedAt?: string;
+}

@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { motion } from "framer-motion";
 import {
   LayoutDashboard,
   BookOpen,
@@ -10,9 +9,8 @@ import {
   Award,
   Clock,
   StickyNote,
-  LucideIcon,
 } from "lucide-react";
-import { ToneBadge } from "@/components/ui/ToneBadge";
+import { PillTabs } from "@/components/ui/PillTabs";
 
 export type StudentTabKey =
   | "overview"
@@ -23,21 +21,14 @@ export type StudentTabKey =
   | "activity-log"
   | "notes";
 
-interface TabItemConfig {
-  key: StudentTabKey;
-  label: string;
-  icon: LucideIcon;
-  count?: number;
-}
-
-const TABS: TabItemConfig[] = [
-  { key: "overview", label: "Overview", icon: LayoutDashboard },
-  { key: "enrolled-courses", label: "Enrolled Courses", icon: BookOpen, count: 6 },
-  { key: "assignments", label: "Assignments", icon: FileText, count: 6 },
-  { key: "quizzes", label: "Quizzes", icon: HelpCircle, count: 7 },
-  { key: "certificates", label: "Certificates", icon: Award, count: 4 },
-  { key: "activity-log", label: "Activity Log", icon: Clock },
-  { key: "notes", label: "Notes", icon: StickyNote, count: 5 },
+const TABS = [
+  { id: "overview" as const, label: "Overview", icon: <LayoutDashboard /> },
+  { id: "enrolled-courses" as const, label: "Enrolled Courses", icon: <BookOpen />, count: 6 },
+  { id: "assignments" as const, label: "Assignments", icon: <FileText />, count: 6 },
+  { id: "quizzes" as const, label: "Quizzes", icon: <HelpCircle />, count: 7 },
+  { id: "certificates" as const, label: "Certificates", icon: <Award />, count: 4 },
+  { id: "activity-log" as const, label: "Activity Log", icon: <Clock /> },
+  { id: "notes" as const, label: "Notes", icon: <StickyNote />, count: 5 },
 ];
 
 interface StudentDetailsTabsProps {
@@ -45,67 +36,13 @@ interface StudentDetailsTabsProps {
   onTabChange: (tab: StudentTabKey) => void;
 }
 
-export function StudentDetailsTabs({
-  activeTab,
-  onTabChange,
-}: StudentDetailsTabsProps) {
+export function StudentDetailsTabs({ activeTab, onTabChange }: StudentDetailsTabsProps) {
   return (
-    <div className="mb-6 overflow-x-auto scrollbar-none py-1">
-      {/* Full background container without borders */}
-      <div className="bg-[#F1F5F9] p-1.5 rounded-2xl flex items-center gap-1.5 w-fit min-w-full sm:min-w-0">
-        {TABS.map((tab) => {
-          const isActive = activeTab === tab.key;
-          const Icon = tab.icon;
-
-          return (
-            <button
-              key={tab.key}
-              type="button"
-              onClick={() => onTabChange(tab.key)}
-              className={`relative whitespace-nowrap px-4 py-2 rounded-xl body-sm-medium transition-all duration-150 cursor-pointer flex items-center gap-2 shrink-0 z-10 select-none ${
-                isActive
-                  ? "text-primary-500 font-semibold shadow-xs"
-                  : "text-primary-400 hover:text-primary-500 hover:bg-white/60"
-              }`}
-            >
-              {/* Active Animated White Pill */}
-              {isActive && (
-                <motion.div
-                  layoutId="studentDetailsActivePill"
-                  className="absolute inset-0 rounded-xl bg-white -z-10 shadow-xs"
-                  transition={{ type: "spring", stiffness: 450, damping: 35 }}
-                />
-              )}
-
-              {/* Icon */}
-              <Icon
-                className={`w-4 h-4 transition-colors ${
-                  isActive ? "text-primary-500" : "text-primary-400"
-                }`}
-              />
-
-              {/* Tab Label */}
-              <span>{tab.label}</span>
-
-              {/* Tab Count Badge */}
-              {typeof tab.count === "number" && (
-                <ToneBadge
-                  tone="navy"
-                  size="sm"
-                  variant="pill"
-                  className={
-                    isActive
-                      ? "bg-slate-100 text-primary-500 font-semibold"
-                      : "bg-slate-200/80 text-primary-400"
-                  }
-                >
-                  {tab.count}
-                </ToneBadge>
-              )}
-            </button>
-          );
-        })}
-      </div>
-    </div>
+    <PillTabs<StudentTabKey>
+      className="mb-6 py-1"
+      tabs={TABS}
+      activeId={activeTab}
+      onChange={onTabChange}
+    />
   );
 }

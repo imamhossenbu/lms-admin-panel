@@ -11,7 +11,7 @@ import {
 import { StudentHeader } from "@/components/students/StudentHeader";
 import { StudentToolbar } from "@/components/students/StudentToolbar";
 import { StudentTable } from "@/components/students/StudentTable";
-import { StudentPagination } from "@/components/students/StudentPagination";
+import { TablePagination } from "@/components/ui/TablePagination";
 import { StudentSkeleton } from "@/components/students/StudentSkeleton";
 import toast from "react-hot-toast";
 
@@ -97,7 +97,6 @@ function StudentsContent() {
     return filteredStudents.slice(startIndex, startIndex + pageSize);
   }, [filteredStudents, currentPage, pageSize]);
 
-  const totalPages = Math.ceil(filteredStudents.length / pageSize) || 1;
 
   // Navigation triggers (direct page routing, no drawer)
   const handleViewDetails = (student: StudentItem) => {
@@ -183,9 +182,9 @@ function StudentsContent() {
         />
 
         {/* Pagination Footer */}
-        <StudentPagination
+        <TablePagination
           currentPage={currentPage}
-          totalPages={totalPages}
+          itemLabel="students"
           totalCount={filteredStudents.length}
           pageSize={pageSize}
           onPageChange={(page) => {

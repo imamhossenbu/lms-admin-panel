@@ -12,7 +12,7 @@ import { CoursesFilterToolbar } from "./CoursesFilterToolbar";
 import { CourseTableView } from "./CourseTableView";
 import { DeleteCourseModal } from "./DeleteCourseModal";
 import { CategoryManagementModal } from "@/components/categories/CategoryManagementModal";
-import { Pagination } from "@/components/ui/Pagination";
+import { TablePagination } from "@/components/ui/TablePagination";
 import PrimaryButton from "@/components/ui/primary-button";
 import { AdminCourseItem, CourseModuleItem, CourseLessonItem } from "@/lib/types";
 import { coursesApi, categoriesApi } from "@/lib/api";
@@ -412,23 +412,18 @@ export function CoursesGridClient({
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between pt-2">
-          <span className="body-sm-regular text-primary-400">
-            Showing {(currentPage - 1) * pageSize + 1} to{" "}
-            {Math.min(currentPage * pageSize, filteredCourses.length)} of{" "}
-            {filteredCourses.length} courses
-          </span>
-
-          <Pagination
-            page={currentPage}
-            totalPages={totalPages}
-            totalItems={filteredCourses.length}
-            onPageChange={(p) => {
-              setCurrentPage(p);
-              updateUrlParams(p, statusFilter, categoryFilter, levelFilter, viewMode, searchQuery);
-            }}
-          />
-        </div>
+        <TablePagination
+          variant="plain"
+          className="pt-2"
+          currentPage={currentPage}
+          pageSize={pageSize}
+          totalCount={filteredCourses.length}
+          itemLabel="courses"
+          onPageChange={(p) => {
+            setCurrentPage(p);
+            updateUrlParams(p, statusFilter, categoryFilter, levelFilter, viewMode, searchQuery);
+          }}
+        />
       )}
 
       {/* Create Course Modal */}

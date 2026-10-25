@@ -34,10 +34,7 @@ export function InstructorTable({
       key: "instructor",
       header: "Instructor",
       render: (row) => (
-        <div
-          className="flex items-center gap-3 cursor-pointer group"
-          onClick={() => onViewDetails(row)}
-        >
+        <div className="flex items-center gap-3 cursor-pointer group">
           <Avatar
             src={row.avatarUrl}
             name={row.name}
@@ -121,22 +118,23 @@ export function InstructorTable({
       align: "center",
       width: "90px",
       render: (row) => (
-        <div className="flex items-center justify-center gap-1">
+        // Stop clicks here from bubbling to the row's onRowClick (which opens details)
+        <div className="flex items-center justify-center gap-1.5" onClick={(e) => e.stopPropagation()}>
           <button
             type="button"
             onClick={() => onViewDetails(row)}
-            className="w-7 h-7 rounded-lg flex items-center justify-center text-primary-400 hover:text-brand-orange hover:bg-slate-100 transition-colors cursor-pointer"
-            title="View Details"
+            className="w-7 h-7 flex items-center justify-center rounded-lg border border-dash bg-white hover:bg-slate-100 text-primary-400 hover:text-primary-500 transition-colors cursor-pointer shadow-2xs"
+            title={`View details for ${row.name}`}
           >
             <Eye className="w-3.5 h-3.5" />
           </button>
           <button
             type="button"
             onClick={() => onEdit(row)}
-            className="w-7 h-7 rounded-lg flex items-center justify-center text-primary-400 hover:text-brand-orange hover:bg-slate-100 transition-colors cursor-pointer"
-            title="Edit Instructor"
+            className="w-7 h-7 flex items-center justify-center rounded-lg border border-dash bg-white hover:bg-brand-orange-light text-primary-400 hover:text-brand-orange hover:border-brand-orange/40 transition-colors cursor-pointer shadow-2xs"
+            title={`Edit info for ${row.name}`}
           >
-            <Edit2 className="w-3.5 h-3.5" />
+            <Edit2 className="w-3.5 h-3.5 text-brand-orange" />
           </button>
         </div>
       ),
