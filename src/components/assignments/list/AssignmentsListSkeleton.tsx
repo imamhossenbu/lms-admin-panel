@@ -6,41 +6,47 @@ import { cn } from "@/lib/cn";
 const Bar = ({ className }: { className: string }) => <div className={cn("rounded bg-slate-200", className)} />;
 const Soft = ({ className }: { className: string }) => <div className={cn("rounded bg-slate-100", className)} />;
 
-type Col = "check" | "num" | "title" | "twoLine" | "badge" | "progress" | "actions";
-const COLUMNS: Col[] = ["check", "num", "title", "twoLine", "badge", "twoLine", "progress", "badge", "actions"];
+type Col = "check" | "title" | "type" | "due" | "progress" | "status" | "actions";
+const COLUMNS: Col[] = ["check", "title", "type", "due", "progress", "status", "actions"];
 const WIDTH: Record<Col, string> = {
-  check: "w-12 flex-none",
-  num: "w-14 flex-none",
-  title: "flex-2",
-  twoLine: "flex-2",
-  badge: "flex-1",
-  progress: "flex-1",
-  actions: "w-40 flex-none",
+  check: "w-10 flex-none",
+  title: "flex-1 min-w-0",
+  type: "w-19 flex-none",
+  due: "w-31 flex-none",
+  progress: "w-27 flex-none",
+  status: "w-26 flex-none",
+  actions: "w-22 flex-none",
 };
 
 function CellSkeleton({ kind }: { kind: Col }) {
   if (kind === "check") return <div className="w-4 h-4 rounded border border-dash" />;
-  if (kind === "num") return <Soft className="h-4 w-4" />;
-  if (kind === "title") return <Bar className="h-4 w-40" />;
-  if (kind === "twoLine")
+  if (kind === "title")
     return (
       <div className="space-y-1.5">
-        <Soft className="h-3.5 w-32" />
-        <Soft className="h-3 w-24" />
+        <Bar className="h-4 w-48 max-w-full" />
+        <Soft className="h-3 w-28" />
       </div>
     );
-  if (kind === "badge") return <Soft className="h-6 w-20 rounded-md" />;
+  if (kind === "due")
+    return (
+      <div className="space-y-1.5">
+        <Soft className="h-3.5 w-22" />
+        <Soft className="h-3 w-16" />
+      </div>
+    );
+  if (kind === "type") return <Soft className="h-5 w-10 rounded-md" />;
+  if (kind === "status") return <Soft className="h-5 w-18 rounded-md" />;
   if (kind === "progress")
     return (
-      <div className="space-y-2">
-        <Soft className="h-3.5 w-12" />
-        <Soft className="h-1.5 w-full rounded-full" />
+      <div className="w-16 space-y-1.5">
+        <Soft className="h-3.5 w-10" />
+        <Soft className="h-1 w-full rounded-full" />
       </div>
     );
   return (
-    <div className="flex items-center justify-center gap-2">
-      {[0, 1, 2].map((i) => (
-        <div key={i} className="w-9 h-9 rounded-lg border border-dash" />
+    <div className="flex items-center justify-center gap-1.5">
+      {[0, 1].map((i) => (
+        <div key={i} className="w-7 h-7 rounded-lg border border-dash" />
       ))}
     </div>
   );
@@ -50,19 +56,19 @@ export function AssignmentsTableSkeleton({ rows = 8 }: { rows?: number }) {
   return (
     <div className="rounded-lg border border-dash overflow-hidden">
       <div className="overflow-x-auto">
-        <div className="min-w-240">
+        <div className="min-w-180">
           <div className="flex bg-slate-50 border-b border-dash divide-x divide-dash">
             {COLUMNS.map((kind, i) => (
-              <div key={i} className={cn("py-3 px-3.5", WIDTH[kind])}>
+              <div key={i} className={cn("py-2.5 px-3", WIDTH[kind])}>
                 {kind === "check" ? <div className="w-4 h-4 rounded border border-dash" /> : <Bar className="h-3.5 w-14" />}
               </div>
             ))}
           </div>
           <div className="divide-y divide-dash">
             {Array.from({ length: rows }, (_, r) => (
-              <div key={r} className="flex items-center divide-x divide-dash min-h-16">
+              <div key={r} className="flex items-stretch divide-x divide-dash min-h-14">
                 {COLUMNS.map((kind, i) => (
-                  <div key={i} className={cn("px-3.5 py-3", WIDTH[kind])}>
+                  <div key={i} className={cn("px-3 py-2.5 flex items-center", kind === "actions" && "justify-center", WIDTH[kind])}>
                     <CellSkeleton kind={kind} />
                   </div>
                 ))}
@@ -98,9 +104,9 @@ function GridSkeleton() {
           <Soft className="h-3.5 w-1/2" />
           <Soft className="h-4 w-48" />
           <Soft className="h-1.5 w-full rounded-full" />
-          <div className="pt-3 border-t border-dash flex justify-end gap-2">
-            {[0, 1, 2].map((j) => (
-              <div key={j} className="w-9 h-9 rounded-lg border border-dash" />
+          <div className="pt-3 border-t border-dash flex justify-end gap-1.5">
+            {[0, 1].map((j) => (
+              <div key={j} className="w-7 h-7 rounded-lg border border-dash" />
             ))}
           </div>
         </div>

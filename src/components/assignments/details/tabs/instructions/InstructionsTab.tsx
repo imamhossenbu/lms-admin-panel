@@ -7,14 +7,12 @@ import type { AssignmentTabProps } from "../../tabTypes";
 import { AssignmentDetailsCard } from "../../sidebar/AssignmentDetailsCard";
 import { StudentPreviewModal } from "../../sidebar/StudentPreviewModal";
 import { InstructionsCard } from "./InstructionsCard";
-import { EditInstructionsModal } from "./EditInstructionsModal";
 import { AttachmentsCard } from "./AttachmentsCard";
 import { StudentPreviewCard } from "./StudentPreviewCard";
 
-/** Assignment Details → Instructions tab: read view + editor modal, details, attachments and student preview. */
+/** Assignment Details → Instructions tab: read view (edits open the wizard), details, attachments and student preview. */
 export function InstructionsTab({ assignment, onAssignmentChange }: AssignmentTabProps) {
   const router = useRouter();
-  const [editing, setEditing] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
 
   return (
@@ -25,7 +23,7 @@ export function InstructionsTab({ assignment, onAssignmentChange }: AssignmentTa
       className="grid grid-cols-1 gap-5 lg:grid-cols-3"
     >
       <div className="min-w-0 lg:col-span-2">
-        <InstructionsCard assignment={assignment} onEdit={() => setEditing(true)} />
+        <InstructionsCard assignment={assignment} onEdit={() => router.push(`/assignments/${assignment.id}/edit?step=instructions`)} />
       </div>
       <div className="min-w-0 space-y-5">
         <AssignmentDetailsCard assignment={assignment} onEdit={() => router.push(`/assignments/${assignment.id}/edit`)} />
@@ -33,16 +31,6 @@ export function InstructionsTab({ assignment, onAssignmentChange }: AssignmentTa
         <StudentPreviewCard assignment={assignment} onPreview={() => setPreviewOpen(true)} />
       </div>
 
-      {editing && (
-        <EditInstructionsModal
-          assignment={assignment}
-          onClose={() => setEditing(false)}
-          onSaved={(next) => {
-            onAssignmentChange(next);
-            setEditing(false);
-          }}
-        />
-      )}
       <StudentPreviewModal isOpen={previewOpen} onClose={() => setPreviewOpen(false)} assignment={assignment} />
     </motion.div>
   );

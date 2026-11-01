@@ -15,9 +15,11 @@ export type AssignmentListTab = (typeof ASSIGNMENT_LIST_TABS)[number]["id"];
 export const parseListTab = (value: string): AssignmentListTab =>
   (ASSIGNMENT_LIST_TABS.find((t) => t.id === value)?.id ?? "all") as AssignmentListTab;
 
-export const ASSIGNMENT_TYPE_VIEW: Record<AssignmentType, { label: string; tone: Tone }> = {
-  FILE_UPLOAD: { label: "File Upload", tone: "blue" },
-  TEXT: { label: "Text Submission", tone: "purple" },
+/** `label` for cards / filters, `short` for the compact table badge. */
+export const ASSIGNMENT_TYPE_VIEW: Record<AssignmentType, { label: string; short: string; tone: Tone }> = {
+  FILE_UPLOAD: { label: "File Upload", short: "File", tone: "blue" },
+  TEXT: { label: "Text Submission", short: "Text", tone: "purple" },
+  LINK: { label: "External Link", short: "Link", tone: "orange" },
 };
 
 export const ASSIGNMENT_STATUS_VIEW: Record<AssignmentStatus, { label: string; tone: Tone }> = {
@@ -35,6 +37,7 @@ export const TYPE_FILTER_OPTIONS = [
   { value: "All", label: "All Types" },
   { value: "FILE_UPLOAD", label: "File Upload" },
   { value: "TEXT", label: "Text Submission" },
+  { value: "LINK", label: "External Link" },
 ];
 
 export type DueSort = "asc" | "desc" | null;
@@ -68,13 +71,18 @@ export function matchesTab(a: AssignmentItem, tab: AssignmentListTab, counts: Su
   return true;
 }
 
-/** "Module 1: Getting Started" / "Lesson 3: Your First HTML Page" (lesson line is null when not linked). */
+/**
+ * "Module 1: Getting Started" / "Lesson 3: Your First HTML Page" (lesson line is null when not linked),
+ * plus the compact table meta "Module 1 · Lesson 3".
+ */
 export function moduleLessonLabels(a: Pick<AssignmentItem, "moduleId" | "lessonId">, context: LessonEditorContext) {
   const mod = context.modules.find((m) => m.id === a.moduleId);
   const lesson = a.lessonId ? context.lessons.find((l) => l.id === a.lessonId) : undefined;
+  const shortModule = mod ? `Module ${mod.order}` : "No module";
   return {
     module: mod ? `Module ${mod.order}: ${mod.title}` : "Unassigned module",
     lesson: lesson ? `Lesson ${lesson.order}: ${lesson.title}` : null,
+    short: lesson ? `${shortModule} · Lesson ${lesson.order}` : shortModule,
   };
 }
 

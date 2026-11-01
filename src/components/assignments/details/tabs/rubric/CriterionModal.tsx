@@ -26,7 +26,7 @@ export interface CriterionModalProps {
   onSave: (criterion: RubricCriterion) => void;
 }
 
-/** Add / edit one rubric criterion (title, max points and every performance level). */
+/** Add / edit one rubric criterion (title, description, max points and every performance level). */
 export function CriterionModal({ isOpen, criterion, number, onClose, onSave }: CriterionModalProps) {
   const {
     register,
@@ -85,6 +85,18 @@ export function CriterionModal({ isOpen, criterion, number, onClose, onSave }: C
             className="no-spinner"
             error={errors.points?.message}
             {...register("points", { valueAsNumber: true })}
+          />
+        </div>
+        <div>
+          <label htmlFor="criterion-description" className="block body-sm-regular text-primary-400 mb-2 select-none">
+            Description
+          </label>
+          <TextAreaField
+            id="criterion-description"
+            rows={2}
+            placeholder="What does this criterion check? e.g. Uses semantic HTML elements correctly"
+            error={errors.description?.message}
+            {...register("description")}
           />
         </div>
 

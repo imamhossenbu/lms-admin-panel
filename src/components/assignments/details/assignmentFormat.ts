@@ -1,16 +1,27 @@
-import type { AssignmentItem, AttemptsOption, GradingType, LateSubmissionPolicy, AssignmentType } from "@/types/assignment";
+import type { AssignmentDifficulty, AssignmentItem, AttemptsOption, GradingType, AssignmentType } from "@/types/assignment";
 import type { LessonEditorContext } from "@/types/lessonEditor";
 
 /** Display labels + formatters shared by the Assignment Details page. */
 
-export const ASSIGNMENT_TYPE_LABEL: Record<AssignmentType, string> = { FILE_UPLOAD: "File Upload", TEXT: "Text Entry" };
-export const GRADING_TYPE_LABEL: Record<GradingType, string> = { POINTS: "Points Based", PASS_FAIL: "Pass / Fail", NOT_GRADED: "Not Graded" };
-export const LATE_POLICY_LABEL: Record<LateSubmissionPolicy, string> = {
-  ALLOW: "Allowed",
-  ALLOW_WITH_PENALTY: "Allowed with penalty",
-  DISALLOW: "Not allowed",
-};
+export const ASSIGNMENT_TYPE_LABEL: Record<AssignmentType, string> = { FILE_UPLOAD: "File Upload", LINK: "External Link", TEXT: "Text Entry" };
+export const GRADING_TYPE_LABEL: Record<GradingType, string> = { POINTS: "Points Based", LETTER: "Letter Grade", PASS_FAIL: "Pass / Fail", NOT_GRADED: "Not Graded" };
 export const attemptsLabel = (a: AttemptsOption) => (a === "UNLIMITED" ? "Unlimited" : `${a} attempt${a === "1" ? "" : "s"}`);
+
+export const DIFFICULTY_LABEL: Record<AssignmentDifficulty, string> = { BEGINNER: "Beginner", INTERMEDIATE: "Intermediate", ADVANCED: "Advanced" };
+
+/** "24 (75%)" or "—" when there is no passing score. */
+export function passingScoreLabel(a: Pick<AssignmentItem, "passingScore" | "totalPoints">) {
+  if (a.passingScore === null || a.passingScore === undefined) return "—";
+  const pct = a.totalPoints > 0 ? Math.round((a.passingScore / a.totalPoints) * 100) : 0;
+  return `${a.passingScore} (${pct}%)`;
+}
+
+/** "2 hours" / "45 minutes" / "" when not set. */
+export function estimatedTimeLabel(a: Pick<AssignmentItem, "estimatedTime" | "estimatedUnit">) {
+  if (!a.estimatedTime || a.estimatedTime <= 0) return "";
+  const unit = a.estimatedUnit === "MINUTES" ? "minute" : "hour";
+  return `${a.estimatedTime} ${unit}${a.estimatedTime === 1 ? "" : "s"}`;
+}
 
 /** "Oct 25, 2026" from "YYYY-MM-DD" (local, no timezone shift). */
 export function formatDueDate(date: string) {

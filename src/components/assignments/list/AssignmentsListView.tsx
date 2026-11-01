@@ -80,7 +80,15 @@ export function AssignmentsListView({ courseId = MOCK_LESSON_COURSE_ID }: { cour
     });
     return sortByDue(list, dueSort).map((a, i) => {
       const labels = moduleLessonLabels(a, context);
-      return { id: a.id, number: i + 1, assignment: a, moduleLabel: labels.module, lessonLabel: labels.lesson, submitted: countsFor(counts, a.id).submitted };
+      return {
+        id: a.id,
+        number: i + 1,
+        assignment: a,
+        moduleLabel: labels.module,
+        lessonLabel: labels.lesson,
+        metaLabel: labels.short,
+        submitted: countsFor(counts, a.id).submitted,
+      };
     });
   }, [assignments, counts, context, tab, query, moduleId, status, type, dueSort]);
 

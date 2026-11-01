@@ -7,15 +7,15 @@ import { dueLabel } from "@/lib/assignmentStats";
 import { cn } from "@/lib/cn";
 import { formatDueDate, submissionPct } from "./assignmentListUtils";
 
-/** "Module 1: Getting Started" over "Lesson 3: Your First HTML Page". */
-export function ModuleLessonCell({ module, lesson }: { module: string; lesson: string | null }) {
+/** Title + one-line muted meta ("Module 1 · Lesson 4"); full labels in the tooltip. */
+export function AssignmentTitleCell({ title, meta, metaTitle }: { title: string; meta: string; metaTitle: string }) {
   return (
-    <div className="min-w-48 max-w-64">
-      <p className="body-sm-regular text-primary-400 truncate" title={module}>
-        {module}
+    <div className="min-w-0">
+      <p className="body-sm-medium text-primary-500 truncate" title={title}>
+        {title}
       </p>
-      <p className="body-sm-regular text-primary-300 truncate" title={lesson ?? undefined}>
-        {lesson ?? "No lesson linked"}
+      <p className="mt-0.5 body-xsm-regular text-primary-300 truncate" title={metaTitle}>
+        {meta}
       </p>
     </div>
   );
@@ -27,21 +27,32 @@ export function DueDateCell({ assignment }: { assignment: Pick<AssignmentItem, "
   return (
     <div className="whitespace-nowrap">
       <p className="body-sm-medium text-primary-500">{formatDueDate(assignment)}</p>
-      <p className={cn("body-sm-regular", label.tone === "red" ? "text-red" : "text-primary-300")}>{label.text}</p>
+      <p className={cn("mt-0.5 body-xsm-regular", label.tone === "red" ? "text-red" : "text-primary-300")}>{label.text}</p>
     </div>
   );
 }
 
-/** "28 / 32" + progress bar (green at ≥ 75 %, orange below). */
-export function SubmissionsProgress({ submitted, enrolled, className }: { submitted: number; enrolled: number; className?: string }) {
+/** "28/32" (compact) or "28 / 32" + progress bar (green at ≥ 75 %, orange below). */
+export function SubmissionsProgress({
+  submitted,
+  enrolled,
+  compact = false,
+  className,
+}: {
+  submitted: number;
+  enrolled: number;
+  /** Table cell: tight count + fixed narrow bar. */
+  compact?: boolean;
+  className?: string;
+}) {
   const pct = submissionPct(submitted, enrolled);
   return (
-    <div className={cn("min-w-28", className)}>
-      <p className="body-sm-medium text-primary-500 tabular-nums">
-        {submitted} / {enrolled}
+    <div className={cn(compact ? "w-16" : "min-w-28", className)}>
+      <p className="body-sm-medium text-primary-500 tabular-nums whitespace-nowrap">
+        {compact ? `${submitted}/${enrolled}` : `${submitted} / ${enrolled}`}
       </p>
       <div
-        className="mt-1.5 h-1.5 w-full rounded-full bg-slate-200 overflow-hidden"
+        className={cn("w-full rounded-full bg-slate-200 overflow-hidden", compact ? "mt-1 h-1" : "mt-1.5 h-1.5")}
         role="progressbar"
         aria-valuenow={pct}
         aria-valuemin={0}

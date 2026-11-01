@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ChevronDown, Copy, EyeOff, MoreVertical, Send, Trash2 } from "lucide-react";
+import { ChevronDown, Copy, EyeOff, MoreVertical, Pencil, Send, Trash2 } from "lucide-react";
 import type { AssignmentStatus } from "@/types/assignment";
 import { AppDropdownMenu } from "@/components/ui/AppDropdownMenu";
 import { SecondaryButton } from "@/components/ui/secondary-button";
@@ -9,17 +9,20 @@ import { SecondaryButton } from "@/components/ui/secondary-button";
 export interface AssignmentMoreMenuProps {
   status: AssignmentStatus;
   disabled?: boolean;
+  /** Opens the wizard at /assignments/[id]/edit. */
+  onEdit: () => void;
   onDuplicate: () => void;
   onTogglePublish: () => void;
   onDelete: () => void;
 }
 
-/** Header "More ▾" menu: Duplicate, Publish/Unpublish, Delete. */
-export function AssignmentMoreMenu({ status, disabled, onDuplicate, onTogglePublish, onDelete }: AssignmentMoreMenuProps) {
+/** Header "More ▾" menu: Edit, Duplicate, Publish/Unpublish, Delete. */
+export function AssignmentMoreMenu({ status, disabled, onEdit, onDuplicate, onTogglePublish, onDelete }: AssignmentMoreMenuProps) {
   const isPublished = status === "PUBLISHED";
   return (
     <AppDropdownMenu
       items={[
+        { key: "edit", label: "Edit Assignment", icon: <Pencil className="h-4 w-4" />, onClick: onEdit },
         { key: "duplicate", label: "Duplicate", icon: <Copy className="h-4 w-4" />, onClick: onDuplicate, disabled },
         {
           key: "publish",

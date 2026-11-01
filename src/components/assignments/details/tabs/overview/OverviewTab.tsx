@@ -27,9 +27,9 @@ export function OverviewTab({ assignment, submissions, onTabChange, onPreview }:
           <AssignmentStatCards submissions={submissions} />
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
             <AssignmentDescriptionCard
-              descriptionHtml={assignment.descriptionHtml}
+              assignment={assignment}
               objectives={assignment.instructions.objectives}
-              onEdit={() => onTabChange("instructions")}
+              onEdit={() => router.push(`/assignments/${assignment.id}/edit?step=basic`)}
             />
             <SubmissionPreviewCard onViewInstructions={() => onTabChange("instructions")} />
           </div>

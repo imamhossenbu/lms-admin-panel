@@ -12,7 +12,10 @@ export function PreviewRubric({ rubric }: { rubric: AssignmentRubric }) {
       {rubric.criteria.map((c) => (
         <div key={c.id} className="rounded-xl border border-dash">
           <div className="flex items-center justify-between gap-3 border-b border-dash bg-gray-bg px-4 py-2.5">
-            <span className="body-sm-medium font-semibold! text-primary-500">{c.title}</span>
+            <div className="min-w-0">
+              <p className="body-sm-medium font-semibold! text-primary-500">{c.title}</p>
+              {c.description && <p className="body-xsm-regular text-primary-400">{c.description}</p>}
+            </div>
             <ToneBadge tone="navy" size="sm">
               {c.points} pts
             </ToneBadge>

@@ -61,6 +61,7 @@ export const defaultRubricCriteria = (titles: string[], perCriterion: number): R
     return {
       id: `crit-${i + 1}`,
       title,
+      description: `${title} is complete, correct and well organised.`,
       points: perCriterion,
       levels: [
         { id: `crit-${i + 1}-ex`, tone: "EXCELLENT", label: "Excellent", points: perCriterion, description: `${title} is complete, correct and well organised.` },
@@ -77,22 +78,22 @@ const INTRO_RUBRIC: AssignmentRubric = {
   description: "This rubric will be used to evaluate your HTML page submission based on structure, content, links and code quality.",
   visibleToStudents: true,
   criteria: [
-    { id: "crit-1", title: "HTML Structure", points: 8, levels: [
+    { id: "crit-1", title: "HTML Structure", description: "Uses proper HTML5 structure (<!DOCTYPE html>, html, head, body)", points: 8, levels: [
       { id: "crit-1-ex", tone: "EXCELLENT", label: "Excellent", points: 8, description: "Proper HTML5 structure with all required elements (doctype, html, head, body)." },
       { id: "crit-1-gd", tone: "GOOD", label: "Good", points: 5, description: "Most structure elements are present with minor issues." },
       { id: "crit-1-ni", tone: "NEEDS_IMPROVEMENT", label: "Needs Improvement", points: 2, description: "Missing several key elements or incorrect structure." },
     ] },
-    { id: "crit-2", title: "Headings & Paragraphs", points: 8, levels: [
+    { id: "crit-2", title: "Headings & Paragraphs", description: "Includes a clear main heading (h1) and well-structured paragraphs", points: 8, levels: [
       { id: "crit-2-ex", tone: "EXCELLENT", label: "Excellent", points: 8, description: "Uses correct heading tags (h1, h2, etc.) and well structured paragraphs." },
       { id: "crit-2-gd", tone: "GOOD", label: "Good", points: 5, description: "Uses headings and paragraphs with minor issues." },
       { id: "crit-2-ni", tone: "NEEDS_IMPROVEMENT", label: "Needs Improvement", points: 2, description: "Incorrect or missing headings/paragraphs." },
     ] },
-    { id: "crit-3", title: "Hyperlink", points: 8, levels: [
+    { id: "crit-3", title: "Hyperlink", description: "Includes a working hyperlink to any website (e.g. Google)", points: 8, levels: [
       { id: "crit-3-ex", tone: "EXCELLENT", label: "Excellent", points: 8, description: "Includes a working hyperlink with correct anchor tag." },
       { id: "crit-3-gd", tone: "GOOD", label: "Good", points: 5, description: "Includes a hyperlink with minor issues." },
       { id: "crit-3-ni", tone: "NEEDS_IMPROVEMENT", label: "Needs Improvement", points: 2, description: "Missing hyperlink or incorrect implementation." },
     ] },
-    { id: "crit-4", title: "Code Quality", points: 8, levels: [
+    { id: "crit-4", title: "Code Quality", description: "Clean, well formatted code with proper indentation", points: 8, levels: [
       { id: "crit-4-ex", tone: "EXCELLENT", label: "Excellent", points: 8, description: "Clean, well formatted code with proper indentation." },
       { id: "crit-4-gd", tone: "GOOD", label: "Good", points: 5, description: "Code is readable with minor formatting issues." },
       { id: "crit-4-ni", tone: "NEEDS_IMPROVEMENT", label: "Needs Improvement", points: 2, description: "Poorly formatted code, difficult to read." },
@@ -138,6 +139,16 @@ const genericInstructions = (title: string, type: AssignmentType): AssignmentIns
   maxFileSizeMb: 50,
   gradingNotes: ["Correct use of HTML elements", "Completeness of the task", "Code quality"],
 });
+
+const esc = (t: string) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const withCode = (t: string) => esc(t).replace(/`([^`]+)`/g, "<code>$1</code>");
+/** Rich-text version of the structured instructions (wizard step 2 / Instructions tab). */
+export const instructionsToHtml = (i: AssignmentInstructions) =>
+  [
+    `<h2>Assignment Overview</h2><p>${esc(i.overview)}</p>`,
+    i.tasks.length ? `<h2>Requirements</h2><ul>${i.tasks.map((t) => `<li>${withCode(t)}</li>`).join("")}</ul>` : "",
+    i.requirements.length ? `<h2>Submission Guidelines</h2><ul>${i.requirements.map((t) => `<li>${withCode(t)}</li>`).join("")}</ul>` : "",
+  ].join("");
 
 // ---------------------------------------------------------------- assignment specs (order = list order)
 interface Spec {
@@ -208,7 +219,7 @@ export function buildAssignmentSeed(now: Date = new Date()): AssignmentSeed {
       dueTime: "23:59",
       totalPoints: 32,
       attempts: "UNLIMITED",
-      lateSubmission: "ALLOW",
+      lateSubmission: "ALLOW_WITH_PENALTY",
       gradingType: "POINTS",
       showRubric: true,
       peerReview: false,
@@ -223,6 +234,29 @@ export function buildAssignmentSeed(now: Date = new Date()): AssignmentSeed {
       instructions: isIntro ? INTRO_INSTRUCTIONS : genericInstructions(spec.title, spec.type),
       rubric,
       enrolledCount: ENROLLED_STUDENTS,
+      category: index === 6 ? "Project" : index === 7 ? "Bonus" : "Practice",
+      difficulty: index >= 6 ? "INTERMEDIATE" : "BEGINNER",
+      estimatedTime: index === 6 ? 3 : 1,
+      estimatedUnit: "HOURS",
+      instructionsHtml: instructionsToHtml(isIntro ? INTRO_INSTRUCTIONS : genericInstructions(spec.title, spec.type)),
+      maxFiles: 1,
+      latePenalty: 10,
+      latePenaltyUnit: "PERCENT",
+      passingScore: 24,
+      gradeDisplay: "EXACT",
+      aiGrading: isIntro
+        ? { enabled: true, criteria: "Evaluate the HTML structure, use of proper tags, headings, paragraphs and hyperlinks. Check code quality, completeness and correctness based on the rubric." }
+        : { enabled: false, criteria: "" },
+      manualOverride: true,
+      releaseDate: toDate(created),
+      releaseTime: "09:00",
+      availability: "UNTIL_DUE",
+      timeLimitMinutes: 60,
+      windowStartDate: "",
+      windowStartTime: "",
+      windowEndDate: "",
+      windowEndTime: "",
+      showInCalendar: true,
       createdAt: created.toISOString(),
       updatedAt: created.toISOString(),
     });

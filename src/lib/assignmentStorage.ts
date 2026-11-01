@@ -1,5 +1,5 @@
-import type { AssignmentInstructions, AssignmentItem, AssignmentRubric, AssignmentSubmission } from "@/types/assignment";
-import type { AssignmentFormValues } from "@/validations/assignmentSchema";
+import type { AssignmentItem, AssignmentSubmission } from "@/types/assignment";
+import type { WizardAssignmentFields } from "@/lib/assignmentWizardMapping";
 import { buildAssignmentSeed, ENROLLED_STUDENTS, type AssignmentSeed } from "@/data/mockAssignmentData";
 import { MOCK_LESSON_COURSE_ID } from "@/data/mockLessonEditorData";
 
@@ -8,7 +8,7 @@ import { MOCK_LESSON_COURSE_ID } from "@/data/mockLessonEditorData";
  * latency so loading states / toasts behave like the real API. Replace with API calls later.
  */
 
-const STORAGE_KEY = "edupro_assignments_v1";
+const STORAGE_KEY = "edupro_assignments_v2";
 export const ASSIGNMENTS_UPDATED_EVENT = "edupro_assignments_updated";
 const LATENCY = 450;
 
@@ -65,39 +65,12 @@ export async function fetchSubmissions(assignmentId?: string): Promise<Assignmen
 }
 
 // ---------------------------------------------------------------- writes
-const emptyInstructions = (): AssignmentInstructions => ({
-  overview: "",
-  objectives: [],
-  tasks: [],
-  requirements: [],
-  allowedFileTypes: [".pdf", ".zip", ".html"],
-  maxFileSizeMb: 50,
-  gradingNotes: [],
-});
-
-const emptyRubric = (title: string, totalPoints: number): AssignmentRubric => ({
-  enabled: false,
-  title: `${title} Rubric`,
-  totalPoints,
-  description: "",
-  visibleToStudents: true,
-  criteria: [],
-});
-
-export async function createAssignment(values: AssignmentFormValues, courseId: string = MOCK_LESSON_COURSE_ID): Promise<AssignmentItem> {
+/** Create from the wizard (status: PUBLISHED on "Create Assignment"). */
+export async function createAssignment(fields: WizardAssignmentFields, status: AssignmentItem["status"] = "PUBLISHED"): Promise<AssignmentItem> {
   await wait();
   const data = read();
   const now = new Date().toISOString();
-  const item: AssignmentItem = {
-    ...values,
-    id: uid("assignment"),
-    courseId,
-    instructions: emptyInstructions(),
-    rubric: { ...emptyRubric(values.title, values.totalPoints), enabled: values.showRubric },
-    enrolledCount: ENROLLED_STUDENTS,
-    createdAt: now,
-    updatedAt: now,
-  };
+  const item: AssignmentItem = { ...fields, id: uid("assignment"), status, enrolledCount: ENROLLED_STUDENTS, createdAt: now, updatedAt: now };
   write({ ...data, assignments: [item, ...data.assignments] });
   return item;
 }

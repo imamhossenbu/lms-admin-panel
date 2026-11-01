@@ -13,6 +13,7 @@ import { PreviewSection } from "./preview/PreviewSection";
 import { PreviewList } from "./preview/PreviewList";
 import { PreviewAttachments } from "./preview/PreviewAttachments";
 import { PreviewRubric } from "./preview/PreviewRubric";
+import { InstructionsHtml, hasInstructionsHtml } from "../tabs/instructions/InstructionsHtml";
 
 export interface StudentPreviewModalProps {
   isOpen: boolean;
@@ -24,6 +25,7 @@ export interface StudentPreviewModalProps {
 export function StudentPreviewModal({ isOpen, onClose, assignment }: StudentPreviewModalProps) {
   const due = dueLabel(assignment);
   const { instructions, rubric } = assignment;
+  const hasHtml = hasInstructionsHtml(assignment.instructionsHtml);
   const showRubric = assignment.showRubric && rubric.enabled && rubric.visibleToStudents && rubric.criteria.length > 0;
 
   return (
@@ -59,38 +61,51 @@ export function StudentPreviewModal({ isOpen, onClose, assignment }: StudentPrev
           <RichTextContent html={assignment.descriptionHtml} />
         </PreviewSection>
 
-        {instructions.overview && (
+        {hasHtml ? (
           <PreviewSection title="Instructions">
-            <p className="body-sm-regular text-primary-400">{instructions.overview}</p>
+            <InstructionsHtml html={assignment.instructionsHtml} />
           </PreviewSection>
+        ) : (
+          instructions.overview && (
+            <PreviewSection title="Instructions">
+              <p className="body-sm-regular text-primary-400">{instructions.overview}</p>
+            </PreviewSection>
+          )
         )}
         {instructions.objectives.length > 0 && (
           <PreviewSection title="Learning Objectives">
             <PreviewList items={instructions.objectives} />
           </PreviewSection>
         )}
-        {instructions.tasks.length > 0 && (
+        {!hasHtml && instructions.tasks.length > 0 && (
           <PreviewSection title="Tasks">
             <PreviewList items={instructions.tasks} ordered />
           </PreviewSection>
         )}
-        {instructions.requirements.length > 0 && (
+        {!hasHtml && instructions.requirements.length > 0 && (
           <PreviewSection title="Requirements">
             <PreviewList items={instructions.requirements} />
           </PreviewSection>
         )}
-        {assignment.type === "FILE_UPLOAD" && (
-          <PreviewSection title="Submission Format">
+        <PreviewSection title="Submission Format">
+          {assignment.type === "FILE_UPLOAD" ? (
             <div className="flex flex-wrap items-center gap-2">
               {instructions.allowedFileTypes.map((t) => (
                 <ToneBadge key={t} tone="gray" size="sm">
                   {t}
                 </ToneBadge>
               ))}
-              <span className="body-xsm-regular text-primary-300">Max {instructions.maxFileSizeMb} MB</span>
+              <span className="body-xsm-regular text-primary-300">
+                Max {instructions.maxFileSizeMb} MB
+                {assignment.maxFiles > 0 ? ` · Up to ${assignment.maxFiles} file${assignment.maxFiles === 1 ? "" : "s"}` : ""}
+              </span>
             </div>
-          </PreviewSection>
-        )}
+          ) : (
+            <p className="body-sm-regular text-primary-400">
+              {assignment.type === "LINK" ? "Submit a link (URL) to your work." : "Type your answer directly in the text editor."}
+            </p>
+          )}
+        </PreviewSection>
         {assignment.attachments.length > 0 && (
           <PreviewSection title="Resources">
             <PreviewAttachments attachments={assignment.attachments} />

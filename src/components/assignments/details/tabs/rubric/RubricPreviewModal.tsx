@@ -27,6 +27,7 @@ export function RubricPreviewModal({ isOpen, onClose, rubric }: RubricPreviewMod
       render: (c) => (
         <div>
           <p className="body-sm-medium font-semibold! text-primary-500">{c.title}</p>
+          {c.description && <p className="mt-0.5 body-xsm-regular text-primary-400">{c.description}</p>}
           <p className="body-xsm-regular text-primary-300">{c.points} points</p>
         </div>
       ),

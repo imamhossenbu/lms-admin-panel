@@ -1,12 +1,13 @@
 "use client";
 
 import React from "react";
-import { CalendarDays, Clock, Eye, FileText, Gauge, Hash, Pencil, Repeat, Timer } from "lucide-react";
+import { CalendarCheck, CalendarDays, Eye, FileText, Gauge, Hash, Pencil, Repeat, Target, Timer } from "lucide-react";
 import type { AssignmentItem } from "@/types/assignment";
 import { IconSectionCard } from "@/components/ui/IconSectionCard";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 import { dueLabel } from "@/lib/assignmentStats";
-import { ASSIGNMENT_TYPE_LABEL, GRADING_TYPE_LABEL, LATE_POLICY_LABEL, attemptsLabel, formatDueDate, formatDueTime } from "../assignmentFormat";
+import { lateSubmissionSummary } from "@/lib/assignmentWizardMapping";
+import { ASSIGNMENT_TYPE_LABEL, GRADING_TYPE_LABEL, attemptsLabel, formatDueDate, formatDueTime, passingScoreLabel } from "../assignmentFormat";
 import { DetailRow } from "./DetailRow";
 import { CardHeaderButton } from "./CardHeaderButton";
 
@@ -15,7 +16,10 @@ export interface AssignmentDetailsCardProps {
   onEdit?: () => void;
 }
 
-/** Right-column summary: type, due date/time (+ days-left pill), points, attempts, late policy, grading, visibility. */
+/** "Oct 20, 2026 · 9:00 AM" (time omitted when empty). */
+const dateTime = (date: string, time: string) => (time ? `${formatDueDate(date)} · ${formatDueTime(time)}` : formatDueDate(date));
+
+/** Right-column summary: type, release / due (+ days-left pill), points, passing score, attempts, late policy, grading, visibility. */
 export function AssignmentDetailsCard({ assignment, onEdit }: AssignmentDetailsCardProps) {
   const due = dueLabel(assignment);
   const isPublished = assignment.status === "PUBLISHED";
@@ -37,25 +41,26 @@ export function AssignmentDetailsCard({ assignment, onEdit }: AssignmentDetailsC
         <DetailRow icon={FileText} label="Type">
           <ToneBadge tone="blue">{ASSIGNMENT_TYPE_LABEL[assignment.type]}</ToneBadge>
         </DetailRow>
-        <DetailRow icon={CalendarDays} label="Due Date">
-          <CalendarDays className="h-4 w-4 text-primary-400" />
-          {formatDueDate(assignment.dueDate)}
+        <DetailRow icon={CalendarCheck} label="Release Date">
+          {assignment.releaseDate ? dateTime(assignment.releaseDate, assignment.releaseTime) : "Immediately"}
         </DetailRow>
-        <DetailRow icon={Clock} label="Due Time">
-          <Clock className="h-4 w-4 text-primary-400" />
-          {formatDueTime(assignment.dueTime)}
-          <ToneBadge tone={due.text.startsWith("Overdue") ? "red" : "green"} size="sm" className="ml-auto">
+        <DetailRow icon={CalendarDays} label="Due Date">
+          <span>{dateTime(assignment.dueDate, assignment.dueTime)}</span>
+          <ToneBadge tone={due.text.startsWith("Overdue") ? "red" : "green"} size="sm">
             {due.text}
           </ToneBadge>
         </DetailRow>
         <DetailRow icon={Hash} label="Total Points">
           {assignment.totalPoints}
         </DetailRow>
+        <DetailRow icon={Target} label="Passing Score">
+          {passingScoreLabel(assignment)}
+        </DetailRow>
         <DetailRow icon={Repeat} label="Submission Attempts">
           {attemptsLabel(assignment.attempts)}
         </DetailRow>
         <DetailRow icon={Timer} label="Late Submission">
-          {LATE_POLICY_LABEL[assignment.lateSubmission]}
+          {lateSubmissionSummary(assignment)}
         </DetailRow>
         <DetailRow icon={Gauge} label="Grading Type">
           {GRADING_TYPE_LABEL[assignment.gradingType]}

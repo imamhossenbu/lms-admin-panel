@@ -1,10 +1,15 @@
 /** Assignments (mock-first). Shapes are API-ready: swap src/lib/assignmentStorage.ts for real calls later. */
 
-export type AssignmentType = "FILE_UPLOAD" | "TEXT";
+export type AssignmentType = "FILE_UPLOAD" | "TEXT" | "LINK";
 export type AssignmentStatus = "PUBLISHED" | "DRAFT";
-export type GradingType = "POINTS" | "PASS_FAIL" | "NOT_GRADED";
+export type GradingType = "POINTS" | "PASS_FAIL" | "LETTER" | "NOT_GRADED";
 export type LateSubmissionPolicy = "ALLOW" | "ALLOW_WITH_PENALTY" | "DISALLOW";
-export type AttemptsOption = "UNLIMITED" | "1" | "2" | "3" | "5";
+/** "UNLIMITED" or a max number of attempts as a string ("1" = single attempt). */
+export type AttemptsOption = "UNLIMITED" | `${number}`;
+export type AssignmentDifficulty = "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
+export type GradeDisplay = "EXACT" | "GRADE_ONLY";
+export type AvailabilityMode = "UNTIL_DUE" | "TIME_LIMIT" | "WINDOW";
+export type PenaltyUnit = "PERCENT" | "POINTS";
 
 export interface AssignmentAttachment {
   id: string;
@@ -31,6 +36,8 @@ export interface RubricLevel {
 export interface RubricCriterion {
   id: string;
   title: string;
+  /** What this criterion checks (wizard "Description" column). */
+  description: string;
   /** Max points for this criterion (= highest level). */
   points: number;
   levels: RubricLevel[];
@@ -83,6 +90,34 @@ export interface AssignmentItem {
   rubric: AssignmentRubric;
   /** Students enrolled in the course (denominator for "28 / 32"). */
   enrolledCount: number;
+
+  // ---- Create/Edit wizard fields ----
+  category: string;
+  difficulty: AssignmentDifficulty;
+  estimatedTime: number;
+  estimatedUnit: "MINUTES" | "HOURS";
+  /** Rich-text detailed instructions (wizard step 2). Shown on the Instructions tab. */
+  instructionsHtml: string;
+  maxFiles: number;
+  latePenalty: number;
+  latePenaltyUnit: PenaltyUnit;
+  /** null = no passing score. */
+  passingScore: number | null;
+  gradeDisplay: GradeDisplay;
+  aiGrading: { enabled: boolean; criteria: string };
+  manualOverride: boolean;
+  /** "YYYY-MM-DD" / "HH:mm" — when students can see it. */
+  releaseDate: string;
+  releaseTime: string;
+  availability: AvailabilityMode;
+  /** Minutes allowed after starting (availability = TIME_LIMIT). */
+  timeLimitMinutes: number;
+  /** Custom window (availability = WINDOW). */
+  windowStartDate: string;
+  windowStartTime: string;
+  windowEndDate: string;
+  windowEndTime: string;
+  showInCalendar: boolean;
   createdAt: string;
   updatedAt: string;
 }

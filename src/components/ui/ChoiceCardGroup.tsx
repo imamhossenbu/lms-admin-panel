@@ -26,6 +26,8 @@ export interface ChoiceCardGroupProps<T extends string> {
   indicator?: "radio" | "none";
   /** "left": icon beside the text. "top": icon above a single-line title (for narrow, many-column grids). */
   iconPosition?: "left" | "top";
+  /** Selected colour: "orange" (app default) or "blue" (assignment wizard). */
+  tone?: "orange" | "blue";
   className?: string;
   "aria-label"?: string;
 }
@@ -37,12 +39,17 @@ const COLS: Record<NonNullable<ChoiceCardGroupProps<string>["columns"]>, string>
   5: "sm:grid-cols-3 lg:grid-cols-5",
 };
 
-function RadioDot({ checked }: { checked: boolean }) {
+const TONE_STYLE = {
+  orange: { dotBorder: "border-brand-orange", dotFill: "bg-brand-orange", card: "border-brand-orange bg-brand-orange-light", title: "text-brand-orange", description: "text-brand-orange" },
+  blue: { dotBorder: "border-blue", dotFill: "bg-blue", card: "border-blue bg-blue-14", title: "text-primary-500", description: "text-primary-300" },
+} as const;
+
+function RadioDot({ checked, tone = "orange" }: { checked: boolean; tone?: "orange" | "blue" }) {
   return (
     <span
       className={cn(
         "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border bg-white transition-colors",
-        checked ? "border-brand-orange" : "border-dash"
+        checked ? TONE_STYLE[tone].dotBorder : "border-dash"
       )}
     >
       {checked && (
@@ -51,7 +58,7 @@ function RadioDot({ checked }: { checked: boolean }) {
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: "spring", stiffness: 500, damping: 30 }}
-          className="h-2.5 w-2.5 rounded-full bg-brand-orange"
+          className={cn("h-2.5 w-2.5 rounded-full", TONE_STYLE[tone].dotFill)}
         />
       )}
     </span>
@@ -71,6 +78,7 @@ export function ChoiceCardGroup<T extends string>({
   variant = "card",
   indicator = "radio",
   iconPosition = "left",
+  tone = "orange",
   className,
   ...rest
 }: ChoiceCardGroupProps<T>) {
@@ -91,7 +99,7 @@ export function ChoiceCardGroup<T extends string>({
               onClick={() => onChange(option.value)}
               className="inline-flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <RadioDot checked={checked} />
+              <RadioDot checked={checked} tone={tone} />
               <span className={cn("body-sm-regular whitespace-nowrap", checked ? "text-primary-500" : "text-primary-300")}>
                 {option.title}
               </span>
@@ -121,20 +129,20 @@ export function ChoiceCardGroup<T extends string>({
               "flex min-w-0 rounded-xl border p-3.5 text-left transition-colors",
               iconPosition === "top" ? "flex-col items-start gap-2.5" : "items-start gap-3",
               "disabled:cursor-not-allowed disabled:opacity-50",
-              checked ? "border-brand-orange bg-brand-orange-light" : "border-dash bg-white hover:border-primary-300/40"
+              checked ? TONE_STYLE[tone].card : "border-dash bg-white hover:border-primary-300/40"
             )}
           >
             {option.icon ? (
               <span className={cn("shrink-0", iconPosition === "left" && "mt-0.5")}>{option.icon}</span>
             ) : indicator === "radio" ? (
-              <RadioDot checked={checked} />
+              <RadioDot checked={checked} tone={tone} />
             ) : null}
             <span className="min-w-0 w-full">
               <span
                 className={cn(
                   "block body-sm-medium",
                   iconPosition === "top" && "truncate",
-                  checked ? "text-brand-orange" : "text-primary-500"
+                  checked ? TONE_STYLE[tone].title : "text-primary-500"
                 )}
               >
                 {option.title}
@@ -144,7 +152,7 @@ export function ChoiceCardGroup<T extends string>({
                   className={cn(
                     "mt-1 block body-xsm-regular",
                     iconPosition === "top" && "line-clamp-2",
-                    checked ? "text-brand-orange" : "text-primary-300"
+                    checked ? TONE_STYLE[tone].description : "text-primary-300"
                   )}
                 >
                   {option.description}

@@ -1,13 +1,14 @@
 "use client";
 
 import React, { Suspense } from "react";
-import { AssignmentFormView } from "@/components/assignments/form/AssignmentFormView";
-import { AssignmentFormSkeleton } from "@/components/assignments/form/AssignmentFormSkeleton";
+import { CreateAssignmentWizard } from "@/components/assignments/wizard/CreateAssignmentWizard";
+import { WizardSkeleton } from "@/components/assignments/wizard/shell/WizardSkeleton";
 
+/** Create Assignment — 7-step wizard (`?step=` keeps the current step across reloads). */
 export default function CreateAssignmentPage() {
   return (
-    <Suspense fallback={<AssignmentFormSkeleton />}>
-      <AssignmentFormView mode="create" />
+    <Suspense fallback={<WizardSkeleton />}>
+      <CreateAssignmentWizard />
     </Suspense>
   );
 }

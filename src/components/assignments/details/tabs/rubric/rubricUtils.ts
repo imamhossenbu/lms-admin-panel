@@ -24,6 +24,7 @@ export function newCriterion(points = 8): RubricCriterion {
   return {
     id: rid("crit"),
     title: "",
+    description: "",
     points,
     levels: LEVEL_TONE_ORDER.map<RubricLevel>((tone) => ({
       id: rid("lvl"),

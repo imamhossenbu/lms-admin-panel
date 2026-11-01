@@ -70,6 +70,7 @@ export function AssignmentDetailsHeader({ assignment, submissions, context, onBa
           <AssignmentMoreMenu
             status={assignment.status}
             disabled={act.busy !== null}
+            onEdit={onEdit}
             onDuplicate={() => void act.duplicate()}
             onTogglePublish={() => void togglePublish()}
             onDelete={act.openDelete}

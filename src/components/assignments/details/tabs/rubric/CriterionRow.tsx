@@ -24,7 +24,7 @@ export interface CriterionRowProps {
   onMove: (from: number, to: number) => void;
 }
 
-/** One draggable rubric criterion: handle, number, title, level boxes, edit / delete / more. */
+/** One draggable rubric criterion: handle, number, title + description, level boxes, edit / delete / more. */
 export function CriterionRow({ field, index, total, invalid, disabled, onEdit, onDelete, onDuplicate, onMove }: CriterionRowProps) {
   const controls = useDragControls();
 
@@ -72,6 +72,11 @@ export function CriterionRow({ field, index, total, invalid, disabled, onEdit, o
           <p className="truncate body-sm-medium font-semibold! text-primary-500" title={field.title}>
             {field.title || "Untitled criterion"}
           </p>
+          {field.description && (
+            <p className="line-clamp-2 body-xsm-regular text-primary-400" title={field.description}>
+              {field.description}
+            </p>
+          )}
           <p className="body-xsm-regular text-primary-300">{field.points} points</p>
           {invalid && <p className="body-xsm-regular text-red">Has errors — edit to fix.</p>}
         </div>
