@@ -1,7 +1,7 @@
 import type { Tone } from "@/components/ui/ToneBadge";
 
 /**
- * SaaS (multi-tenant subscription) domain types — shared by the Owner Console (/console/**) and the
+ * SaaS (multi-tenant subscription) domain types — shared by the Owner Console (separate app: lms-owner-console — keep both copies in sync) and the
  * institution admin panel (Billing & Plan, feature gating, trial banner, Domain settings, /signup).
  *
  * - A `Plan` defines prices (monthly + yearly), hard `limits` (null = unlimited) and the `features` it unlocks.
