@@ -37,8 +37,8 @@ function sizedIcon(icon: React.ReactNode) {
 }
 
 /**
- * THE app-wide tab bar (use it for every tabbed UI — never build a custom one): grey capsule
- * track with a sliding white pill on the active tab, optional icon, count badge and error dot.
+ * THE app-wide tab bar (use it for every tabbed UI — never build a custom one): bordered grey capsule
+ * track with a sliding white (bordered) pill on the active tab, optional icon, count badge and error dot.
  */
 export function PillTabs<K extends string = string>({
   tabs,
@@ -59,7 +59,7 @@ export function PillTabs<K extends string = string>({
       <div
         role="tablist"
         aria-label={ariaLabel}
-        className={cn("bg-gray-bg p-1.5 rounded-2xl flex items-center gap-1.5", fullWidth ? "w-full min-w-max" : "w-fit")}
+        className={cn("bg-gray-bg border border-dash p-1.5 rounded-2xl flex items-center gap-1.5", fullWidth ? "w-full min-w-max" : "w-fit")}
       >
         {tabs.map((tab) => {
           const isActive = tab.id === currentActive;
@@ -85,7 +85,7 @@ export function PillTabs<K extends string = string>({
               {isActive && (
                 <motion.span
                   layoutId={`pill-tab-${layoutId}`}
-                  className="absolute inset-0 rounded-xl bg-white -z-10 shadow-xs"
+                  className="absolute inset-0 rounded-xl bg-white border border-dash -z-10 shadow-xs"
                   transition={{ type: "spring", stiffness: 450, damping: 35 }}
                 />
               )}
