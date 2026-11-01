@@ -81,7 +81,7 @@ function DashboardOverviewContent() {
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25, ease: "easeOut" }}
-      className="space-y-[12px] text-left pb-6"
+      className="space-y-3 text-left pb-6"
     >
       {/* 1. Header with Period Selector and Action CTA */}
       <DashboardHeader
@@ -94,19 +94,19 @@ function DashboardOverviewContent() {
       <StatCardsGrid stats={dashboardData.stats} />
 
       {/* 3. Row 2: Revenue Overview & Student Growth Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-[12px]">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         <RevenueOverviewChart data={dashboardData.revenueData} />
         <StudentGrowthChart data={dashboardData.studentGrowthData} />
       </div>
 
       {/* 4. Row 3: Course Enrollment & Course Completion Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-[12px]">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         <CourseEnrollmentChart data={dashboardData.courseEnrollments} />
         <CourseCompletionChart data={dashboardData.courseCompletion} />
       </div>
 
       {/* 5. Row 4: Recent Orders & Recent Enrollments Tables */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-[12px]">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         <RecentOrdersTable orders={dashboardData.recentOrders} />
         <RecentEnrollmentsTable
           enrollments={dashboardData.recentEnrollments}

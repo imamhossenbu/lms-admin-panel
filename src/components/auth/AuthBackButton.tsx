@@ -30,7 +30,7 @@ export function AuthBackButton({
   return (
     <Link
       href={href}
-      className={`w-full h-[50px] sm:h-[52px] rounded-xl border border-dash hover:bg-slate-50 hover:border-slate-300 transition-colors flex items-center justify-center gap-2 body-medium font-semibold text-primary-400 cursor-pointer shadow-2xs active:scale-[0.99] ${className}`}
+      className={`w-full h-12.5 sm:h-13 rounded-xl border border-dash hover:bg-slate-50 hover:border-slate-300 transition-colors flex items-center justify-center gap-2 body-medium font-semibold text-primary-400 cursor-pointer shadow-2xs active:scale-[0.99] ${className}`}
     >
       <ArrowLeft className="w-4 h-4 text-primary-300" />
       <span>{label}</span>

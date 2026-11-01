@@ -140,7 +140,7 @@ function StudentsContent() {
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25, ease: "easeOut" }}
-      className="space-y-[16px] text-left pb-8"
+      className="space-y-4 text-left pb-8"
     >
       {/* 1. Page Header with Breadcrumbs & Add Student CTA */}
       <StudentHeader />

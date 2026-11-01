@@ -9,7 +9,6 @@ import {
   CreditCard,
   UserCheck,
   ShieldCheck,
-  Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -97,8 +96,8 @@ export function NotificationDropdown() {
       case "enrollment":
         return {
           icon: BookOpen,
-          bg: "bg-[#FFF4ED]",
-          color: "text-[#FF5B00]",
+          bg: "bg-brand-orange-light",
+          color: "text-brand-orange",
         };
       case "payment":
         return {
@@ -109,8 +108,8 @@ export function NotificationDropdown() {
       case "instructor":
         return {
           icon: UserCheck,
-          bg: "bg-[#EFF6FF]",
-          color: "text-[#3B82F6]",
+          bg: "bg-blue-14",
+          color: "text-blue",
         };
       case "system":
         return {
@@ -132,7 +131,7 @@ export function NotificationDropdown() {
       >
         <Bell className="w-4 h-4" />
         {unreadCount > 0 && (
-          <span className="w-4 h-4 rounded-full bg-brand-orange text-white text-[10px] font-bold flex items-center justify-center absolute -top-1 -right-1 ring-2 ring-white animate-in zoom-in-75">
+          <span className="w-4 h-4 rounded-full bg-brand-orange text-white body-2xsm-regular font-bold! flex items-center justify-center absolute -top-1 -right-1 ring-2 ring-white animate-in zoom-in-75">
             {unreadCount}
           </span>
         )}

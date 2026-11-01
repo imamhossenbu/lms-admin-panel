@@ -113,7 +113,7 @@ export function QuizzesTabContent({
             : "bg-brand-orange";
 
         return (
-          <div className="space-y-1.5 min-w-[110px]">
+          <div className="space-y-1.5 min-w-27.5">
             <div className="body-sm-medium font-bold text-primary-500">
               {row.scoreCurrent} / {row.scoreTotal}
             </div>
@@ -337,7 +337,7 @@ export function QuizzesTabContent({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search quizzes..."
-              className="w-full h-10 pl-9 pr-3 rounded-lg border border-dash bg-[#F8FAFC] body-sm-regular text-primary-500 placeholder:text-primary-300 focus:outline-none focus:border-brand-orange transition-colors"
+              className="w-full h-10 pl-9 pr-3 rounded-lg border border-dash bg-gray-bg body-sm-regular text-primary-500 placeholder:text-primary-300 focus:outline-none focus:border-brand-orange transition-colors"
             />
           </div>
         </div>

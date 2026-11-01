@@ -123,21 +123,21 @@ export function StudentInformationCard({
                     value: "Active",
                     label: "Active",
                     icon: (
-                      <span className="w-2 h-2 rounded-full bg-[#10B981] inline-block" />
+                      <span className="w-2 h-2 rounded-full bg-green inline-block" />
                     ),
                   },
                   {
                     value: "Inactive",
                     label: "Inactive",
                     icon: (
-                      <span className="w-2 h-2 rounded-full bg-[#94A3B8] inline-block" />
+                      <span className="w-2 h-2 rounded-full bg-primary-300 inline-block" />
                     ),
                   },
                   {
                     value: "Suspended",
                     label: "Suspended",
                     icon: (
-                      <span className="w-2 h-2 rounded-full bg-[#F59E0B] inline-block" />
+                      <span className="w-2 h-2 rounded-full bg-yellow inline-block" />
                     ),
                   },
                 ]}

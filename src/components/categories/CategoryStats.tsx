@@ -21,10 +21,10 @@ export function CategoryStats({ categories }: CategoryStatsProps) {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div className="p-4 rounded-[12px] bg-white border border-[#EDEDED] shadow-xs">
+      <div className="p-4 rounded-xl bg-white border border-dash shadow-xs">
         <div className="flex items-center justify-between mb-2">
           <span className="body-xsm-medium text-primary-400">Total Disciplines</span>
-          <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#1C4D8D] flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue flex items-center justify-center">
             <FolderTree className="w-4 h-4" />
           </div>
         </div>
@@ -37,7 +37,7 @@ export function CategoryStats({ categories }: CategoryStatsProps) {
         </span>
       </div>
 
-      <div className="p-4 rounded-[12px] bg-white border border-[#EDEDED] shadow-xs">
+      <div className="p-4 rounded-xl bg-white border border-dash shadow-xs">
         <div className="flex items-center justify-between mb-2">
           <span className="body-xsm-medium text-primary-400">Active Categories</span>
           <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
@@ -52,7 +52,7 @@ export function CategoryStats({ categories }: CategoryStatsProps) {
         </span>
       </div>
 
-      <div className="p-4 rounded-[12px] bg-white border border-[#EDEDED] shadow-xs">
+      <div className="p-4 rounded-xl bg-white border border-dash shadow-xs">
         <div className="flex items-center justify-between mb-2">
           <span className="body-xsm-medium text-primary-400">Associated Courses</span>
           <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
@@ -67,7 +67,7 @@ export function CategoryStats({ categories }: CategoryStatsProps) {
         </span>
       </div>
 
-      <div className="p-4 rounded-[12px] bg-white border border-[#EDEDED] shadow-xs">
+      <div className="p-4 rounded-xl bg-white border border-dash shadow-xs">
         <div className="flex items-center justify-between mb-2">
           <span className="body-xsm-medium text-primary-400">Highest Volume Field</span>
           <div className="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">

@@ -16,6 +16,7 @@ export default function PlatformSettingsPage() {
       className="space-y-6 text-left bg-white"
     >
       <PageHeader
+        breadcrumbs={[{ label: "Settings" }]}
         title="Platform & White-Label Configuration"
         description="Manage system-wide environment variables, branding palettes, and security rules."
         badge={<ToneBadge tone="navy">Admin Only</ToneBadge>}

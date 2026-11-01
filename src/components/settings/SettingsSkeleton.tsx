@@ -6,7 +6,7 @@ export function SettingsSkeleton() {
   return (
     <div className="space-y-6 max-w-3xl text-left animate-pulse">
       {/* Section 1: White-Label Identity & Branding */}
-      <div className="rounded-[12px] border border-dash bg-white p-6 space-y-4 shadow-2xs">
+      <div className="rounded-xl border border-dash bg-white p-6 space-y-4 shadow-2xs">
         <div className="space-y-1 pb-3 border-b border-dash">
           <div className="h-5 w-56 bg-slate-200 rounded-md" />
           <div className="h-3.5 w-80 bg-slate-100 rounded" />
@@ -24,7 +24,7 @@ export function SettingsSkeleton() {
       </div>
 
       {/* Section 2: Color Schema Tokens */}
-      <div className="rounded-[12px] border border-dash bg-white p-6 space-y-4 shadow-2xs">
+      <div className="rounded-xl border border-dash bg-white p-6 space-y-4 shadow-2xs">
         <div className="space-y-1 pb-3 border-b border-dash">
           <div className="h-5 w-44 bg-slate-200 rounded-md" />
           <div className="h-3.5 w-72 bg-slate-100 rounded" />
@@ -48,7 +48,7 @@ export function SettingsSkeleton() {
       </div>
 
       {/* Section 3: System Maintenance */}
-      <div className="rounded-[12px] border border-dash bg-white p-6 space-y-4 shadow-2xs">
+      <div className="rounded-xl border border-dash bg-white p-6 space-y-4 shadow-2xs">
         <div className="space-y-1 pb-3 border-b border-dash">
           <div className="h-5 w-40 bg-slate-200 rounded-md" />
           <div className="h-3.5 w-64 bg-slate-100 rounded" />

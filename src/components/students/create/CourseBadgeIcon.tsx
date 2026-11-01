@@ -7,15 +7,29 @@ interface CourseBadgeIconProps {
   size?: "sm" | "md" | "lg";
 }
 
+/**
+ * Official third-party technology logo colors (HTML5, CSS3, JavaScript, React, Node.js).
+ * These are genuine brand colors with no globals.css token, so they are kept here
+ * in one place and applied via inline style instead of scattered hex classNames.
+ */
+const BRAND_COLORS = {
+  html: { backgroundColor: "#F06529" },
+  css: { backgroundColor: "#2965F1" },
+  javascript: { backgroundColor: "#F7DF1E" },
+  react: { backgroundColor: "#0D1B2A", color: "#61DAFB" },
+  node: { backgroundColor: "#0F2F1E", color: "#68A063" },
+} as const;
+
 export function CourseBadgeIcon({ type, size = "md" }: CourseBadgeIconProps) {
   const dimClass =
-    size === "sm" ? "w-5 h-5 text-[10px]" : size === "lg" ? "w-10 h-10 text-base rounded-lg" : "w-7 h-7 text-xs";
+    size === "sm" ? "w-5 h-5 body-2xsm-regular" : size === "lg" ? "w-10 h-10 text-base rounded-lg" : "w-7 h-7 text-xs";
 
   switch (type) {
     case "html":
       return (
         <div
-          className={`${dimClass} rounded-md bg-[#F06529] text-white font-black flex items-center justify-center shrink-0 shadow-xs tracking-tighter`}
+          className={`${dimClass} rounded-md text-white font-black flex items-center justify-center shrink-0 shadow-xs tracking-tighter`}
+          style={BRAND_COLORS.html}
           title="HTML5"
         >
           <span className="font-bold">5</span>
@@ -24,7 +38,8 @@ export function CourseBadgeIcon({ type, size = "md" }: CourseBadgeIconProps) {
     case "css":
       return (
         <div
-          className={`${dimClass} rounded-md bg-[#2965F1] text-white font-black flex items-center justify-center shrink-0 shadow-xs tracking-tighter`}
+          className={`${dimClass} rounded-md text-white font-black flex items-center justify-center shrink-0 shadow-xs tracking-tighter`}
+          style={BRAND_COLORS.css}
           title="CSS3"
         >
           <span className="font-bold">3</span>
@@ -33,16 +48,18 @@ export function CourseBadgeIcon({ type, size = "md" }: CourseBadgeIconProps) {
     case "javascript":
       return (
         <div
-          className={`${dimClass} rounded-md bg-[#F7DF1E] text-black font-black flex items-center justify-center shrink-0 shadow-xs`}
+          className={`${dimClass} rounded-md text-black font-black flex items-center justify-center shrink-0 shadow-xs`}
+          style={BRAND_COLORS.javascript}
           title="JavaScript"
         >
-          <span className="font-bold text-[10px]">JS</span>
+          <span className="body-2xsm-regular font-bold!">JS</span>
         </div>
       );
     case "react":
       return (
         <div
-          className={`${dimClass} rounded-md bg-[#0D1B2A] text-[#61DAFB] font-bold flex items-center justify-center shrink-0 shadow-xs`}
+          className={`${dimClass} rounded-md font-bold flex items-center justify-center shrink-0 shadow-xs`}
+          style={BRAND_COLORS.react}
           title="React"
         >
           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -56,16 +73,17 @@ export function CourseBadgeIcon({ type, size = "md" }: CourseBadgeIconProps) {
     case "node":
       return (
         <div
-          className={`${dimClass} rounded-md bg-[#0F2F1E] text-[#68A063] font-bold flex items-center justify-center shrink-0 shadow-xs`}
+          className={`${dimClass} rounded-md font-bold flex items-center justify-center shrink-0 shadow-xs`}
+          style={BRAND_COLORS.node}
           title="Node.js"
         >
-          <span className="font-bold text-[10px]">node</span>
+          <span className="body-2xsm-regular font-bold!">node</span>
         </div>
       );
     case "uiux":
       return (
         <div
-          className={`${dimClass} rounded-md bg-[#6D28D9] text-white font-bold flex items-center justify-center shrink-0 shadow-xs`}
+          className={`${dimClass} rounded-md bg-purple text-white font-bold flex items-center justify-center shrink-0 shadow-xs`}
           title="UI/UX Design"
         >
           <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -79,7 +97,7 @@ export function CourseBadgeIcon({ type, size = "md" }: CourseBadgeIconProps) {
     case "design":
       return (
         <div
-          className={`${dimClass} rounded-md bg-[#F59E0B] text-white font-bold flex items-center justify-center shrink-0 shadow-xs`}
+          className={`${dimClass} rounded-md bg-yellow text-white font-bold flex items-center justify-center shrink-0 shadow-xs`}
           title="Design Tools"
         >
           <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -93,7 +111,7 @@ export function CourseBadgeIcon({ type, size = "md" }: CourseBadgeIconProps) {
     default:
       return (
         <div className={`${dimClass} rounded-md bg-brand-orange text-white font-bold flex items-center justify-center shrink-0`}>
-          <span>C</span>
+          <span className="font-bold">C</span>
         </div>
       );
   }

@@ -65,7 +65,7 @@ export function StudentToolbar({
           />
         </div>
 
-        <div className="w-[130px]">
+        <div className="w-32.5">
           <DropdownSelect
             options={STATUS_OPTIONS}
             value={statusFilter}
@@ -74,7 +74,7 @@ export function StudentToolbar({
           />
         </div>
 
-        <div className="w-[150px]">
+        <div className="w-37.5">
           <DropdownSelect
             options={COURSE_OPTIONS}
             value={courseFilter}
@@ -83,7 +83,7 @@ export function StudentToolbar({
           />
         </div>
 
-        <div className="w-[130px]">
+        <div className="w-32.5">
           <DropdownSelect
             options={DATE_OPTIONS}
             value={dateFilter}

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Home, Plus, FolderTree } from "lucide-react";
+import { Plus, FolderTree } from "lucide-react";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { PrimaryButton } from "@/components/ui/primary-button";
 
@@ -17,7 +17,7 @@ export function CoursesHeader({ onCreate, onCategories }: CoursesHeaderProps) {
   return (
     <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 text-left">
       <div>
-        <Breadcrumb items={[{ label: "Home", href: "/", icon: <Home className="w-4 h-4" /> }, { label: "Courses" }]} className="mb-1.5" />
+        <Breadcrumb items={[{ label: "Courses" }]} className="mb-1.5" />
         <h1 className="heading-h3 font-bold text-primary-500 tracking-tight">Courses</h1>
         <p className="body-sm-regular text-primary-400 mt-1">Create, publish and manage every course in your catalog.</p>
       </div>

@@ -29,7 +29,7 @@ export function AuthSubmitButton({
       type={type}
       disabled={disabled || isSubmitting}
       onClick={onClick}
-      className={`group w-full h-[52px] sm:h-[54px] rounded-xl bg-brand-orange bg-brand-orange:hover active:scale-[0.99] text-white body-medium font-semibold flex items-center justify-center gap-2.5 transition-all duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed edupro-glow-btn ${className}`}
+      className={`group w-full h-13 sm:h-13.5 rounded-xl bg-brand-orange bg-brand-orange:hover active:scale-[0.99] text-white body-medium font-semibold flex items-center justify-center gap-2.5 transition-all duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed edupro-glow-btn ${className}`}
     >
       {isSubmitting ? (
         <>

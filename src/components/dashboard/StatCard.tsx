@@ -11,23 +11,23 @@ interface StatCardProps {
 
 const ICON_CONFIG = {
   orange: {
-    bg: "bg-[#FFF4ED]",
-    textColor: "text-[#FF5B00]",
+    bg: "bg-brand-orange-light",
+    textColor: "text-brand-orange",
     icon: Users,
   },
   blue: {
-    bg: "bg-[#EFF6FF]",
-    textColor: "text-[#3B82F6]",
+    bg: "bg-blue-14",
+    textColor: "text-blue",
     icon: User,
   },
   green: {
-    bg: "bg-[#F0FDF4]",
-    textColor: "text-[#22C55E]",
+    bg: "bg-green-bg",
+    textColor: "text-green",
     icon: BookOpen,
   },
   purple: {
-    bg: "bg-[#FAF5FF]",
-    textColor: "text-[#A855F7]",
+    bg: "bg-purple-14",
+    textColor: "text-purple",
     icon: Database,
   },
 };
@@ -37,7 +37,7 @@ export function StatCard({ stat }: StatCardProps) {
   const IconComponent = config.icon;
 
   return (
-    <div className="bg-white rounded-xl border border-dash py-3.5 px-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow relative flex flex-col justify-between">
+    <div className="bg-white rounded-xl border border-dash py-3.5 px-4 shadow-xs hover:shadow-md transition-shadow relative flex flex-col justify-between">
       {/* Top Part: Icon, Value and Label */}
       <div className="flex items-start gap-3.5">
         <div
@@ -47,7 +47,7 @@ export function StatCard({ stat }: StatCardProps) {
         </div>
 
         <div className="flex flex-col text-left">
-          <span className="text-[25px] font-bold text-primary-500 tracking-tight leading-none">
+          <span className="h3-semibold font-bold! text-primary-500 tracking-tight leading-none!">
             {stat.value}
           </span>
           <span className="body-xsm-medium text-primary-400 mt-1">
@@ -59,7 +59,7 @@ export function StatCard({ stat }: StatCardProps) {
       {/* Bottom Part: Trend & Mini Sparkline */}
       <div className="flex items-end justify-between mt-3 pt-0.5">
         <div className="flex items-center">
-          <span className="body-xsm-medium font-bold text-[#16A34A] flex items-center gap-0.5">
+          <span className="body-xsm-medium font-bold text-green flex items-center gap-0.5">
             <ArrowUpRight className="w-3.5 h-3.5 stroke-[2.5]" />
             {stat.change}
           </span>

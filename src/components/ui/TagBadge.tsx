@@ -17,9 +17,9 @@ export interface TagBadgeProps {
 }
 
 const DEFAULT_TAG_STYLES: Record<string, { bg: string; text: string }> = {
-  "USD Funding": { bg: "bg-[#E6F4EA]", text: "text-[#137333]" },
-  "Meta Invoice": { bg: "bg-[#E8F0FE]", text: "text-[#1A73E8]" },
-  "Refund": { bg: "bg-[#FCE8F3]", text: "text-[#C51162]" },
+  "USD Funding": { bg: "bg-green-bg", text: "text-green" },
+  "Meta Invoice": { bg: "bg-blue-14", text: "text-blue" },
+  "Refund": { bg: "bg-purple-14", text: "text-purple" },
 };
 
 export function TagBadge({
@@ -33,7 +33,7 @@ export function TagBadge({
   icon,
 }: TagBadgeProps) {
   const defaultStyle = (tag && DEFAULT_TAG_STYLES[tag]) || {
-    bg: "bg-[#F3F4F6]",
+    bg: "bg-gray-bg",
     text: "text-primary-500",
   };
 
@@ -43,7 +43,7 @@ export function TagBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-[6px] px-2.5 py-1 body-xsm-medium whitespace-nowrap shrink-0",
+        "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 body-xsm-medium whitespace-nowrap shrink-0",
         finalBg,
         finalTextColor,
         className

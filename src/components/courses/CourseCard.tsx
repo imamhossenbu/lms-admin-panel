@@ -9,7 +9,6 @@ import {
   Trash2,
   Edit3,
   PlayCircle,
-  Clock,
   Layers,
   ArrowRight,
 } from "lucide-react";
@@ -67,9 +66,9 @@ export function CourseCard({
   const menuItems = [
     {
       label: "Manage Curriculum & Lessons",
-      icon: <Layers className="w-4 h-4 text-[#1C4D8D]" />,
+      icon: <Layers className="w-4 h-4 text-blue" />,
       onClick: () => onManageCurriculum?.(course),
-      className: "font-bold text-[#1C4D8D] bg-blue-50/50",
+      className: "font-bold text-blue bg-blue-50/50",
     },
     {
       label: "View Syllabus & Details",
@@ -93,10 +92,7 @@ export function CourseCard({
     <motion.div
       whileHover={{ y: -3, transition: { duration: 0.18 } }}
       onClick={() => onViewDetails?.(course)}
-      style={{
-        boxShadow: "0px 1px 2px 0px rgba(13, 13, 18, 0.05)",
-      }}
-      className="rounded-[14px] border border-[#EDEDED] bg-white overflow-hidden flex flex-col justify-between text-left transition-all duration-200 hover:border-[#1C4D8D]/40 hover:shadow-lg group cursor-pointer"
+      className="shadow-xs rounded-xl border border-dash bg-white overflow-hidden flex flex-col justify-between text-left transition-all duration-200 hover:border-blue/40 hover:shadow-lg group cursor-pointer"
     >
       <div>
         {/* ================= 1. 16:9 BANNER IMAGE (Coursera & Udemy Style) ================= */}
@@ -138,7 +134,7 @@ export function CourseCard({
               ref={buttonRef}
               label="Course options"
               onClick={() => setMenuOpen((v) => !v)}
-              className="h-8 w-8 rounded-[8px] border border-white/20 bg-black/40 backdrop-blur-md text-white hover:bg-black/70 hover:text-white"
+              className="h-8 w-8 rounded-lg border border-white/20 bg-black/40 backdrop-blur-md text-white hover:bg-black/70 hover:text-white"
             />
             <DropdownMenu
               open={menuOpen}
@@ -167,7 +163,7 @@ export function CourseCard({
         {/* ================= 2. COURSE CONTENT BODY ================= */}
         <div className="p-4 space-y-3">
           {/* Title */}
-          <h3 className="body-medium text-primary-500 font-semibold leading-snug line-clamp-2 group-hover:text-[#1C4D8D] transition-colors">
+          <h3 className="body-medium text-primary-500 font-semibold leading-snug line-clamp-2 group-hover:text-blue transition-colors">
             {course.title}
           </h3>
 
@@ -186,14 +182,14 @@ export function CourseCard({
                 <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
                 <span>{course.ratingAverage > 0 ? course.ratingAverage : "5.0"}</span>
               </span>
-              <span className="text-[#969696]">•</span>
+              <span className="text-primary-300">•</span>
               <span className="flex items-center gap-1">
                 <Users className="w-3.5 h-3.5 text-primary-300" />
                 <span>{course.totalStudents.toLocaleString()} learners</span>
               </span>
             </div>
 
-            <span className="flex items-center gap-1 text-[#1C4D8D] body-xsm-medium font-semibold group-hover:translate-x-0.5 transition-transform">
+            <span className="flex items-center gap-1 text-blue body-xsm-medium font-semibold group-hover:translate-x-0.5 transition-transform">
               <span>Syllabus</span>
               <ArrowRight className="w-3 h-3" />
             </span>
@@ -202,7 +198,7 @@ export function CourseCard({
       </div>
 
       {/* ================= 3. CARD FOOTER ================= */}
-      <div className="px-4 py-3 bg-[#F8F9FA] border-t border-[#EDEDED] flex items-center justify-between">
+      <div className="px-4 py-3 bg-gray-bg border-t border-dash flex items-center justify-between">
         <span className="body-xsm-regular subtext-500 flex items-center gap-1">
           <BookOpen className="w-3.5 h-3.5 text-primary-300" />
           <span>Modular Syllabus</span>
@@ -210,7 +206,7 @@ export function CourseCard({
 
         <div className="text-right">
           {course.isFree ? (
-            <span className="inline-flex items-center px-2 py-0.5 rounded-[6px] bg-[#e6ffee] text-[#0dc34a] body-sm-medium font-bold">
+            <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-green-bg text-green body-sm-medium font-bold">
               FREE
             </span>
           ) : (

@@ -25,7 +25,7 @@ export function AuthRightPanel({
       )}
 
       {/* Centered Form Area with Substantial Width */}
-      <div className="max-w-[460px] lg:max-w-[480px] xl:max-w-[500px] w-full mx-auto py-6 sm:py-8">
+      <div className="max-w-115 lg:max-w-120 xl:max-w-125 w-full mx-auto py-6 sm:py-8">
         {/* Brand Header */}
         <div className="mb-7 sm:mb-8">
           <EduProLogo

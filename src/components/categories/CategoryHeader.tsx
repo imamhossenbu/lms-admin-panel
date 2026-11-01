@@ -1,8 +1,7 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
-import { Home, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { PrimaryButton } from "@/components/ui/primary-button";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 
@@ -12,20 +11,11 @@ interface CategoryHeaderProps {
 
 export function CategoryHeader({ onAddClick }: CategoryHeaderProps) {
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-[16px] text-left">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 text-left">
       <div>
         {/* Reusable breadcrumb with ChevronRight */}
         <Breadcrumb
-          items={[
-            {
-              label: "Dashboard",
-              href: "/",
-              icon: <Home className="w-4 h-4" />,
-            },
-            {
-              label: "Categories",
-            },
-          ]}
+          items={[{ label: "Categories" }]}
           className="mb-1.5"
         />
 

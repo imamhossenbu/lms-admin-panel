@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { Home, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { PrimaryButton } from "@/components/ui/primary-button";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 
@@ -12,20 +12,11 @@ interface StudentHeaderProps {
 
 export function StudentHeader({ onAddClick }: StudentHeaderProps) {
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-[16px] text-left">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 text-left">
       <div>
         {/* Reusable breadcrumbs using Breadcrumb component with ChevronRight */}
         <Breadcrumb
-          items={[
-            {
-              label: "Home",
-              href: "/",
-              icon: <Home className="w-4 h-4" />,
-            },
-            {
-              label: "Students",
-            },
-          ]}
+          items={[{ label: "Students" }]}
           className="mb-1.5"
         />
 

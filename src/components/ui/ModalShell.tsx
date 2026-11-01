@@ -107,7 +107,7 @@ export function ModalShell({
             exit={{ opacity: 0, scale: 0.96, y: 12 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
             className={cn(
-              "flex max-h-[90vh] w-full flex-col overflow-hidden rounded-2xl bg-white shadow-2xl outline-none border border-[#EDEDED]",
+              "flex max-h-[90vh] w-full flex-col overflow-hidden rounded-2xl bg-white shadow-2xl outline-none border border-dash",
               maxWidthClass,
               className
             )}
@@ -130,7 +130,7 @@ export function ModalShell({
             <div
               className={cn(
                 "flex shrink-0 items-start justify-between gap-4",
-                headerVariant === "hero" ? "px-8 pt-7 pb-1" : "border-b border-[#F5F5F5] px-6 py-4"
+                headerVariant === "hero" ? "px-8 pt-7 pb-1" : "border-b border-dash px-6 py-4"
               )}
             >
               <div className="min-w-0">
@@ -161,7 +161,7 @@ export function ModalShell({
                   type="button"
                   onClick={onClose}
                   aria-label="Close"
-                  className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-[#E9E9E9] text-[#969696] transition-colors hover:bg-gray-100 hover:text-primary-500"
+                  className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-dash text-primary-300 transition-colors hover:bg-gray-100 hover:text-primary-500"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -176,7 +176,7 @@ export function ModalShell({
             {footer && (
               <div
                 className={cn(
-                  "flex shrink-0 items-center justify-end gap-3 border-t border-[#F5F5F5] px-6 py-4 bg-white",
+                  "flex shrink-0 items-center justify-end gap-3 border-t border-dash px-6 py-4 bg-white",
                   footerClassName
                 )}
               >

@@ -58,7 +58,7 @@ export function TopCoursesCard({ courses }: TopCoursesCardProps) {
       action={
         <Link
           href="/courses"
-          className="body-sm-medium text-[#1C4D8D] hover:underline flex items-center gap-1 group"
+          className="body-sm-medium text-blue hover:underline flex items-center gap-1 group"
         >
           <span>Manage Catalog</span>
           <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
@@ -69,10 +69,10 @@ export function TopCoursesCard({ courses }: TopCoursesCardProps) {
         {displayCourses.map((c) => (
           <div
             key={c.id}
-            className="p-3.5 rounded-[10px] bg-[#F8F9FA] hover:bg-[#F3F4F6] border border-[#EDEDED] flex items-center justify-between gap-3 transition-colors text-left"
+            className="p-3.5 rounded-xl bg-gray-bg/60 hover:bg-gray-bg border border-dash flex items-center justify-between gap-3 transition-colors text-left"
           >
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-9 h-9 rounded-[8px] bg-[#EBF4FC] border border-[#BDE8F5]/60 flex items-center justify-center text-[#1C4D8D] shrink-0">
+              <div className="w-9 h-9 rounded-lg bg-blue-14 border border-blue flex items-center justify-center text-blue shrink-0">
                 <BookOpen className="w-4 h-4" />
               </div>
               <div className="truncate">

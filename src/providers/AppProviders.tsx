@@ -24,13 +24,14 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
               toastOptions={{
                 duration: 3500,
                 style: {
-                  background: "#ffffff",
-                  color: "#0F172A",
-                  border: "1px solid #E2E8F0",
+                  background: "var(--dash-surface)",
+                  color: "var(--dash-text)",
+                  border: "1px solid var(--dash-border)",
                   borderRadius: "12px",
                   fontSize: "13px",
                   fontWeight: 500,
-                  boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.05)",
+                  boxShadow:
+                    "0 10px 25px -5px color-mix(in srgb, black 8%, transparent), 0 8px 10px -6px color-mix(in srgb, black 5%, transparent)",
                 },
               }}
             />

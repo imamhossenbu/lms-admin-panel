@@ -91,7 +91,7 @@ export function AdminSidebar() {
     <aside
       className={cn(
         "h-screen sticky top-0 bg-white text-primary-500 flex flex-col justify-between transition-all duration-300 z-30 select-none border-r border-dash",
-        collapsed ? "w-[72px]" : "w-[240px]"
+        collapsed ? "w-18" : "w-60"
       )}
     >
       <div className="flex-1 flex flex-col min-h-0">
@@ -149,7 +149,7 @@ export function AdminSidebar() {
           {SIDEBAR_SECTIONS.map((section) => (
             <div key={section.category} className="space-y-1">
               {!collapsed && (
-                <div className="px-3 pt-1 pb-0.5 text-[13px] font-bold text-primary-400 tracking-wider uppercase select-none">
+                <div className="px-3 pt-1 pb-0.5 body-xs-medium font-bold! text-primary-400 tracking-wider uppercase select-none">
                   {section.category}
                 </div>
               )}
@@ -189,7 +189,7 @@ export function AdminSidebar() {
                             {item.label}
                           </span>
                           {item.label === "Notifications" && (
-                            <span className="ml-auto w-5 h-5 rounded-md bg-brand-orange text-white text-[11px] font-bold flex items-center justify-center shadow-2xs">
+                            <span className="ml-auto w-5 h-5 rounded-md bg-brand-orange text-white body-2xsm-regular font-bold! flex items-center justify-center shadow-2xs">
                               3
                             </span>
                           )}

@@ -107,11 +107,8 @@ export function DropdownSelect({
         aria-expanded={open}
         disabled={disabled}
         onClick={() => setOpen((prev) => !prev)}
-        style={{
-          boxShadow: "0px 1px 2px 0px rgba(13, 13, 18, 0.05)",
-        }}
         className={cn(
-          "flex h-[40px] w-full items-center justify-between gap-2.5 rounded-lg border border-dash bg-white px-3.5 py-2 body-md-medium transition-all outline-none cursor-pointer select-none",
+          "flex h-10 w-full items-center justify-between gap-2.5 rounded-lg border border-dash bg-white px-3.5 py-2 body-md-medium shadow-xs transition-all outline-none cursor-pointer select-none",
           "hover:border-slate-300 focus:border-brand-orange",
           open && "border-brand-orange ring-2 ring-brand-orange/10",
           disabled && "opacity-50 cursor-not-allowed",
@@ -145,7 +142,7 @@ export function DropdownSelect({
             exit={{ opacity: 0, y: isUp ? 6 : -6, scale: 0.98 }}
             transition={{ duration: 0.15, ease: "easeOut" }}
             className={cn(
-              "absolute z-50 min-w-[200px] w-full rounded-xl p-1.5 bg-white border border-dash shadow-lg max-h-64 overflow-y-auto scrollbar-none",
+              "absolute z-50 min-w-50 w-full rounded-xl p-1.5 bg-white border border-dash shadow-lg max-h-64 overflow-y-auto scrollbar-none",
               isUp ? "bottom-full mb-1.5" : "mt-1.5",
               alignClass,
               menuClassName

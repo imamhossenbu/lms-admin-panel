@@ -19,7 +19,7 @@ interface CourseEnrollmentChartProps {
 
 export function CourseEnrollmentChart({ data }: CourseEnrollmentChartProps) {
   return (
-    <div className="bg-white rounded-xl border border-dash p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex flex-col justify-between h-[340px]">
+    <div className="bg-white rounded-xl border border-dash p-5 shadow-xs flex flex-col justify-between h-85">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="text-left">
@@ -40,7 +40,7 @@ export function CourseEnrollmentChart({ data }: CourseEnrollmentChartProps) {
       </div>
 
       {/* Chart Area */}
-      <div className="w-full flex-1 min-h-[260px]">
+      <div className="w-full flex-1 min-h-65">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={data}
@@ -50,7 +50,7 @@ export function CourseEnrollmentChart({ data }: CourseEnrollmentChartProps) {
             <CartesianGrid
               strokeDasharray="3 3"
               vertical={false}
-              stroke="#F1F5F9"
+              stroke="var(--color-gray-bg)"
             />
 
             <XAxis
@@ -72,7 +72,7 @@ export function CourseEnrollmentChart({ data }: CourseEnrollmentChartProps) {
                       x={0}
                       y={0}
                       textAnchor="middle"
-                      fill="#64748B"
+                      fill="var(--color-primary-300)"
                       fontSize={11}
                       fontWeight={500}
                     >
@@ -93,7 +93,7 @@ export function CourseEnrollmentChart({ data }: CourseEnrollmentChartProps) {
             <YAxis
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "#94A3B8", fontSize: 12 }}
+              tick={{ fill: "var(--color-primary-300)", fontSize: 12 }}
               domain={[0, 200]}
               ticks={[0, 50, 100, 150, 200]}
             />
@@ -120,7 +120,7 @@ export function CourseEnrollmentChart({ data }: CourseEnrollmentChartProps) {
 
             <Bar
               dataKey="enrollments"
-              fill="#FF5B00"
+              fill="var(--color-brand-orange)"
               barSize={36}
               radius={[6, 6, 0, 0]}
               className="cursor-pointer transition-opacity hover:opacity-85"

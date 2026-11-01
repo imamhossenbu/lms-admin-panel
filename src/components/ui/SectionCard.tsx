@@ -24,14 +24,14 @@ export function SectionCard({
     <section
       id={id}
       className={cn(
-        "scroll-mt-6 rounded-xl border border-[#EDEDED] bg-white p-5",
+        "scroll-mt-6 rounded-xl border border-dash bg-white p-5",
         className
       )}
     >
       <div
         className={cn(
           "mb-4 flex items-start justify-between gap-3",
-          divider && "border-b border-[#F0F0F0] pb-4"
+          divider && "border-b border-dash pb-4"
         )}
       >
         <div>

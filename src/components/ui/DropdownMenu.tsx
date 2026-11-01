@@ -75,7 +75,7 @@ export function DropdownMenu({
     <div
       ref={ref}
       className={cn(
-        "z-[100] rounded-[10px] border border-[#EDEDED] bg-white py-1.5 shadow-lg",
+        "z-[100] rounded-xl border border-dash bg-white py-1.5 shadow-lg",
         anchorEl
           ? "fixed"
           : cn("absolute mt-2", align === "right" ? "right-0" : "left-0"),
@@ -83,7 +83,6 @@ export function DropdownMenu({
       )}
       style={{
         width: MENU_WIDTH,
-        boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.08)",
         ...(anchorEl && position),
       }}
     >
@@ -96,7 +95,7 @@ export function DropdownMenu({
             onClose();
           }}
           className={cn(
-            "flex w-full items-center gap-2 px-3.5 py-2 text-left body-sm-regular text-primary-500 transition-colors hover:bg-[#F8F9FA] cursor-pointer",
+            "flex w-full items-center gap-2 px-3.5 py-2 text-left body-sm-regular text-primary-500 transition-colors hover:bg-gray-bg cursor-pointer",
             item.className
           )}
         >

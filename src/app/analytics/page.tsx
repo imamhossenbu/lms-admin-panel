@@ -18,6 +18,7 @@ function AnalyticsDashboardContent() {
       className="space-y-6 text-left bg-white"
     >
       <PageHeader
+        breadcrumbs={[{ label: "Analytics" }]}
         title="Predictive & Platform Analytics"
         description="Course completion velocities, student retention rates, and revenue trends."
         badge={<ToneBadge tone="primary">Real-time Stream</ToneBadge>}

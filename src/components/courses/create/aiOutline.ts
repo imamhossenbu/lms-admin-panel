@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { coursesApi } from "@/lib/api";
 import type { LessonFormValues } from "@/validations/lessonFormSchema";
 
 /**

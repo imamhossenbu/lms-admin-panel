@@ -4,7 +4,7 @@ import React from "react";
 
 export function InstructorSkeleton() {
   return (
-    <div className="space-y-[16px] text-left animate-pulse">
+    <div className="space-y-4 text-left animate-pulse">
       {/* Header Skeleton */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-2">
@@ -91,7 +91,7 @@ export function InstructorSkeleton() {
               <div className="w-8 h-8 bg-slate-100 rounded-lg" />
               <div className="w-8 h-8 bg-slate-100 rounded-lg" />
             </div>
-            <div className="w-[116px] h-8 bg-slate-100 rounded-lg" />
+            <div className="w-29 h-8 bg-slate-100 rounded-lg" />
           </div>
         </div>
       </div>

@@ -6,21 +6,12 @@ import {
   CourseDetailsSkeleton,
   CourseDetailsTabKey,
 } from "@/components/courses/details/CourseDetailsSkeleton";
-import Link from "next/link";
 import {
   ArrowLeft,
   Edit3,
-  BookOpen,
-  Calendar,
-  Layers,
-  Sparkles,
-  Loader2,
   AlertCircle,
-  FileText,
-  Clock,
-  ShieldCheck,
 } from "lucide-react";
-import { PageHeader } from "@/components/ui/PageHeader";
+import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import PrimaryButton from "@/components/ui/primary-button";
 import SecondaryButton from "@/components/ui/secondary-button";
 import { PillTabs } from "@/components/ui/PillTabs";
@@ -119,18 +110,9 @@ function CourseDetailsContent() {
   return (
     <div className="space-y-6 text-left max-w-6xl mx-auto">
       {/* Top Header & Breadcrumb */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[#EDEDED]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-dash">
         <div className="space-y-1">
-          <div className="flex items-center gap-2 text-xs font-medium text-primary-400">
-            <Link href="/courses" className="hover:text-[#1C4D8D] transition-colors flex items-center gap-1">
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Courses Catalog</span>
-            </Link>
-            <span>/</span>
-            <span className="text-[#1C4D8D] font-semibold truncate max-w-xs">{course.title}</span>
-            <span>/</span>
-            <span>Overview & Syllabus</span>
-          </div>
+          <Breadcrumb items={[{ label: "Courses", href: "/courses" }, { label: course.title }]} />
           <h1 className="title-md text-primary-500 font-bold tracking-tight">
             {course.title}
           </h1>

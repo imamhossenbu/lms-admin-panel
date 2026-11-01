@@ -38,9 +38,9 @@ export const SecondaryButton = React.forwardRef<
 
     // Unified Button Heights: Default md is 40px
     const sizeStyles: Record<string, string> = {
-      sm: "h-[34px] px-3 py-1.5 body-xsm-medium rounded-[8px] gap-1.5",
-      md: "h-[40px] px-4 py-[10px] body-sm-medium rounded-[8px] gap-2",
-      lg: "h-[44px] px-5 py-2.5 body-medium rounded-[10px] gap-2.5",
+      sm: "h-8.5 px-3 py-1.5 body-xsm-medium rounded-lg gap-1.5",
+      md: "h-10 px-4 py-2.5 body-sm-medium rounded-lg gap-2",
+      lg: "h-11 px-5 py-2.5 body-medium rounded-xl gap-2.5",
     };
 
     return (
@@ -68,7 +68,7 @@ export const SecondaryButton = React.forwardRef<
         {/* Loading Spinner */}
         {isLoading && (
           <svg
-            className="animate-spin w-4 h-4 shrink-0 text-[#0E2038]"
+            className="animate-spin w-4 h-4 shrink-0 text-primary-500"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -91,7 +91,7 @@ export const SecondaryButton = React.forwardRef<
 
         {/* Left Icon (18px x 18px) */}
         {!isLoading && effectiveLeftIcon && (
-          <span className="w-[18px] h-[18px] flex items-center justify-center shrink-0 [&>svg]:w-[18px] [&>svg]:h-[18px]">
+          <span className="w-4.5 h-4.5 flex items-center justify-center shrink-0 [&>svg]:w-4.5 [&>svg]:h-4.5">
             {effectiveLeftIcon}
           </span>
         )}
@@ -101,7 +101,7 @@ export const SecondaryButton = React.forwardRef<
 
         {/* Right Icon (18px x 18px) */}
         {!isLoading && rightIcon && (
-          <span className="w-[18px] h-[18px] flex items-center justify-center shrink-0 [&>svg]:w-[18px] [&>svg]:h-[18px]">
+          <span className="w-4.5 h-4.5 flex items-center justify-center shrink-0 [&>svg]:w-4.5 [&>svg]:h-4.5">
             {rightIcon}
           </span>
         )}

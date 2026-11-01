@@ -28,7 +28,7 @@ export function AuthAlertBanner({
       role="alert"
       className={`p-4 rounded-xl border flex items-start gap-3 mb-5 text-left animate-in fade-in duration-200 ${
         isError
-          ? "bg-red-14 border-[#df1c41]/30"
+          ? "bg-red-14 border-red/30"
           : "bg-green-bg border-green/30"
       } ${className}`}
     >

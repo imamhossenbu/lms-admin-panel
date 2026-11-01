@@ -103,19 +103,19 @@ export const MOCK_DASHBOARD_DATA: DashboardData = {
         label: "Completed",
         count: 1200,
         percentage: 68,
-        color: "#10B981", // vibrant emerald green
+        color: "var(--color-green)", // globals.css green token
       },
       {
         label: "In Progress",
         count: 420,
         percentage: 24,
-        color: "#FF5B00", // brand orange
+        color: "var(--color-brand-orange)", // brand orange
       },
       {
         label: "Not Started",
         count: 140,
         percentage: 8,
-        color: "#94A3B8", // slate-400
+        color: "var(--dash-muted)", // muted slate (primary-300)
       },
     ],
   },

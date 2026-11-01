@@ -82,7 +82,7 @@ export function DataTable<T extends Record<string, any>>({
   if (isLoading) {
     return (
       <div className="w-full py-16 flex flex-col items-center justify-center gap-3">
-        <div className="w-7 h-7 border-2 border-[#1C4D8D] border-t-transparent rounded-full animate-spin" />
+        <div className="w-7 h-7 border-2 border-blue/100 border-t-transparent rounded-full animate-spin" />
         <span className="body-sm-regular text-primary-300">Loading records...</span>
       </div>
     );
@@ -91,7 +91,7 @@ export function DataTable<T extends Record<string, any>>({
   return (
     <div
       className={cn(
-        "w-full overflow-x-auto border border-[#EDEDED] rounded-[12px] scrollbar-hide",
+        "w-full overflow-x-auto border border-dash rounded-xl scrollbar-hide",
         containerClassName,
         className
       )}
@@ -105,16 +105,16 @@ export function DataTable<T extends Record<string, any>>({
       >
         <thead
           className={cn(
-            "bg-[#F8F9FA] border-b border-[#EDEDED] body-xsm-medium subtext-500",
+            "bg-gray-bg border-b border-dash body-xsm-medium subtext-500",
             headerClassName
           )}
         >
           <tr>
             {selectable && (
-              <th className="py-3.5 px-4 w-[40px] border-r border-[#EDEDED]">
+              <th className="py-3.5 px-4 w-10 border-r border-dash">
                 <input
                   type="checkbox"
-                  className="rounded border-gray-300 text-[#1C4D8D] focus:ring-[#1C4D8D]"
+                  className="rounded border-gray-300 text-blue focus:ring-blue"
                   checked={allSelected}
                   onChange={(e) => onSelectAll?.(e.target.checked)}
                 />
@@ -163,7 +163,7 @@ export function DataTable<T extends Record<string, any>>({
                     thClassName || "px-3 sm:px-3.5",
                     isClickable &&
                       "cursor-pointer hover:text-primary-500 transition-colors",
-                    !isLastColumn && verticalBorders && "border-r border-[#EDEDED]",
+                    !isLastColumn && verticalBorders && "border-r border-dash",
                     col.align === "center" && "text-center",
                     col.align === "right" && "text-right",
                     col.className
@@ -212,24 +212,24 @@ export function DataTable<T extends Record<string, any>>({
                             d="M11.3307 6.33333L7.9974 3L4.66406 6.33333H11.3307Z"
                             fill={
                               col.sortDirection === "asc"
-                                ? "#0E2038"
+                                ? "var(--dash-text)"
                                 : col.sortDirection === "desc"
-                                ? "#C5CAD2"
+                                ? "var(--dash-border)"
                                 : col.filter?.selectedValue
-                                ? "#4F46E5"
-                                : "#7F8482"
+                                ? "var(--color-blue)"
+                                : "var(--dash-muted)"
                             }
                           />
                           <path
                             d="M11.3307 9.66667L7.9974 13L4.66406 9.66667H11.3307Z"
                             fill={
                               col.sortDirection === "desc"
-                                ? "#0E2038"
+                                ? "var(--dash-text)"
                                 : col.sortDirection === "asc"
-                                ? "#C5CAD2"
+                                ? "var(--dash-border)"
                                 : col.filter?.selectedValue
-                                ? "#4F46E5"
-                                : "#7F8482"
+                                ? "var(--color-blue)"
+                                : "var(--dash-muted)"
                             }
                           />
                         </svg>
@@ -266,7 +266,7 @@ export function DataTable<T extends Record<string, any>>({
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.22, ease: "easeOut", delay: Math.min(rowIndex, 12) * 0.025 }}
                     className={cn(
-                      "border-b border-[#EDEDED] transition-colors hover:bg-gray-50/50",
+                      "border-b border-dash transition-colors hover:bg-gray-50/50",
                       onRowClick && "cursor-pointer",
                       isSelected && "bg-orange-50/30"
                     )}
@@ -274,12 +274,12 @@ export function DataTable<T extends Record<string, any>>({
                   >
                     {selectable && (
                       <td
-                        className="py-3 px-4 border-r border-[#EDEDED]"
+                        className="py-3 px-4 border-r border-dash"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <input
                           type="checkbox"
-                          className="rounded border-gray-300 text-[#1C4D8D] focus:ring-[#1C4D8D]"
+                          className="rounded border-gray-300 text-blue focus:ring-blue"
                           checked={isSelected}
                           onChange={(e) => onSelectRow?.(key, e.target.checked)}
                         />
@@ -303,7 +303,7 @@ export function DataTable<T extends Record<string, any>>({
                           className={cn(
                             "py-3 text-primary-500 body-sm-regular",
                             cellClassName || "px-3 sm:px-3.5",
-                            !isLastColumn && verticalBorders && "border-r border-[#EDEDED]",
+                            !isLastColumn && verticalBorders && "border-r border-dash",
                             col.align === "center" && "text-center",
                             col.align === "right" && "text-right",
                             col.className
@@ -319,7 +319,7 @@ export function DataTable<T extends Record<string, any>>({
                       className={cn(
                         "transition-all",
                         isExpanded
-                          ? "border-b border-[#EDEDED] last:border-b-0"
+                          ? "border-b border-dash last:border-b-0"
                           : "border-none"
                       )}
                     >

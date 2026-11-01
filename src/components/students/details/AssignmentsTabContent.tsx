@@ -115,7 +115,7 @@ export function AssignmentsTabContent({
       render: (row, idx) => (
         <div className="flex items-center gap-3">
           {getAssignmentIcon(idx)}
-          <span className="body-sm-medium font-semibold text-primary-500 truncate max-w-[200px]">
+          <span className="body-sm-medium font-semibold text-primary-500 truncate max-w-50">
             {row.title}
           </span>
         </div>
@@ -323,7 +323,7 @@ export function AssignmentsTabContent({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search assignments..."
-              className="w-full h-10 pl-9 pr-3 rounded-lg border border-dash bg-[#F8FAFC] body-sm-regular text-primary-500 placeholder:text-primary-300 focus:outline-none focus:border-brand-orange transition-colors"
+              className="w-full h-10 pl-9 pr-3 rounded-lg border border-dash bg-gray-bg body-sm-regular text-primary-500 placeholder:text-primary-300 focus:outline-none focus:border-brand-orange transition-colors"
             />
           </div>
         </div>

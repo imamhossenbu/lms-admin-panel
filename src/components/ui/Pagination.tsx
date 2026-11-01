@@ -52,13 +52,13 @@ export function Pagination({
     >
       {/* Left: Per Page Selector using DropdownSelect */}
       {onPageSizeChange && (
-        <div className="w-[116px] shrink-0">
+        <div className="w-29 shrink-0">
           <DropdownSelect
             options={dropdownOptions}
             value={String(pageSize)}
             onChange={(val) => onPageSizeChange(Number(val))}
             buttonClassName="!h-8 !py-1 body-sm-medium border-dash rounded-lg px-2.5"
-            menuClassName="min-w-[116px] w-[116px]"
+            menuClassName="min-w-29 w-29"
             align="left"
             direction="up"
           />

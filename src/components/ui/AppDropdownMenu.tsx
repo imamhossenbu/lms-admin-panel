@@ -40,14 +40,14 @@ export function AppDropdownMenu({
           align={align}
           sideOffset={sideOffset}
           className={cn(
-            "z-[200] min-w-[10rem] overflow-hidden rounded-xl border border-dash bg-white p-1 text-primary-500 shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+            "z-[200] min-w-40 overflow-hidden rounded-xl border border-dash bg-white p-1 text-primary-500 shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
             contentClassName
           )}
         >
           {items.map((item) => (
             <React.Fragment key={item.key}>
               {item.separatorBefore && (
-                <DropdownMenu.Separator className="my-1 h-[1px] bg-slate-100" />
+                <DropdownMenu.Separator className="my-1 h-px bg-slate-100" />
               )}
               <DropdownMenu.Item
                 disabled={item.disabled}

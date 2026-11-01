@@ -19,7 +19,7 @@ export const CATEGORY_ICONS: CategoryIconOption[] = [
     id: "marketing",
     label: "Marketing",
     colorBg: "bg-orange-50",
-    colorText: "text-[#FF5B00]",
+    colorText: "text-brand-orange",
     colorBorder: "border-orange-200",
   },
   {

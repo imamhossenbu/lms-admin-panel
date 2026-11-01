@@ -83,7 +83,7 @@ export function QuickCategoryAdd({
   };
 
   return (
-    <div className="p-3.5 rounded-[10px] bg-brand-orange-soft border border-brand-orange/20 space-y-3 animate-in fade-in duration-200">
+    <div className="p-3.5 rounded-xl bg-brand-orange-soft border border-brand-orange/20 space-y-3 animate-in fade-in duration-200">
       <div className="flex items-center justify-between">
         <span className="body-xs-medium text-brand-orange font-bold flex items-center gap-1.5">
           <FolderPlus className="w-3.5 h-3.5" />

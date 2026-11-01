@@ -39,7 +39,7 @@ export function EnrolledCoursesMiniCard({
       render: (row) => (
         <div className="flex items-center gap-2.5">
           <CourseBadgeIcon type={row.iconType} size="sm" />
-          <span className="body-sm-medium text-primary-500 font-semibold truncate max-w-[220px] xl:max-w-[280px]">
+          <span className="body-sm-medium text-primary-500 font-semibold truncate max-w-55 xl:max-w-70">
             {row.title}
           </span>
         </div>
@@ -51,13 +51,13 @@ export function EnrolledCoursesMiniCard({
       render: (row) => {
         const barColor =
           row.progress >= 70
-            ? "bg-[#10B981]"
+            ? "bg-green"
             : row.progress >= 50
             ? "bg-blue"
-            : "bg-[#F97316]";
+            : "bg-brand-orange";
 
         return (
-          <div className="flex items-center gap-2 min-w-[95px]">
+          <div className="flex items-center gap-2 min-w-24">
             <span className="body-xsm-medium font-semibold text-primary-500 w-7">
               {row.progress}%
             </span>

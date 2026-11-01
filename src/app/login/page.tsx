@@ -15,13 +15,11 @@ import {
   Lock,
   Eye,
   EyeOff,
-  ArrowRight,
   AlertCircle,
   BookOpen,
   Users,
   BarChart3,
   Sparkles,
-  X,
 } from "lucide-react";
 
 import { AuthCardContainer } from "@/components/auth/AuthCardContainer";
@@ -178,7 +176,7 @@ export default function LoginPage() {
         mockupAlt="EduPro 3D Dashboard Mockup"
         topBadge={
           <div className="hidden sm:flex items-center gap-2 text-xs text-slate-300">
-            <span className="w-2 h-2 rounded-full bg-brand-orange shadow-sm shadow-[#FF5B00]" />
+            <span className="w-2 h-2 rounded-full bg-brand-orange shadow-sm shadow-brand-orange" />
             <span>Manage</span>
             <span className="text-slate-500">•</span>
             <span>Teach</span>
@@ -220,7 +218,7 @@ export default function LoginPage() {
                 autoComplete="email"
                 placeholder="Enter your email address"
                 {...register("email")}
-                className={`w-full h-[52px] sm:h-[54px] pl-12 pr-4 rounded-xl border bg-white body-regular text-primary-500 placeholder:text-primary-300 focus:outline-none transition-all ${
+                className={`w-full h-13 sm:h-13.5 pl-12 pr-4 rounded-xl border bg-white body-regular text-primary-500 placeholder:text-primary-300 focus:outline-none transition-all ${
                   errors.email
                     ? "border-red focus:border-red focus:ring-4 focus:ring-red/10 bg-red-14"
                     : "border-dash focus:border-brand-orange focus:ring-4 focus:ring-brand-orange/10"
@@ -245,7 +243,7 @@ export default function LoginPage() {
                 Password
               </label>
               {capsLockActive && (
-                <span className="body-2xsm-regular text-[#92400e] bg-[#fef3c7] px-2 py-0.5 rounded border border-[#fde68a]">
+                <span className="body-2xsm-regular text-yellow bg-yellow-bg px-2 py-0.5 rounded border border-yellow">
                   Caps Lock On
                 </span>
               )}
@@ -261,7 +259,7 @@ export default function LoginPage() {
                 placeholder="Enter your password"
                 onKeyDown={handleKeyDown}
                 {...register("password")}
-                className={`w-full h-[52px] sm:h-[54px] pl-12 pr-12 rounded-xl border bg-white body-regular text-primary-500 placeholder:text-primary-300 focus:outline-none transition-all ${
+                className={`w-full h-13 sm:h-13.5 pl-12 pr-12 rounded-xl border bg-white body-regular text-primary-500 placeholder:text-primary-300 focus:outline-none transition-all ${
                   errors.password
                     ? "border-red focus:border-red focus:ring-4 focus:ring-red/10 bg-red-14"
                     : "border-dash focus:border-brand-orange focus:ring-4 focus:ring-brand-orange/10"
@@ -294,7 +292,7 @@ export default function LoginPage() {
               <input
                 type="checkbox"
                 {...register("rememberMe")}
-                className="w-4 h-4 rounded border-dash text-brand-orange focus:ring-brand-orange accent-[#FF5B00] cursor-pointer"
+                className="w-4 h-4 rounded border-dash text-brand-orange focus:ring-brand-orange accent-brand-orange cursor-pointer"
               />
               <span className="body-sm-regular text-primary-400">
                 Remember me

@@ -7,14 +7,11 @@ import { ToneBadge } from "@/components/ui/ToneBadge";
 import { TagBadge } from "@/components/ui/TagBadge";
 import { Avatar } from "@/components/ui/Avatar";
 import PrimaryButton from "@/components/ui/primary-button";
-import SecondaryButton from "@/components/ui/secondary-button";
 import {
   Users,
   Star,
   Globe,
   PlayCircle,
-  Layers,
-  Sparkles,
   Edit3,
 } from "lucide-react";
 import { SVG_FALLBACK } from "../constants";
@@ -41,10 +38,10 @@ export function CourseDetailsHero({
     "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1200&auto=format&fit=crop";
 
   return (
-    <div className="relative rounded-[14px] overflow-hidden border border-[#EDEDED] bg-[#0F2854] text-white">
+    <div className="relative rounded-xl overflow-hidden border border-dash bg-primary-500 text-white">
       <div className="grid grid-cols-1 md:grid-cols-12 gap-0">
         {/* Banner Image Preview */}
-        <div className="md:col-span-5 relative min-h-[220px] md:min-h-full bg-slate-900 overflow-hidden">
+        <div className="md:col-span-5 relative min-h-55 md:min-h-full bg-slate-900 overflow-hidden">
           <Image
             src={fallbackBanner}
             alt={course.title}
@@ -57,12 +54,12 @@ export function CourseDetailsHero({
             sizes="(max-width: 768px) 100vw, 400px"
             className="object-cover transition-transform duration-500 hover:scale-105"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0F2854] via-transparent to-black/30" />
+          <div className="absolute inset-0 bg-gradient-to-t from-primary-500 via-transparent to-black/30" />
           <div className="absolute top-3 left-3 flex items-center gap-2">
             <TagBadge
               tag={course.category?.name || "Engineering"}
               bgColor="bg-white/90 backdrop-blur-md"
-              textColor="text-[#0E2038] font-bold"
+              textColor="text-primary-500 font-bold"
             />
           </div>
           <div className="absolute bottom-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-white body-xsm-medium">
@@ -153,7 +150,7 @@ export function CourseDetailsHero({
                     onClose?.();
                     onEditCourse(course);
                   }}
-                  className="bg-white text-[#0F2854] hover:bg-slate-100 font-bold border-none"
+                  className="bg-white text-primary-500 hover:bg-slate-100 font-bold border-none"
                 >
                   Edit Course in Studio
                 </PrimaryButton>

@@ -43,7 +43,7 @@ export function Avatar({
   return (
     <span
       className={cn(
-        "relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#F5F5F5]",
+        "relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-bg",
         className
       )}
       style={{ width: pixelSize, height: pixelSize }}
@@ -63,7 +63,7 @@ export function Avatar({
         </span>
       ) : (
         <User
-          className={cn("text-[#8C95A3]", iconClassName)}
+          className={cn("text-primary-300", iconClassName)}
           style={{
             width: pixelSize * 0.5,
             height: pixelSize * 0.5,

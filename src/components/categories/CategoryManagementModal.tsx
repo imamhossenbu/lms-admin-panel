@@ -5,7 +5,6 @@ import { ModalShell } from "@/components/ui/ModalShell";
 import { InputField } from "@/components/ui/InputField";
 import PrimaryButton from "@/components/ui/primary-button";
 import SecondaryButton from "@/components/ui/secondary-button";
-import { TagBadge } from "@/components/ui/TagBadge";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 import { categoriesApi } from "@/lib/api";
 import { AdminCategoryItem } from "@/lib/types";
@@ -14,11 +13,8 @@ import { toast } from "sonner";
 import {
   FolderPlus,
   Trash2,
-  Edit2,
   Check,
   X,
-  Layers,
-  Sparkles,
   BookOpen,
 } from "lucide-react";
 
@@ -221,9 +217,9 @@ export function CategoryManagementModal({
         {isFormVisible && (
           <form
             onSubmit={handleCreate}
-            className="p-4.5 rounded-[12px] bg-[#F8F9FA] border border-[#EDEDED] space-y-4 animate-in fade-in duration-200"
+            className="p-4.5 rounded-xl bg-gray-bg border border-dash space-y-4 animate-in fade-in duration-200"
           >
-            <div className="flex items-center justify-between pb-3 border-b border-[#EDEDED]">
+            <div className="flex items-center justify-between pb-3 border-b border-dash">
               <h4 className="body-sm-medium text-primary-500 font-semibold flex items-center gap-2">
                 <FolderPlus className="w-4 h-4 text-brand-orange" />
                 <span>Create New Learning Category</span>
@@ -266,7 +262,7 @@ export function CategoryManagementModal({
                   maxLength={4}
                   value={icon}
                   onChange={(e) => setIcon(e.target.value)}
-                  className="w-12 h-[38px] text-center text-lg rounded-[8px] border border-[#EDEDED] bg-white focus:outline-none focus:border-brand-orange"
+                  className="w-12 h-9.5 text-center text-lg rounded-lg border border-dash bg-white focus:outline-none focus:border-brand-orange"
                 />
                 <span className="body-xsm-regular subtext-500 mr-2">Or choose:</span>
                 {emojiPresets.map((em) => (
@@ -274,10 +270,10 @@ export function CategoryManagementModal({
                     key={em}
                     type="button"
                     onClick={() => setIcon(em)}
-                    className={`w-9 h-9 rounded-[8px] text-base flex items-center justify-center border transition-all cursor-pointer ${
+                    className={`w-9 h-9 rounded-lg text-base flex items-center justify-center border transition-all cursor-pointer ${
                       icon === em
                         ? "border-brand-orange bg-brand-orange-light text-brand-orange shadow-2xs"
-                        : "border-[#EDEDED] bg-white hover:bg-gray-100"
+                        : "border-dash bg-white hover:bg-gray-100"
                     }`}
                   >
                     {em}
@@ -295,7 +291,7 @@ export function CategoryManagementModal({
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Describe the scope of courses that belong in this department..."
-                className="w-full p-3 rounded-[8px] border border-[#EDEDED] text-primary-500 body-sm-regular outline-none focus:border-brand-orange bg-white"
+                className="w-full p-3 rounded-lg border border-dash text-primary-500 body-sm-regular outline-none focus:border-brand-orange bg-white"
               />
             </div>
 
@@ -320,8 +316,8 @@ export function CategoryManagementModal({
         )}
 
         {/* Existing Categories Table */}
-        <div className="rounded-[10px] border border-[#EDEDED] overflow-hidden">
-          <div className="bg-[#F8F9FA] px-4 py-2.5 border-b border-[#EDEDED] flex items-center justify-between">
+        <div className="rounded-xl border border-dash overflow-hidden">
+          <div className="bg-gray-bg px-4 py-2.5 border-b border-dash flex items-center justify-between">
             <span className="body-xsm-medium-inter subtext-500 uppercase tracking-wider">
               {categories.length} Registered Categories
             </span>
@@ -330,7 +326,7 @@ export function CategoryManagementModal({
             </span>
           </div>
 
-          <div className="divide-y divide-[#EDEDED] max-h-96 overflow-y-auto">
+          <div className="divide-y divide-dash max-h-96 overflow-y-auto">
             {categories.map((cat) => (
               <div
                 key={cat.id}
@@ -343,7 +339,7 @@ export function CategoryManagementModal({
                       <span className="body-sm-medium text-primary-500 font-semibold truncate">
                         {cat.name}
                       </span>
-                      <span className="body-xsm-regular font-mono text-primary-300 bg-gray-100 px-1.5 py-0.5 rounded text-[11px]">
+                      <span className="body-2xsm-regular font-mono text-primary-300 bg-gray-100 px-1.5 py-0.5 rounded">
                         /{cat.slug}
                       </span>
                     </div>
@@ -368,7 +364,7 @@ export function CategoryManagementModal({
                   <button
                     type="button"
                     onClick={() => handleDelete(cat.id, cat.name)}
-                    className="p-1.5 text-primary-300 hover:text-rose-600 hover:bg-rose-50 rounded-[6px] transition-colors cursor-pointer"
+                    className="p-1.5 text-primary-300 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors cursor-pointer"
                     title="Delete Category"
                   >
                     <Trash2 className="w-4 h-4" />

@@ -56,7 +56,7 @@ export function InstructorTable({
       key: "email",
       header: "Email",
       render: (row) => (
-        <span className="body-sm-regular text-primary-400 font-mono text-[13px]">
+        <span className="body-sm-regular text-primary-400 font-mono">
           {row.email}
         </span>
       ),
@@ -152,8 +152,8 @@ export function InstructorTable({
         verticalBorders={true}
         containerClassName="border-0 rounded-none w-full"
         tableClassName="w-full"
-        headerClassName="bg-[#F1F3F5] border-b border-dash body-sm-medium text-primary-500 font-semibold normal-case"
-        thClassName="px-3.5 py-3 text-primary-500 font-semibold normal-case text-[13.5px]"
+        headerClassName="bg-gray-bg border-b border-dash body-sm-medium text-primary-500 font-semibold normal-case"
+        thClassName="px-3.5 py-3 text-primary-500 font-semibold normal-case"
         cellClassName="px-3.5 py-3.5 cursor-pointer"
         emptyMessage="No instructors found matching your criteria."
       />

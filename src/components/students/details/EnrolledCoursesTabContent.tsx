@@ -111,15 +111,15 @@ export function EnrolledCoursesTabContent({
       render: (row) => {
         const barColor =
           row.progress >= 70
-            ? "bg-[#10B981]"
+            ? "bg-green"
             : row.progress >= 50
             ? "bg-blue"
             : row.progress > 0
-            ? "bg-[#F97316]"
+            ? "bg-brand-orange"
             : "bg-slate-300";
 
         return (
-          <div className="flex items-center gap-2.5 min-w-[120px]">
+          <div className="flex items-center gap-2.5 min-w-30">
             <div className="h-2 flex-1 bg-slate-100 rounded-full overflow-hidden">
               <div
                 className={`h-full ${barColor} rounded-full`}

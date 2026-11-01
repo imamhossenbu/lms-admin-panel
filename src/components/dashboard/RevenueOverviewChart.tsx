@@ -22,7 +22,7 @@ export function RevenueOverviewChart({ data }: RevenueOverviewChartProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   return (
-    <div className="bg-white rounded-xl border border-dash p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex flex-col justify-between h-[330px]">
+    <div className="bg-white rounded-xl border border-dash p-5 shadow-xs flex flex-col justify-between h-82.5">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="text-left">
@@ -70,7 +70,7 @@ export function RevenueOverviewChart({ data }: RevenueOverviewChartProps) {
       </div>
 
       {/* Chart Area */}
-      <div className="w-full flex-1 min-h-[260px]">
+      <div className="w-full flex-1 min-h-65">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
             data={data}
@@ -78,29 +78,29 @@ export function RevenueOverviewChart({ data }: RevenueOverviewChartProps) {
           >
             <defs>
               <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#FF5B00" stopOpacity={0.22} />
-                <stop offset="95%" stopColor="#FF5B00" stopOpacity={0.0} />
+                <stop offset="5%" stopColor="var(--color-brand-orange)" stopOpacity={0.22} />
+                <stop offset="95%" stopColor="var(--color-brand-orange)" stopOpacity={0.0} />
               </linearGradient>
             </defs>
 
             <CartesianGrid
               strokeDasharray="3 3"
               vertical={false}
-              stroke="#F1F5F9"
+              stroke="var(--color-gray-bg)"
             />
 
             <XAxis
               dataKey="date"
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "#94A3B8", fontSize: 11 }}
+              tick={{ fill: "var(--color-primary-300)", fontSize: 11 }}
               dy={6}
             />
 
             <YAxis
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "#94A3B8", fontSize: 12 }}
+              tick={{ fill: "var(--color-primary-300)", fontSize: 12 }}
               domain={[0, 8000]}
               ticks={[0, 2000, 4000, 6000, 8000]}
               tickFormatter={(val) => (val === 0 ? "$0" : `$${val / 1000}K`)}
@@ -129,20 +129,20 @@ export function RevenueOverviewChart({ data }: RevenueOverviewChartProps) {
             <Area
               type="monotone"
               dataKey="revenue"
-              stroke="#FF5B00"
+              stroke="var(--color-brand-orange)"
               strokeWidth={2.8}
               fillOpacity={1}
               fill="url(#revenueGradient)"
               activeDot={{
                 r: 6,
-                fill: "#FF5B00",
-                stroke: "#FFFFFF",
+                fill: "var(--color-brand-orange)",
+                stroke: "white",
                 strokeWidth: 2.5,
               }}
               dot={{
                 r: 3.5,
-                fill: "#FF5B00",
-                stroke: "#FFFFFF",
+                fill: "var(--color-brand-orange)",
+                stroke: "white",
                 strokeWidth: 1.5,
               }}
             />

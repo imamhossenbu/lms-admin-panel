@@ -54,7 +54,7 @@ export function StudentTable({
       key: "email",
       header: "Email",
       render: (row) => (
-        <span className="body-sm-regular text-primary-400 font-mono text-[13px]">
+        <span className="body-sm-regular text-primary-400 font-mono">
           {row.email}
         </span>
       ),
@@ -79,7 +79,7 @@ export function StudentTable({
         const isZero = row.completionRate === 0;
 
         return (
-          <div className="space-y-1.5 w-full max-w-[130px]">
+          <div className="space-y-1.5 w-full max-w-32.5">
             <span className="body-2xsm-regular text-primary-500 font-medium block">
               {row.completedCoursesCount} ({row.completionRate}%)
             </span>
@@ -89,8 +89,8 @@ export function StudentTable({
                   isZero
                     ? "bg-transparent"
                     : isFinished || row.completionRate >= 75
-                    ? "bg-[#0dc34a]"
-                    : "bg-[#2570fc]"
+                    ? "bg-green"
+                    : "bg-blue"
                 }`}
                 style={{ width: `${row.completionRate}%` }}
               />
@@ -172,8 +172,8 @@ export function StudentTable({
         verticalBorders={true}
         containerClassName="border-0 rounded-none w-full"
         tableClassName="w-full"
-        headerClassName="bg-[#F1F3F5] border-b border-dash body-sm-medium text-primary-500 font-semibold normal-case"
-        thClassName="px-3.5 py-3 text-primary-500 font-semibold normal-case text-[13.5px]"
+        headerClassName="bg-gray-bg border-b border-dash body-sm-medium text-primary-500 font-semibold normal-case"
+        thClassName="px-3.5 py-3 text-primary-500 font-semibold normal-case"
         cellClassName="px-3.5 py-3.5 cursor-pointer"
       />
     </div>

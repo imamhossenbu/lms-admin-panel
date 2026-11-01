@@ -26,7 +26,7 @@ const columns: ColumnDef<DashboardEnrollment>[] = [
             unoptimized
           />
         </div>
-        <span className="body-sm-medium text-primary-500 font-medium truncate max-w-[110px]">
+        <span className="body-sm-medium text-primary-500 font-medium truncate max-w-27.5">
           {row.student.name}
         </span>
       </div>
@@ -36,7 +36,7 @@ const columns: ColumnDef<DashboardEnrollment>[] = [
     key: "course",
     header: "Course",
     render: (row) => (
-      <span className="body-sm-regular text-primary-400 truncate max-w-[130px] block">
+      <span className="body-sm-regular text-primary-400 truncate max-w-32.5 block">
         {row.course}
       </span>
     ),
@@ -45,7 +45,7 @@ const columns: ColumnDef<DashboardEnrollment>[] = [
     key: "progress",
     header: "Progress",
     render: (row) => (
-      <div className="flex items-center gap-2.5 max-w-[120px]">
+      <div className="flex items-center gap-2.5 max-w-30">
         <span className="body-2xsm-regular text-primary-500 w-7 font-bold">
           {row.progress}%
         </span>
@@ -73,7 +73,7 @@ export function RecentEnrollmentsTable({
   enrollments,
 }: RecentEnrollmentsTableProps) {
   return (
-    <div className="bg-white rounded-xl border border-dash shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden flex flex-col justify-between">
+    <div className="bg-white rounded-xl border border-dash shadow-xs overflow-hidden flex flex-col justify-between">
       {/* Header */}
       <div className="px-4 py-3 flex items-center justify-between">
         <h3 className="heading-h6 font-bold text-primary-500 text-sm">

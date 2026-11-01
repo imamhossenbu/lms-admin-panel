@@ -27,7 +27,7 @@ export function CategoryIcon({
   if (isImageUrl) {
     return (
       <div
-        className={`relative rounded-[10px] overflow-hidden bg-[#F8F9FA] border border-[#EDEDED] shrink-0 flex items-center justify-center ${className}`}
+        className={`relative rounded-xl overflow-hidden bg-gray-bg border border-dash shrink-0 flex items-center justify-center ${className}`}
       >
         <Image
           src={icon!}
@@ -45,7 +45,7 @@ export function CategoryIcon({
 
   return (
     <div
-      className={`rounded-[10px] bg-[#F8F9FA] border border-[#EDEDED] flex items-center justify-center shrink-0 select-none ${className}`}
+      className={`rounded-xl bg-gray-bg border border-dash flex items-center justify-center shrink-0 select-none ${className}`}
     >
       <span>{displayEmoji}</span>
     </div>

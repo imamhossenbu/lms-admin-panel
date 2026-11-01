@@ -80,13 +80,12 @@ export const SelectField = React.forwardRef<HTMLSelectElement, SelectFieldProps>
               }
             }}
             className={cn(
-              "h-10 w-full cursor-pointer appearance-none rounded-lg border border-dash bg-white pr-9 body-md-medium outline-none transition-colors focus:border-brand-orange [&>option]:text-primary-500",
+              "h-10 w-full cursor-pointer appearance-none rounded-lg border border-dash bg-white pr-9 body-md-medium outline-none shadow-xs transition-colors focus:border-brand-orange [&>option]:text-primary-500",
               leftIcon ? "pl-10" : "pl-3.5",
               isPlaceholder ? "subtext-500" : "text-primary-500",
               error && "border-red focus:border-red",
               className
             )}
-            style={{ boxShadow: "0px 1px 2px 0px rgba(13, 13, 18, 0.06)" }}
             {...props}
           >
             {options.map((option) => (

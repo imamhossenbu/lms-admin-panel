@@ -68,7 +68,7 @@ export function CertificateThumbnail({
     >
       {/* Decorative double border */}
       <div
-        className={`w-full h-full border ${theme.innerBorder} rounded-[2px] p-0.5 flex flex-col justify-between items-center relative`}
+        className={`w-full h-full border ${theme.innerBorder} rounded-xs p-0.5 flex flex-col justify-between items-center relative`}
       >
         {/* Top mini header */}
         <span
@@ -79,8 +79,8 @@ export function CertificateThumbnail({
 
         {/* Decorative lines representing certificate body */}
         <div className="w-full space-y-0.5 px-1 opacity-70">
-          <div className="h-[1px] w-full bg-current opacity-40 mx-auto" />
-          <div className="h-[1px] w-3/4 bg-current opacity-30 mx-auto" />
+          <div className="h-px w-full bg-current opacity-40 mx-auto" />
+          <div className="h-px w-3/4 bg-current opacity-30 mx-auto" />
         </div>
 
         {/* Mini Certificate Seal / Badge */}

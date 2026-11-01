@@ -25,10 +25,10 @@ export function DashboardHeader({
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-[12px]">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
       {/* Title & Subtitle - Compact & Sleek */}
       <div className="text-left">
-        <h1 className="text-[22px] sm:text-[24px] font-bold text-primary-500 tracking-tight leading-tight">
+        <h1 className="h3-semibold font-bold! text-primary-500 tracking-tight leading-tight!">
           Overview
         </h1>
         <p className="body-sm-regular text-primary-300 mt-0.5">

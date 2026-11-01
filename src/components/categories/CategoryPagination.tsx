@@ -83,13 +83,13 @@ export function CategoryPagination({
 
         {/* Page size dropdown using reusable DropdownSelect */}
         {onPageSizeChange && (
-          <div className="w-[116px] ml-2 shrink-0">
+          <div className="w-29 ml-2 shrink-0">
             <DropdownSelect
               options={PAGE_SIZE_OPTIONS}
               value={String(pageSize)}
               onChange={(val) => onPageSizeChange(Number(val))}
               buttonClassName="!h-8 !py-1 body-sm-medium border-dash rounded-lg px-2.5"
-              menuClassName="min-w-[116px] w-[116px]"
+              menuClassName="min-w-29 w-29"
               align="right"
               direction="up"
             />

@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { X, ChevronDown, Loader2 } from "lucide-react";
+import { X, ChevronDown } from "lucide-react";
 import { CATEGORY_ICONS } from "@/data/mockCategoryData";
 import { CategoryIconRenderer } from "./CategoryIconRenderer";
 import { CategoryItem } from "@/types/category";
@@ -109,7 +109,7 @@ export function AddCategoryCard({
   };
 
   return (
-    <div className="bg-white rounded-xl border border-dash shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden text-left flex flex-col justify-between">
+    <div className="bg-white rounded-xl border border-dash shadow-xs overflow-hidden text-left flex flex-col justify-between">
       {/* Card Header */}
       <div className="p-4 border-b border-dash flex items-center justify-between">
         <h3 className="heading-h6 font-bold text-primary-500 text-sm">
@@ -189,7 +189,7 @@ export function AddCategoryCard({
                   onClick={() => handleSelectIcon(icon.id)}
                   className={`h-10 rounded-lg flex items-center justify-center transition-all cursor-pointer border ${
                     isSelected
-                      ? "border-2 border-brand-orange bg-[#FFF4ED] shadow-xs"
+                      ? "border-2 border-brand-orange bg-brand-orange-light shadow-xs"
                       : "border-dash hover:border-slate-300 bg-white"
                   }`}
                   title={icon.label}

@@ -25,7 +25,7 @@ export function CourseEnrollmentTable({
     <div className="overflow-x-auto rounded-lg border border-dash">
       <table className="w-full text-left border-collapse">
         <thead>
-          <tr className="bg-[#F8FAFC] border-b border-dash body-xsm-medium text-primary-400">
+          <tr className="bg-gray-bg border-b border-dash body-xsm-medium text-primary-400">
             <th className="py-3 px-3.5 w-10 text-center">
               <button
                 type="button"
@@ -124,7 +124,7 @@ export function CourseEnrollmentTable({
                   <span
                     className={`body-sm-medium font-semibold ${
                       course.price.toLowerCase() === "free"
-                        ? "text-[#059669]"
+                        ? "text-green"
                         : "text-primary-500"
                     }`}
                   >

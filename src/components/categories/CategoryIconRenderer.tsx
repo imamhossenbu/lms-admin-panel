@@ -23,7 +23,7 @@ interface CategoryIconRendererProps {
 const ICON_MAP = {
   code: { icon: Code2, bg: "bg-purple-50", text: "text-purple-600" },
   design: { icon: Palette, bg: "bg-rose-50", text: "text-rose-600" },
-  marketing: { icon: Megaphone, bg: "bg-orange-50", text: "text-[#FF5B00]" },
+  marketing: { icon: Megaphone, bg: "bg-orange-50", text: "text-brand-orange" },
   business: { icon: Briefcase, bg: "bg-emerald-50", text: "text-emerald-600" },
   photography: { icon: Camera, bg: "bg-amber-50", text: "text-amber-600" },
   "data-science": { icon: BarChart2, bg: "bg-blue-50", text: "text-blue-600" },

@@ -18,7 +18,7 @@ export function CourseCompletionChart({ data }: CourseCompletionChartProps) {
   }));
 
   return (
-    <div className="bg-white rounded-xl border border-dash p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex flex-col justify-between h-[340px]">
+    <div className="bg-white rounded-xl border border-dash p-5 shadow-xs flex flex-col justify-between h-85">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="text-left">
@@ -77,7 +77,7 @@ export function CourseCompletionChart({ data }: CourseCompletionChartProps) {
         </div>
 
         {/* Breakdown List */}
-        <div className="flex-1 w-full max-w-[240px] space-y-4">
+        <div className="flex-1 w-full max-w-60 space-y-4">
           {data.categories.map((cat) => (
             <div
               key={cat.label}

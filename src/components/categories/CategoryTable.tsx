@@ -107,7 +107,7 @@ export function CategoryTable({
       header: "Description",
       render: (row) => (
         <span
-          className="body-sm-regular text-primary-400 truncate max-w-[280px] block"
+          className="body-sm-regular text-primary-400 truncate max-w-70 block"
           title={row.description}
         >
           {row.description}
@@ -203,7 +203,7 @@ export function CategoryTable({
     const subCategories = row.subCategories || [];
 
     return (
-      <div className="bg-[#F8FAFC] border-y border-dash px-5 py-4 space-y-3 text-left">
+      <div className="bg-gray-bg border-y border-dash px-5 py-4 space-y-3 text-left">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Layers className="w-4 h-4 text-brand-orange" />
@@ -283,8 +283,8 @@ export function CategoryTable({
         verticalBorders={true}
         containerClassName="border-0 rounded-none w-full"
         tableClassName="w-full"
-        headerClassName="bg-[#F1F3F5] border-b border-dash body-sm-medium text-primary-500 font-semibold normal-case"
-        thClassName="px-3.5 py-3 text-primary-500 font-semibold normal-case text-[13.5px]"
+        headerClassName="bg-gray-bg border-b border-dash body-sm-medium text-primary-500 font-semibold normal-case"
+        thClassName="px-3.5 py-3 text-primary-500 font-semibold normal-case body-sm-medium"
         cellClassName="px-3.5 py-3.5"
       />
     </div>

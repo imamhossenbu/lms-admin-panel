@@ -106,7 +106,7 @@ export function DateRangePicker({
 
       {/* Floating Date Range Picker Card */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-auto min-w-[340px] sm:min-w-[480px] bg-white rounded-xl shadow-xl border border-dash overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-150">
+        <div className="absolute right-0 mt-2 w-auto min-w-85 sm:min-w-120 bg-white rounded-xl shadow-xl border border-dash overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-150">
           <div className="flex flex-col sm:flex-row">
             {/* Presets Sidebar */}
             <div className="w-full sm:w-36 p-3 border-b sm:border-b-0 sm:border-r border-dash bg-slate-50/50 space-y-1">

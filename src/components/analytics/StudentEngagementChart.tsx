@@ -31,20 +31,20 @@ export function StudentEngagementChart() {
       <div className="h-72 w-full pt-2">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={ENGAGEMENT_DATA} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
-            <XAxis dataKey="day" stroke="#64748B" fontSize={12} tickLine={false} />
-            <YAxis stroke="#64748B" fontSize={12} tickLine={false} />
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--dash-border)" />
+            <XAxis dataKey="day" stroke="var(--color-primary-300)" fontSize={12} tickLine={false} />
+            <YAxis stroke="var(--color-primary-300)" fontSize={12} tickLine={false} />
             <Tooltip
               contentStyle={{
-                backgroundColor: "#0F2854",
-                borderColor: "#1C355E",
+                backgroundColor: "var(--color-primary-500)",
+                borderColor: "var(--color-primary-400)",
                 borderRadius: "8px",
-                color: "#FFFFFF",
+                color: "white",
                 fontSize: "12px",
               }}
             />
-            <Bar dataKey="activeStudents" fill="#1C4D8D" radius={[4, 4, 0, 0]} name="Active Students" />
-            <Bar dataKey="liveAttendance" fill="#4988C4" radius={[4, 4, 0, 0]} name="Live Attendees" />
+            <Bar dataKey="activeStudents" fill="var(--color-blue)" radius={[4, 4, 0, 0]} name="Active Students" />
+            <Bar dataKey="liveAttendance" fill="var(--color-blue)" fillOpacity={0.6} radius={[4, 4, 0, 0]} name="Live Attendees" />
           </BarChart>
         </ResponsiveContainer>
       </div>

@@ -21,9 +21,9 @@ export function CourseDetailsOutcomes() {
   return (
     <div className="space-y-5 text-left">
       {/* What You'll Learn */}
-      <div className="p-4 rounded-[12px] bg-[#F8F9FA] border border-[#EDEDED] space-y-3">
+      <div className="p-4 rounded-xl bg-gray-bg border border-dash space-y-3">
         <h4 className="body-md-medium text-primary-500 font-bold flex items-center gap-2">
-          <Award className="w-4 h-4 text-[#1C4D8D]" />
+          <Award className="w-4 h-4 text-blue" />
           <span>What Students Will Master</span>
         </h4>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -37,7 +37,7 @@ export function CourseDetailsOutcomes() {
       </div>
 
       {/* Prerequisites */}
-      <div className="p-4 rounded-[12px] bg-white border border-[#EDEDED] space-y-3">
+      <div className="p-4 rounded-xl bg-white border border-dash space-y-3">
         <h4 className="body-md-medium text-primary-500 font-bold flex items-center gap-2">
           <ShieldCheck className="w-4 h-4 text-amber-600" />
           <span>Recommended Prerequisites</span>

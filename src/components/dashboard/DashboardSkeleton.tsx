@@ -4,9 +4,9 @@ import React from "react";
 
 export function DashboardSkeleton() {
   return (
-    <div className="space-y-[12px] animate-pulse select-none pb-6 text-left">
+    <div className="space-y-3 animate-pulse select-none pb-6 text-left">
       {/* 1. Header Skeleton */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-[12px]">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-3">
         <div className="space-y-1.5">
           <div className="h-7 w-48 bg-slate-200 rounded-lg" />
           <div className="h-4 w-72 bg-slate-100 rounded-md" />
@@ -18,11 +18,11 @@ export function DashboardSkeleton() {
       </div>
 
       {/* 2. 4 Stat Cards Skeleton */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-[12px]">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
         {[1, 2, 3, 4].map((i) => (
           <div
             key={i}
-            className="bg-white rounded-xl border border-dash py-3.5 px-4 h-[112px] flex flex-col justify-between shadow-2xs"
+            className="bg-white rounded-xl border border-dash py-3.5 px-4 h-28 flex flex-col justify-between shadow-2xs"
           >
             <div className="flex items-start gap-3.5">
               <div className="w-10 h-10 rounded-lg bg-slate-100 border border-dash shrink-0" />
@@ -40,9 +40,9 @@ export function DashboardSkeleton() {
       </div>
 
       {/* 3. Row 2: 2 Main Charts Skeleton (Revenue Overview & Student Growth) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-[12px]">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {/* Revenue Overview Chart Skeleton */}
-        <div className="bg-white rounded-xl border border-dash p-5 h-[340px] flex flex-col justify-between shadow-2xs">
+        <div className="bg-white rounded-xl border border-dash p-5 h-85 flex flex-col justify-between shadow-2xs">
           <div className="flex justify-between items-center pb-3 border-b border-dash">
             <div className="space-y-1.5">
               <div className="h-5 w-40 bg-slate-200 rounded-md" />
@@ -81,7 +81,7 @@ export function DashboardSkeleton() {
         </div>
 
         {/* Student Growth Chart Skeleton */}
-        <div className="bg-white rounded-xl border border-dash p-5 h-[340px] flex flex-col justify-between shadow-2xs">
+        <div className="bg-white rounded-xl border border-dash p-5 h-85 flex flex-col justify-between shadow-2xs">
           <div className="flex justify-between items-center pb-3 border-b border-dash">
             <div className="space-y-1.5">
               <div className="h-5 w-36 bg-slate-200 rounded-md" />
@@ -117,9 +117,9 @@ export function DashboardSkeleton() {
       </div>
 
       {/* 4. Row 3: Course Enrollment & Course Completion (Donut) Skeleton */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-[12px]">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {/* Course Enrollment Breakdown */}
-        <div className="bg-white rounded-xl border border-dash p-5 h-[340px] flex flex-col justify-between shadow-2xs">
+        <div className="bg-white rounded-xl border border-dash p-5 h-85 flex flex-col justify-between shadow-2xs">
           <div className="flex justify-between items-center pb-3 border-b border-dash">
             <div className="space-y-1.5">
               <div className="h-5 w-44 bg-slate-200 rounded-md" />
@@ -153,7 +153,7 @@ export function DashboardSkeleton() {
         </div>
 
         {/* Course Completion Donut Chart */}
-        <div className="bg-white rounded-xl border border-dash p-5 h-[340px] flex flex-col justify-between shadow-2xs">
+        <div className="bg-white rounded-xl border border-dash p-5 h-85 flex flex-col justify-between shadow-2xs">
           <div className="flex justify-between items-center pb-3 border-b border-dash">
             <div className="space-y-1.5">
               <div className="h-5 w-40 bg-slate-200 rounded-md" />
@@ -164,7 +164,7 @@ export function DashboardSkeleton() {
 
           {/* Donut Ring with Center Metric and Legend Items */}
           <div className="flex-1 flex flex-col sm:flex-row items-center justify-center gap-6 py-2">
-            <div className="relative w-36 h-36 rounded-full border-[14px] border-slate-100 border-t-slate-200 border-r-slate-200 flex items-center justify-center shrink-0">
+            <div className="relative w-36 h-36 rounded-full border-14 border-slate-100 border-t-slate-200 border-r-slate-200 flex items-center justify-center shrink-0">
               <div className="text-center space-y-1">
                 <div className="h-6 w-14 bg-slate-200 rounded mx-auto" />
                 <div className="h-3 w-16 bg-slate-100 rounded mx-auto" />
@@ -189,7 +189,7 @@ export function DashboardSkeleton() {
       </div>
 
       {/* 5. Row 4: 2 Tables Skeleton with Column Borders */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-[12px]">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {/* Table 1: Recent Orders */}
         <div className="bg-white rounded-xl border border-dash overflow-hidden shadow-2xs">
           <div className="p-4 flex justify-between items-center border-b border-dash">

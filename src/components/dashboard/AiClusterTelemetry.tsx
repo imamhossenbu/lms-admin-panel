@@ -60,7 +60,7 @@ export function AiClusterTelemetry() {
           return (
             <div
               key={idx}
-              className="flex items-center justify-between p-3 rounded-[10px] bg-[#F8F9FA] hover:bg-[#F3F4F6] border border-[#EDEDED] transition-colors text-left"
+              className="flex items-center justify-between p-3 rounded-xl bg-gray-bg/60 hover:bg-gray-bg border border-dash transition-colors text-left"
             >
               <div className="flex items-center gap-3 min-w-0">
                 <div
@@ -85,9 +85,9 @@ export function AiClusterTelemetry() {
         })}
 
         {/* Global Cluster Summary Footer */}
-        <div className="pt-2 flex items-center justify-between body-xsm-regular subtext-500 border-t border-[#F0F0F0]">
+        <div className="pt-2 flex items-center justify-between body-xsm-regular subtext-500 border-t border-dash">
           <div className="flex items-center gap-1.5">
-            <Activity className="w-3.5 h-3.5 text-[#1C4D8D]" />
+            <Activity className="w-3.5 h-3.5 text-blue" />
             <span>Avg Global Latency: 53ms</span>
           </div>
           <span>Uptime: 99.98%</span>

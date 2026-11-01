@@ -4,9 +4,9 @@ import React from "react";
 
 export function CategorySkeleton() {
   return (
-    <div className="space-y-[16px] animate-pulse select-none pb-6 text-left">
+    <div className="space-y-4 animate-pulse select-none pb-6 text-left">
       {/* Header Skeleton */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-[16px]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
         <div className="space-y-2">
           {/* Breadcrumb skeleton */}
           <div className="flex items-center gap-2">
@@ -111,7 +111,7 @@ export function CategorySkeleton() {
               <div className="w-8 h-8 bg-slate-100 rounded-lg" />
               <div className="w-8 h-8 bg-slate-100 rounded-lg" />
             </div>
-            <div className="w-[116px] h-8 bg-slate-100 rounded-lg" />
+            <div className="w-29 h-8 bg-slate-100 rounded-lg" />
           </div>
         </div>
       </div>

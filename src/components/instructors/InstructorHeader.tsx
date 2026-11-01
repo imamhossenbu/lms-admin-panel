@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Home, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { PrimaryButton } from "@/components/ui/primary-button";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 
@@ -15,16 +15,7 @@ export function InstructorHeader({ onAddClick }: InstructorHeaderProps) {
       <div>
         {/* Breadcrumb matching design system */}
         <Breadcrumb
-          items={[
-            {
-              label: "Home",
-              href: "/",
-              icon: <Home className="w-4 h-4" />,
-            },
-            {
-              label: "Instructors",
-            },
-          ]}
+          items={[{ label: "Instructors" }]}
           className="mb-1.5"
         />
 

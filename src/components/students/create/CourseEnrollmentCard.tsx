@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from "react";
 import { BookOpen, Search } from "lucide-react";
 import { AppSelect } from "@/components/ui/AppSelect";
-import { ENROLLMENT_COURSES, EnrollmentCourse } from "./mockEnrollmentCourses";
+import { ENROLLMENT_COURSES } from "./mockEnrollmentCourses";
 import { CourseEnrollmentTable } from "./CourseEnrollmentTable";
 import { SelectedCoursesChips } from "./SelectedCoursesChips";
 
@@ -99,7 +99,7 @@ export function CourseEnrollmentCard({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search courses by name"
-              className="w-full h-9 pl-9 pr-3 rounded-lg border border-dash bg-[#F8FAFC] body-sm-regular text-primary-500 placeholder:text-primary-300 focus:outline-none focus:border-blue transition-colors"
+              className="w-full h-9 pl-9 pr-3 rounded-lg border border-dash bg-gray-bg body-sm-regular text-primary-500 placeholder:text-primary-300 focus:outline-none focus:border-blue transition-colors"
             />
           </div>
 

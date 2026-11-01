@@ -102,7 +102,7 @@ export function EditUserModal({ user, isOpen, onClose, onSave }: EditUserModalPr
           />
         </div>
 
-        <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#EDEDED]">
+        <div className="flex items-center justify-end gap-3 pt-4 border-t border-dash">
           <SecondaryButton onClick={onClose} type="button">
             Cancel
           </SecondaryButton>

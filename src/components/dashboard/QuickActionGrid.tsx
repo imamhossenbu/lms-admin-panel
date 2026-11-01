@@ -43,8 +43,8 @@ export function QuickActionGrid() {
       href: "/settings",
       icon: SlidersHorizontal,
       badge: "Config",
-      color: "text-primary-400 bg-[#F5F7FA] border-[#EDEDED] group-hover:bg-[#1C4D8D] group-hover:text-white",
-      hoverBorder: "hover:border-[#1C4D8D]/40",
+      color: "text-primary-400 bg-gray-bg border-dash group-hover:bg-blue! group-hover:text-white",
+      hoverBorder: "hover:border-blue/40!",
     },
   ];
 
@@ -56,25 +56,24 @@ export function QuickActionGrid() {
           <Link
             key={idx}
             href={act.href}
-            style={{ boxShadow: "0px 1px 2px 0px rgba(13, 13, 18, 0.05)" }}
-            className={`rounded-[12px] bg-white border border-[#EDEDED] ${act.hoverBorder} hover:shadow-md transition-all duration-200 p-4.5 flex flex-col justify-between group text-left relative overflow-hidden`}
+            className={`rounded-xl bg-white border border-dash shadow-xs ${act.hoverBorder} hover:shadow-md transition-all duration-200 p-4.5 flex flex-col justify-between group text-left relative overflow-hidden`}
           >
             <div className="flex items-center justify-between gap-2 mb-3">
               <div
-                className={`w-11 h-11 rounded-[10px] border flex items-center justify-center shrink-0 transition-all duration-300 ${act.color}`}
+                className={`w-11 h-11 rounded-xl border flex items-center justify-center shrink-0 transition-all duration-300 ${act.color}`}
               >
                 <Icon className="w-5 h-5" />
               </div>
               <div className="flex items-center gap-1">
-                <span className="body-xsm-medium font-semibold px-2 py-0.5 rounded-full bg-[#F5F7FA] text-primary-500 border border-[#EDEDED] group-hover:border-[#1C4D8D]/30 transition-colors">
+                <span className="body-xsm-medium font-semibold px-2 py-0.5 rounded-full bg-gray-bg text-primary-500 border border-dash group-hover:border-blue/30! transition-colors">
                   {act.badge}
                 </span>
-                <ArrowUpRight className="w-4 h-4 text-primary-300 group-hover:text-[#1C4D8D] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+                <ArrowUpRight className="w-4 h-4 text-primary-300 group-hover:text-blue group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
               </div>
             </div>
 
             <div className="space-y-1">
-              <span className="body-sm-medium text-primary-500 font-semibold group-hover:text-[#1C4D8D] transition-colors block truncate">
+              <span className="body-sm-medium text-primary-500 font-semibold group-hover:text-blue transition-colors block truncate">
                 {act.label}
               </span>
               <p className="body-xsm-regular subtext-500 line-clamp-1">

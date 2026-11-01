@@ -194,7 +194,7 @@ function ResetPasswordFormContent() {
             <div className="pt-2">
               <Link
                 href="/login"
-                className="inline-flex items-center justify-center gap-2 w-full h-[50px] rounded-xl bg-brand-orange bg-brand-orange:hover text-white body-medium font-semibold shadow-md edupro-glow-btn transition-all cursor-pointer"
+                className="inline-flex items-center justify-center gap-2 w-full h-12.5 rounded-xl bg-brand-orange bg-brand-orange:hover text-white body-medium font-semibold shadow-md edupro-glow-btn transition-all cursor-pointer"
               >
                 <span>Continue to Sign In</span>
                 <ArrowRight className="w-4 h-4" />
@@ -226,7 +226,7 @@ function ResetPasswordFormContent() {
                       setServerError(null);
                     }}
                     placeholder="Enter 6-digit code"
-                    className="w-full h-[52px] sm:h-[54px] pl-12 pr-4 rounded-xl border border-dash focus:border-brand-orange focus:ring-4 focus:ring-brand-orange/10 bg-white body-regular text-primary-500 placeholder:text-primary-300 focus:outline-none transition-all font-mono tracking-widest text-lg"
+                    className="w-full h-13 sm:h-13.5 pl-12 pr-4 rounded-xl border border-dash focus:border-brand-orange focus:ring-4 focus:ring-brand-orange/10 bg-white body-regular text-primary-500 placeholder:text-primary-300 focus:outline-none transition-all font-mono tracking-widest text-lg"
                   />
                 </div>
               </div>
@@ -250,7 +250,7 @@ function ResetPasswordFormContent() {
                     setServerError(null);
                   }}
                   placeholder="admin@edupro.com"
-                  className="w-full h-[52px] sm:h-[54px] px-4 rounded-xl border border-dash focus:border-brand-orange focus:ring-4 focus:ring-brand-orange/10 bg-white body-regular text-primary-500 placeholder:text-primary-300 focus:outline-none transition-all"
+                  className="w-full h-13 sm:h-13.5 px-4 rounded-xl border border-dash focus:border-brand-orange focus:ring-4 focus:ring-brand-orange/10 bg-white body-regular text-primary-500 placeholder:text-primary-300 focus:outline-none transition-all"
                 />
               </div>
             )}
@@ -273,9 +273,9 @@ function ResetPasswordFormContent() {
                   placeholder="Enter your new password"
                   autoComplete="new-password"
                   {...register("password")}
-                  className={`w-full h-[52px] sm:h-[54px] pl-12 pr-12 rounded-xl border bg-white body-regular text-primary-500 placeholder:text-primary-300 focus:outline-none transition-all ${
+                  className={`w-full h-13 sm:h-13.5 pl-12 pr-12 rounded-xl border bg-white body-regular text-primary-500 placeholder:text-primary-300 focus:outline-none transition-all ${
                     errors.password
-                      ? "border-[#df1c41] focus:border-[#df1c41] focus:ring-4 focus:ring-[#df1c41]/10 bg-[#df1c4114]"
+                      ? "border-red/100 focus:border-red focus:ring-4 focus:ring-red/10 bg-red-14"
                       : "border-dash focus:border-brand-orange focus:ring-4 focus:ring-brand-orange/10"
                   }`}
                 />
@@ -320,9 +320,9 @@ function ResetPasswordFormContent() {
                   placeholder="Confirm your new password"
                   autoComplete="new-password"
                   {...register("confirmPassword")}
-                  className={`w-full h-[52px] sm:h-[54px] pl-12 pr-12 rounded-xl border bg-white body-regular text-primary-500 placeholder:text-primary-300 focus:outline-none transition-all ${
+                  className={`w-full h-13 sm:h-13.5 pl-12 pr-12 rounded-xl border bg-white body-regular text-primary-500 placeholder:text-primary-300 focus:outline-none transition-all ${
                     errors.confirmPassword
-                      ? "border-[#df1c41] focus:border-[#df1c41] focus:ring-4 focus:ring-[#df1c41]/10 bg-[#df1c4114]"
+                      ? "border-red/100 focus:border-red focus:ring-4 focus:ring-red/10 bg-red-14"
                       : "border-dash focus:border-brand-orange focus:ring-4 focus:ring-brand-orange/10"
                   }`}
                 />
@@ -373,7 +373,7 @@ export default function ResetPasswordPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen w-full bg-[#EAEFF6] flex items-center justify-center p-4">
+        <div className="min-h-screen w-full bg-gray-bg flex items-center justify-center p-4">
           <div className="w-8 h-8 border-3 border-brand-orange border-t-transparent rounded-full animate-spin" />
         </div>
       }

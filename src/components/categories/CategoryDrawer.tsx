@@ -236,7 +236,7 @@ export function CategoryDrawer({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={onClose}
-            className="fixed inset-0 bg-slate-900/40 backdrop-blur-[2px] cursor-pointer"
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs cursor-pointer"
           />
 
           {/* Drawer Panel */}
@@ -245,7 +245,7 @@ export function CategoryDrawer({
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 28, stiffness: 300 }}
-            className="relative w-full max-w-[480px] bg-white h-full shadow-2xl flex flex-col z-10 overflow-hidden border-l border-dash text-left"
+            className="relative w-full max-w-120 bg-white h-full shadow-2xl flex flex-col z-10 overflow-hidden border-l border-dash text-left"
           >
             {/* Drawer Header */}
             <div className="px-5 py-4 border-b border-dash flex items-center justify-between bg-slate-50/50">
@@ -297,7 +297,7 @@ export function CategoryDrawer({
               {mode === "details" && category && (
                 <div className="space-y-5">
                   {/* Category Banner Card */}
-                  <div className="p-4 rounded-xl border border-dash bg-[#F8FAFC]/50 space-y-3">
+                  <div className="p-4 rounded-xl border border-dash bg-gray-bg/50 space-y-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <CategoryIconRenderer
@@ -412,7 +412,7 @@ export function CategoryDrawer({
                         ))}
                       </div>
                     ) : (
-                      <div className="p-6 rounded-xl border border-dashed border-dash text-center bg-[#F8FAFC]">
+                      <div className="p-6 rounded-xl border border-dashed border-dash text-center bg-gray-bg">
                         <HelpCircle className="w-6 h-6 text-primary-300 mx-auto mb-1.5" />
                         <span className="body-sm-medium text-primary-400 block">
                           No sub-categories yet

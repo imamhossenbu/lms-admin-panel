@@ -65,7 +65,7 @@ export function LearningProgressCard({ student }: LearningProgressCardProps) {
                 cx="65"
                 cy="65"
                 r={radius}
-                stroke="#2563EB"
+                stroke="var(--color-blue)"
                 strokeWidth="11"
                 strokeDasharray={circumference}
                 strokeDashoffset={strokeDashoffset}
@@ -91,7 +91,7 @@ export function LearningProgressCard({ student }: LearningProgressCardProps) {
           <div className="space-y-1.5">
             <div className="flex items-center justify-between body-xsm-medium">
               <div className="flex items-center gap-2 text-primary-400">
-                <div className="w-5 h-5 rounded-full bg-[#ECFDF5] text-[#10B981] flex items-center justify-center shrink-0">
+                <div className="w-5 h-5 rounded-full bg-green-bg text-green flex items-center justify-center shrink-0">
                   <CheckCircle className="w-3.5 h-3.5" />
                 </div>
                 <span>Completed Lessons</span>
@@ -107,7 +107,7 @@ export function LearningProgressCard({ student }: LearningProgressCardProps) {
             </div>
             <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
               <div
-                className="h-full bg-[#10B981] rounded-full"
+                className="h-full bg-green rounded-full"
                 style={{ width: `${learningMetrics.completedLessons.percentage}%` }}
               />
             </div>
@@ -143,7 +143,7 @@ export function LearningProgressCard({ student }: LearningProgressCardProps) {
           <div className="space-y-1.5">
             <div className="flex items-center justify-between body-xsm-medium">
               <div className="flex items-center gap-2 text-primary-400">
-                <div className="w-5 h-5 rounded-full bg-[#FFF4ED] text-[#F97316] flex items-center justify-center shrink-0">
+                <div className="w-5 h-5 rounded-full bg-brand-orange-light text-brand-orange flex items-center justify-center shrink-0">
                   <FileText className="w-3.5 h-3.5" />
                 </div>
                 <span>Assignments Submitted</span>
@@ -159,7 +159,7 @@ export function LearningProgressCard({ student }: LearningProgressCardProps) {
             </div>
             <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
               <div
-                className="h-full bg-[#F97316] rounded-full"
+                className="h-full bg-brand-orange rounded-full"
                 style={{ width: `${learningMetrics.assignmentsSubmitted.percentage}%` }}
               />
             </div>
@@ -169,7 +169,7 @@ export function LearningProgressCard({ student }: LearningProgressCardProps) {
           <div className="space-y-1.5">
             <div className="flex items-center justify-between body-xsm-medium">
               <div className="flex items-center gap-2 text-primary-400">
-                <div className="w-5 h-5 rounded-full bg-[#FAF5FF] text-[#9333EA] flex items-center justify-center shrink-0">
+                <div className="w-5 h-5 rounded-full bg-purple-14 text-purple flex items-center justify-center shrink-0">
                   <Award className="w-3.5 h-3.5" />
                 </div>
                 <span>Certificates Earned</span>
@@ -185,7 +185,7 @@ export function LearningProgressCard({ student }: LearningProgressCardProps) {
             </div>
             <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
               <div
-                className="h-full bg-[#9333EA] rounded-full"
+                className="h-full bg-purple rounded-full"
                 style={{ width: `${learningMetrics.certificatesEarned.percentage}%` }}
               />
             </div>

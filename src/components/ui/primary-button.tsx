@@ -43,7 +43,7 @@ export const PrimaryButton = React.forwardRef<
       primary:
         "bg-brand-orange hover:bg-brand-orange-hover active:bg-brand-orange-active text-white shadow-2xs border border-transparent focus-visible:ring-brand-orange/40",
       secondary:
-        "bg-brand-orange-light hover:bg-[#FFE8D9] active:bg-[#FFDEC9] text-brand-orange border border-brand-orange/20 focus-visible:ring-brand-orange/30",
+        "bg-brand-orange-light hover:bg-brand-orange/10 active:bg-brand-orange/20 text-brand-orange border border-brand-orange/20 focus-visible:ring-brand-orange/30",
       outline:
         "bg-white hover:bg-slate-50 active:bg-slate-100 text-primary-500 border border-dash hover:border-slate-300 shadow-2xs focus-visible:ring-brand-orange/30",
       danger:
@@ -54,9 +54,9 @@ export const PrimaryButton = React.forwardRef<
 
     // Unified Button Heights: Default md is 40px
     const sizeStyles: Record<string, string> = {
-      sm: "h-[34px] px-3 py-1.5 body-xsm-medium rounded-[8px] gap-1.5",
-      md: "h-[40px] px-4 py-[10px] body-sm-medium rounded-[8px] gap-2",
-      lg: "h-[44px] px-5 py-2.5 body-medium rounded-[10px] gap-2.5",
+      sm: "h-8.5 px-3 py-1.5 body-xsm-medium rounded-lg gap-1.5",
+      md: "h-10 px-4 py-2.5 body-sm-medium rounded-lg gap-2",
+      lg: "h-11 px-5 py-2.5 body-medium rounded-xl gap-2.5",
     };
 
     return (
@@ -105,7 +105,7 @@ export const PrimaryButton = React.forwardRef<
 
         {/* Left Icon (18px x 18px) */}
         {!isLoading && effectiveLeftIcon && (
-          <span className="w-[18px] h-[18px] flex items-center justify-center shrink-0 [&>svg]:w-[18px] [&>svg]:h-[18px]">
+          <span className="w-4.5 h-4.5 flex items-center justify-center shrink-0 [&>svg]:w-4.5 [&>svg]:h-4.5">
             {effectiveLeftIcon}
           </span>
         )}
@@ -115,7 +115,7 @@ export const PrimaryButton = React.forwardRef<
 
         {/* Right Icon (18px x 18px) */}
         {!isLoading && rightIcon && (
-          <span className="w-[18px] h-[18px] flex items-center justify-center shrink-0 [&>svg]:w-[18px] [&>svg]:h-[18px]">
+          <span className="w-4.5 h-4.5 flex items-center justify-center shrink-0 [&>svg]:w-4.5 [&>svg]:h-4.5">
             {rightIcon}
           </span>
         )}

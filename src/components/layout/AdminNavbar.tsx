@@ -75,7 +75,7 @@ export function AdminNavbar() {
               if (e.key === "Enter") handleSearchFocus();
             }}
             placeholder="Search courses, students, orders..."
-            className="w-full h-10 pl-10 pr-12 rounded-xl bg-[#F8FAFC]/60 border border-dash body-sm-regular text-primary-500 placeholder:text-primary-300 focus:outline-none focus:border-brand-orange focus:bg-white transition-all"
+            className="w-full h-10 pl-10 pr-12 rounded-xl bg-gray-bg/60 border border-dash body-sm-regular text-primary-500 placeholder:text-primary-300 focus:outline-none focus:border-brand-orange focus:bg-white transition-all"
           />
           <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
             <kbd className="body-2xsm-regular font-semibold text-primary-300 px-1.5 py-0.5 rounded border border-slate-200 bg-white shadow-2xs">

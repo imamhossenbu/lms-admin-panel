@@ -159,7 +159,7 @@ export function UsersTableClient() {
   ];
 
   return (
-    <div className="rounded-[12px] border border-[#EDEDED] bg-white p-5 space-y-4">
+    <div className="rounded-xl border border-dash bg-white p-5 space-y-4">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <PillTabs
           activeTab={selectedRole}
@@ -179,7 +179,7 @@ export function UsersTableClient() {
             placeholder="Search by name, email or phone..."
             value={search}
             onChange={(e) => handleSearchChange(e.target.value)}
-            className="w-full h-[40px] pl-10 pr-3.5 rounded-[8px] border border-dash body-sm-regular text-primary-500 bg-white placeholder:text-[#969696] focus:outline-none focus:border-brand-orange"
+            className="w-full h-10 pl-10 pr-3.5 rounded-lg border border-dash body-sm-regular text-primary-500 bg-white placeholder:text-primary-300 focus:outline-none focus:border-brand-orange"
           />
         </div>
       </div>

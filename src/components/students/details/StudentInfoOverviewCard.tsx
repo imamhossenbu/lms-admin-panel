@@ -192,7 +192,7 @@ export function StudentInfoOverviewCard({
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full h-9 px-3 rounded-lg border border-dash bg-[#F8FAFC] body-sm-regular text-primary-500 focus:outline-none focus:border-blue transition-colors"
+              className="w-full h-9 px-3 rounded-lg border border-dash bg-gray-bg body-sm-regular text-primary-500 focus:outline-none focus:border-blue transition-colors"
               placeholder="Student full name"
               required
             />
@@ -206,7 +206,7 @@ export function StudentInfoOverviewCard({
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full h-9 px-3 rounded-lg border border-dash bg-[#F8FAFC] body-sm-regular text-primary-500 focus:outline-none focus:border-blue transition-colors"
+              className="w-full h-9 px-3 rounded-lg border border-dash bg-gray-bg body-sm-regular text-primary-500 focus:outline-none focus:border-blue transition-colors"
               placeholder="student@example.com"
               required
             />
@@ -220,7 +220,7 @@ export function StudentInfoOverviewCard({
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              className="w-full h-9 px-3 rounded-lg border border-dash bg-[#F8FAFC] body-sm-regular text-primary-500 focus:outline-none focus:border-blue transition-colors"
+              className="w-full h-9 px-3 rounded-lg border border-dash bg-gray-bg body-sm-regular text-primary-500 focus:outline-none focus:border-blue transition-colors"
               placeholder="+880 1712 345678"
             />
           </div>
@@ -235,27 +235,27 @@ export function StudentInfoOverviewCard({
                 setStatus(val as "Active" | "Inactive" | "Suspended")
               }
               className="w-full"
-              triggerClassName="w-full h-9 bg-[#F8FAFC]"
+              triggerClassName="w-full h-9 bg-gray-bg"
               options={[
                 {
                   value: "Active",
                   label: "Active",
                   icon: (
-                    <span className="w-2 h-2 rounded-full bg-[#10B981] inline-block" />
+                    <span className="w-2 h-2 rounded-full bg-green inline-block" />
                   ),
                 },
                 {
                   value: "Inactive",
                   label: "Inactive",
                   icon: (
-                    <span className="w-2 h-2 rounded-full bg-[#94A3B8] inline-block" />
+                    <span className="w-2 h-2 rounded-full bg-primary-300 inline-block" />
                   ),
                 },
                 {
                   value: "Suspended",
                   label: "Suspended",
                   icon: (
-                    <span className="w-2 h-2 rounded-full bg-[#F59E0B] inline-block" />
+                    <span className="w-2 h-2 rounded-full bg-yellow inline-block" />
                   ),
                 },
               ]}

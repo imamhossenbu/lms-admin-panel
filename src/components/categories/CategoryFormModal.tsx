@@ -10,7 +10,7 @@ import { CategoryIcon } from "@/components/ui/CategoryIcon";
 import { AdminCategoryItem } from "@/lib/types";
 import { coursesApi } from "@/lib/api";
 import { toast } from "sonner";
-import { UploadCloud, CheckCircle2, Loader2, Sparkles } from "lucide-react";
+import { UploadCloud, CheckCircle2, Loader2 } from "lucide-react";
 import { EMOJI_OPTIONS } from "./constants";
 
 interface CategoryFormModalProps {
@@ -168,7 +168,7 @@ export function CategoryFormModal({
     >
       <form onSubmit={handleSubmit} className="space-y-4 text-left">
         {/* Icon & Emoji Selection */}
-        <div className="space-y-2 p-3.5 rounded-[10px] bg-[#F8F9FA] border border-[#EDEDED]">
+        <div className="space-y-2 p-3.5 rounded-xl bg-gray-bg border border-dash">
           <label className="body-sm-medium text-primary-500 font-semibold block">
             Category Icon / Visual Mark
           </label>
@@ -193,7 +193,7 @@ export function CategoryFormModal({
                 type="button"
                 onClick={() => iconInputRef.current?.click()}
                 disabled={isUploadingIcon}
-                className="px-3 py-1.5 rounded-[8px] bg-white border border-[#EDEDED] hover:border-brand-orange text-brand-orange body-xsm-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
+                className="px-3 py-1.5 rounded-lg bg-white border border-dash hover:border-brand-orange text-brand-orange body-xsm-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
               >
                 {isUploadingIcon ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -219,10 +219,10 @@ export function CategoryFormModal({
                   key={emoji}
                   type="button"
                   onClick={() => setIcon(emoji)}
-                  className={`w-8 h-8 rounded-[6px] border text-base flex items-center justify-center transition-all cursor-pointer ${
+                  className={`w-8 h-8 rounded-md border text-base flex items-center justify-center transition-all cursor-pointer ${
                     icon === emoji
                       ? "border-brand-orange bg-brand-orange-light ring-2 ring-brand-orange/20"
-                      : "border-[#EDEDED] bg-white hover:bg-gray-50"
+                      : "border-dash bg-white hover:bg-gray-50"
                   }`}
                 >
                   {emoji}

@@ -35,18 +35,15 @@ export function StatCard({
   return (
     <div
       className={cn(
-        "flex flex-col justify-between w-full h-[132px] rounded-[10px] border border-[#EDEDED] bg-white p-4 transition-all duration-200 hover:shadow-md",
+        "flex flex-col justify-between w-full h-33 rounded-xl border border-dash bg-white p-4 transition-all duration-200 shadow-xs hover:shadow-md",
         className
       )}
-      style={{
-        boxShadow: "0px 1px 2px 0px rgba(13, 13, 18, 0.05)",
-      }}
     >
       {/* Top Section: Icon + Label */}
       <div className="flex items-center gap-2">
         {icon && (
           <span
-            className="flex h-6 w-6 shrink-0 items-center justify-center text-primary-300 rounded-[6px] bg-[#F5F5F5] text-primary-text-500 [&>svg]:w-4 [&>svg]:h-4"
+            className="flex h-6 w-6 shrink-0 items-center justify-center text-primary-300 rounded-md bg-gray-bg text-primary-text-500 [&>svg]:w-4 [&>svg]:h-4"
             style={
               iconColor
                 ? { backgroundColor: `${iconColor}1A`, color: iconColor }

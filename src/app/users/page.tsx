@@ -8,12 +8,12 @@ import { ToneBadge } from "@/components/ui/ToneBadge";
 
 function UsersTableSkeleton() {
   return (
-    <div className="rounded-[12px] border border-dash bg-white p-5 space-y-4 animate-pulse">
+    <div className="rounded-xl border border-dash bg-white p-5 space-y-4 animate-pulse">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="h-10 w-96 bg-slate-100 rounded-lg" />
         <div className="h-10 w-full md:w-80 bg-slate-100 rounded-lg" />
       </div>
-      <div className="rounded-[10px] border border-dash overflow-hidden">
+      <div className="rounded-xl border border-dash overflow-hidden">
         <div className="bg-slate-50 border-b border-dash grid grid-cols-12 divide-x divide-dash px-3.5 py-3">
           <div className="col-span-4"><div className="h-4 w-28 bg-slate-200 rounded" /></div>
           <div className="col-span-2 px-3"><div className="h-4 w-16 bg-slate-200 rounded" /></div>
@@ -61,6 +61,7 @@ export default function UsersManagementPage() {
       className="space-y-6 text-left bg-white"
     >
       <PageHeader
+        breadcrumbs={[{ label: "Users" }]}
         title="User & Access Directory"
         description="Oversee student enrollments, instructor credentials, and administrative authority."
         badge={<ToneBadge tone="navy">RBAC Enforced</ToneBadge>}

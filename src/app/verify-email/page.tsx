@@ -237,7 +237,7 @@ function VerifyEmailFormContent() {
                     ? `/reset-password?token=${encodeURIComponent(verifiedResetToken || fullCode)}&email=${encodeURIComponent(email)}`
                     : "/"
                 }
-                className="inline-flex items-center justify-center gap-2 w-full h-[50px] rounded-xl bg-brand-orange bg-brand-orange:hover text-white body-medium font-semibold shadow-md edupro-glow-btn transition-all cursor-pointer"
+                className="inline-flex items-center justify-center gap-2 w-full h-12.5 rounded-xl bg-brand-orange bg-brand-orange:hover text-white body-medium font-semibold shadow-md edupro-glow-btn transition-all cursor-pointer"
               >
                 <span>{isResetMode ? "Set New Password Now" : "Enter Dashboard"}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -297,7 +297,7 @@ export default function VerifyEmailPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen w-full bg-[#EAEFF6] flex items-center justify-center p-4">
+        <div className="min-h-screen w-full bg-gray-bg flex items-center justify-center p-4">
           <div className="w-8 h-8 border-3 border-brand-orange border-t-transparent rounded-full animate-spin" />
         </div>
       }

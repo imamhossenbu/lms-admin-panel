@@ -39,11 +39,11 @@ export function RevenueChart() {
       action={
         <div className="flex items-center gap-2">
           {/* Metric Selector Pills */}
-          <div className="inline-flex items-center p-1 bg-slate-100 rounded-[8px] border border-dash">
+          <div className="inline-flex items-center p-1 bg-slate-100 rounded-lg border border-dash">
             <button
               type="button"
               onClick={() => setMetric("revenue")}
-              className={`px-3 py-1 body-xsm-medium rounded-[6px] transition-all flex items-center gap-1.5 cursor-pointer ${
+              className={`px-3 py-1 body-xsm-medium rounded-md transition-all flex items-center gap-1.5 cursor-pointer ${
                 metric === "revenue"
                   ? "bg-white text-brand-orange shadow-2xs border border-dash font-semibold"
                   : "text-primary-400 hover:text-primary-500"
@@ -55,7 +55,7 @@ export function RevenueChart() {
             <button
               type="button"
               onClick={() => setMetric("enrollments")}
-              className={`px-3 py-1 body-xsm-medium rounded-[6px] transition-all flex items-center gap-1.5 cursor-pointer ${
+              className={`px-3 py-1 body-xsm-medium rounded-md transition-all flex items-center gap-1.5 cursor-pointer ${
                 metric === "enrollments"
                   ? "bg-white text-brand-orange shadow-2xs border border-dash font-semibold"
                   : "text-primary-400 hover:text-primary-500"
@@ -69,7 +69,7 @@ export function RevenueChart() {
       }
     >
       {/* Metric Quick Stats Ribbon */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pb-3 mb-2 border-b border-[#F0F0F0] text-left">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pb-3 mb-2 border-b border-dash text-left">
         <div className="space-y-0.5">
           <span className="body-xsm-regular subtext-500 uppercase tracking-wider font-semibold">
             Total 10M Volume
@@ -90,7 +90,7 @@ export function RevenueChart() {
           <span className="body-xsm-regular subtext-500 uppercase tracking-wider font-semibold">
             Oct Peak Run-Rate
           </span>
-          <p className="title-medium text-[#0dc34a] font-bold flex items-center gap-1">
+          <p className="title-medium text-green font-bold flex items-center gap-1">
             <TrendingUp className="w-4 h-4" />
             +33.2% vs Sep
           </p>
@@ -105,27 +105,27 @@ export function RevenueChart() {
           >
             <defs>
               <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#FF5B00" stopOpacity={0.35} />
-                <stop offset="95%" stopColor="#FF5B00" stopOpacity={0.0} />
+                <stop offset="5%" stopColor="var(--color-brand-orange)" stopOpacity={0.35} />
+                <stop offset="95%" stopColor="var(--color-brand-orange)" stopOpacity={0.0} />
               </linearGradient>
               <linearGradient id="enrollmentGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#0D9488" stopOpacity={0.35} />
-                <stop offset="95%" stopColor="#0D9488" stopOpacity={0.0} />
+                <stop offset="5%" stopColor="var(--color-green)" stopOpacity={0.35} />
+                <stop offset="95%" stopColor="var(--color-green)" stopOpacity={0.0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--dash-border)" />
             <XAxis
               dataKey="month"
-              stroke="#64748B"
+              stroke="var(--color-primary-300)"
               fontSize={12}
               tickLine={false}
-              tick={{ fill: "#64748B", fontWeight: 500 }}
+              tick={{ fill: "var(--color-primary-300)", fontWeight: 500 }}
             />
             <YAxis
-              stroke="#64748B"
+              stroke="var(--color-primary-300)"
               fontSize={12}
               tickLine={false}
-              tick={{ fill: "#64748B", fontWeight: 500 }}
+              tick={{ fill: "var(--color-primary-300)", fontWeight: 500 }}
               tickFormatter={(v) =>
                 metric === "revenue" ? `$${v >= 1000 ? `${v / 1000}k` : v}` : v
               }
@@ -135,13 +135,13 @@ export function RevenueChart() {
                 if (active && payload && payload.length) {
                   const data = payload[0].payload;
                   return (
-                    <div className="bg-[#0B0F19] border border-[#1E293B] rounded-xl p-3 shadow-xl text-left text-white space-y-1">
+                    <div className="bg-brand-navy border border-slate-800 rounded-xl p-3 shadow-xl text-left text-white space-y-1">
                       <p className="body-xsm-medium text-amber-200 uppercase tracking-wider">
                         {label} 2026 Telemetry
                       </p>
                       <div className="flex items-center justify-between gap-4 body-sm-medium text-white">
                         <span>Revenue:</span>
-                        <span className="text-[#FF7A29] font-bold">
+                        <span className="text-brand-accent font-bold">
                           ${data.revenue.toLocaleString()}
                         </span>
                       </div>
@@ -161,7 +161,7 @@ export function RevenueChart() {
               <Area
                 type="monotone"
                 dataKey="revenue"
-                stroke="#FF5B00"
+                stroke="var(--color-brand-orange)"
                 strokeWidth={3}
                 fillOpacity={1}
                 fill="url(#revenueGrad)"
@@ -170,7 +170,7 @@ export function RevenueChart() {
               <Area
                 type="monotone"
                 dataKey="enrollments"
-                stroke="#0D9488"
+                stroke="var(--color-green)"
                 strokeWidth={3}
                 fillOpacity={1}
                 fill="url(#enrollmentGrad)"

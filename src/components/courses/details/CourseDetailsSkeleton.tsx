@@ -15,7 +15,7 @@ export function CourseSyllabusTabSkeleton() {
   return (
     <div className="space-y-4 text-left">
       {/* Syllabus Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-[10px] bg-[#F8F9FA] border border-[#EDEDED]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-gray-bg border border-dash">
         <div className="space-y-1">
           <div className="h-5 w-44 bg-slate-200 rounded-md" />
           <div className="h-3.5 w-36 bg-slate-100 rounded" />
@@ -26,7 +26,7 @@ export function CourseSyllabusTabSkeleton() {
       {/* 3 Module Accordions */}
       <div className="space-y-3">
         {/* Module 1: Expanded with lessons */}
-        <div className="rounded-[12px] border border-[#EDEDED] bg-white overflow-hidden shadow-2xs">
+        <div className="rounded-xl border border-dash bg-white overflow-hidden shadow-2xs">
           <div className="p-4 bg-slate-50/80 border-b border-dash flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-slate-200 flex items-center justify-center font-bold text-xs" />
@@ -59,7 +59,7 @@ export function CourseSyllabusTabSkeleton() {
         </div>
 
         {/* Module 2: Collapsed */}
-        <div className="rounded-[12px] border border-[#EDEDED] bg-white p-4 flex items-center justify-between shadow-2xs">
+        <div className="rounded-xl border border-dash bg-white p-4 flex items-center justify-between shadow-2xs">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-slate-200" />
             <div className="space-y-1">
@@ -71,7 +71,7 @@ export function CourseSyllabusTabSkeleton() {
         </div>
 
         {/* Module 3: Collapsed */}
-        <div className="rounded-[12px] border border-[#EDEDED] bg-white p-4 flex items-center justify-between shadow-2xs">
+        <div className="rounded-xl border border-dash bg-white p-4 flex items-center justify-between shadow-2xs">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-slate-200" />
             <div className="space-y-1">
@@ -93,7 +93,7 @@ export function CourseOutcomesTabSkeleton() {
   return (
     <div className="space-y-5 text-left">
       {/* What You'll Learn Box */}
-      <div className="p-5 rounded-[12px] bg-[#F8F9FA] border border-[#EDEDED] space-y-4">
+      <div className="p-5 rounded-xl bg-gray-bg border border-dash space-y-4">
         <div className="flex items-center gap-2">
           <div className="w-5 h-5 rounded-md bg-slate-200" />
           <div className="h-5 w-48 bg-slate-200 rounded" />
@@ -112,7 +112,7 @@ export function CourseOutcomesTabSkeleton() {
       </div>
 
       {/* Prerequisites Box */}
-      <div className="p-5 rounded-[12px] bg-white border border-[#EDEDED] space-y-4">
+      <div className="p-5 rounded-xl bg-white border border-dash space-y-4">
         <div className="flex items-center gap-2">
           <div className="w-5 h-5 rounded-md bg-slate-200" />
           <div className="h-5 w-44 bg-slate-200 rounded" />
@@ -139,7 +139,7 @@ export function CourseLearnersTabSkeleton() {
       {/* 3 Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {[1, 2, 3].map((m) => (
-          <div key={m} className="p-3.5 rounded-[10px] bg-[#F8F9FA] border border-[#EDEDED] space-y-1.5">
+          <div key={m} className="p-3.5 rounded-xl bg-gray-bg border border-dash space-y-1.5">
             <div className="h-3.5 w-24 bg-slate-100 rounded" />
             <div className="h-6 w-20 bg-slate-200 rounded" />
           </div>
@@ -147,7 +147,7 @@ export function CourseLearnersTabSkeleton() {
       </div>
 
       {/* Learners Table with Column Dividers */}
-      <div className="rounded-[12px] border border-dash bg-white overflow-hidden shadow-2xs">
+      <div className="rounded-xl border border-dash bg-white overflow-hidden shadow-2xs">
         <div className="bg-slate-50 border-b border-dash grid grid-cols-12 divide-x divide-dash px-4 py-3 text-left">
           <div className="col-span-4 pr-3"><div className="h-3.5 w-28 bg-slate-200 rounded" /></div>
           <div className="col-span-3 px-3"><div className="h-3.5 w-24 bg-slate-200 rounded" /></div>
@@ -207,7 +207,7 @@ export function CourseDetailsSkeleton({ activeTab = "syllabus" }: CourseDetailsS
       </div>
 
       {/* 2. Course Hero Banner Skeleton */}
-      <div className="rounded-[14px] overflow-hidden border border-[#EDEDED] bg-slate-900 text-white p-6 shadow-2xs">
+      <div className="rounded-xl overflow-hidden border border-dash bg-slate-900 text-white p-6 shadow-2xs">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
           {/* Banner Thumbnail Box (5 cols) */}
           <div className="md:col-span-5 h-48 md:h-56 rounded-xl bg-slate-800 border border-slate-700/60 flex items-center justify-center" />

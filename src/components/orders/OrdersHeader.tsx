@@ -4,6 +4,7 @@ import React from "react";
 import { ChevronDown, FileSpreadsheet, FileJson, Plus } from "lucide-react";
 import { AppDropdownMenu } from "@/components/ui/AppDropdownMenu";
 import { PrimaryButton } from "@/components/ui/primary-button";
+import { Breadcrumb } from "@/components/ui/Breadcrumb";
 
 interface OrdersHeaderProps {
   onExportCsv: () => void;
@@ -15,6 +16,7 @@ export function OrdersHeader({ onExportCsv, onExportJson, onCreateOrder }: Order
   return (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-left">
       <div>
+        <Breadcrumb items={[{ label: "Orders" }]} className="mb-1.5" />
         <h1 className="heading-h3 font-bold text-primary-500 tracking-tight">Orders</h1>
         <p className="body-sm-regular text-primary-400 mt-1">View and manage all course purchases and orders.</p>
       </div>

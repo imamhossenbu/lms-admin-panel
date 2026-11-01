@@ -129,7 +129,7 @@ function EditCategoryContent() {
       <div className="flex items-center justify-between">
         <Link
           href="/categories"
-          className="inline-flex items-center gap-2 text-sm text-primary-400 hover:text-[#1C4D8D] font-medium transition-colors"
+          className="inline-flex items-center gap-2 text-sm text-primary-400 hover:text-blue font-medium transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Categories Hub</span>
@@ -138,12 +138,13 @@ function EditCategoryContent() {
       </div>
 
       <PageHeader
+        breadcrumbs={[{ label: "Categories", href: "/categories" }, { label: "Edit Category" }]}
         title={`Edit Category: ${name}`}
         description="Update category title, visual badge icon, and visibility status across the catalog."
       />
 
       {/* Main Form Card */}
-      <form onSubmit={handleSubmit} className="p-6 rounded-[12px] bg-white border border-[#EDEDED] shadow-2xs space-y-6">
+      <form onSubmit={handleSubmit} className="p-6 rounded-xl bg-white border border-dash shadow-2xs space-y-6">
         {/* Name and Slug */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <InputField
@@ -178,7 +179,7 @@ function EditCategoryContent() {
             <label className="block body-sm-regular text-primary-400 mb-2 select-none">
               Active Icon / Badge Preview
             </label>
-            <div className="flex items-center gap-3 h-[40px] px-3 rounded-[8px] border border-[#EDEDED] bg-[#F8F9FA]">
+            <div className="flex items-center gap-3 h-10 px-3 rounded-lg border border-dash bg-gray-bg">
               <CategoryIcon icon={icon} className="w-6 h-6 text-lg" />
               <span className="body-sm-medium text-primary-500 font-semibold truncate">
                 {icon.startsWith("http") ? "Custom Cloudinary Graphic" : `Emoji Symbol: ${icon}`}
@@ -192,13 +193,13 @@ function EditCategoryContent() {
           <label className="block body-sm-regular text-primary-400 select-none">
             Update Emoji or Upload Custom Graphic
           </label>
-          <div className="flex flex-wrap gap-2 p-3 rounded-[8px] bg-[#F8F9FA] border border-[#EDEDED]">
+          <div className="flex flex-wrap gap-2 p-3 rounded-lg bg-gray-bg border border-dash">
             {EMOJI_OPTIONS.map((em) => (
               <button
                 key={em}
                 type="button"
                 onClick={() => setIcon(em)}
-                className={`w-9 h-9 text-lg rounded-[6px] flex items-center justify-center transition-transform hover:scale-110 cursor-pointer ${
+                className={`w-9 h-9 text-lg rounded-md flex items-center justify-center transition-transform hover:scale-110 cursor-pointer ${
                   icon === em
                     ? "bg-brand-orange text-white shadow-sm ring-2 ring-brand-orange/30"
                     : "bg-white hover:bg-slate-100 border border-gray-200"
@@ -219,7 +220,7 @@ function EditCategoryContent() {
               type="button"
               onClick={() => iconInputRef.current?.click()}
               disabled={isUploadingIcon}
-              className="h-9 px-3 rounded-[6px] bg-white border border-[#EDEDED] hover:border-brand-orange text-brand-orange text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 ml-auto"
+              className="h-9 px-3 rounded-md bg-white border border-dash hover:border-brand-orange text-brand-orange text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 ml-auto"
             >
               {isUploadingIcon ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -241,12 +242,12 @@ function EditCategoryContent() {
             value={desc}
             onChange={(e) => setDesc(e.target.value)}
             placeholder="Describe what courses belong to this category and the core competencies learners will achieve..."
-            className="w-full px-3.5 py-2.5 rounded-[8px] border border-[#EDEDED] bg-white body-sm-regular text-primary-500 placeholder:text-gray-400 focus:outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange transition-all resize-y"
+            className="w-full px-3.5 py-2.5 rounded-lg border border-dash bg-white body-sm-regular text-primary-500 placeholder:text-gray-400 focus:outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange transition-all resize-y"
           />
         </div>
 
         {/* Action Buttons */}
-        <div className="pt-4 border-t border-[#EDEDED] flex items-center justify-end gap-3">
+        <div className="pt-4 border-t border-dash flex items-center justify-end gap-3">
           <SecondaryButton
             type="button"
             onClick={() => router.push("/categories")}

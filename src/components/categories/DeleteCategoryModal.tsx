@@ -60,7 +60,7 @@ export function DeleteCategoryModal({
       }
     >
       <div className="space-y-3 text-left">
-        <div className="p-3 rounded-[10px] bg-rose-50 border border-rose-200/60 flex items-start gap-3">
+        <div className="p-3 rounded-xl bg-rose-50 border border-rose-200/60 flex items-start gap-3">
           <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
           <div className="text-rose-900 body-sm-regular">
             <span className="font-semibold block mb-0.5">Warning: Destructive Action</span>

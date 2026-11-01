@@ -54,7 +54,7 @@ const orderSeq = (order: OrderItem) => order.orderNumber.replace(/\D/g, "");
 /** Payment transaction id shown in the UI, e.g. "TXN-001248". */
 export const transactionCode = (order: OrderItem) => `TXN-${orderSeq(order)}`;
 
-/** Short gateway hash under the transaction id, e.g. "#8f3e2c7a". */
+/** Short gateway hash under the transaction id, e.g. `#8f3e2c7a`. */
 export const transactionHash = (order: OrderItem) => {
   const source = order.transactionId || order.reference;
   const hash = Array.from(source).reduce((acc, ch) => (acc * 33 + ch.charCodeAt(0)) >>> 0, 5381);

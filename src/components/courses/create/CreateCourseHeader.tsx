@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { Eye, FileText, Home, Send } from "lucide-react";
+import { Eye, FileText, Send } from "lucide-react";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import PrimaryButton from "@/components/ui/primary-button";
 import SecondaryButton from "@/components/ui/secondary-button";
@@ -45,7 +45,6 @@ export function CreateCourseHeader({
     >
       <Breadcrumb
         items={[
-          { label: "", href: "/", icon: <Home className="w-4 h-4" /> },
           { label: "Courses", href: "/courses" },
           { label: breadcrumbLabel },
         ]}

@@ -2,6 +2,10 @@ import React from "react";
 import { EduProLogo } from "@/components/ui/EduProLogo";
 import { AuthFeature, AuthFeatureList } from "./AuthFeatureList";
 
+/** Alpha mask that fades the mockup image in from the left (black = fully visible). */
+const MOCKUP_FADE_MASK =
+  "linear-gradient(to right, transparent 0%, color-mix(in srgb, black 5%, transparent) 15%, color-mix(in srgb, black 50%, transparent) 38%, black 65%)";
+
 interface AuthLeftPanelProps {
   title: React.ReactNode;
   description: React.ReactNode;
@@ -22,19 +26,17 @@ export function AuthLeftPanel({
   footerTagline = "A modern LMS for a brighter future",
 }: AuthLeftPanelProps) {
   return (
-    <div className="hidden lg:flex w-full lg:w-[54%] xl:w-[55%] bg-gradient-to-b from-[#182434] via-[#141C27] to-[#121821] text-white relative flex-col justify-between overflow-hidden select-none min-h-[780px] xl:min-h-[820px]">
+    <div className="hidden lg:flex w-full lg:w-[54%] xl:w-[55%] bg-gradient-to-b from-brand-card via-brand-surface to-brand-navy text-white relative flex-col justify-between overflow-hidden select-none min-h-195 xl:min-h-205">
       {/* Ambient Lighting Behind Mockup */}
-      <div className="absolute top-[140px] right-0 w-[460px] h-[460px] rounded-full bg-brand-orange-20 blur-[120px] pointer-events-none" />
-      <div className="absolute -bottom-24 -left-20 w-[350px] h-[350px] rounded-full bg-[#1A253C]/60 blur-[90px] pointer-events-none" />
+      <div className="absolute top-35 right-0 w-115 h-115 rounded-full bg-brand-orange-20 blur-[120px] pointer-events-none" />
+      <div className="absolute -bottom-24 -left-20 w-87.5 h-87.5 rounded-full bg-brand-card/60 blur-[90px] pointer-events-none" />
 
       {/* Right-Flush Large 3D Mockup Image with Gradual Soft Mask */}
       <div
         className="absolute right-0 inset-y-0 h-full w-[56%] xl:w-[60%] pointer-events-none select-none overflow-hidden z-0"
         style={{
-          WebkitMaskImage:
-            "linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.05) 15%, rgba(0, 0, 0, 0.5) 38%, black 65%)",
-          maskImage:
-            "linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.05) 15%, rgba(0, 0, 0, 0.5) 38%, black 65%)",
+          WebkitMaskImage: MOCKUP_FADE_MASK,
+          maskImage: MOCKUP_FADE_MASK,
         }}
       >
         <img
@@ -51,7 +53,7 @@ export function AuthLeftPanel({
       </div>
 
       {/* Main Content Area */}
-      <div className="relative z-10 my-auto p-7 sm:p-10 lg:pl-12 xl:pl-14 lg:pr-4 xl:pr-4 py-6 max-w-full lg:max-w-[400px] xl:max-w-[450px]">
+      <div className="relative z-10 my-auto p-7 sm:p-10 lg:pl-12 xl:pl-14 lg:pr-4 xl:pr-4 py-6 max-w-full lg:max-w-100 xl:max-w-112.5">
         {/* Hero Title */}
         <div className="space-y-3">
           <h1 className="heading-display-h1 text-white tracking-tight leading-[1.12]">
@@ -68,7 +70,7 @@ export function AuthLeftPanel({
 
       {/* Bottom Footnote */}
       <div className="relative z-10 p-7 sm:p-10 lg:pl-12 xl:pl-14 lg:pb-12 xl:pb-14 pt-0 flex items-center gap-2 body-xsm-regular text-slate-400">
-        <span className="w-4 h-[2px] bg-brand-orange rounded-full inline-block" />
+        <span className="w-4 h-0.5 bg-brand-orange rounded-full inline-block" />
         <span>{footerTagline}</span>
       </div>
     </div>

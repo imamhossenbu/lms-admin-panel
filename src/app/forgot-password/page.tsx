@@ -4,16 +4,12 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
   Mail,
-  ArrowLeft,
-  ArrowRight,
   ShieldCheck,
   Zap,
-  Check,
 } from "lucide-react";
 
 import { AuthCardContainer } from "@/components/auth/AuthCardContainer";
@@ -171,9 +167,9 @@ export default function ForgotPasswordPage() {
                 autoComplete="email"
                 placeholder="Enter your email address"
                 {...register("email")}
-                className={`w-full h-[52px] sm:h-[54px] pl-12 pr-4 rounded-xl border bg-white body-regular text-primary-500 placeholder:text-primary-300 focus:outline-none transition-all ${
+                className={`w-full h-13 sm:h-13.5 pl-12 pr-4 rounded-xl border bg-white body-regular text-primary-500 placeholder:text-primary-300 focus:outline-none transition-all ${
                   errors.email
-                    ? "border-[#df1c41] focus:border-[#df1c41] focus:ring-4 focus:ring-[#df1c41]/10 bg-[#df1c4114]"
+                    ? "border-red/100 focus:border-red focus:ring-4 focus:ring-red/10 bg-red-14"
                     : "border-dash focus:border-brand-orange focus:ring-4 focus:ring-brand-orange/10"
                 }`}
               />

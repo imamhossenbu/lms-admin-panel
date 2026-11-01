@@ -17,9 +17,9 @@ export function RecentActivityTimelineCard({
     switch (type) {
       case "lesson":
         return {
-          icon: <BookOpen className="w-3.5 h-3.5 text-[#10B981]" />,
-          dotBg: "bg-[#10B981]",
-          iconBg: "bg-[#ECFDF5]",
+          icon: <BookOpen className="w-3.5 h-3.5 text-green" />,
+          dotBg: "bg-green",
+          iconBg: "bg-green-bg",
         };
       case "quiz":
         return {
@@ -29,16 +29,16 @@ export function RecentActivityTimelineCard({
         };
       case "assignment":
         return {
-          icon: <FileText className="w-3.5 h-3.5 text-[#F97316]" />,
-          dotBg: "bg-[#F97316]",
-          iconBg: "bg-[#FFF4ED]",
+          icon: <FileText className="w-3.5 h-3.5 text-brand-orange" />,
+          dotBg: "bg-brand-orange",
+          iconBg: "bg-brand-orange-light",
         };
       case "enroll":
       default:
         return {
-          icon: <Bookmark className="w-3.5 h-3.5 text-[#9333EA]" />,
-          dotBg: "bg-[#9333EA]",
-          iconBg: "bg-[#FAF5FF]",
+          icon: <Bookmark className="w-3.5 h-3.5 text-purple" />,
+          dotBg: "bg-purple",
+          iconBg: "bg-purple-14",
         };
     }
   };
@@ -68,7 +68,7 @@ export function RecentActivityTimelineCard({
       {/* Connected Timeline */}
       <div className="relative pl-6 space-y-6 pt-2">
         {/* Continuous vertical timeline connector line */}
-        <div className="absolute left-[9px] top-3 bottom-3 w-[2px] bg-slate-200" />
+        <div className="absolute left-2.25 top-3 bottom-3 w-0.5 bg-slate-200" />
 
         {activities.map((act) => {
           const config = getIconAndColor(act.type);
@@ -76,7 +76,7 @@ export function RecentActivityTimelineCard({
             <div key={act.id} className="relative flex items-start gap-3">
               {/* Timeline Indicator Dot */}
               <div
-                className={`absolute -left-[19px] top-1.5 w-2.5 h-2.5 rounded-full ${config.dotBg} ring-4 ring-white`}
+                className={`absolute -left-4.75 top-1.5 w-2.5 h-2.5 rounded-full ${config.dotBg} ring-4 ring-white`}
               />
 
               {/* Icon Container */}

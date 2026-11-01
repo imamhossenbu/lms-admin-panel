@@ -11,24 +11,24 @@ interface SparklineProps {
 
 const COLOR_MAP = {
   orange: {
-    stroke: "#FF5B00",
+    stroke: "var(--color-brand-orange)",
     gradientId: "spark-orange",
-    fillStop: "#FF5B00",
+    fillStop: "var(--color-brand-orange)",
   },
   blue: {
-    stroke: "#3B82F6",
+    stroke: "var(--color-blue)",
     gradientId: "spark-blue",
-    fillStop: "#3B82F6",
+    fillStop: "var(--color-blue)",
   },
   green: {
-    stroke: "#22C55E",
+    stroke: "var(--color-green)",
     gradientId: "spark-green",
-    fillStop: "#22C55E",
+    fillStop: "var(--color-green)",
   },
   purple: {
-    stroke: "#A855F7",
+    stroke: "var(--color-purple)",
     gradientId: "spark-purple",
-    fillStop: "#A855F7",
+    fillStop: "var(--color-purple)",
   },
 };
 

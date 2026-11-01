@@ -43,7 +43,7 @@ export function StudentAccountSummaryCard({
             <User className="w-4 h-4 text-primary-300 shrink-0" />
             <span className="body-sm-regular text-primary-400">Student Name</span>
           </div>
-          <span className="body-sm-medium font-semibold text-primary-500 text-right truncate max-w-[160px]">
+          <span className="body-sm-medium font-semibold text-primary-500 text-right truncate max-w-40">
             {displayName}
           </span>
         </div>
@@ -54,7 +54,7 @@ export function StudentAccountSummaryCard({
             <Mail className="w-4 h-4 text-primary-300 shrink-0" />
             <span className="body-sm-regular text-primary-400">Email</span>
           </div>
-          <span className="body-sm-medium text-primary-500 text-right truncate max-w-[180px]">
+          <span className="body-sm-medium text-primary-500 text-right truncate max-w-45">
             {displayEmail}
           </span>
         </div>

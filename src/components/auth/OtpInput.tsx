@@ -97,7 +97,7 @@ export function OtpInput({
             onKeyDown={(e) => handleKeyDown(idx, e)}
             className={`w-11 h-13 sm:w-13 sm:h-15 sm:w-14 sm:h-16 rounded-xl sm:rounded-2xl border title-bold text-center text-primary-500 bg-white placeholder:text-primary-300 transition-all focus:outline-none ${
               error
-                ? "border-[#df1c41] bg-[#df1c4114] text-red"
+                ? "border-red/100 bg-red-14 text-red"
                 : digit
                 ? "border-brand-orange/60 bg-brand-orange-light/30 shadow-2xs"
                 : "border-dash hover:border-slate-300"

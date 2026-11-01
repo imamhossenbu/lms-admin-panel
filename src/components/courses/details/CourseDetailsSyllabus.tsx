@@ -44,7 +44,7 @@ export function CourseDetailsSyllabus({
   const getLessonIcon = (type?: string) => {
     switch (type) {
       case "VIDEO":
-        return <PlayCircle className="w-4 h-4 text-[#1C4D8D]" />;
+        return <PlayCircle className="w-4 h-4 text-blue" />;
       case "QUIZ":
         return <HelpCircle className="w-4 h-4 text-purple-600" />;
       default:
@@ -55,7 +55,7 @@ export function CourseDetailsSyllabus({
   return (
     <div className="space-y-4 text-left">
       {/* Syllabus Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-[10px] bg-[#F8F9FA] border border-[#EDEDED]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-gray-bg border border-dash">
         <div>
           <h3 className="body-medium text-primary-500 font-bold">
             Curriculum & Instructional Syllabus
@@ -75,7 +75,7 @@ export function CourseDetailsSyllabus({
       {/* Accordion List of Modules */}
       <div className="space-y-3">
         {displayModules.length === 0 ? (
-          <div className="py-12 text-center rounded-[10px] border border-dashed border-[#EDEDED] bg-white space-y-2">
+          <div className="py-12 text-center rounded-xl border border-dashed border-dash bg-white space-y-2">
             <div className="w-10 h-10 rounded-full bg-slate-50 text-slate-400 flex items-center justify-center mx-auto">
               <BookOpen className="w-5 h-5" />
             </div>
@@ -92,15 +92,15 @@ export function CourseDetailsSyllabus({
             return (
               <div
                 key={module.id}
-                className="rounded-[10px] border border-[#EDEDED] bg-white overflow-hidden shadow-2xs group"
+                className="rounded-xl border border-dash bg-white overflow-hidden shadow-2xs group"
               >
                 {/* Module Header Bar */}
                 <div
                   onClick={() => toggleModule(module.id)}
-                  className="w-full px-4 py-3 bg-[#F8F9FA] hover:bg-[#F3F4F6] transition-colors flex items-center justify-between text-left cursor-pointer select-none"
+                  className="w-full px-4 py-3 bg-gray-bg hover:bg-slate-200/60 transition-colors flex items-center justify-between text-left cursor-pointer select-none"
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <span className="w-6 h-6 rounded-md bg-[#EBF4FC] text-[#1C4D8D] font-bold text-xs flex items-center justify-center shrink-0">
+                    <span className="w-6 h-6 rounded-md bg-blue-14 text-blue font-bold text-xs flex items-center justify-center shrink-0">
                       {mIdx + 1}
                     </span>
                     <div className="min-w-0">
@@ -131,7 +131,7 @@ export function CourseDetailsSyllabus({
 
                 {/* Lesson Items inside Module */}
                 {isExpanded && (
-                  <div className="divide-y divide-[#EDEDED] px-4 py-1">
+                  <div className="divide-y divide-dash px-4 py-1">
                     {(module.lessons || []).length === 0 ? (
                       <div className="py-4 text-center text-primary-400 body-xsm-regular">
                         <span>No lessons added to this module yet.</span>
@@ -157,7 +157,7 @@ export function CourseDetailsSyllabus({
 
                             <div className="flex items-center gap-2 shrink-0">
                               {lesson.isPreview && (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded body-2xsm-regular font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                                   <Eye className="w-3 h-3" />
                                   <span>Free Preview</span>
                                 </span>
@@ -186,7 +186,7 @@ export function CourseDetailsSyllabus({
                                   href={lesson.videoUrl}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-1 text-[11px] text-[#1C4D8D] font-medium hover:underline ml-1"
+                                  className="inline-flex items-center gap-1 body-2xsm-regular text-blue font-medium hover:underline ml-1"
                                   title="Open lecture stream in new tab"
                                 >
                                   <ExternalLink className="w-3 h-3" />
@@ -202,7 +202,7 @@ export function CourseDetailsSyllabus({
                                       selectedLessonContent === lesson.id ? null : lesson.id
                                     )
                                   }
-                                  className="text-[11px] text-slate-500 hover:text-slate-900 border border-slate-200 px-2 py-0.5 rounded cursor-pointer transition-colors"
+                                  className="body-2xsm-regular text-slate-500 hover:text-slate-900 border border-slate-200 px-2 py-0.5 rounded cursor-pointer transition-colors"
                                 >
                                   {selectedLessonContent === lesson.id ? "Hide Notes" : "View Notes"}
                                 </button>

@@ -21,7 +21,7 @@ function StatusBadge({ status }: { status: OrderStatus }) {
   }
   if (status === "Pending") {
     return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-md body-2xsm-regular bg-[#FFF4ED] text-[#FF5B00] font-semibold">
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-md body-2xsm-regular bg-brand-orange-light text-brand-orange font-semibold">
         Pending
       </span>
     );
@@ -58,7 +58,7 @@ const columns: ColumnDef<DashboardOrder>[] = [
             unoptimized
           />
         </div>
-        <span className="body-sm-medium text-primary-500 font-medium truncate max-w-[105px]">
+        <span className="body-sm-medium text-primary-500 font-medium truncate max-w-26.25">
           {row.student.name}
         </span>
       </div>
@@ -68,7 +68,7 @@ const columns: ColumnDef<DashboardOrder>[] = [
     key: "course",
     header: "Course",
     render: (row) => (
-      <span className="body-sm-regular text-primary-400 truncate max-w-[120px] block">
+      <span className="body-sm-regular text-primary-400 truncate max-w-30 block">
         {row.course}
       </span>
     ),
@@ -103,7 +103,7 @@ export function RecentOrdersTable({ orders }: RecentOrdersTableProps) {
     orders && orders.length > 0 ? orders : MOCK_DASHBOARD_DATA.recentOrders;
 
   return (
-    <div className="bg-white rounded-xl border border-dash shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden flex flex-col justify-between">
+    <div className="bg-white rounded-xl border border-dash shadow-xs overflow-hidden flex flex-col justify-between">
       {/* Header */}
       <div className="px-4 py-3 flex items-center justify-between">
         <h3 className="heading-h6 font-bold text-primary-500 text-sm">

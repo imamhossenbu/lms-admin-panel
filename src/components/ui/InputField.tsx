@@ -33,23 +33,20 @@ export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
             className="block body-sm-regular text-primary-400 mb-2 select-none"
           >
             {label}
-            {required && <span className="text-[#F04438] ml-0.5">*</span>}
+            {required && <span className="text-red ml-0.5">*</span>}
           </label>
         )}
         <div className="relative">
           <input
             ref={ref}
             id={id}
-            className={`h-[40px] w-full rounded-[8px] border body-sm-regular text-primary-500 outline-none transition-all placeholder:text-[#969696] focus:border-[#FF5B00] focus:bg-white ${
+            className={`h-10 w-full rounded-lg border body-sm-regular text-primary-500 outline-none transition-all placeholder:text-primary-300 focus:border-brand-orange focus:bg-white ${
               error
-                ? "border-[#d92d20] bg-[#fef3f2]"
-                : "border-[#EDEDED] bg-white"
+                ? "border-red/100 bg-red-14"
+                : "border-dash bg-white"
             } ${leftElement ? "pl-10" : "pl-3.5"} ${
               rightElement ? "pr-10" : "pr-3.5"
-            } py-2 ${className}`}
-            style={{
-              boxShadow: "0px 1px 2px 0px rgba(13, 13, 18, 0.06)",
-            }}
+            } py-2 shadow-xs ${className}`}
             {...props}
           />
           {leftElement && (
@@ -64,7 +61,7 @@ export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
           )}
         </div>
         {error && (
-          <p className="mt-1.5 text-[12.5px] text-[#d92d20]">{error}</p>
+          <p className="mt-1.5 body-xsm-regular text-red">{error}</p>
         )}
       </div>
     );
