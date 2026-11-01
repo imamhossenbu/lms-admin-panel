@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { Eye, FileText, Home } from "lucide-react";
+import { Eye, FileText, Home, Send } from "lucide-react";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import PrimaryButton from "@/components/ui/primary-button";
 import SecondaryButton from "@/components/ui/secondary-button";
@@ -12,9 +12,12 @@ interface CreateCourseHeaderProps {
   disabled: boolean;
   onSaveDraft: () => void;
   onPreview: () => void;
+  /** On the Review step the primary action becomes "Publish Course". */
+  onPublish?: () => void;
+  isPublishing?: boolean;
 }
 
-export function CreateCourseHeader({ isSavingDraft, disabled, onSaveDraft, onPreview }: CreateCourseHeaderProps) {
+export function CreateCourseHeader({ isSavingDraft, disabled, onSaveDraft, onPreview, onPublish, isPublishing = false }: CreateCourseHeaderProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: -6 }}
@@ -47,9 +50,21 @@ export function CreateCourseHeader({ isSavingDraft, disabled, onSaveDraft, onPre
           >
             {isSavingDraft ? "Saving..." : "Save as Draft"}
           </SecondaryButton>
-          <PrimaryButton leftIcon={<Eye />} onClick={onPreview} className="edupro-glow-btn">
-            Preview Course
-          </PrimaryButton>
+          {onPublish ? (
+            <PrimaryButton
+              leftIcon={<Send />}
+              onClick={onPublish}
+              isLoading={isPublishing}
+              disabled={disabled}
+              className="edupro-glow-btn"
+            >
+              {isPublishing ? "Publishing..." : "Publish Course"}
+            </PrimaryButton>
+          ) : (
+            <PrimaryButton leftIcon={<Eye />} onClick={onPreview} className="edupro-glow-btn">
+              Preview Course
+            </PrimaryButton>
+          )}
         </div>
       </div>
     </motion.div>

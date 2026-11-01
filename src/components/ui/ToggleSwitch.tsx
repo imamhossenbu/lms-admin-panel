@@ -11,9 +11,11 @@ export interface ToggleSwitchProps {
   id?: string;
   disabled?: boolean;
   className?: string;
+  /** Track colour when on. */
+  tone?: "blue" | "orange";
 }
 
-export function ToggleSwitch({ checked, onChange, label, id, disabled, className }: ToggleSwitchProps) {
+export function ToggleSwitch({ checked, onChange, label, id, disabled, className, tone = "blue" }: ToggleSwitchProps) {
   return (
     <label htmlFor={id} className={cn("inline-flex items-center gap-3 cursor-pointer select-none", disabled && "opacity-50 cursor-not-allowed", className)}>
       <button
@@ -25,7 +27,7 @@ export function ToggleSwitch({ checked, onChange, label, id, disabled, className
         onClick={() => onChange(!checked)}
         className={cn(
           "relative w-11 h-6 rounded-full transition-colors shrink-0 cursor-pointer disabled:cursor-not-allowed",
-          checked ? "bg-blue" : "bg-slate-200"
+          checked ? (tone === "orange" ? "bg-brand-orange" : "bg-blue") : "bg-slate-200"
         )}
       >
         <motion.span

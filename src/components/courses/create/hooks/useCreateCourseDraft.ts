@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { UseFormReturn } from "react-hook-form";
 import type { CourseBasicInfoInput } from "@/validations/courseSchema";
+import { EMPTY_COURSE_PUBLISH, type CoursePublishInput } from "@/validations/coursePublishSchema";
 import type { AiOutline } from "../aiOutline";
 
 const STORAGE_KEY = "edupro_create_course_draft";
@@ -10,6 +11,7 @@ const STORAGE_KEY = "edupro_create_course_draft";
 interface StoredDraft {
   values: CourseBasicInfoInput;
   curriculum: AiOutline | null;
+  publish?: CoursePublishInput;
 }
 
 const readDraft = (): StoredDraft | null => {
@@ -30,11 +32,12 @@ export const clearCreateCourseDraft = () => {
 };
 
 /**
- * Keeps the in-progress course (basic info + curriculum) in sessionStorage so a reload on
- * any step restores it. Returns `isRestored` once the stored draft (if any) has been applied.
+ * Keeps the in-progress course (basic info + curriculum + pricing/settings) in sessionStorage so a
+ * reload on any step restores it. Returns `isRestored` once the stored draft (if any) has been applied.
  */
 export function useCreateCourseDraft(
   form: UseFormReturn<CourseBasicInfoInput>,
+  publishForm: UseFormReturn<CoursePublishInput>,
   curriculum: AiOutline | null,
   setCurriculum: (outline: AiOutline | null) => void,
   enabled: boolean
@@ -50,22 +53,33 @@ export function useCreateCourseDraft(
     if (draft) {
       form.reset(draft.values, { keepDefaultValues: true });
       if (draft.curriculum) setCurriculum(draft.curriculum);
+      if (draft.publish) {
+        publishForm.reset(
+          { ...EMPTY_COURSE_PUBLISH, ...draft.publish, features: { ...EMPTY_COURSE_PUBLISH.features, ...draft.publish.features } },
+          { keepDefaultValues: true }
+        );
+      }
     }
     setIsRestored(true);
-  }, [enabled, form, setCurriculum]);
+  }, [enabled, form, publishForm, setCurriculum]);
 
-  // Persist on every change (form values + curriculum).
+  // Persist on every change (form values + curriculum + pricing/settings).
   useEffect(() => {
     if (!isRestored) return;
-    const persist = (values: Partial<CourseBasicInfoInput>) => {
+    const persist = () => {
       try {
-        sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ values: { ...form.getValues(), ...values }, curriculum }));
+        const draft: StoredDraft = { values: form.getValues(), curriculum, publish: publishForm.getValues() };
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
       } catch {}
     };
-    persist(form.getValues());
-    const subscription = form.watch((values) => persist(values as Partial<CourseBasicInfoInput>));
-    return () => subscription.unsubscribe();
-  }, [isRestored, form, curriculum]);
+    persist();
+    const a = form.watch(persist);
+    const b = publishForm.watch(persist);
+    return () => {
+      a.unsubscribe();
+      b.unsubscribe();
+    };
+  }, [isRestored, form, publishForm, curriculum]);
 
   return { isRestored };
 }

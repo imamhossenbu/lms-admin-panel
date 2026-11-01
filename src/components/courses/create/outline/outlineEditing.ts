@@ -57,7 +57,23 @@ export const updateLesson = (outline: AiOutline, moduleId: string, lessonId: str
     lessons: m.lessons.map((l) => (l.id === lessonId ? toLesson(lessonId, values) : l)),
   }));
 
-export const removeLesson = (outline: AiOutline, moduleId: string, lessonId: string): AiOutline =>
+/* Full lessons from the Add / Edit Lesson modal (keep `details`: content, video, resources, settings). */
+
+export const addFullLesson = (outline: AiOutline, moduleId: string, lesson: Omit<AiOutlineLesson, "id">): AiOutline =>
+  mapModule(outline, moduleId, (m) => ({ ...m, lessons: [...m.lessons, { ...lesson, id: newOutlineId("l") }] }));
+
+export const replaceLesson = (
+  outline: AiOutline,
+  moduleId: string,
+  lessonId: string,
+  lesson: Omit<AiOutlineLesson, "id">
+): AiOutline =>
+  mapModule(outline, moduleId, (m) => ({
+    ...m,
+    lessons: m.lessons.map((l) => (l.id === lessonId ? { ...lesson, id: lessonId } : l)),
+  }));
+
+export const removeLesson =(outline: AiOutline, moduleId: string, lessonId: string): AiOutline =>
   mapModule(outline, moduleId, (m) => ({ ...m, lessons: m.lessons.filter((l) => l.id !== lessonId) }));
 
 /** Puts a deleted lesson back at its previous position (clamped to the current list). */

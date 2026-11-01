@@ -46,7 +46,11 @@ export function duplicateModule(outline: AiOutline, moduleId: string): AiOutline
     ...source,
     id: newOutlineId("m"),
     title: withCopy(source.title),
-    lessons: source.lessons.map((l) => ({ ...l, id: newOutlineId("l") })),
+    lessons: source.lessons.map((l) => ({
+      ...l,
+      id: newOutlineId("l"),
+      details: l.details ? structuredClone(l.details) : undefined,
+    })),
   };
   const modules = [...outline.modules];
   modules.splice(index + 1, 0, copy);
@@ -61,7 +65,14 @@ export function duplicateLesson(outline: AiOutline, moduleId: string, lessonId: 
       if (m.id !== moduleId) return m;
       const index = m.lessons.findIndex((l) => l.id === lessonId);
       if (index === -1) return m;
-      const copy: AiOutlineLesson = { ...m.lessons[index], id: newOutlineId("l"), title: withCopy(m.lessons[index].title) };
+      const source = m.lessons[index];
+      const copy: AiOutlineLesson = {
+        ...source,
+        id: newOutlineId("l"),
+        title: withCopy(source.title),
+        // Deep copy so the duplicate's content / resources / settings never share references with the original.
+        details: source.details ? structuredClone(source.details) : undefined,
+      };
       const lessons = [...m.lessons];
       lessons.splice(index + 1, 0, copy);
       return { ...m, lessons };

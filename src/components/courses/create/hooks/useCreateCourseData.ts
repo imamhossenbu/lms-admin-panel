@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { categoriesApi } from "@/lib/api";
 import { apiErrorMessage } from "@/lib/courseView";
@@ -48,5 +48,10 @@ export function useCreateCourseData() {
     };
   }, []);
 
-  return { categories, instructors, isLoading };
+  /** Adds a category created inline (e.g. "+ Add New Category" on step 4) without refetching. */
+  const addCategory = useCallback((category: CategoryOption) => {
+    setCategories((prev) => (prev.some((c) => c.id === category.id) ? prev : [...prev, category]));
+  }, []);
+
+  return { categories, instructors, isLoading, addCategory };
 }

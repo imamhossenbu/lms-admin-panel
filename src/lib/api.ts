@@ -172,6 +172,7 @@ export const coursesApi = {
       videoUrl?: string | null;
       resources?: string | null;
       isPreview?: boolean;
+      status?: string;
     }
   ) => {
     const res = await apiClient.post(`/courses/${courseId}/modules/${moduleId}/lessons`, data);
@@ -202,6 +203,14 @@ export const coursesApi = {
     const res = await apiClient.delete(
       `/courses/${courseId}/modules/${moduleId}/lessons/${lessonId}`
     );
+    return res.data;
+  },
+  /** Attach an already-hosted file (Cloudinary URL) or an external link (fileType "LINK") to a lesson. */
+  createLessonResource: async (
+    lessonId: string,
+    data: { title: string; fileUrl: string; fileType: string; size?: string; isDownloadable?: boolean }
+  ) => {
+    const res = await apiClient.post(`/lessons/${lessonId}/resources`, data);
     return res.data;
   },
 };

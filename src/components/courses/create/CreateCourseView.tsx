@@ -9,6 +9,13 @@ import { toast } from "sonner";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { useUrlParams } from "@/lib/useUrlParams";
 import { courseBasicInfoSchema, type CourseBasicInfoInput } from "@/validations/courseSchema";
+import {
+  ADDITIONAL_SETTINGS_FIELDS,
+  coursePublishSchema,
+  EMPTY_COURSE_PUBLISH,
+  PRICING_FIELDS,
+  type CoursePublishInput,
+} from "@/validations/coursePublishSchema";
 import type { CurriculumModuleInput } from "@/validations/courseOutlineSchema";
 import { CreateCourseHeader } from "./CreateCourseHeader";
 import { CourseStepper } from "./CourseStepper";
@@ -23,24 +30,28 @@ import { CourseCurriculumCard } from "./curriculum/CourseCurriculumCard";
 import { ModulePanel } from "./curriculum/ModulePanel";
 import { moduleToPanel, saveModuleFromPanel } from "./curriculum/curriculumEditing";
 import { EMPTY_OUTLINE, getOutlineIssues } from "./outline/outlineEditing";
-import { EMPTY_BASIC_INFO, levelLabel, listItemsFromHtml } from "./createCourseOptions";
-import type { AiOutline } from "./aiOutline";
+import { EMPTY_BASIC_INFO, levelLabel, listItemsFromHtml, slugify } from "./createCourseOptions";
+import { outlineStats, type AiOutline } from "./aiOutline";
 import { useCreateCourseData } from "./hooks/useCreateCourseData";
 import { useCourseAiFlow } from "./hooks/useCourseAiFlow";
 import { usePreviewTab } from "./hooks/usePreviewTab";
 import { useSaveCourse, type SaveIntent } from "./hooks/useSaveCourse";
 import { clearCreateCourseDraft, useCreateCourseDraft } from "./hooks/useCreateCourseDraft";
 import type { CoursePreviewData } from "./preview/previewTypes";
+import { PricingStep } from "./steps/PricingStep";
+import { AdditionalSettingsStep } from "./steps/AdditionalSettingsStep";
+import { ReviewStep } from "./steps/ReviewStep";
+import { STEP_PARAM, stepFromParam, type CourseStepFacts, type CourseStepNumber } from "./steps/stepTypes";
 
 type ModulePanelState = { mode: "create" } | { mode: "edit"; moduleId: string } | null;
 
-/** Create Course: Step 1 (Basic Information) and Step 2 (Curriculum), with live preview and the AI flow. */
+/** Create Course wizard: Basic Information → Curriculum → Pricing & Access → Additional Settings → Review & Publish. */
 export function CreateCourseView() {
   const router = useRouter();
   const { get, set } = useUrlParams();
-  const step = get("step") === "curriculum" ? 2 : 1;
+  const step = stepFromParam(get("step"));
 
-  const { categories, instructors, isLoading } = useCreateCourseData();
+  const { categories, instructors, isLoading, addCategory } = useCreateCourseData();
   const [previewTab, setPreviewTab] = usePreviewTab();
   const { save, savingIntent } = useSaveCourse();
 
@@ -49,9 +60,14 @@ export function CreateCourseView() {
     defaultValues: EMPTY_BASIC_INFO,
     mode: "onTouched",
   });
+  const publishForm = useForm<CoursePublishInput>({
+    resolver: zodResolver(coursePublishSchema),
+    defaultValues: EMPTY_COURSE_PUBLISH,
+    mode: "onTouched",
+  });
   const ai = useCourseAiFlow(form);
   const values = useWatch({ control: form.control }) as CourseBasicInfoInput;
-  const { isRestored } = useCreateCourseDraft(form, ai.acceptedOutline, ai.setAcceptedOutline, !isLoading);
+  const { isRestored } = useCreateCourseDraft(form, publishForm, ai.acceptedOutline, ai.setAcceptedOutline, !isLoading);
 
   const [instructorId, setInstructorId] = useState("");
   const [uploads, setUploads] = useState({ thumbnail: false, video: false, module: false });
@@ -64,12 +80,22 @@ export function CreateCourseView() {
   const instructor = instructors.find((i) => i.id === instructorId) ?? instructors[0] ?? null;
   const curriculum: AiOutline = ai.acceptedOutline ?? { ...EMPTY_OUTLINE, title: values.title ?? "", level: values.level ?? "BEGINNER" };
 
-  // Opening step 2 directly (reload/bookmark) needs valid basic info; otherwise go back to step 1.
+  const goToStep = (target: CourseStepNumber) => {
+    set({ step: STEP_PARAM[target] });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // Opening a later step directly (reload/bookmark) needs the earlier steps to be valid.
   useEffect(() => {
-    if (!isRestored || step !== 2) return;
+    if (!isRestored || step === 1) return;
     if (!courseBasicInfoSchema.safeParse(form.getValues()).success) {
       set({ step: null });
       toast.info("Complete the basic information first", { description: "Course details are required before building the curriculum." });
+      return;
+    }
+    if (step >= 3 && getOutlineIssues(curriculum).messages.length) {
+      set({ step: STEP_PARAM[2] });
+      toast.info("Finish the curriculum first", { description: "Every module needs at least one lesson." });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isRestored, step]);
@@ -110,12 +136,28 @@ export function CreateCourseView() {
       return;
     }
     void form.handleSubmit(async (data) => {
-      const courseId = await save(data, ai.acceptedOutline, intent);
+      let publish: CoursePublishInput | null = publishForm.getValues();
+      if (intent === "publish") {
+        const issues = getOutlineIssues(curriculum).messages;
+        if (issues.length) {
+          toast.error("Curriculum isn't ready yet", { description: issues.slice(0, 3).join(" ") });
+          goToStep(2);
+          return;
+        }
+        if (!(await publishForm.trigger())) {
+          toast.error("Please review the pricing and settings", { description: "Some options are missing or invalid." });
+          goToStep(publishForm.getFieldState("price").invalid || publishForm.getFieldState("accessDays").invalid ? 3 : 4);
+          return;
+        }
+      } else if (!coursePublishSchema.safeParse(publish).success) {
+        publish = null; // draft: fall back to a free course rather than blocking on step 3
+      }
+      const courseId = await save(data, ai.acceptedOutline, intent, publish);
       if (!courseId) return;
       clearCreateCourseDraft();
       form.reset(data);
-      router.push(intent === "draft" ? "/courses" : `/courses/${courseId}/edit`);
-    }, step === 2 ? () => { set({ step: null }); invalidFormToast(); } : invalidFormToast)();
+      router.push(intent === "draft" ? "/courses" : `/courses/${courseId}`);
+    }, step > 1 ? () => { set({ step: null }); invalidFormToast(); } : invalidFormToast)();
   };
 
   const goToCurriculum = () => {
@@ -135,7 +177,35 @@ export function CreateCourseView() {
       toast.error("Curriculum isn't ready yet", { description: issues.messages.slice(0, 3).join(" ") });
       return;
     }
-    submit("continue");
+    goToStep(3);
+  };
+
+  const continueFrom = async (fields: readonly (keyof CoursePublishInput)[], next: CourseStepNumber) => {
+    if (await publishForm.trigger(fields as (keyof CoursePublishInput)[])) goToStep(next);
+    else toast.error("Please fix the highlighted fields", { description: "Some options are missing or invalid." });
+  };
+
+  const continueFromSettings = async () => {
+    const basicOk = await form.trigger(["categoryId", "language", "level"]);
+    if (!basicOk) {
+      toast.error("Please fix the highlighted fields", { description: "Category, language and level are required." });
+      return;
+    }
+    await continueFrom(ADDITIONAL_SETTINGS_FIELDS, 5);
+  };
+
+  const stats = outlineStats(curriculum);
+  const facts: CourseStepFacts = {
+    title: previewData.title,
+    shortDescription: previewData.shortDescription,
+    thumbnail: previewData.thumbnail || undefined,
+    categoryName: previewData.categoryName,
+    language: previewData.language,
+    levelLabel: previewData.levelLabel,
+    moduleCount: stats.moduleCount,
+    lessonCount: stats.lessonCount,
+    totalMinutes: stats.totalMinutes,
+    learnItems: previewData.learnItems,
   };
 
   const setCurriculum = (next: AiOutline) => ai.setAcceptedOutline(next);
@@ -171,9 +241,11 @@ export function CreateCourseView() {
           disabled={isSaving}
           onSaveDraft={() => submit("draft")}
           onPreview={() => setIsPreviewOpen(true)}
+          onPublish={step === 5 ? () => submit("publish") : undefined}
+          isPublishing={savingIntent === "publish"}
         />
 
-        <CourseStepper activeStep={step} onStepClick={(target) => target === 1 && set({ step: null })} />
+        <CourseStepper activeStep={step} onStepClick={(target) => goToStep(target as CourseStepNumber)} />
 
         <AnimatePresence mode="wait" initial={false}>
           {step === 1 ? (
@@ -210,6 +282,52 @@ export function CreateCourseView() {
                 />
               </div>
             </motion.form>
+          ) : step === 3 ? (
+            <FormProvider key="pricing" {...publishForm}>
+              <PricingStep
+                facts={facts}
+                onBack={() => goToStep(2)}
+                onNext={() => void continueFrom(PRICING_FIELDS, 4)}
+                onEditBasics={() => goToStep(1)}
+              />
+            </FormProvider>
+          ) : step === 4 ? (
+            <FormProvider key="settings" {...publishForm}>
+              <AdditionalSettingsStep
+                facts={facts}
+                settings={{
+                  categories,
+                  categoryId: values.categoryId ?? "",
+                  language: values.language ?? "",
+                  level: values.level ?? "",
+                  onCategoryChange: (id) => form.setValue("categoryId", id, { shouldDirty: true, shouldValidate: true }),
+                  onLanguageChange: (lang) => form.setValue("language", lang, { shouldDirty: true, shouldValidate: true }),
+                  onLevelChange: (level) => form.setValue("level", level, { shouldDirty: true, shouldValidate: true }),
+                  onCategoryCreated: (c) => addCategory({ ...c, slug: slugify(c.name) }),
+                  errors: {
+                    categoryId: form.formState.errors.categoryId?.message,
+                    language: form.formState.errors.language?.message,
+                    level: form.formState.errors.level?.message,
+                  },
+                }}
+                onBack={() => goToStep(3)}
+                onNext={() => void continueFromSettings()}
+                onEditBasics={() => goToStep(1)}
+              />
+            </FormProvider>
+          ) : step === 5 ? (
+            <FormProvider key="review" {...publishForm}>
+              <ReviewStep
+                facts={facts}
+                issues={getOutlineIssues(curriculum).messages}
+                isPublishing={savingIntent === "publish"}
+                disabled={isSaving}
+                onBack={() => goToStep(4)}
+                onPublish={() => submit("publish")}
+                onEditStep={goToStep}
+                onViewCourse={() => setIsPreviewOpen(true)}
+              />
+            </FormProvider>
           ) : (
             <motion.div
               key="curriculum"
@@ -244,11 +362,10 @@ export function CreateCourseView() {
                     <motion.div key="preview" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-5">
                       <CoursePreviewCard {...previewProps} onExpand={() => setIsPreviewOpen(true)} />
                       <CreateCourseActions
-                        isContinuing={savingIntent === "continue"}
+                        isContinuing={false}
                         disabled={isSaving}
                         cancelLabel="Back"
                         continueLabel="Continue to Pricing"
-                        continuingLabel="Saving course..."
                         onCancel={() => set({ step: null })}
                         onContinue={continueToPricing}
                       />

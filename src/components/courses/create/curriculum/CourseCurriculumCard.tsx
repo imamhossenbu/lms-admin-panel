@@ -1,23 +1,21 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { AnimatePresence, motion, Reorder } from "framer-motion";
 import { Plus, Sparkles, Layers } from "lucide-react";
 import { toast } from "sonner";
 import { PrimaryButton } from "@/components/ui/primary-button";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
-import type { OutlineLessonInput } from "@/validations/courseOutlineSchema";
 import { outlineStats, formatMinutes, type AiOutline, type AiOutlineLesson, type AiOutlineModule } from "../aiOutline";
-import { LessonFormModal } from "../outline/LessonFormModal";
+import { LessonEditorModal } from "../lesson/LessonEditorModal";
 import {
-  addLesson,
-  lessonToForm,
+  addFullLesson,
   removeLesson,
   removeModule,
   reorderLessons,
   reorderModules,
+  replaceLesson,
   restoreLesson,
-  updateLesson,
 } from "../outline/outlineEditing";
 import { duplicateLesson, duplicateModule, moveLesson, moveModule } from "./curriculumEditing";
 import { CurriculumModuleItem } from "./CurriculumModuleItem";
@@ -51,15 +49,26 @@ export function CourseCurriculumCard({
   const toggle = (id: string) => setExpanded((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   const lessonModule = lessonTarget ? curriculum.modules.find((m) => m.id === lessonTarget.moduleId) : undefined;
 
-  const handleLessonSubmit = (values: OutlineLessonInput) => {
+  /** Every other lesson of the curriculum, for the "Prerequisite Lesson" select. */
+  const editingLessonId = lessonTarget?.lesson?.id;
+  const prerequisiteOptions = useMemo(
+    () =>
+      curriculum.modules.flatMap((m, mi) =>
+        m.lessons
+          .filter((l) => l.id !== editingLessonId)
+          .map((l) => ({ value: l.id, label: `Module ${mi + 1} · ${l.title}` }))
+      ),
+    [curriculum.modules, editingLessonId]
+  );
+
+  // Success toasts are shown by LessonEditorModal.
+  const handleLessonSubmit = (lesson: Omit<AiOutlineLesson, "id">) => {
     if (!lessonTarget) return;
     if (lessonTarget.lesson) {
-      onChange(updateLesson(curriculum, lessonTarget.moduleId, lessonTarget.lesson.id, values));
-      toast.success("Lesson updated", { description: values.title });
+      onChange(replaceLesson(curriculum, lessonTarget.moduleId, lessonTarget.lesson.id, lesson));
     } else {
-      onChange(addLesson(curriculum, lessonTarget.moduleId, values));
+      onChange(addFullLesson(curriculum, lessonTarget.moduleId, lesson));
       setExpanded((prev) => (prev.includes(lessonTarget.moduleId) ? prev : [...prev, lessonTarget.moduleId]));
-      toast.success("Lesson added", { description: values.title });
     }
     setLessonTarget(null);
   };
@@ -163,10 +172,11 @@ export function CourseCurriculumCard({
         Add New Module
       </motion.button>
 
-      <LessonFormModal
+      <LessonEditorModal
         isOpen={!!lessonTarget}
         moduleTitle={lessonModule?.title}
-        initialValues={lessonTarget?.lesson ? lessonToForm(lessonTarget.lesson) : undefined}
+        initialLesson={lessonTarget?.lesson}
+        prerequisiteOptions={prerequisiteOptions}
         onClose={() => setLessonTarget(null)}
         onSubmit={handleLessonSubmit}
       />

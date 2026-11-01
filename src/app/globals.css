@@ -952,3 +952,14 @@ body {
   margin: 1rem 0;
 }
 
+
+/* Hides the browser's native number-input spinners (used by custom stepper inputs). */
+.no-spinner {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+.no-spinner::-webkit-inner-spin-button,
+.no-spinner::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}

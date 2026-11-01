@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { coursesApi } from "@/lib/api";
+import type { LessonFormValues } from "@/validations/lessonFormSchema";
 
 /**
  * Shared contract for the Create Course page and its AI flow:
@@ -28,7 +29,14 @@ export interface AiOutlineLesson {
   type: AiLessonType;
   durationMinutes: number;
   summary?: string;
+  /**
+   * Full Add/Edit Lesson modal values (content, video, resources, settings). Absent for lessons
+   * that only came from the AI outline. See `lessonFormSchema.ts` and `lesson/lessonFormMapping.ts`.
+   */
+  details?: LessonDetails;
 }
+
+export type LessonDetails = Omit<LessonFormValues, "title" | "type" | "summary">;
 
 export interface AiOutlineModule {
   id: string;
@@ -147,7 +155,55 @@ export const moduleDescriptionForApi = (m: AiOutlineModule) => {
   return parts.filter(Boolean).join("\n\n");
 };
 
-/** Creates every module and lesson of the outline under an existing course (sequential to keep order). */
+const LESSON_STATUS_FOR_API: Record<LessonDetails["visibility"], string> = {
+  PUBLIC: "PUBLISHED",
+  DRAFT: "DRAFT",
+  SCHEDULED: "SCHEDULED",
+};
+
+const hasText = (html: string) => html.replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ").trim().length > 0;
+
+/** Lesson payload for the API. Fields the backend has no column for (difficulty, drip, tags…) stay client-side. */
+export const lessonPayloadForApi = (lesson: AiOutlineLesson, order: number) => {
+  const d = lesson.details;
+  const content = d && hasText(d.content) ? d.content : lesson.summary?.trim() || undefined;
+  return {
+    title: lesson.title,
+    type: lesson.type,
+    durationMinutes: lesson.durationMinutes,
+    order,
+    content,
+    videoUrl: d?.video.url.trim() || undefined,
+    status: d ? LESSON_STATUS_FOR_API[d.visibility] : "PUBLISHED",
+  };
+};
+
+const formatSize = (bytes: number) =>
+  bytes >= 1024 * 1024 ? `${(bytes / 1024 / 1024).toFixed(2)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`;
+
+/** Saves a lesson's uploaded files and external links as LessonResource rows. */
+export async function saveLessonResources(lessonId: string, details: LessonDetails | undefined): Promise<void> {
+  if (!details) return;
+  for (const file of details.resourceFiles) {
+    await coursesApi.createLessonResource(lessonId, {
+      title: file.name,
+      fileUrl: file.url,
+      fileType: file.fileType || "FILE",
+      size: formatSize(file.size),
+      isDownloadable: true,
+    });
+  }
+  for (const link of details.resourceLinks) {
+    await coursesApi.createLessonResource(lessonId, {
+      title: link.title,
+      fileUrl: link.url,
+      fileType: "LINK",
+      isDownloadable: false,
+    });
+  }
+}
+
+/** Creates every module, lesson and lesson resource of the outline under an existing course (sequential to keep order). */
 export async function saveOutlineToCourse(courseId: string, outline: AiOutline): Promise<void> {
   for (let mi = 0; mi < outline.modules.length; mi++) {
     const outlineModule = outline.modules[mi];
@@ -159,13 +215,8 @@ export async function saveOutlineToCourse(courseId: string, outline: AiOutline):
     if (!created?.id) continue;
     for (let li = 0; li < outlineModule.lessons.length; li++) {
       const lesson = outlineModule.lessons[li];
-      await coursesApi.createLesson(courseId, created.id, {
-        title: lesson.title,
-        type: lesson.type,
-        durationMinutes: lesson.durationMinutes,
-        order: li + 1,
-        content: lesson.summary ?? null,
-      });
+      const createdLesson = await coursesApi.createLesson(courseId, created.id, lessonPayloadForApi(lesson, li + 1));
+      if (createdLesson?.id) await saveLessonResources(createdLesson.id, lesson.details);
     }
   }
 }
