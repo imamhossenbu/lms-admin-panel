@@ -1,29 +1,14 @@
 "use client";
 
 import React, { Suspense } from "react";
-import { motion } from "framer-motion";
-import { PageHeader } from "@/components/ui/PageHeader";
-import { SettingsFormClient } from "@/components/settings/SettingsFormClient";
+import { SettingsView } from "@/components/settings/SettingsView";
 import { SettingsSkeleton } from "@/components/settings/SettingsSkeleton";
-import { ToneBadge } from "@/components/ui/ToneBadge";
 
-export default function PlatformSettingsPage() {
+/** Platform settings (`?section=` survives reloads). */
+export default function SettingsPage() {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.28, ease: "easeOut" }}
-      className="space-y-6 text-left bg-white"
-    >
-      <PageHeader
-        breadcrumbs={[{ label: "Settings" }]}
-        title="Platform & White-Label Configuration"
-        description="Manage system-wide environment variables, branding palettes, and security rules."
-        badge={<ToneBadge tone="navy">Admin Only</ToneBadge>}
-      />
-      <Suspense fallback={<SettingsSkeleton />}>
-        <SettingsFormClient />
-      </Suspense>
-    </motion.div>
+    <Suspense fallback={<SettingsSkeleton />}>
+      <SettingsView />
+    </Suspense>
   );
 }
