@@ -10,7 +10,7 @@ export interface UnsavedChangesModalProps {
   onConfirm: () => Promise<void>;
 }
 
-/** "Leave without saving?" confirmation used by Back to Lessons and Previous/Next Lesson. */
+/** "Leave without saving?" confirmation used by Previous/Next Lesson. */
 export function UnsavedChangesModal({ isOpen, onClose, onConfirm }: UnsavedChangesModalProps) {
   return (
     <ConfirmModal

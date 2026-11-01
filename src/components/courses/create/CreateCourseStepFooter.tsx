@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import PrimaryButton from "@/components/ui/primary-button";
 import SecondaryButton from "@/components/ui/secondary-button";
 
@@ -18,7 +18,7 @@ export interface CreateCourseStepFooterProps {
   backLabel?: string;
 }
 
-/** Bottom action bar for Create Course steps 3–5: "Back" on the left, primary "Next" on the right. */
+/** Bottom action bar for Create Course steps 3–5: "Previous" on the left, primary "Next" on the right. */
 export function CreateCourseStepFooter({
   onBack,
   onNext,
@@ -27,7 +27,7 @@ export function CreateCourseStepFooter({
   isLoading = false,
   loadingLabel = "Saving...",
   disabled = false,
-  backLabel = "Back",
+  backLabel = "Previous",
 }: CreateCourseStepFooterProps) {
   return (
     <motion.div
@@ -36,7 +36,7 @@ export function CreateCourseStepFooter({
       transition={{ duration: 0.25, delay: 0.1, ease: "easeOut" }}
       className="flex items-center justify-between gap-3 border-t border-dash pt-5"
     >
-      <SecondaryButton type="button" onClick={onBack} disabled={isLoading}>
+      <SecondaryButton type="button" onClick={onBack} disabled={isLoading} leftIcon={<ArrowLeft />}>
         {backLabel}
       </SecondaryButton>
       <PrimaryButton

@@ -9,10 +9,8 @@ import { LessonEditorTabs } from "./LessonEditorTabs";
 import { LessonEditorPanels } from "./LessonEditorPanels";
 import { LessonEditorSkeleton } from "./LessonEditorSkeleton";
 import { LessonPreviewModal } from "./LessonPreviewModal";
-import { UnsavedChangesModal } from "./UnsavedChangesModal";
 import { useLessonEditorTab } from "./hooks/useLessonEditorTab";
 import { tabsWithErrors, useLessonEditorForm } from "./hooks/useLessonEditorForm";
-import { useLeaveGuard } from "./hooks/useLeaveGuard";
 import { useUploadTracker } from "./hooks/useUploadTracker";
 
 export interface LessonEditorViewProps {
@@ -26,7 +24,6 @@ export function LessonEditorView({ courseId, lessonId }: LessonEditorViewProps) 
   const { form, context, isLoading, submit } = useLessonEditorForm({ courseId, lessonId, onInvalidTab: setActiveTab });
   const { isUploading, reporters } = useUploadTracker();
   const { isDirty, isSubmitting, errors } = form.formState;
-  const leave = useLeaveGuard(isDirty);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   // Browser reload / tab close with unsaved changes.
@@ -53,7 +50,6 @@ export function LessonEditorView({ courseId, lessonId }: LessonEditorViewProps) 
           courseTitle={context.course.title}
           isSaving={isSubmitting}
           isUploading={isUploading}
-          onBack={() => leave.navigate(`/courses/${courseId}?tab=syllabus`)}
           onPreview={() => setIsPreviewOpen(true)}
           onUpdate={() => void submit()}
         />
@@ -69,7 +65,6 @@ export function LessonEditorView({ courseId, lessonId }: LessonEditorViewProps) 
       </motion.div>
 
       <LessonPreviewModal isOpen={isPreviewOpen} onClose={() => setIsPreviewOpen(false)} control={form.control} context={context} />
-      <UnsavedChangesModal isOpen={leave.isConfirmOpen} onClose={leave.cancelLeave} onConfirm={leave.confirmLeave} />
     </FormProvider>
   );
 }

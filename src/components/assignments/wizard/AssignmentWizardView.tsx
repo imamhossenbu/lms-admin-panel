@@ -63,7 +63,6 @@ export function AssignmentWizardView({ mode, context, baseValues, draft, draftKe
           courseTitle={context.course.title}
           moduleLabel={wizardModuleLabel(context, moduleId)}
           assignmentTitle={existing?.title}
-          onBack={() => wizard.requestLeave(listHref)}
         />
         <WizardStepper
           current={step}

@@ -107,7 +107,6 @@ export function LessonEditorSkeleton() {
             <Skeleton className="h-4 w-80 max-w-full rounded-md bg-slate-100" />
           </div>
           <div className="flex gap-2.5">
-            <Skeleton className="h-10 w-36 rounded-lg" />
             <Skeleton className="h-10 w-28 rounded-lg" />
             <Skeleton className="h-10 w-36 rounded-lg bg-slate-300/70" />
           </div>

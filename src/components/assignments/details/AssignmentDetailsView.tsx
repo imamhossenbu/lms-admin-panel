@@ -35,7 +35,6 @@ export function AssignmentDetailsView({ assignmentId }: AssignmentDetailsViewPro
         assignment={assignment}
         submissions={submissions}
         context={context}
-        onBack={() => router.push("/assignments")}
         onPreview={openPreview}
         onEdit={() => router.push(`/assignments/${assignment.id}/edit`)}
         onAssignmentChange={setAssignment}

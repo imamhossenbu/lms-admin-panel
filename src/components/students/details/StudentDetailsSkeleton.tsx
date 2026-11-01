@@ -617,9 +617,6 @@ export function StudentDetailsSkeleton({ activeTab = "overview" }: StudentDetail
         {/* Profile Card Header */}
         <div className="bg-white rounded-xl border border-dash p-6 shadow-2xs flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="flex flex-col sm:flex-row sm:items-center gap-5">
-            {/* Back Button */}
-            <div className="w-10 h-10 rounded-lg bg-slate-100 border border-dash shrink-0" />
-
             {/* Avatar Photo Box */}
             <div className="w-20 h-20 rounded-2xl bg-slate-200 border-2 border-white shadow-md shrink-0" />
 

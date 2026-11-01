@@ -114,8 +114,6 @@ export default function CreateInstructorPage() {
           { label: "Instructors", href: "/instructors" },
           { label: "Add New Instructor" },
         ]}
-        backHref="/instructors"
-        backLabel="Back to Instructors"
         icon={<UserPlus className="w-5 h-5 stroke-[2.2]" />}
         title="Add New Instructor"
         subtitle="Create a new instructor account and assign courses."

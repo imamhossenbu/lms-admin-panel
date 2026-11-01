@@ -28,7 +28,7 @@ function SideCardSkeleton({ lines }: { lines: number }) {
   );
 }
 
-/** Mirrors the wizard: breadcrumb, back button + title, 7-step stepper, form card + side cards. */
+/** Mirrors the wizard: breadcrumb, title, 7-step stepper, form card + side cards. */
 export function WizardSkeleton() {
   return (
     <div className="space-y-5" aria-busy="true" aria-label="Loading assignment wizard">
@@ -39,12 +39,9 @@ export function WizardSkeleton() {
         <Skeleton className="h-3.5 w-24" />
         <Skeleton className="h-3.5 w-32" />
       </div>
-      <div className="flex items-start gap-4">
-        <Skeleton className="h-10 w-44 rounded-lg" />
-        <div className="space-y-2">
-          <Skeleton className="h-7 w-56" />
-          <Skeleton className="h-4 w-80" />
-        </div>
+      <div className="space-y-2">
+        <Skeleton className="h-7 w-56" />
+        <Skeleton className="h-4 w-80" />
       </div>
       <div className="dashboard-card flex items-center gap-3 overflow-hidden px-5 py-4">
         {Array.from({ length: 7 }).map((_, i) => (

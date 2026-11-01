@@ -12,6 +12,8 @@ interface CreateCourseActionsProps {
   onCancel: () => void;
   onContinue: () => void;
   cancelLabel?: string;
+  /** Optional icon shown before the cancel label (e.g. ArrowLeft for "Previous"). */
+  cancelIcon?: React.ReactNode;
   continueLabel?: string;
   continuingLabel?: string;
 }
@@ -22,6 +24,7 @@ export function CreateCourseActions({
   onCancel,
   onContinue,
   cancelLabel = "Cancel",
+  cancelIcon,
   continueLabel = "Continue to Curriculum",
   continuingLabel = "Saving course...",
 }: CreateCourseActionsProps) {
@@ -32,7 +35,7 @@ export function CreateCourseActions({
       transition={{ duration: 0.25, delay: 0.15 }}
       className="bg-white rounded-xl border border-dash shadow-2xs p-4 flex items-center justify-end gap-3"
     >
-      <SecondaryButton onClick={onCancel} disabled={isContinuing}>
+      <SecondaryButton onClick={onCancel} disabled={isContinuing} leftIcon={cancelIcon}>
         {cancelLabel}
       </SecondaryButton>
       <PrimaryButton

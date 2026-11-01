@@ -106,8 +106,6 @@ export default function EditInstructorPage({ params }: PageProps) {
           { label: instructor.name, href: detailsHref },
           { label: "Edit Instructor" },
         ]}
-        backHref={detailsHref}
-        backLabel="Back to Profile"
         icon={<Edit3 className="w-5 h-5 stroke-[2.2]" />}
         title={`Edit Instructor: ${instructor.name}`}
         subtitle="Update personal details, account status, and course assignments."

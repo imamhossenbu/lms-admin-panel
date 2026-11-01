@@ -446,48 +446,45 @@ export function InstructorDetailsSkeleton({ activeTab = "overview" }: Instructor
           <Bar className="h-4 w-2" />
           <Bar className="h-4 w-32" />
         </div>
-        <div className="bg-white rounded-xl border border-dash shadow-2xs p-5 flex flex-col xl:flex-row gap-5">
-          <div className="h-10 w-44 rounded-lg border border-dash bg-white shrink-0" />
-          <div className="flex gap-5 flex-1">
-            <div className="w-28 h-28 rounded-full bg-slate-200 shrink-0" />
-            <div className="flex-1 space-y-3">
-              <div className="flex justify-between gap-4">
-                <div className="space-y-2.5">
-                  <div className="flex items-center gap-3">
-                    <Bar className="h-8 w-56" />
-                    <SoftBar className="h-6 w-16 rounded-md" />
-                  </div>
-                  <div className="flex gap-4">
-                    <SoftBar className="h-4 w-44" />
-                    <SoftBar className="h-4 w-32" />
-                    <SoftBar className="h-4 w-36" />
-                  </div>
+        <div className="bg-white rounded-xl border border-dash shadow-2xs p-5 flex flex-col md:flex-row gap-5">
+          <div className="w-28 h-28 rounded-full bg-slate-200 shrink-0" />
+          <div className="flex-1 space-y-3">
+            <div className="flex justify-between gap-4">
+              <div className="space-y-2.5">
+                <div className="flex items-center gap-3">
+                  <Bar className="h-8 w-56" />
+                  <SoftBar className="h-6 w-16 rounded-md" />
                 </div>
-                <div className="flex gap-2.5">
-                  <div className="h-10 w-40 rounded-lg bg-slate-200" />
-                  <div className="h-10 w-10 rounded-lg border border-dash" />
+                <div className="flex gap-4">
+                  <SoftBar className="h-4 w-44" />
+                  <SoftBar className="h-4 w-32" />
+                  <SoftBar className="h-4 w-36" />
                 </div>
               </div>
-              {isOverview && (
-                <div className="flex justify-between gap-4 items-center">
-                  <div className="space-y-1.5 flex-1 max-w-2xl">
-                    <SoftBar className="h-3.5 w-full" />
-                    <SoftBar className="h-3.5 w-2/3" />
-                  </div>
-                  <div className="flex divide-x divide-dash">
-                    {[1, 2, 3].map((i) => (
-                      <div key={i} className="flex items-center gap-3 px-5 first:pl-0">
-                        <div className="w-6 h-6 rounded bg-slate-200" />
-                        <div className="space-y-1.5">
-                          <Bar className="h-5 w-14" />
-                          <SoftBar className="h-3.5 w-16" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+              <div className="flex gap-2.5">
+                <div className="h-10 w-40 rounded-lg bg-slate-200" />
+                <div className="h-10 w-10 rounded-lg border border-dash" />
+              </div>
             </div>
+            {isOverview && (
+              <div className="flex justify-between gap-4 items-center">
+                <div className="space-y-1.5 flex-1 max-w-2xl">
+                  <SoftBar className="h-3.5 w-full" />
+                  <SoftBar className="h-3.5 w-2/3" />
+                </div>
+                <div className="flex divide-x divide-dash">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="flex items-center gap-3 px-5 first:pl-0">
+                      <div className="w-6 h-6 rounded bg-slate-200" />
+                      <div className="space-y-1.5">
+                        <Bar className="h-5 w-14" />
+                        <SoftBar className="h-3.5 w-16" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -97,21 +97,18 @@ interface CommerceDetailsSkeletonProps {
 export function CommerceDetailsSkeleton({ variant }: CommerceDetailsSkeletonProps) {
   return (
     <div className="space-y-5 animate-pulse text-left pb-10">
-      <div className="space-y-4">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div className="flex items-center gap-2">
           <Bar className="h-4 w-16" />
           <Bar className="h-4 w-2" />
           <Bar className="h-4 w-28" />
         </div>
-        <div className="flex flex-col lg:flex-row justify-between gap-4">
-          <div className="h-11 w-40 rounded-lg border border-dash bg-white" />
-          <div className="flex gap-2.5">
-            <div className="h-11 w-11 rounded-lg border border-dash bg-white" />
-            {(variant === "order" ? ["w-36", "w-32"] : ["w-24", "w-36"]).map((w, i) => (
-              <div key={i} className={`h-11 ${w} rounded-lg border border-dash bg-white`} />
-            ))}
-            <div className="h-11 w-36 rounded-lg bg-slate-200" />
-          </div>
+        <div className="flex gap-2.5">
+          <div className="h-11 w-11 rounded-lg border border-dash bg-white" />
+          {(variant === "order" ? ["w-36", "w-32"] : ["w-24", "w-36"]).map((w, i) => (
+            <div key={i} className={`h-11 ${w} rounded-lg border border-dash bg-white`} />
+          ))}
+          <div className="h-11 w-36 rounded-lg bg-slate-200" />
         </div>
       </div>
 

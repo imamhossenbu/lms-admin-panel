@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ArrowLeft, Eye, Pencil } from "lucide-react";
+import { Eye, Pencil } from "lucide-react";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { PrimaryButton } from "@/components/ui/primary-button";
 import { SecondaryButton } from "@/components/ui/secondary-button";
@@ -11,13 +11,12 @@ export interface LessonEditorHeaderProps {
   courseTitle: string;
   isSaving: boolean;
   isUploading: boolean;
-  onBack: () => void;
   onPreview: () => void;
   onUpdate: () => void;
 }
 
-/** Breadcrumb, "Edit Lesson" title + subtitle and the Back / Preview / Update Lesson actions. */
-export function LessonEditorHeader({ courseId, courseTitle, isSaving, isUploading, onBack, onPreview, onUpdate }: LessonEditorHeaderProps) {
+/** Breadcrumb, "Edit Lesson" title + subtitle and the Preview / Update Lesson actions. */
+export function LessonEditorHeader({ courseId, courseTitle, isSaving, isUploading, onPreview, onUpdate }: LessonEditorHeaderProps) {
   return (
     <div className="space-y-4">
       <Breadcrumb
@@ -34,9 +33,6 @@ export function LessonEditorHeader({ courseId, courseTitle, isSaving, isUploadin
           <p className="mt-1.5 body-regular text-primary-300">Update lesson content, media, settings and more.</p>
         </div>
         <div className="flex flex-wrap items-center gap-2.5">
-          <SecondaryButton leftIcon={<ArrowLeft />} onClick={onBack}>
-            Back to Lessons
-          </SecondaryButton>
           <SecondaryButton leftIcon={<Eye />} onClick={onPreview}>
             Preview
           </SecondaryButton>

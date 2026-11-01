@@ -1,8 +1,7 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
-import { ArrowLeft, ChevronDown, MoreHorizontal, Pencil, Copy, CreditCard, FileDown, Send, ShieldCheck, UserRound } from "lucide-react";
+import { ChevronDown, MoreHorizontal, Pencil, Copy, CreditCard, FileDown, Send, ShieldCheck, UserRound } from "lucide-react";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { AppDropdownMenu, DropdownActionItem } from "@/components/ui/AppDropdownMenu";
 import { PrimaryButton } from "@/components/ui/primary-button";
@@ -50,64 +49,54 @@ export function OrderDetailsHeader({ order, actions, onEditOrder, onViewTransact
   }
 
   return (
-    <div className="space-y-4 text-left">
+    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 text-left">
       <Breadcrumb items={[{ label: "Orders", href: "/orders" }, { label: "Order Details" }]} />
 
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        <Link
-          href="/orders"
-          className="inline-flex items-center gap-2 h-11 px-4 rounded-lg border border-dash bg-white text-primary-500 hover:bg-slate-50 body-sm-medium transition-colors shadow-2xs w-fit"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Orders
-        </Link>
+      <div className="flex flex-wrap items-center gap-2.5">
+        <AppDropdownMenu
+          items={moreItems}
+          trigger={
+            <button type="button" aria-label="More actions" className={`${BUTTON} w-11 justify-center px-0 border-dash bg-white text-primary-500 hover:bg-slate-50`}>
+              <MoreHorizontal className="w-4 h-4" />
+            </button>
+          }
+        />
 
-        <div className="flex flex-wrap items-center gap-2.5">
+        {targets.length > 0 ? (
           <AppDropdownMenu
-            items={moreItems}
+            items={targets.map((target) => ({
+              key: target,
+              label: `Mark as ${targetLabel(target, "order")}`,
+              danger: target === "Cancelled" || target === "Failed",
+              onClick: () => actions.openChangeStatus(order, "order", target),
+            }))}
             trigger={
-              <button type="button" aria-label="More actions" className={`${BUTTON} w-11 justify-center px-0 border-dash bg-white text-primary-500 hover:bg-slate-50`}>
-                <MoreHorizontal className="w-4 h-4" />
+              <button type="button" className={`${BUTTON} border-dash bg-white text-primary-500 hover:bg-slate-50`}>
+                Update Status
+                <ChevronDown className="w-4 h-4" />
               </button>
             }
           />
+        ) : (
+          <button type="button" disabled title={lockedHint} className={`${BUTTON} border-dash bg-white text-primary-500`}>
+            Update Status
+            <ChevronDown className="w-4 h-4" />
+          </button>
+        )}
 
-          {targets.length > 0 ? (
-            <AppDropdownMenu
-              items={targets.map((target) => ({
-                key: target,
-                label: `Mark as ${targetLabel(target, "order")}`,
-                danger: target === "Cancelled" || target === "Failed",
-                onClick: () => actions.openChangeStatus(order, "order", target),
-              }))}
-              trigger={
-                <button type="button" className={`${BUTTON} border-dash bg-white text-primary-500 hover:bg-slate-50`}>
-                  Update Status
-                  <ChevronDown className="w-4 h-4" />
-                </button>
-              }
-            />
-          ) : (
-            <button type="button" disabled title={lockedHint} className={`${BUTTON} border-dash bg-white text-primary-500`}>
-              Update Status
-              <ChevronDown className="w-4 h-4" />
-            </button>
-          )}
+        {targets.includes("Cancelled") && (
+          <button
+            type="button"
+            onClick={() => actions.openChangeStatus(order, "order", "Cancelled")}
+            className={`${BUTTON} border-red/30 bg-red-14 text-red hover:bg-red hover:text-white`}
+          >
+            Cancel Order
+          </button>
+        )}
 
-          {targets.includes("Cancelled") && (
-            <button
-              type="button"
-              onClick={() => actions.openChangeStatus(order, "order", "Cancelled")}
-              className={`${BUTTON} border-red/30 bg-red-14 text-red hover:bg-red hover:text-white`}
-            >
-              Cancel Order
-            </button>
-          )}
-
-          <PrimaryButton type="button" size="lg" onClick={onEditOrder} leftIcon={<Pencil className="w-4 h-4" />}>
-            Edit Order
-          </PrimaryButton>
-        </div>
+        <PrimaryButton type="button" size="lg" onClick={onEditOrder} leftIcon={<Pencil className="w-4 h-4" />}>
+          Edit Order
+        </PrimaryButton>
       </div>
     </div>
   );

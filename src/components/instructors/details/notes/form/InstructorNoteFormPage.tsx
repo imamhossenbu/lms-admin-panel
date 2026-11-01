@@ -94,8 +94,6 @@ export function InstructorNoteFormPage({ instructorId, noteId }: InstructorNoteF
       <InstructorDetailsHeader
         details={details}
         showSummary={false}
-        backHref={notesHref}
-        backLabel="Back to Notes"
         breadcrumbs={[
           { label: "Instructors", href: "/instructors" },
           { label: "Instructor Details", href: notesHref },

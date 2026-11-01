@@ -80,7 +80,7 @@ export function AssignmentDetailsSkeleton() {
             <Skeleton className="h-4 w-96" />
           </div>
           <div className="flex flex-wrap gap-2.5">
-            {["w-44", "w-36", "w-24", "w-40"].map((w) => (
+            {["w-36", "w-24", "w-40"].map((w) => (
               <Skeleton key={w} className={`h-10 rounded-lg ${w}`} />
             ))}
           </div>

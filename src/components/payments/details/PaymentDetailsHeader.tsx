@@ -1,8 +1,7 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
-import { ArrowLeft, MoreHorizontal, Pencil, Copy, FileText, UserRound, FileDown, ShieldCheck, RefreshCw, Send } from "lucide-react";
+import { MoreHorizontal, Pencil, Copy, FileText, UserRound, FileDown, ShieldCheck, RefreshCw, Send } from "lucide-react";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { AppDropdownMenu, DropdownActionItem } from "@/components/ui/AppDropdownMenu";
 import { PrimaryButton } from "@/components/ui/primary-button";
@@ -55,50 +54,40 @@ export function PaymentDetailsHeader({ order, actions, onEditPayment, onViewOrde
   });
 
   return (
-    <div className="space-y-4 text-left">
+    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 text-left">
       <Breadcrumb items={[{ label: "Payments", href: "/payments" }, { label: "Payment Details" }]} />
 
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        <Link
-          href="/payments"
-          className="inline-flex items-center gap-2 h-11 px-4 rounded-lg border border-dash bg-white text-primary-500 hover:bg-slate-50 body-sm-medium transition-colors shadow-2xs w-fit"
+      <div className="flex flex-wrap items-center gap-2.5">
+        <AppDropdownMenu
+          items={moreItems}
+          trigger={
+            <button type="button" aria-label="More actions" className={`${BUTTON} w-11 justify-center px-0`}>
+              <MoreHorizontal className="w-4 h-4" />
+            </button>
+          }
+        />
+        <button
+          type="button"
+          disabled={!canRefund}
+          title={canRefund ? "Refund this payment" : lockedStatusHint(order, "payment") ?? "Only paid payments can be refunded."}
+          onClick={() => actions.openChangeStatus(order, "payment", "Refunded")}
+          className={BUTTON}
         >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Payments
-        </Link>
-
-        <div className="flex flex-wrap items-center gap-2.5">
-          <AppDropdownMenu
-            items={moreItems}
-            trigger={
-              <button type="button" aria-label="More actions" className={`${BUTTON} w-11 justify-center px-0`}>
-                <MoreHorizontal className="w-4 h-4" />
-              </button>
-            }
-          />
-          <button
-            type="button"
-            disabled={!canRefund}
-            title={canRefund ? "Refund this payment" : lockedStatusHint(order, "payment") ?? "Only paid payments can be refunded."}
-            onClick={() => actions.openChangeStatus(order, "payment", "Refunded")}
-            className={BUTTON}
-          >
-            Refund
-          </button>
-          <button
-            type="button"
-            disabled={!canSendReceipt}
-            title={canSendReceipt ? "Email the receipt to the student" : "Receipts are available once the payment is received."}
-            onClick={() => actions.sendReceipt(order)}
-            className={BUTTON}
-          >
-            <Send className="w-4 h-4" />
-            Send Receipt
-          </button>
-          <PrimaryButton type="button" size="lg" onClick={onEditPayment} leftIcon={<Pencil className="w-4 h-4" />}>
-            Edit Payment
-          </PrimaryButton>
-        </div>
+          Refund
+        </button>
+        <button
+          type="button"
+          disabled={!canSendReceipt}
+          title={canSendReceipt ? "Email the receipt to the student" : "Receipts are available once the payment is received."}
+          onClick={() => actions.sendReceipt(order)}
+          className={BUTTON}
+        >
+          <Send className="w-4 h-4" />
+          Send Receipt
+        </button>
+        <PrimaryButton type="button" size="lg" onClick={onEditPayment} leftIcon={<Pencil className="w-4 h-4" />}>
+          Edit Payment
+        </PrimaryButton>
       </div>
     </div>
   );

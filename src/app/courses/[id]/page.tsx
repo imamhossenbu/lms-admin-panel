@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import PrimaryButton from "@/components/ui/primary-button";
-import SecondaryButton from "@/components/ui/secondary-button";
 import { PillTabs } from "@/components/ui/PillTabs";
 import { CourseDetailsHero } from "@/components/courses/details/CourseDetailsHero";
 import { CourseDetailsSyllabus } from "@/components/courses/details/CourseDetailsSyllabus";
@@ -119,20 +118,13 @@ function CourseDetailsContent() {
         </div>
 
         {/* Action Button: Exclusively Route to Dedicated Edit Studio */}
-        <div className="flex items-center gap-2.5 shrink-0">
-          <SecondaryButton
-            onClick={() => router.push("/courses")}
-            icon={<ArrowLeft className="w-4 h-4" />}
-          >
-            Back
-          </SecondaryButton>
-          <PrimaryButton
-            onClick={() => router.push(`/courses/${course.id}/edit`)}
-            icon={<Edit3 className="w-4 h-4" />}
-          >
-            Edit Course & Studio
-          </PrimaryButton>
-        </div>
+        <PrimaryButton
+          onClick={() => router.push(`/courses/${course.id}/edit`)}
+          icon={<Edit3 className="w-4 h-4" />}
+          className="shrink-0"
+        >
+          Edit Course & Studio
+        </PrimaryButton>
       </div>
 
       {/* Hero Overview */}

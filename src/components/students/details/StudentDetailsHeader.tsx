@@ -1,8 +1,7 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
-import { ArrowLeft, Mail, Calendar, Edit3, MoreHorizontal, Trash2, Download, Send } from "lucide-react";
+import { Mail, Calendar, Edit3, MoreHorizontal, Trash2, Download, Send } from "lucide-react";
 import toast from "react-hot-toast";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { AppDropdownMenu } from "@/components/ui/AppDropdownMenu";
@@ -32,15 +31,6 @@ export function StudentDetailsHeader({
       {/* 2. Main Profile Header Card */}
       <div className="bg-white rounded-xl border border-dash p-6 shadow-2xs flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div className="flex flex-col sm:flex-row sm:items-center gap-5">
-          {/* Back button */}
-          <Link
-            href="/students"
-            className="p-2.5 rounded-lg border border-dash text-primary-400 hover:text-primary-500 hover:bg-slate-50 transition-colors w-fit shadow-2xs self-start"
-            title="Back to Students list"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
-
           {/* Avatar with Initials / Photo */}
           <div className="w-20 h-20 rounded-2xl bg-blue-14 border-2 border-white shadow-md flex items-center justify-center shrink-0 text-blue body-xl-regular font-bold! tracking-tight">
             {student.initials}

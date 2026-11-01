@@ -200,10 +200,7 @@ export function CourseDetailsSkeleton({ activeTab = "syllabus" }: CourseDetailsS
           <div className="w-8 h-8 rounded-lg bg-slate-100 border border-dash shrink-0" />
           <div className="h-4 w-28 bg-slate-200 rounded" />
         </div>
-        <div className="flex items-center gap-2">
-          <div className="h-9 w-24 bg-slate-100 rounded-lg border border-dash" />
-          <div className="h-9 w-32 bg-slate-200 rounded-lg" />
-        </div>
+        <div className="h-9 w-32 bg-slate-200 rounded-lg shrink-0" />
       </div>
 
       {/* 2. Course Hero Banner Skeleton */}

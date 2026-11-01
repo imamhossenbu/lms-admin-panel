@@ -37,7 +37,6 @@ export function InstructorFormSkeleton() {
           <div className="h-4 w-32 bg-slate-200 rounded-md" />
         </div>
         <div className="flex items-center gap-4">
-          <div className="h-10 w-40 rounded-lg border border-dash bg-white" />
           <div className="w-11 h-11 rounded-full bg-slate-100 shrink-0" />
           <div className="space-y-1.5">
             <div className="h-7 w-56 bg-slate-200 rounded-lg" />

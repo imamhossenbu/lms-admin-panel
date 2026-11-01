@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
+import { ArrowLeft } from "lucide-react";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -427,7 +428,8 @@ export function CreateCourseView({ courseId }: CreateCourseViewProps = {}) {
                       <CreateCourseActions
                         isContinuing={false}
                         disabled={isSaving}
-                        cancelLabel="Back"
+                        cancelLabel="Previous"
+                        cancelIcon={<ArrowLeft />}
                         continueLabel="Continue to Pricing"
                         onCancel={() => set({ step: null })}
                         onContinue={continueToPricing}

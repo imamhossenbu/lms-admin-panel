@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ArrowLeft, Eye, Pencil } from "lucide-react";
+import { Eye, Pencil } from "lucide-react";
 import type { AssignmentItem, AssignmentSubmission } from "@/types/assignment";
 import type { LessonEditorContext } from "@/types/lessonEditor";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
@@ -17,14 +17,13 @@ export interface AssignmentDetailsHeaderProps {
   assignment: AssignmentItem;
   submissions: AssignmentSubmission[];
   context: LessonEditorContext;
-  onBack: () => void;
   onPreview: () => void;
   onEdit: () => void;
   onAssignmentChange: (next: AssignmentItem) => void;
 }
 
 /** Breadcrumb, title + status badge, module/lesson subtitle and the page actions. */
-export function AssignmentDetailsHeader({ assignment, submissions, context, onBack, onPreview, onEdit, onAssignmentChange }: AssignmentDetailsHeaderProps) {
+export function AssignmentDetailsHeader({ assignment, submissions, context, onPreview, onEdit, onAssignmentChange }: AssignmentDetailsHeaderProps) {
   const act = useAssignmentActions(assignment, submissions);
   const { moduleLabel, lessonLabel } = assignmentLocation(assignment, context);
   const isPublished = assignment.status === "PUBLISHED";
@@ -61,9 +60,6 @@ export function AssignmentDetailsHeader({ assignment, submissions, context, onBa
           )}
         </div>
         <div className="flex flex-wrap items-center gap-2.5">
-          <SecondaryButton leftIcon={<ArrowLeft />} onClick={onBack}>
-            Back to Assignments
-          </SecondaryButton>
           <SecondaryButton leftIcon={<Eye />} onClick={onPreview}>
             View as Student
           </SecondaryButton>

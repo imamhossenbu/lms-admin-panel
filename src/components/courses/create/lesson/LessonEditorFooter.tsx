@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ArrowRight, FileText } from "lucide-react";
+import { ArrowLeft, ArrowRight, FileText } from "lucide-react";
 import { PrimaryButton } from "@/components/ui/primary-button";
 import { SecondaryButton } from "@/components/ui/secondary-button";
 import type { LessonTab } from "@/validations/lessonFormSchema";
@@ -57,8 +57,8 @@ export function LessonEditorFooter({
           Save as Draft
         </SecondaryButton>
         {!isFirst && (
-          <SecondaryButton type="button" size="lg" onClick={onBack} disabled={disabled}>
-            Back
+          <SecondaryButton type="button" size="lg" leftIcon={<ArrowLeft />} onClick={onBack} disabled={disabled}>
+            Previous
           </SecondaryButton>
         )}
         {isLast ? (
