@@ -3,10 +3,23 @@
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ProTipCard } from "@/components/ui/ProTipCard";
-import type { LessonTab } from "@/validations/lessonFormSchema";
+import { useWatch } from "react-hook-form";
+import type { LessonFormValues, LessonTab } from "@/validations/lessonFormSchema";
 import { ResourcesPreviewCard } from "../resources/ResourcesPreviewCard";
 import { LessonPreviewCard } from "./LessonPreviewCard";
 import { LessonContentChecklist } from "./LessonContentChecklist";
+
+/** Content-tab tip; quiz lessons get quiz-specific advice. */
+function ContentTip() {
+  const type = useWatch<LessonFormValues, "type">({ name: "type" });
+  return (
+    <ProTipCard>
+      {type === "QUIZ"
+        ? "Mix question types and add short explanations so students learn from every answer."
+        : "Combine video with text content, code examples and resources for the best learning experience."}
+    </ProTipCard>
+  );
+}
 
 export interface LessonPreviewPanelProps {
   tab: LessonTab;
@@ -21,7 +34,7 @@ function TabExtras({ tab, settingsDone }: LessonPreviewPanelProps) {
       return (
         <>
           <LessonContentChecklist settingsDone={settingsDone} />
-          <ProTipCard>Combine video with text content, code examples and resources for the best learning experience.</ProTipCard>
+          <ContentTip />
         </>
       );
     case "resources":

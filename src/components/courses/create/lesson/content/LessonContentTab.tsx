@@ -6,13 +6,17 @@ import { useFormContext, useWatch } from "react-hook-form";
 import type { LessonFormValues } from "@/validations/lessonFormSchema";
 import { LessonRichContent } from "./LessonRichContent";
 import { LessonVideoSection } from "./LessonVideoSection";
+import { LessonQuizBuilder } from "../quiz/LessonQuizBuilder";
 
 export interface LessonContentTabProps {
   /** Reports a video upload in progress so the modal can block saving / closing meanwhile. */
   onUploadingChange?: (uploading: boolean) => void;
 }
 
-/** Add Lesson → Content tab: video (upload / YouTube / Vimeo / external link) + rich-text lesson content. */
+/**
+ * Add Lesson → Content tab: video (upload / YouTube / Vimeo / external link) + rich-text lesson content.
+ * QUIZ lessons show the quiz builder instead of the video section.
+ */
 export function LessonContentTab({ onUploadingChange }: LessonContentTabProps) {
   const { control } = useFormContext<LessonFormValues>();
   const type = useWatch({ control, name: "type" });
@@ -24,7 +28,11 @@ export function LessonContentTab({ onUploadingChange }: LessonContentTabProps) {
       transition={{ duration: 0.25, ease: "easeOut" }}
       className="space-y-7"
     >
-      <LessonVideoSection optional={type !== "VIDEO"} onUploadingChange={onUploadingChange} />
+      {type === "QUIZ" ? (
+        <LessonQuizBuilder />
+      ) : (
+        <LessonVideoSection optional={type !== "VIDEO"} onUploadingChange={onUploadingChange} />
+      )}
       <LessonRichContent required={type === "TEXT" || type === "CODING"} />
     </motion.div>
   );

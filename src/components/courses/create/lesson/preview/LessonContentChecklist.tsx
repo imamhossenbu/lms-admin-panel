@@ -16,13 +16,15 @@ export interface LessonContentChecklistProps {
 /** "Content Checklist": x of 4 completed with a progress bar. */
 export function LessonContentChecklist({ settingsDone }: LessonContentChecklistProps) {
   const { control } = useFormContext<LessonFormValues>();
-  const [videoUrl, content, files, links] = useWatch({
+  const [type, videoUrl, questions, content, files, links] = useWatch({
     control,
-    name: ["video.url", "content", "resourceFiles", "resourceLinks"],
+    name: ["type", "video.url", "quiz.questions", "content", "resourceFiles", "resourceLinks"],
   });
 
   const items = [
-    { label: "Add video content", done: !!videoUrl?.trim() },
+    type === "QUIZ"
+      ? { label: "Add quiz questions", done: (questions?.length ?? 0) > 0 }
+      : { label: "Add video content", done: !!videoUrl?.trim() },
     { label: "Add lesson content (text, code, etc.)", done: hasRichText(content ?? "") },
     { label: "Add downloadable resources", done: (files?.length ?? 0) + (links?.length ?? 0) > 0 },
     { label: "Configure lesson settings", done: settingsDone },

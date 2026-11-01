@@ -36,7 +36,9 @@ import { useCreateCourseData } from "./hooks/useCreateCourseData";
 import { useCourseAiFlow } from "./hooks/useCourseAiFlow";
 import { usePreviewTab } from "./hooks/usePreviewTab";
 import { useSaveCourse, type SaveIntent } from "./hooks/useSaveCourse";
-import { clearCreateCourseDraft, useCreateCourseDraft } from "./hooks/useCreateCourseDraft";
+import { clearCreateCourseDraft, editDraftKey, useCreateCourseDraft, type StoredDraft } from "./hooks/useCreateCourseDraft";
+import { useEditCourseSource } from "./edit/useEditCourseSource";
+import { CourseNotFoundState } from "./edit/CourseNotFoundState";
 import type { CoursePreviewData } from "./preview/previewTypes";
 import { PricingStep } from "./steps/PricingStep";
 import { AdditionalSettingsStep } from "./steps/AdditionalSettingsStep";
@@ -46,14 +48,29 @@ import { STEP_PARAM, stepFromParam, type CourseStepFacts, type CourseStepNumber 
 type ModulePanelState = { mode: "create" } | { mode: "edit"; moduleId: string } | null;
 
 /** Create Course wizard: Basic Information → Curriculum → Pricing & Access → Additional Settings → Review & Publish. */
-export function CreateCourseView() {
+export interface CreateCourseViewProps {
+  /** When given, the wizard edits this existing course instead of creating a new one. */
+  courseId?: string;
+}
+
+export function CreateCourseView({ courseId }: CreateCourseViewProps = {}) {
+  const isEdit = Boolean(courseId);
   const router = useRouter();
   const { get, set } = useUrlParams();
   const step = stepFromParam(get("step"));
 
   const { categories, instructors, isLoading, addCategory } = useCreateCourseData();
   const [previewTab, setPreviewTab] = usePreviewTab();
-  const { save, savingIntent } = useSaveCourse();
+  const { save, update, savingIntent } = useSaveCourse();
+  const source = useEditCourseSource(courseId);
+  const draftKey = courseId ? editDraftKey(courseId) : undefined;
+  const serverDraft = useMemo<StoredDraft | null>(
+    () =>
+      source.initial
+        ? { values: source.initial.basic, curriculum: source.initial.outline, publish: source.initial.publish }
+        : null,
+    [source.initial]
+  );
 
   const form = useForm<CourseBasicInfoInput>({
     resolver: zodResolver(courseBasicInfoSchema),
@@ -67,7 +84,14 @@ export function CreateCourseView() {
   });
   const ai = useCourseAiFlow(form);
   const values = useWatch({ control: form.control }) as CourseBasicInfoInput;
-  const { isRestored } = useCreateCourseDraft(form, publishForm, ai.acceptedOutline, ai.setAcceptedOutline, !isLoading);
+  const { isRestored } = useCreateCourseDraft(
+    form,
+    publishForm,
+    ai.acceptedOutline,
+    ai.setAcceptedOutline,
+    !isLoading && (!isEdit || Boolean(serverDraft)),
+    isEdit ? { storageKey: draftKey, initial: serverDraft } : {}
+  );
 
   const [instructorId, setInstructorId] = useState("");
   const [uploads, setUploads] = useState({ thumbnail: false, video: false, module: false });
@@ -152,11 +176,14 @@ export function CreateCourseView() {
       } else if (!coursePublishSchema.safeParse(publish).success) {
         publish = null; // draft: fall back to a free course rather than blocking on step 3
       }
-      const courseId = await save(data, ai.acceptedOutline, intent, publish);
-      if (!courseId) return;
-      clearCreateCourseDraft();
+      const savedId =
+        isEdit && source.snapshot
+          ? await update(source.snapshot, data, curriculum, intent, publish)
+          : await save(data, ai.acceptedOutline, intent, publish);
+      if (!savedId) return;
+      clearCreateCourseDraft(draftKey);
       form.reset(data);
-      router.push(intent === "draft" ? "/courses" : `/courses/${courseId}`);
+      router.push(intent === "draft" && !isEdit ? "/courses" : `/courses/${savedId}`);
     }, step > 1 ? () => { set({ step: null }); invalidFormToast(); } : invalidFormToast)();
   };
 
@@ -222,11 +249,15 @@ export function CreateCourseView() {
   const panelInitialValues = useMemo(() => (editingModule ? moduleToPanel(editingModule) : undefined), [editingModule]);
 
   const handleCancel = () => {
-    if (form.formState.isDirty || ai.acceptedOutline) setIsDiscardOpen(true);
+    if (isEdit) setIsDiscardOpen(true);
+    else if (form.formState.isDirty || ai.acceptedOutline) setIsDiscardOpen(true);
     else router.push("/courses");
   };
 
-  if (isLoading || !isRestored) return <CourseCreateSkeleton />;
+  const exitPath = isEdit ? `/courses/${courseId}` : "/courses";
+
+  if (isEdit && source.notFound) return <CourseNotFoundState />;
+  if (isLoading || source.isLoading || !isRestored) return <CourseCreateSkeleton />;
 
   return (
     <FormProvider {...form}>
@@ -237,15 +268,28 @@ export function CreateCourseView() {
         className="space-y-5 text-left pb-10"
       >
         <CreateCourseHeader
-          isSavingDraft={savingIntent === "draft"}
+          isSavingDraft={savingIntent === (isEdit ? "save" : "draft")}
           disabled={isSaving}
-          onSaveDraft={() => submit("draft")}
+          onSaveDraft={() => submit(isEdit ? "save" : "draft")}
           onPreview={() => setIsPreviewOpen(true)}
           onPublish={step === 5 ? () => submit("publish") : undefined}
           isPublishing={savingIntent === "publish"}
+          {...(isEdit
+            ? {
+                title: "Edit Course",
+                subtitle: "Update your course details, curriculum, pricing and settings.",
+                breadcrumbLabel: "Edit Course",
+                draftLabel: "Save Changes",
+                publishLabel: "Update & Publish",
+              }
+            : {})}
         />
 
-        <CourseStepper activeStep={step} onStepClick={(target) => goToStep(target as CourseStepNumber)} />
+        <CourseStepper
+          activeStep={step}
+          allowAllSteps={isEdit}
+          onStepClick={(target) => goToStep(target as CourseStepNumber)}
+        />
 
         <AnimatePresence mode="wait" initial={false}>
           {step === 1 ? (
@@ -326,6 +370,7 @@ export function CreateCourseView() {
                 onPublish={() => submit("publish")}
                 onEditStep={goToStep}
                 onViewCourse={() => setIsPreviewOpen(true)}
+                publishLabel={isEdit ? "Update & Publish" : "Publish Course"}
               />
             </FormProvider>
           ) : (
@@ -385,14 +430,18 @@ export function CreateCourseView() {
 
       <ConfirmModal
         isOpen={isDiscardOpen}
-        title="Discard this course?"
+        title={isEdit ? "Discard your changes?" : "Discard this course?"}
         subtitle="Your unsaved changes will be lost."
-        message="You have unsaved course details. Leaving now will discard everything you've entered on this page."
+        message={
+          isEdit
+            ? "Any changes you haven't saved will be discarded and the course will stay as it is."
+            : "You have unsaved course details. Leaving now will discard everything you've entered on this page."
+        }
         confirmLabel="Discard & Leave"
         onClose={() => setIsDiscardOpen(false)}
         onConfirm={async () => {
-          clearCreateCourseDraft();
-          router.push("/courses");
+          clearCreateCourseDraft(draftKey);
+          router.push(exitPath);
         }}
       />
     </FormProvider>

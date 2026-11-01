@@ -191,6 +191,9 @@ export const coursesApi = {
       videoUrl?: string | null;
       resources?: string | null;
       isPreview?: boolean;
+      status?: string;
+      /** Moves the lesson to another module. */
+      moduleId?: string;
     }
   ) => {
     const res = await apiClient.patch(

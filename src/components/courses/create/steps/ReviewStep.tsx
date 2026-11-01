@@ -20,10 +20,21 @@ interface ReviewStepProps {
   onPublish: () => void;
   onEditStep: (step: CourseStepNumber) => void;
   onViewCourse: () => void;
+  publishLabel?: string;
 }
 
 /** Step 5 — summary of every step + student-facing preview, then Publish. */
-export function ReviewStep({ facts, issues, isPublishing, disabled, onBack, onPublish, onEditStep, onViewCourse }: ReviewStepProps) {
+export function ReviewStep({
+  facts,
+  issues,
+  isPublishing,
+  disabled,
+  onBack,
+  onPublish,
+  onEditStep,
+  onViewCourse,
+  publishLabel = "Publish Course",
+}: ReviewStepProps) {
   const pricing = useWatch<CoursePublishInput>({ name: ["priceType", "price"] }) as [CoursePublishInput["priceType"], number];
   const stats = { modules: facts.moduleCount, lessons: facts.lessonCount, totalMinutes: facts.totalMinutes };
 
@@ -56,7 +67,7 @@ export function ReviewStep({ facts, issues, isPublishing, disabled, onBack, onPu
       <CreateCourseStepFooter
         onBack={onBack}
         onNext={onPublish}
-        nextLabel="Publish Course"
+        nextLabel={publishLabel}
         nextIcon={<Send />}
         isLoading={isPublishing}
         loadingLabel="Publishing..."

@@ -6,17 +6,19 @@ import type { CourseBasicInfoInput } from "@/validations/courseSchema";
 import { EMPTY_COURSE_PUBLISH, type CoursePublishInput } from "@/validations/coursePublishSchema";
 import type { AiOutline } from "../aiOutline";
 
-const STORAGE_KEY = "edupro_create_course_draft";
+const CREATE_KEY = "edupro_create_course_draft";
+/** Edit mode keeps one draft per course. */
+export const editDraftKey = (courseId: string) => `edupro_edit_course_draft_${courseId}`;
 
-interface StoredDraft {
+export interface StoredDraft {
   values: CourseBasicInfoInput;
   curriculum: AiOutline | null;
   publish?: CoursePublishInput;
 }
 
-const readDraft = (): StoredDraft | null => {
+const readDraft = (key: string): StoredDraft | null => {
   try {
-    const raw = sessionStorage.getItem(STORAGE_KEY);
+    const raw = sessionStorage.getItem(key);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as StoredDraft;
     return parsed && typeof parsed === "object" && parsed.values ? parsed : null;
@@ -25,11 +27,18 @@ const readDraft = (): StoredDraft | null => {
   }
 };
 
-export const clearCreateCourseDraft = () => {
+export const clearCreateCourseDraft = (key: string = CREATE_KEY) => {
   try {
-    sessionStorage.removeItem(STORAGE_KEY);
+    sessionStorage.removeItem(key);
   } catch {}
 };
+
+export interface DraftOptions {
+  /** sessionStorage key (defaults to the create-course key). */
+  storageKey?: string;
+  /** Edit mode: server data applied when there is no stored draft. */
+  initial?: StoredDraft | null;
+}
 
 /**
  * Keeps the in-progress course (basic info + curriculum + pricing/settings) in sessionStorage so a
@@ -40,7 +49,8 @@ export function useCreateCourseDraft(
   publishForm: UseFormReturn<CoursePublishInput>,
   curriculum: AiOutline | null,
   setCurriculum: (outline: AiOutline | null) => void,
-  enabled: boolean
+  enabled: boolean,
+  { storageKey = CREATE_KEY, initial = null }: DraftOptions = {}
 ) {
   const [isRestored, setIsRestored] = useState(false);
   const restoredRef = useRef(false);
@@ -49,7 +59,7 @@ export function useCreateCourseDraft(
   useEffect(() => {
     if (!enabled || restoredRef.current) return;
     restoredRef.current = true;
-    const draft = readDraft();
+    const draft = readDraft(storageKey) ?? initial;
     if (draft) {
       form.reset(draft.values, { keepDefaultValues: true });
       if (draft.curriculum) setCurriculum(draft.curriculum);
@@ -61,7 +71,7 @@ export function useCreateCourseDraft(
       }
     }
     setIsRestored(true);
-  }, [enabled, form, publishForm, setCurriculum]);
+  }, [enabled, form, publishForm, setCurriculum, storageKey, initial]);
 
   // Persist on every change (form values + curriculum + pricing/settings).
   useEffect(() => {
@@ -69,7 +79,7 @@ export function useCreateCourseDraft(
     const persist = () => {
       try {
         const draft: StoredDraft = { values: form.getValues(), curriculum, publish: publishForm.getValues() };
-        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
+        sessionStorage.setItem(storageKey, JSON.stringify(draft));
       } catch {}
     };
     persist();
@@ -79,7 +89,7 @@ export function useCreateCourseDraft(
       a.unsubscribe();
       b.unsubscribe();
     };
-  }, [isRestored, form, publishForm, curriculum]);
+  }, [isRestored, form, publishForm, curriculum, storageKey]);
 
   return { isRestored };
 }

@@ -15,9 +15,27 @@ interface CreateCourseHeaderProps {
   /** On the Review step the primary action becomes "Publish Course". */
   onPublish?: () => void;
   isPublishing?: boolean;
+  /** Edit mode texts. */
+  title?: string;
+  subtitle?: string;
+  breadcrumbLabel?: string;
+  draftLabel?: string;
+  publishLabel?: string;
 }
 
-export function CreateCourseHeader({ isSavingDraft, disabled, onSaveDraft, onPreview, onPublish, isPublishing = false }: CreateCourseHeaderProps) {
+export function CreateCourseHeader({
+  isSavingDraft,
+  disabled,
+  onSaveDraft,
+  onPreview,
+  onPublish,
+  isPublishing = false,
+  title = "Create New Course",
+  subtitle = "Set up your course details, curriculum, pricing and publish it to your students.",
+  breadcrumbLabel = "Create Course",
+  draftLabel = "Save as Draft",
+  publishLabel = "Publish Course",
+}: CreateCourseHeaderProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: -6 }}
@@ -29,15 +47,15 @@ export function CreateCourseHeader({ isSavingDraft, disabled, onSaveDraft, onPre
         items={[
           { label: "", href: "/", icon: <Home className="w-4 h-4" /> },
           { label: "Courses", href: "/courses" },
-          { label: "Create Course" },
+          { label: breadcrumbLabel },
         ]}
       />
 
       <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
         <div className="min-w-0">
-          <h1 className="heading-h3-bold font-bold text-primary-500 tracking-tight">Create New Course</h1>
+          <h1 className="heading-h3-bold font-bold text-primary-500 tracking-tight">{title}</h1>
           <p className="body-regular text-primary-300 mt-1">
-            Set up your course details, curriculum, pricing and publish it to your students.
+            {subtitle}
           </p>
         </div>
 
@@ -48,7 +66,7 @@ export function CreateCourseHeader({ isSavingDraft, disabled, onSaveDraft, onPre
             isLoading={isSavingDraft}
             disabled={disabled}
           >
-            {isSavingDraft ? "Saving..." : "Save as Draft"}
+            {isSavingDraft ? "Saving..." : draftLabel}
           </SecondaryButton>
           {onPublish ? (
             <PrimaryButton
@@ -58,7 +76,7 @@ export function CreateCourseHeader({ isSavingDraft, disabled, onSaveDraft, onPre
               disabled={disabled}
               className="edupro-glow-btn"
             >
-              {isPublishing ? "Publishing..." : "Publish Course"}
+              {isPublishing ? "Publishing..." : publishLabel}
             </PrimaryButton>
           ) : (
             <PrimaryButton leftIcon={<Eye />} onClick={onPreview} className="edupro-glow-btn">

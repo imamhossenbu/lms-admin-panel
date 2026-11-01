@@ -61,6 +61,34 @@ export const lessonResourceLinkSchema = z.object({
   url: z.string().trim().refine(isHttpUrl, "Enter a valid URL starting with http:// or https://"),
 });
 
+export const QUIZ_QUESTION_TYPES = ["MCQ", "TRUE_FALSE"] as const;
+export const LESSON_QUIZ_QUESTIONS_MAX = 50;
+
+export const lessonQuizQuestionSchema = z
+  .object({
+    /** Server id when the question already exists; "" for new ones. */
+    id: z.string(),
+    questionText: z.string().trim().min(3, "Question must be at least 3 characters").max(500, "Question must be 500 characters or less"),
+    questionType: z.enum(QUIZ_QUESTION_TYPES),
+    options: z.array(z.string().trim().min(1, "Option can't be empty").max(200, "Option must be 200 characters or less")).min(2, "Add at least 2 options").max(6, "Add up to 6 options"),
+    /** Must equal one of `options`. */
+    correctAnswer: z.string().trim().min(1, "Select the correct answer"),
+    marks: z.number({ error: "Enter marks" }).int("Whole numbers only").min(1, "At least 1 mark").max(100, "100 marks or less"),
+    explanation: z.string().trim().max(500, "Explanation must be 500 characters or less"),
+  })
+  .refine((q) => q.options.includes(q.correctAnswer), { path: ["correctAnswer"], message: "Select the correct answer" });
+
+export const lessonQuizSchema = z.object({
+  /** Server quiz id when editing an existing quiz; "" otherwise. */
+  id: z.string(),
+  timeLimitMinutes: z.number({ error: "Enter a time limit" }).int("Whole numbers only").min(1, "At least 1 minute").max(300, "300 minutes or less"),
+  passingScore: z.number({ error: "Enter a passing score" }).int("Whole numbers only").min(1, "At least 1%").max(100, "100% or less"),
+  questions: z.array(lessonQuizQuestionSchema).max(LESSON_QUIZ_QUESTIONS_MAX, `Add up to ${LESSON_QUIZ_QUESTIONS_MAX} questions`),
+});
+
+export type LessonQuiz = z.infer<typeof lessonQuizSchema>;
+export type LessonQuizQuestion = z.infer<typeof lessonQuizQuestionSchema>;
+
 export const lessonFormSchema = z
   .object({
     // ---- Basic Info tab ----
@@ -84,6 +112,8 @@ export const lessonFormSchema = z
 
     // ---- Content tab ----
     video: lessonVideoSchema,
+    /** Quiz builder (Content tab, only used when type = QUIZ). */
+    quiz: lessonQuizSchema,
     /** Rich-text HTML from the shared RichTextEditor. */
     content: z.string(),
 
@@ -138,6 +168,9 @@ export const lessonPublishIssues = (v: LessonFormValues): { path: string; messag
     issues.push({ path: "video.url", message: "Add a video for this video lesson", tab: "content" });
   }
   const text = v.content.replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ").trim();
+  if (v.type === "QUIZ" && v.quiz.questions.length === 0) {
+    issues.push({ path: "quiz.questions", message: "Add at least one quiz question", tab: "content" });
+  }
   if ((v.type === "TEXT" || v.type === "CODING") && !text) {
     issues.push({ path: "content", message: "Write the lesson content", tab: "content" });
   }
@@ -159,6 +192,7 @@ export const LESSON_FIELD_TAB: Record<keyof LessonFormValues, LessonTab> = {
   thumbnailUrl: "basic",
   thumbnailPrompt: "basic",
   video: "content",
+  quiz: "content",
   content: "content",
   resourceFiles: "resources",
   resourceLinks: "resources",
@@ -184,6 +218,7 @@ export const EMPTY_LESSON_FORM: LessonFormValues = {
   thumbnailUrl: "",
   thumbnailPrompt: "",
   video: { source: "UPLOAD", url: "", fileName: "", fileSize: 0, durationSeconds: 0 },
+  quiz: { id: "", timeLimitMinutes: 15, passingScore: 70, questions: [] },
   content: "",
   resourceFiles: [],
   resourceLinks: [],

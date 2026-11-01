@@ -10,10 +10,12 @@ interface CourseStepperProps {
   activeStep: number;
   /** Lets the admin jump back to a completed step. */
   onStepClick?: (step: number) => void;
+  /** Edit mode: every step is reachable, not only completed ones. */
+  allowAllSteps?: boolean;
 }
 
 /** Five-step progress header for the course creation flow. */
-export function CourseStepper({ activeStep, onStepClick }: CourseStepperProps) {
+export function CourseStepper({ activeStep, onStepClick, allowAllSteps = false }: CourseStepperProps) {
   return (
     <motion.nav
       aria-label="Course creation steps"
@@ -27,17 +29,18 @@ export function CourseStepper({ activeStep, onStepClick }: CourseStepperProps) {
           const number = index + 1;
           const isActive = number === activeStep;
           const isDone = number < activeStep;
+          const isClickable = !!onStepClick && !isActive && (isDone || allowAllSteps);
           const isLast = number === CREATE_COURSE_STEPS.length;
 
           return (
             <li key={step.title} className={cn("flex items-center gap-3", !isLast && "flex-1")}>
               <div
-                className={cn("flex items-center gap-3 shrink-0", isDone && onStepClick && "cursor-pointer rounded-lg hover:opacity-80")}
+                className={cn("flex items-center gap-3 shrink-0", isClickable && "cursor-pointer rounded-lg hover:opacity-80")}
                 aria-current={isActive ? "step" : undefined}
-                role={isDone && onStepClick ? "button" : undefined}
-                tabIndex={isDone && onStepClick ? 0 : undefined}
-                onClick={isDone && onStepClick ? () => onStepClick(number) : undefined}
-                onKeyDown={isDone && onStepClick ? (e) => e.key === "Enter" && onStepClick(number) : undefined}
+                role={isClickable ? "button" : undefined}
+                tabIndex={isClickable ? 0 : undefined}
+                onClick={isClickable ? () => onStepClick(number) : undefined}
+                onKeyDown={isClickable ? (e) => e.key === "Enter" && onStepClick(number) : undefined}
               >
                 <span className="relative w-10 h-10 shrink-0 flex items-center justify-center">
                   {isActive ? (

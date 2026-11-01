@@ -1,5 +1,13 @@
 import type { CurriculumModuleInput } from "@/validations/courseOutlineSchema";
-import { newOutlineId, type AiOutline, type AiOutlineLesson, type AiOutlineModule } from "../aiOutline";
+import { newOutlineId, type AiOutline, type AiOutlineLesson, type AiOutlineModule, type LessonDetails } from "../aiOutline";
+
+/** Deep copy for duplicates; server ids are dropped so the copy creates its own quiz instead of editing the original. */
+const copyDetails = (details: LessonDetails | undefined): LessonDetails | undefined => {
+  if (!details) return undefined;
+  const copy = structuredClone(details);
+  if (copy.quiz) copy.quiz = { ...copy.quiz, id: "", questions: copy.quiz.questions.map((q) => ({ ...q, id: "" })) };
+  return copy;
+};
 
 const withCopy = (title: string) => (title.endsWith("(Copy)") ? title : `${title} (Copy)`);
 
@@ -49,7 +57,7 @@ export function duplicateModule(outline: AiOutline, moduleId: string): AiOutline
     lessons: source.lessons.map((l) => ({
       ...l,
       id: newOutlineId("l"),
-      details: l.details ? structuredClone(l.details) : undefined,
+      details: copyDetails(l.details),
     })),
   };
   const modules = [...outline.modules];
@@ -71,7 +79,7 @@ export function duplicateLesson(outline: AiOutline, moduleId: string, lessonId: 
         id: newOutlineId("l"),
         title: withCopy(source.title),
         // Deep copy so the duplicate's content / resources / settings never share references with the original.
-        details: source.details ? structuredClone(source.details) : undefined,
+        details: copyDetails(source.details),
       };
       const lessons = [...m.lessons];
       lessons.splice(index + 1, 0, copy);

@@ -9,6 +9,7 @@ import type { AiOutlineLesson } from "../aiOutline";
 const emptyForm = (): LessonFormValues => ({
   ...EMPTY_LESSON_FORM,
   video: { ...EMPTY_LESSON_FORM.video },
+  quiz: { ...EMPTY_LESSON_FORM.quiz, questions: [] },
   resourceFiles: [],
   resourceLinks: [],
   tags: [],
@@ -28,6 +29,10 @@ export function lessonToFormValues(lesson?: AiOutlineLesson): LessonFormValues {
       ...base,
       ...d,
       video: { ...base.video, ...d.video },
+      // Drafts saved before the quiz builder existed have no `quiz`.
+      quiz: d.quiz
+        ? { ...base.quiz, ...d.quiz, questions: d.quiz.questions.map((q) => ({ ...q, options: [...q.options] })) }
+        : base.quiz,
       resourceFiles: d.resourceFiles.map((f) => ({ ...f })),
       resourceLinks: d.resourceLinks.map((l) => ({ ...l })),
       tags: [...d.tags],

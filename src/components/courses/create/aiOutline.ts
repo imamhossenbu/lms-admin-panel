@@ -177,23 +177,3 @@ export const lessonPayloadForApi = (lesson: AiOutlineLesson, order: number) => {
     status: d ? LESSON_STATUS_FOR_API[d.visibility] : "PUBLISHED",
   };
 };
-
-/**
- * Creates every module and lesson of the outline under an existing course (sequential to keep order).
- * Lesson resources (files/links) are not sent: the current backend only accepts a multipart file upload.
- */
-export async function saveOutlineToCourse(courseId: string, outline: AiOutline): Promise<void> {
-  for (let mi = 0; mi < outline.modules.length; mi++) {
-    const outlineModule = outline.modules[mi];
-    const created = await coursesApi.createModule(courseId, {
-      title: outlineModule.title,
-      description: moduleDescriptionForApi(outlineModule),
-      order: mi + 1,
-    });
-    if (!created?.id) continue;
-    for (let li = 0; li < outlineModule.lessons.length; li++) {
-      const lesson = outlineModule.lessons[li];
-      await coursesApi.createLesson(courseId, created.id, lessonPayloadForApi(lesson, li + 1));
-    }
-  }
-}

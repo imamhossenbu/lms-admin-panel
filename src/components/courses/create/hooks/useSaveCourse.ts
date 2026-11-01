@@ -6,10 +6,13 @@ import { coursesApi } from "@/lib/api";
 import { apiErrorMessage } from "@/lib/courseView";
 import type { CourseBasicInfoInput } from "@/validations/courseSchema";
 import type { CoursePublishInput } from "@/validations/coursePublishSchema";
-import { outlineStats, saveOutlineToCourse, type AiOutline } from "../aiOutline";
+import { outlineStats, type AiOutline } from "../aiOutline";
+import { syncCurriculum } from "../edit/syncCourse";
+import type { CourseSnapshot } from "../edit/courseToWizard";
 import { listItemsFromHtml, slugify } from "../createCourseOptions";
 
-export type SaveIntent = "draft" | "publish";
+/** "save" (edit mode only) keeps the course's current status. */
+export type SaveIntent = "draft" | "publish" | "save";
 
 const isSlugConflict = (err: unknown) => {
   const e = err as { response?: { status?: number }; message?: string };
@@ -51,6 +54,15 @@ export const buildCoursePayload = (
   };
 };
 
+/** Snapshot of a brand-new course: nothing on the server yet, so the sync only creates. */
+const emptySnapshot = (courseId: string): CourseSnapshot => ({
+  courseId,
+  slug: "",
+  status: "DRAFT",
+  moduleIds: new Set(),
+  lessonModule: new Map(),
+});
+
 /**
  * Creates the course (DRAFT or PUBLISHED), then saves the curriculum as modules/lessons/resources.
  * Enrollment, access duration, visibility and feature toggles have no backend columns yet and are not sent.
@@ -88,7 +100,7 @@ export function useSaveCourse() {
           description: "Creating modules and lessons for your course.",
         });
         try {
-          await saveOutlineToCourse(created.id, outline);
+          await syncCurriculum(emptySnapshot(created.id), outline);
         } catch (err) {
           toast.error("Course saved, but the curriculum wasn't fully added", {
             id: toastId,
@@ -117,5 +129,49 @@ export function useSaveCourse() {
     }
   };
 
-  return { save, savingIntent };
+  /** Edit mode: updates the course row, then syncs modules/lessons/quizzes against the load-time snapshot. */
+  const update = async (
+    snapshot: CourseSnapshot,
+    values: CourseBasicInfoInput,
+    outline: AiOutline,
+    intent: SaveIntent,
+    publish: CoursePublishInput | null
+  ): Promise<string | null> => {
+    setSavingIntent(intent);
+    const status = intent === "publish" ? "PUBLISHED" : intent === "draft" ? "DRAFT" : snapshot.status;
+    const toastId = toast.loading(intent === "publish" ? "Publishing changes..." : "Saving changes...", {
+      description: `"${values.title.trim()}"`,
+    });
+    try {
+      await coursesApi.update(snapshot.courseId, buildCoursePayload(values, outline, snapshot.slug, publish, status));
+      toast.loading("Updating curriculum...", { id: toastId, description: "Syncing modules, lessons and quizzes." });
+      try {
+        await syncCurriculum(snapshot, outline);
+      } catch (err) {
+        toast.error("Course details saved, but the curriculum wasn't fully updated", {
+          id: toastId,
+          description: apiErrorMessage(err, "Reload the page to see what was saved, then try again."),
+        });
+        return null;
+      }
+      toast.success(intent === "publish" ? "Course published" : "Changes saved", {
+        id: toastId,
+        description:
+          intent === "publish"
+            ? `"${values.title.trim()}" is live with your latest changes.`
+            : `"${values.title.trim()}" was updated.`,
+      });
+      return snapshot.courseId;
+    } catch (err) {
+      toast.error("Couldn't save your changes", {
+        id: toastId,
+        description: apiErrorMessage(err, "Please check your connection and try again."),
+      });
+      return null;
+    } finally {
+      setSavingIntent(null);
+    }
+  };
+
+  return { save, update, savingIntent };
 }
