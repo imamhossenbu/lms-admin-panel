@@ -24,6 +24,8 @@ export interface ChoiceCardGroupProps<T extends string> {
   variant?: "card" | "inline";
   /** Leading marker when an option has no icon. */
   indicator?: "radio" | "none";
+  /** "left": icon beside the text. "top": icon above a single-line title (for narrow, many-column grids). */
+  iconPosition?: "left" | "top";
   className?: string;
   "aria-label"?: string;
 }
@@ -68,6 +70,7 @@ export function ChoiceCardGroup<T extends string>({
   columns = 3,
   variant = "card",
   indicator = "radio",
+  iconPosition = "left",
   className,
   ...rest
 }: ChoiceCardGroupProps<T>) {
@@ -115,22 +118,35 @@ export function ChoiceCardGroup<T extends string>({
             whileHover={option.disabled ? undefined : { y: -1 }}
             onClick={() => onChange(option.value)}
             className={cn(
-              "flex items-start gap-3 rounded-xl border p-3.5 text-left transition-colors",
+              "flex min-w-0 rounded-xl border p-3.5 text-left transition-colors",
+              iconPosition === "top" ? "flex-col items-start gap-2.5" : "items-start gap-3",
               "disabled:cursor-not-allowed disabled:opacity-50",
               checked ? "border-brand-orange bg-brand-orange-light" : "border-dash bg-white hover:border-primary-300/40"
             )}
           >
             {option.icon ? (
-              <span className="mt-0.5 shrink-0">{option.icon}</span>
+              <span className={cn("shrink-0", iconPosition === "left" && "mt-0.5")}>{option.icon}</span>
             ) : indicator === "radio" ? (
               <RadioDot checked={checked} />
             ) : null}
-            <span className="min-w-0">
-              <span className={cn("block body-sm-medium", checked ? "text-brand-orange" : "text-primary-500")}>
+            <span className="min-w-0 w-full">
+              <span
+                className={cn(
+                  "block body-sm-medium",
+                  iconPosition === "top" && "truncate",
+                  checked ? "text-brand-orange" : "text-primary-500"
+                )}
+              >
                 {option.title}
               </span>
               {option.description && (
-                <span className={cn("mt-1 block body-xsm-regular", checked ? "text-brand-orange" : "text-primary-300")}>
+                <span
+                  className={cn(
+                    "mt-1 block body-xsm-regular",
+                    iconPosition === "top" && "line-clamp-2",
+                    checked ? "text-brand-orange" : "text-primary-300"
+                  )}
+                >
                   {option.description}
                 </span>
               )}

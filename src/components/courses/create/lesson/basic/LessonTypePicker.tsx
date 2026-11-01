@@ -49,6 +49,7 @@ export function LessonTypePicker() {
               }}
               options={copy.map((o) => toOption(o, o.value === field.value))}
               columns={5}
+              iconPosition="top"
             />
           );
         }}
