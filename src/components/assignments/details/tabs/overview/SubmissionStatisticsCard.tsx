@@ -11,9 +11,9 @@ import { StatChip } from "./StatChip";
 import { DailySubmissionsChart } from "./DailySubmissionsChart";
 
 const RANGE_OPTIONS = [
-  { value: "7", label: "Last 7 days" },
-  { value: "14", label: "Last 14 days" },
-  { value: "30", label: "Last 30 days" },
+  { value: "7", label: "7 days" },
+  { value: "14", label: "14 days" },
+  { value: "30", label: "30 days" },
 ];
 
 /** Graded / Pending / Late / Total chips + daily submissions bar chart; range synced to `?range=`. */
@@ -45,9 +45,9 @@ export function SubmissionStatisticsCard({ submissions }: { submissions: Assignm
         />
       }
       className="h-full"
-      bodyClassName="space-y-5"
+      bodyClassName="@container space-y-5"
     >
-      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2.5 @lg:grid-cols-4">
         <StatChip tone="green" icon={<Check className="h-4 w-4" />} value={stats.graded} label="Graded" />
         <StatChip tone="orange" icon={<CircleAlert className="h-4 w-4" />} value={stats.pending} label="Pending" />
         <StatChip tone="red" icon={<X className="h-4 w-4" />} value={stats.late} label="Late" />
