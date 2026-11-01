@@ -19,7 +19,6 @@ export interface LiveClassesHeaderProps {
 export function LiveClassesHeader({ filteredCount, selectedCount, onExportFiltered, onExportSelected, onSchedule }: LiveClassesHeaderProps) {
   return (
     <PageHeader
-      className="mb-0"
       breadcrumbs={[{ label: "Live Classes" }]}
       title={<span className="heading-h3 font-bold! text-primary-500 tracking-tight">Live Classes</span>}
       subtitle="Manage and schedule your live classes, webinars and online sessions."

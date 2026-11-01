@@ -26,7 +26,6 @@ export function LiveClassFormHeader({ mode, classId, classTitle, isSubmitting, d
 
   return (
     <PageHeader
-      className="mb-0"
       breadcrumbs={breadcrumbs}
       title={<span className="heading-h3 font-bold! text-primary-500 tracking-tight">{mode === "create" ? "Schedule Live Class" : "Edit Live Class"}</span>}
       subtitle={mode === "create" ? "Create a new live class session for your course." : "Update the details, schedule and settings of this live class."}

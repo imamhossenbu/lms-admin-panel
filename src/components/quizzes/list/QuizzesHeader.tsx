@@ -9,7 +9,6 @@ import { PrimaryButton } from "@/components/ui/primary-button";
 export function QuizzesHeader({ onCreate }: { onCreate: () => void }) {
   return (
     <PageHeader
-      className="mb-0"
       breadcrumbs={[{ label: "Quizzes" }]}
       title={<span className="heading-h3 font-bold! text-primary-500">Quizzes</span>}
       subtitle="Create and manage quizzes for your courses. Track performance and analyze results."
