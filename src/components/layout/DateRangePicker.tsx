@@ -1,233 +1,78 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
-import { Calendar as CalendarIcon, ChevronDown, ChevronLeft, ChevronRight, Check } from "lucide-react";
-import { toast } from "sonner";
-import { PrimaryButton } from "@/components/ui/primary-button";
-import { SecondaryButton } from "@/components/ui/secondary-button";
+import React, { useSyncExternalStore } from "react";
+import { CalendarDays, ChevronDown } from "lucide-react";
+import { cn } from "@/lib/cn";
+import { DateRangePicker as SharedDateRangePicker } from "@/components/ui/date-range/DateRangePicker";
+import { addDays, toKey, type DateRange } from "@/components/ui/date-range/dateRangeUtils";
 
-interface DateRangePickerProps {
-  initialRange?: string;
-  onRangeApply?: (range: string) => void;
+const STORAGE_KEY = "edupro_global_date_range";
+export const GLOBAL_DATE_RANGE_EVENT = "edupro_global_date_range_changed";
+
+const last30 = (): DateRange => ({ from: toKey(addDays(new Date(), -29)), to: toKey(new Date()) });
+
+/** Read the navbar's reporting period (defaults to the last 30 days). */
+export function getGlobalDateRange(): DateRange {
+  if (typeof window === "undefined") return last30();
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw) as DateRange;
+  } catch {
+    /* fall through */
+  }
+  return last30();
 }
 
-const PRESETS = [
-  "Today",
-  "Yesterday",
-  "Last 7 days",
-  "Last 30 days",
-  "This Month",
-  "Custom Range",
-];
+const subscribe = (cb: () => void) => {
+  window.addEventListener(GLOBAL_DATE_RANGE_EVENT, cb);
+  return () => window.removeEventListener(GLOBAL_DATE_RANGE_EVENT, cb);
+};
+/** Stable string snapshot (JSON) so useSyncExternalStore compares by value. */
+const readRaw = () => JSON.stringify(getGlobalDateRange());
 
-const DAYS_OF_WEEK = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+/**
+ * Navbar reporting-period picker: the shared DateRangePicker with a compact pill trigger.
+ * The choice is kept for the browser session and broadcast with GLOBAL_DATE_RANGE_EVENT so
+ * dashboards can listen.
+ */
+export function DateRangePicker() {
+  // Session value on the client, empty on the server (no hydration mismatch).
+  const raw = useSyncExternalStore(subscribe, readRaw, () => "");
+  const range: DateRange = raw ? (JSON.parse(raw) as DateRange) : {};
 
-export function DateRangePicker({
-  initialRange = "Oct 01 - Oct 20, 2026",
-  onRangeApply,
-}: DateRangePickerProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [selectedPreset, setSelectedPreset] = useState("Last 30 days");
-  const [startDay, setStartDay] = useState(1);
-  const [endDay, setEndDay] = useState(20);
-  const [displayedRange, setDisplayedRange] = useState(initialRange);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-      }
+  const update = (next: DateRange) => {
+    try {
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    } catch {
+      /* ignore */
     }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const handleDayClick = (day: number) => {
-    if (day < startDay) {
-      setStartDay(day);
-    } else if (day === startDay) {
-      // Toggle
-      setStartDay(day);
-    } else {
-      setEndDay(day);
-      setSelectedPreset("Custom Range");
-    }
-  };
-
-  const handlePresetSelect = (preset: string) => {
-    setSelectedPreset(preset);
-    if (preset === "Today") {
-      setStartDay(20);
-      setEndDay(20);
-    } else if (preset === "Yesterday") {
-      setStartDay(19);
-      setEndDay(19);
-    } else if (preset === "Last 7 days") {
-      setStartDay(14);
-      setEndDay(20);
-    } else if (preset === "Last 30 days" || preset === "This Month") {
-      setStartDay(1);
-      setEndDay(20);
-    }
-  };
-
-  const handleApply = () => {
-    const formatted = `Oct ${startDay < 10 ? `0${startDay}` : startDay} - Oct ${
-      endDay < 10 ? `0${endDay}` : endDay
-    }, 2026`;
-    setDisplayedRange(formatted);
-    setIsOpen(false);
-
-    toast.success("Date Range Applied", {
-      description: `Filtering analytics from ${formatted}.`,
-    });
-
-    if (onRangeApply) {
-      onRangeApply(formatted);
-    }
+    window.dispatchEvent(new Event(GLOBAL_DATE_RANGE_EVENT));
   };
 
   return (
-    <div className="relative" ref={dropdownRef}>
-      {/* Trigger Button */}
-      <button
-        type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        className="h-10 flex items-center gap-2 px-3.5 rounded-lg border border-dash bg-white body-md-medium text-primary-500 shadow-2xs hover:bg-slate-50 transition-colors cursor-pointer"
-      >
-        <CalendarIcon className="w-4 h-4 text-primary-400 shrink-0" />
-        <span className="whitespace-nowrap body-md-medium">{displayedRange}</span>
-        <ChevronDown className="w-4 h-4 text-primary-300 shrink-0" />
-      </button>
-
-      {/* Floating Date Range Picker Card */}
-      {isOpen && (
-        <div className="absolute right-0 mt-2 w-auto min-w-85 sm:min-w-120 bg-white rounded-xl shadow-xl border border-dash overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-150">
-          <div className="flex flex-col sm:flex-row">
-            {/* Presets Sidebar */}
-            <div className="w-full sm:w-36 p-3 border-b sm:border-b-0 sm:border-r border-dash bg-slate-50/50 space-y-1">
-              <span className="px-2.5 py-1 block body-2xsm-regular font-bold text-primary-300 uppercase tracking-wider">
-                Presets
-              </span>
-              {PRESETS.map((p) => (
-                <button
-                  key={p}
-                  type="button"
-                  onClick={() => handlePresetSelect(p)}
-                  className={`w-full text-left px-2.5 py-2 rounded-lg body-md-medium transition-colors flex items-center justify-between cursor-pointer ${
-                    selectedPreset === p
-                      ? "bg-brand-orange-light text-brand-orange font-bold"
-                      : "text-primary-400 hover:bg-slate-100 hover:text-primary-500"
-                  }`}
-                >
-                  <span>{p}</span>
-                  {selectedPreset === p && <Check className="w-3.5 h-3.5" />}
-                </button>
-              ))}
-            </div>
-
-            {/* Calendar Grid Container */}
-            <div className="p-4 flex-1">
-              {/* Calendar Month Header */}
-              <div className="flex items-center justify-between mb-3 px-1">
-                <span className="body-sm-medium font-bold text-primary-500">
-                  October 2026
-                </span>
-                <div className="flex items-center gap-1">
-                  <button
-                    type="button"
-                    className="p-1 rounded-lg text-primary-300 hover:text-primary-500 hover:bg-slate-100 transition-colors"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                  </button>
-                  <button
-                    type="button"
-                    className="p-1 rounded-lg text-primary-300 hover:text-primary-500 hover:bg-slate-100 transition-colors"
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Days Header */}
-              <div className="grid grid-cols-7 gap-1 text-center mb-1">
-                {DAYS_OF_WEEK.map((d) => (
-                  <span
-                    key={d}
-                    className="body-2xsm-regular font-semibold text-primary-300 py-1"
-                  >
-                    {d}
-                  </span>
-                ))}
-              </div>
-
-              {/* Days Cells (Oct 2026 starts on Thursday, so 4 empty cells) */}
-              <div className="grid grid-cols-7 gap-1 text-center">
-                {[...Array(4)].map((_, i) => (
-                  <span key={`empty-${i}`} className="h-8" />
-                ))}
-
-                {[...Array(31)].map((_, i) => {
-                  const day = i + 1;
-                  const isStart = day === startDay;
-                  const isEnd = day === endDay;
-                  const isInRange = day > startDay && day < endDay;
-
-                  let cellClass =
-                    "h-8 flex items-center justify-center body-xsm-medium rounded-lg cursor-pointer transition-colors";
-
-                  if (isStart || isEnd) {
-                    cellClass += " bg-brand-orange text-white font-bold shadow-xs";
-                  } else if (isInRange) {
-                    cellClass += " bg-brand-orange-light text-brand-orange font-medium";
-                  } else {
-                    cellClass +=
-                      " text-primary-500 hover:bg-slate-100 hover:text-brand-orange";
-                  }
-
-                  return (
-                    <button
-                      key={day}
-                      type="button"
-                      onClick={() => handleDayClick(day)}
-                      className={cellClass}
-                    >
-                      {day}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
-          {/* Action Footer */}
-          <div className="px-4 py-3 bg-slate-50/80 border-t border-dash flex items-center justify-between gap-3">
-            <span className="body-2xsm-regular text-primary-400 font-medium truncate">
-              Selected: Oct {startDay < 10 ? `0${startDay}` : startDay} – Oct{" "}
-              {endDay < 10 ? `0${endDay}` : endDay}, 2026
-            </span>
-
-            <div className="flex items-center gap-2 shrink-0">
-              <SecondaryButton
-                size="sm"
-                onClick={() => setIsOpen(false)}
-              >
-                Cancel
-              </SecondaryButton>
-              <PrimaryButton
-                size="sm"
-                onClick={handleApply}
-              >
-                Apply Range
-              </PrimaryButton>
-            </div>
-          </div>
-        </div>
+    <SharedDateRangePicker
+      value={range}
+      onChange={update}
+      align="right"
+      clearable={false}
+      renderTrigger={({ open, label, toggle }) => (
+        <button
+          type="button"
+          aria-haspopup="dialog"
+          aria-expanded={open}
+          onClick={toggle}
+          className={cn(
+            "flex h-10 cursor-pointer items-center gap-2 rounded-lg border bg-white px-3.5 shadow-2xs transition-colors hover:bg-gray-bg",
+            open ? "border-brand-orange" : "border-dash"
+          )}
+        >
+          <CalendarDays className="h-4 w-4 shrink-0 text-primary-400" />
+          <span className="whitespace-nowrap body-sm-medium text-primary-500">{label || "All time"}</span>
+          <ChevronDown className={cn("h-4 w-4 shrink-0 text-primary-300 transition-transform", open && "rotate-180")} />
+        </button>
       )}
-    </div>
+    />
   );
 }
+
+export default DateRangePicker;

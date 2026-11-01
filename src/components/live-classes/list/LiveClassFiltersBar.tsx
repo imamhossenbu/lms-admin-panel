@@ -3,6 +3,7 @@
 import React from "react";
 import { ListFilters } from "@/components/ui/ListFilters";
 import { COURSE_FILTER_OPTIONS, INSTRUCTOR_FILTER_OPTIONS, STATUS_FILTER_OPTIONS } from "./liveListUtils";
+import { UPCOMING_PRESETS } from "@/components/ui/date-range/dateRangeUtils";
 
 export interface LiveClassFiltersBarProps {
   query: string;
@@ -29,6 +30,7 @@ export function LiveClassFiltersBar({ query, status, instructor, course, from, t
         { key: "course", value: course, options: COURSE_FILTER_OPTIONS, onChange: (v) => onChange({ course: v }), className: "xl:w-44" },
       ]}
       dateRange={{ from: from || undefined, to: to || undefined }}
+      dateRangePresets={UPCOMING_PRESETS}
       onDateRangeChange={(r) => onChange({ from: r.from ?? null, to: r.to ?? null })}
       onReset={onReset}
       isFiltered={isFiltered}

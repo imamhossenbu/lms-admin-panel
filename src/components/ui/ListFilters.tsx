@@ -4,6 +4,7 @@ import React from "react";
 import { Search } from "lucide-react";
 import { AppSelect, AppSelectOption } from "@/components/ui/AppSelect";
 import { DateRange, DateRangeFilter } from "@/components/ui/DateRangeFilter";
+import type { DateRangePreset } from "@/components/ui/date-range/dateRangeUtils";
 import { cn } from "@/lib/cn";
 
 export interface ListSelectFilter {
@@ -24,6 +25,8 @@ interface ListFiltersProps {
   selects: ListSelectFilter[];
   /** Optional date range picker (omit both to hide it). */
   dateRange?: DateRange;
+  /** Quick-select presets for the date range (defaults to past-looking presets). */
+  dateRangePresets?: DateRangePreset[];
   onDateRangeChange?: (range: DateRange) => void;
   onReset: () => void;
   /** Disables Reset when nothing is filtered. */
@@ -37,6 +40,7 @@ export function ListFilters({
   onQueryChange,
   selects,
   dateRange,
+  dateRangePresets,
   onDateRangeChange,
   onReset,
   isFiltered,
@@ -68,7 +72,7 @@ export function ListFilters({
           />
         ))}
         {dateRange && onDateRangeChange && (
-          <DateRangeFilter value={dateRange} onChange={onDateRangeChange} className="w-full xl:w-64" />
+          <DateRangeFilter value={dateRange} onChange={onDateRangeChange} presets={dateRangePresets} className="w-full xl:w-64" />
         )}
       </div>
 
