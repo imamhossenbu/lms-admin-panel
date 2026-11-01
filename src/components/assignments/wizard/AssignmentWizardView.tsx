@@ -68,7 +68,7 @@ export function AssignmentWizardView({ mode, context, baseValues, draft, draftKe
         <WizardStepper
           current={step}
           completed={wizard.completed}
-          isClickable={wizard.isClickable}
+          isReachable={wizard.isReachable}
           errorSteps={errorSteps}
           onSelect={wizard.goToStep}
         />

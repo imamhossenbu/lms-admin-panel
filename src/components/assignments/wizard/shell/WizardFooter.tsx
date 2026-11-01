@@ -25,7 +25,6 @@ export function WizardFooter({ backKind, onBack, primaryLabel, onPrimary, isBusy
         onClick={onBack}
         disabled={isBusy}
         leftIcon={backKind === "previous" ? <ArrowLeft /> : undefined}
-        className={backKind === "previous" ? "text-blue!" : undefined}
       >
         {backKind === "previous" ? "Previous" : "Cancel"}
       </SecondaryButton>
@@ -35,7 +34,6 @@ export function WizardFooter({ backKind, onBack, primaryLabel, onPrimary, isBusy
         isLoading={isBusy}
         disabled={isBusy || disabled}
         rightIcon={isBusy ? undefined : <ArrowRight />}
-        className="bg-blue! hover:bg-blue/90!"
       >
         {isBusy ? busyLabel ?? "Please wait..." : primaryLabel}
       </PrimaryButton>

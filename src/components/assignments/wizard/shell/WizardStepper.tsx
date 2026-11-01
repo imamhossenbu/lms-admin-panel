@@ -12,13 +12,14 @@ const STEPPER_LABEL: Partial<Record<WizardStep, string>> = { grading: "Grading &
 export interface WizardStepperProps {
   current: WizardStep;
   completed: WizardStep[];
-  isClickable: (step: WizardStep) => boolean;
+  /** Steps the user may open (create: completed + the next unfinished one; edit: all). */
+  isReachable: (step: WizardStep) => boolean;
   errorSteps?: WizardStep[];
   onSelect: (step: WizardStep) => void;
 }
 
 /** Horizontal 7-step stepper card with connector lines (scrolls horizontally on small screens). */
-export function WizardStepper({ current, completed, isClickable, errorSteps = [], onSelect }: WizardStepperProps) {
+export function WizardStepper({ current, completed, isReachable, errorSteps = [], onSelect }: WizardStepperProps) {
   return (
     <motion.nav
       aria-label="Assignment steps"
@@ -37,7 +38,8 @@ export function WizardStepper({ current, completed, isClickable, errorSteps = []
                 index={i}
                 label={STEPPER_LABEL[step] ?? WIZARD_STEP_LABEL[step]}
                 state={state}
-                clickable={step !== current && isClickable(step)}
+                reachable={step === current || isReachable(step)}
+                clickable={step !== current && isReachable(step)}
                 hasError={errorSteps.includes(step)}
                 onClick={() => onSelect(step)}
               />
@@ -47,7 +49,7 @@ export function WizardStepper({ current, completed, isClickable, errorSteps = []
                     initial={false}
                     animate={{ scaleX: done ? 1 : 0 }}
                     transition={{ duration: 0.3, ease: "easeOut" }}
-                    className="absolute inset-0 origin-left bg-green"
+                    className="absolute inset-0 origin-left bg-brand-orange"
                   />
                 </span>
               )}

@@ -60,7 +60,7 @@ export function CriterionModal({ isOpen, criterion, number, suggestedPoints, onC
           <SecondaryButton onClick={onClose} disabled={isSubmitting}>
             Cancel
           </SecondaryButton>
-          <PrimaryButton type="submit" form="wizard-criterion-form" isLoading={isSubmitting} className="bg-blue! hover:opacity-90">
+          <PrimaryButton type="submit" form="wizard-criterion-form" isLoading={isSubmitting}>
             {criterion ? "Save Criterion" : "Add Criterion"}
           </PrimaryButton>
         </>

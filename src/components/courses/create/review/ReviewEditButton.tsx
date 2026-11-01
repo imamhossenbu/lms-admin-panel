@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Pencil } from "lucide-react";
-import SecondaryButton from "@/components/ui/secondary-button";
+import { CardActionButton } from "@/components/ui/CardActionButton";
 
 export interface ReviewEditButtonProps {
   onClick: () => void;
@@ -12,9 +12,9 @@ export interface ReviewEditButtonProps {
 /** Small outlined "Edit" button used in review section headers. */
 export function ReviewEditButton({ onClick, label = "Edit" }: ReviewEditButtonProps) {
   return (
-    <SecondaryButton size="sm" icon={<Pencil />} onClick={onClick} aria-label={label}>
+    <CardActionButton icon={<Pencil />} onClick={onClick} aria-label={label}>
       Edit
-    </SecondaryButton>
+    </CardActionButton>
   );
 }
 

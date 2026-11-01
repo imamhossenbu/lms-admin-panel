@@ -4,7 +4,7 @@ import React from "react";
 import { CheckSquare, ChevronDown, Plus, Sparkles, ToggleLeft } from "lucide-react";
 import { AppDropdownMenu } from "@/components/ui/AppDropdownMenu";
 import type { QuizQuestionType } from "@/components/courses/create/lesson/quiz/quizUtils";
-import { EditorBlueButton } from "./EditorBlueButton";
+import { PrimaryButton } from "@/components/ui/primary-button";
 
 export interface AddQuestionMenuProps {
   disabled?: boolean;
@@ -19,9 +19,9 @@ export function AddQuestionMenu({ disabled, aiDisabled, onAdd, onGenerate }: Add
     <AppDropdownMenu
       align="end"
       trigger={
-        <EditorBlueButton leftIcon={<Plus />} rightIcon={<ChevronDown />} disabled={disabled}>
+        <PrimaryButton leftIcon={<Plus />} rightIcon={<ChevronDown />} disabled={disabled}>
           Add Question
-        </EditorBlueButton>
+        </PrimaryButton>
       }
       items={[
         { key: "mcq", label: "Multiple Choice", icon: <CheckSquare className="h-4 w-4 text-blue" />, onClick: () => onAdd("MCQ") },

@@ -34,7 +34,7 @@ export function InstructionsCard({ assignment, onEdit }: InstructionsCardProps) 
       title="Assignment Instructions"
       description="Provide clear instructions and guidelines for students."
       action={
-        <SecondaryButton size="sm" leftIcon={<Pencil />} onClick={onEdit} className="text-blue!">
+        <SecondaryButton size="sm" leftIcon={<Pencil />} onClick={onEdit}>
           {isEmpty ? "Add Instructions" : "Edit Instructions"}
         </SecondaryButton>
       }

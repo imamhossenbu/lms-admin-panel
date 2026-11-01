@@ -45,10 +45,10 @@ export function SuccessHeroCard({ title, moduleLabel, published, onView, onCreat
         transition={{ duration: 0.3, delay: 0.5 }}
         className="mt-6 flex flex-wrap items-center justify-center gap-3"
       >
-        <PrimaryButton size="lg" leftIcon={<Eye />} rightIcon={<ArrowRight />} onClick={onView} className="bg-blue! hover:bg-blue/90! px-8">
+        <PrimaryButton size="lg" leftIcon={<Eye />} rightIcon={<ArrowRight />} onClick={onView} className="px-8">
           View Assignment
         </PrimaryButton>
-        <SecondaryButton size="lg" leftIcon={<Plus />} onClick={onCreateAnother} className="text-blue! px-8">
+        <SecondaryButton size="lg" leftIcon={<Plus />} onClick={onCreateAnother} className="px-8">
           Create Another
         </SecondaryButton>
       </motion.div>

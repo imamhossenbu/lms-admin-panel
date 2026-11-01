@@ -75,7 +75,7 @@ export function QuizQuestionRow({ field, index, total, invalid, onEdit, onDelete
       <ToneBadge tone="gray" size="sm" className="hidden sm:inline-flex">
         {QUESTION_TYPE_BADGE[field.questionType]}
       </ToneBadge>
-      <SecondaryButton size="sm" leftIcon={<Pencil />} onClick={onEdit} className="text-blue!">
+      <SecondaryButton size="sm" leftIcon={<Pencil />} onClick={onEdit}>
         Edit
       </SecondaryButton>
       <EditorIconButton label={`Delete question ${index + 1}`} tone="red" icon={<Trash2 className="h-4 w-4" />} onClick={onDelete} />

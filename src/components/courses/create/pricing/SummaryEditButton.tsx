@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Pencil } from "lucide-react";
-import { OutlineButton } from "@/components/ui/outline-button";
+import { CardActionButton } from "@/components/ui/CardActionButton";
 
 interface SummaryEditButtonProps {
   onClick: () => void;
@@ -12,9 +12,9 @@ interface SummaryEditButtonProps {
 /** Small outlined "Edit" button used in summary card headers. */
 export function SummaryEditButton({ onClick, label }: SummaryEditButtonProps) {
   return (
-    <OutlineButton size="sm" onClick={onClick} aria-label={label} leftIcon={<Pencil className="w-3.5 h-3.5" />} whileTap={{ scale: 0.95 }}>
+    <CardActionButton onClick={onClick} aria-label={label} icon={<Pencil />}>
       Edit
-    </OutlineButton>
+    </CardActionButton>
   );
 }
 

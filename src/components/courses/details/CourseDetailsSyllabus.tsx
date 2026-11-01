@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { CourseModuleItem } from "@/lib/types";
 import { ToneBadge } from "@/components/ui/ToneBadge";
-import { OutlineButton } from "@/components/ui/outline-button";
+import { CardActionButton } from "@/components/ui/CardActionButton";
 import {
   ChevronDown,
   ChevronUp,
@@ -216,14 +216,13 @@ export function CourseDetailsSyllabus({
                               )}
 
                               {courseId && (
-                                <OutlineButton
-                                  size="sm"
-                                  leftIcon={<Pencil />}
+                                <CardActionButton
+                                  icon={<Pencil />}
                                   aria-label={`Edit lesson ${lesson.title}`}
                                   onClick={() => router.push(`/courses/${courseId}/lessons/${lesson.id}/edit`)}
                                 >
                                   Edit
-                                </OutlineButton>
+                                </CardActionButton>
                               )}
                             </div>
                           </div>

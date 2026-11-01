@@ -61,10 +61,10 @@ export function AssignmentDetailsHeader({ assignment, submissions, context, onBa
           )}
         </div>
         <div className="flex flex-wrap items-center gap-2.5">
-          <SecondaryButton leftIcon={<ArrowLeft />} onClick={onBack} className="text-blue!">
+          <SecondaryButton leftIcon={<ArrowLeft />} onClick={onBack}>
             Back to Assignments
           </SecondaryButton>
-          <SecondaryButton leftIcon={<Eye />} onClick={onPreview} className="text-blue!">
+          <SecondaryButton leftIcon={<Eye />} onClick={onPreview}>
             View as Student
           </SecondaryButton>
           <AssignmentMoreMenu
@@ -75,7 +75,7 @@ export function AssignmentDetailsHeader({ assignment, submissions, context, onBa
             onTogglePublish={() => void togglePublish()}
             onDelete={act.openDelete}
           />
-          <PrimaryButton variant="ghost" leftIcon={<Pencil />} onClick={onEdit} className="bg-blue! text-white! hover:opacity-90">
+          <PrimaryButton leftIcon={<Pencil />} onClick={onEdit}>
             Edit Assignment
           </PrimaryButton>
         </div>

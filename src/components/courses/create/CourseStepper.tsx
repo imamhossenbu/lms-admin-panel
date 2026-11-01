@@ -2,20 +2,25 @@
 
 import React from "react";
 import { motion } from "framer-motion";
+import { Check } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { CREATE_COURSE_STEPS } from "./createCourseOptions";
 
 interface CourseStepperProps {
   /** 1-based index of the current step. */
   activeStep: number;
-  /** Lets the admin jump back to a completed step. */
+  /** Navigates to a reachable step. */
   onStepClick?: (step: number) => void;
-  /** Edit mode: every step is reachable, not only completed ones. */
-  allowAllSteps?: boolean;
+  /** Whether a step may be opened. Defaults to "only earlier steps". */
+  isStepReachable?: (step: number) => boolean;
+  /** Steps whose own "Continue" succeeded — shown with a check. */
+  completedSteps?: readonly number[];
 }
 
 /** Five-step progress header for the course creation flow. */
-export function CourseStepper({ activeStep, onStepClick, allowAllSteps = false }: CourseStepperProps) {
+export function CourseStepper({ activeStep, onStepClick, isStepReachable, completedSteps = [] }: CourseStepperProps) {
+  const reachable = (n: number) => (isStepReachable ? isStepReachable(n) : n <= activeStep);
+
   return (
     <motion.nav
       aria-label="Course creation steps"
@@ -28,19 +33,37 @@ export function CourseStepper({ activeStep, onStepClick, allowAllSteps = false }
         {CREATE_COURSE_STEPS.map((step, index) => {
           const number = index + 1;
           const isActive = number === activeStep;
-          const isDone = number < activeStep;
-          const isClickable = !!onStepClick && !isActive && (isDone || allowAllSteps);
+          const isReachable = reachable(number);
+          const isCompleted = !isActive && completedSteps.includes(number);
+          const isClickable = !!onStepClick && !isActive && isReachable;
+          const isLocked = !isActive && !isReachable;
           const isLast = number === CREATE_COURSE_STEPS.length;
 
           return (
             <li key={step.title} className={cn("flex items-center gap-3", !isLast && "flex-1")}>
-              <div
-                className={cn("flex items-center gap-3 shrink-0", isClickable && "cursor-pointer rounded-lg hover:opacity-80")}
+              <motion.div
+                className={cn(
+                  "flex items-center gap-3 shrink-0 rounded-lg",
+                  isClickable && "cursor-pointer hover:opacity-80",
+                  isLocked && "cursor-not-allowed opacity-60"
+                )}
                 aria-current={isActive ? "step" : undefined}
-                role={isClickable ? "button" : undefined}
+                aria-disabled={isLocked || undefined}
+                title={isLocked ? "Finish the previous steps first" : undefined}
+                role={isClickable || isLocked ? "button" : undefined}
                 tabIndex={isClickable ? 0 : undefined}
+                whileTap={isClickable ? { scale: 0.96 } : undefined}
                 onClick={isClickable ? () => onStepClick(number) : undefined}
-                onKeyDown={isClickable ? (e) => e.key === "Enter" && onStepClick(number) : undefined}
+                onKeyDown={
+                  isClickable
+                    ? (e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          onStepClick(number);
+                        }
+                      }
+                    : undefined
+                }
               >
                 <span className="relative w-10 h-10 shrink-0 flex items-center justify-center">
                   {isActive ? (
@@ -51,19 +74,32 @@ export function CourseStepper({ activeStep, onStepClick, allowAllSteps = false }
                       className="absolute inset-0 rounded-full bg-brand-orange edupro-glow-btn"
                       transition={{ type: "spring", stiffness: 420, damping: 32 }}
                     />
-                  ) : isDone ? (
+                  ) : isCompleted ? (
+                    <span className="absolute inset-0 rounded-full bg-brand-orange-light border border-brand-orange" />
+                  ) : isReachable ? (
                     <span className="absolute inset-0 rounded-full bg-white border border-dash" />
                   ) : (
                     <span className="absolute inset-0 rounded-full bg-gray-bg border border-dash" />
                   )}
-                  <span
-                    className={cn(
-                      "relative body-md-medium font-semibold",
-                      isActive ? "text-white" : isDone ? "text-primary-500" : "text-primary-400"
-                    )}
-                  >
-                    {number}
-                  </span>
+                  {isCompleted ? (
+                    <motion.span
+                      initial={{ scale: 0.5, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ type: "spring", stiffness: 420, damping: 28 }}
+                      className="relative flex text-brand-orange"
+                    >
+                      <Check className="w-4 h-4" strokeWidth={2.5} aria-label={`Step ${number} completed`} />
+                    </motion.span>
+                  ) : (
+                    <span
+                      className={cn(
+                        "relative body-md-medium font-semibold",
+                        isActive ? "text-white" : isReachable ? "text-primary-500" : "text-primary-400"
+                      )}
+                    >
+                      {number}
+                    </span>
+                  )}
                 </span>
                 <span className="text-left">
                   <span
@@ -76,8 +112,13 @@ export function CourseStepper({ activeStep, onStepClick, allowAllSteps = false }
                   </span>
                   <span className="block body-xsm-regular text-primary-300 whitespace-nowrap">{step.subtitle}</span>
                 </span>
-              </div>
-              {!isLast && <span aria-hidden className="h-px flex-1 min-w-8 bg-slate-200" />}
+              </motion.div>
+              {!isLast && (
+                <span
+                  aria-hidden
+                  className={cn("h-px flex-1 min-w-8", completedSteps.includes(number) ? "bg-brand-orange" : "bg-slate-200")}
+                />
+              )}
             </li>
           );
         })}

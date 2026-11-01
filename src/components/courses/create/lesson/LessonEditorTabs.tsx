@@ -16,10 +16,12 @@ export const LESSON_TAB_META: Record<LessonTab, { label: string; icon: LucideIco
 export interface LessonEditorTabsProps {
   active: LessonTab;
   onChange: (tab: LessonTab) => void;
+  /** Tabs returning false are disabled (create mode: tabs past the first unfinished one). Default: all enabled. */
+  isTabEnabled?: (tab: LessonTab) => boolean;
 }
 
 /** Basic Info | Content | Resources | Settings — shared capsule PillTabs with red dots on tabs with errors. */
-export function LessonEditorTabs({ active, onChange }: LessonEditorTabsProps) {
+export function LessonEditorTabs({ active, onChange, isTabEnabled }: LessonEditorTabsProps) {
   const { control } = useFormContext<LessonFormValues>();
   const { errors } = useFormState({ control });
   const errorTabs = new Set(
@@ -34,7 +36,7 @@ export function LessonEditorTabs({ active, onChange }: LessonEditorTabsProps) {
       onChange={onChange}
       tabs={LESSON_TABS.map((id) => {
         const { label, icon: Icon } = LESSON_TAB_META[id];
-        return { id, label, icon: <Icon />, hasError: errorTabs.has(id) };
+        return { id, label, icon: <Icon />, hasError: errorTabs.has(id), disabled: isTabEnabled ? !isTabEnabled(id) : false };
       })}
     />
   );

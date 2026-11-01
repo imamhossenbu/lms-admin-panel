@@ -17,7 +17,7 @@ import {
   type LessonEditorResource,
 } from "@/validations/lessonEditorSchema";
 import { CharCounter } from "@/components/ui/CharCounter";
-import { EditorBlueButton } from "../quiz/EditorBlueButton";
+import { PrimaryButton } from "@/components/ui/primary-button";
 import { SettingToggleRow } from "@/components/ui/SettingToggleRow";
 import { ResourceUploadField } from "./ResourceUploadField";
 import { emptyResource, titleFromFileName } from "./resourceDisplay";
@@ -204,13 +204,13 @@ export function ResourceForm({ editing, canAdd, onSubmit, onCancelEdit, onUpload
               Cancel
             </SecondaryButton>
           )}
-          <EditorBlueButton
+          <PrimaryButton
             leftIcon={editing ? <Save /> : <Plus />}
             onClick={() => void submit()}
             disabled={uploading || (!editing && !canAdd)}
           >
             {editing ? "Save Resource" : "Add Resource"}
-          </EditorBlueButton>
+          </PrimaryButton>
         </div>
       </div>
       {!editing && !canAdd && <p className="body-xsm-regular text-red">You&apos;ve reached the limit of 30 resources for this lesson.</p>}

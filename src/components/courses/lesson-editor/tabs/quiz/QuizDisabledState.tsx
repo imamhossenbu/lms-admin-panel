@@ -3,7 +3,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { ClipboardX } from "lucide-react";
-import { EditorBlueButton } from "./EditorBlueButton";
+import { PrimaryButton } from "@/components/ui/primary-button";
 
 /** Shown inside "Quiz Settings" while "Enable Quiz" is off. */
 export function QuizDisabledState({ onEnable }: { onEnable: () => void }) {
@@ -24,9 +24,9 @@ export function QuizDisabledState({ onEnable }: { onEnable: () => void }) {
           Turn on &quot;Enable Quiz&quot; to add questions, a passing score and attempt rules.
         </p>
       </div>
-      <EditorBlueButton size="sm" onClick={onEnable}>
+      <PrimaryButton size="sm" onClick={onEnable}>
         Enable Quiz
-      </EditorBlueButton>
+      </PrimaryButton>
     </motion.div>
   );
 }

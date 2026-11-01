@@ -47,6 +47,13 @@ const FIELD_KEYS = Object.keys(LESSON_FIELD_TAB) as (keyof LessonFormValues)[];
 const SETTINGS_FIELDS = FIELD_KEYS.filter((key) => LESSON_FIELD_TAB[key] === "settings");
 const isLessonTab = (value: string): value is LessonTab => (LESSON_TABS as readonly string[]).includes(value);
 
+/** Index of the first tab not completed (contiguous prefix, tab order); the last tab once all are done. */
+const frontierIndexOf = (completed: ReadonlySet<LessonTab>) => {
+  const index = LESSON_TABS.findIndex((t) => !completed.has(t));
+  return index === -1 ? LESSON_TABS.length - 1 : index;
+};
+const LOCKED_TOAST = { title: "Finish the previous steps first", description: 'Use "Next" on the current tab to unlock the next one.' };
+
 /** First tab (in tab order) that owns one of the given top-level field names. */
 const firstTabOf = (fields: string[]): LessonTab | undefined =>
   LESSON_TABS.find((tab) => fields.some((f) => LESSON_FIELD_TAB[f as keyof LessonFormValues] === tab));
@@ -70,40 +77,64 @@ export function LessonEditorModal({
 
   const [tab, setTab] = useState<LessonTab>("basic");
   const [visited, setVisited] = useState<Set<LessonTab>>(() => new Set(["basic"]));
+  // Create mode only: tabs whose "Next" succeeded. Reachable = completed prefix + the next unfinished tab.
+  const [completed, setCompleted] = useState<Set<LessonTab>>(() => new Set());
   const [uploading, setUploading] = useState<Record<UploadSource, boolean>>({ basic: false, content: false, resources: false });
   const [busy, setBusy] = useState<Busy>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const urlTab = get(TAB_PARAM);
 
-  // Reset form + tab whenever the modal opens (restoring a valid `?lessonTab=` from the URL).
+  const frontier = frontierIndexOf(completed);
+  /** Edit: every tab. Create: completed tabs + the first unfinished one (no skipping ahead). */
+  const isTabEnabled = useCallback(
+    (target: LessonTab) => isEdit || LESSON_TABS.indexOf(target) <= frontier,
+    [isEdit, frontier]
+  );
+
+  // Reset form + tab progress whenever the modal opens. Edit restores a valid `?lessonTab=`; a new lesson
+  // always starts on Basic Info (later tabs are locked), with a notice if the URL asked for a locked tab.
   const wasOpen = useRef(false);
   useEffect(() => {
     if (isOpen && !wasOpen.current) {
-      const startTab = isLessonTab(urlTab) ? urlTab : "basic";
+      const requested = isLessonTab(urlTab) ? urlTab : "basic";
+      const startTab = isEdit ? requested : "basic";
+      if (startTab !== requested) toast.info(LOCKED_TOAST.title, { description: LOCKED_TOAST.description });
       form.reset(lessonToFormValues(initialLesson));
       setTab(startTab);
+      setCompleted(new Set());
       setVisited(new Set(["basic", startTab]));
       setUploading({ basic: false, content: false, resources: false });
       setBusy(null);
       if (urlTab !== startTab) set({ [TAB_PARAM]: startTab });
     }
     wasOpen.current = isOpen;
-  }, [isOpen, initialLesson, form, urlTab, set]);
+  }, [isOpen, isEdit, initialLesson, form, urlTab, set]);
 
   // Drop the tab param once the modal is closed (also cleans a stale param after a reload).
   useEffect(() => {
     if (!isOpen && urlTab) set({ [TAB_PARAM]: null });
   }, [isOpen, urlTab, set]);
 
+  /**
+   * Switch tab. `unlock` (after a successful "Next" or a validation redirect) marks every tab before
+   * `next` completed so it becomes reachable; otherwise a locked tab is refused with a notice.
+   */
   const goTo = useCallback(
-    (next: LessonTab) => {
+    (next: LessonTab, options: { unlock?: boolean } = {}) => {
+      if (options.unlock) {
+        const before = LESSON_TABS.slice(0, LESSON_TABS.indexOf(next));
+        setCompleted((prev) => (before.every((t) => prev.has(t)) ? prev : new Set([...prev, ...before])));
+      } else if (!isTabEnabled(next)) {
+        toast.info(LOCKED_TOAST.title, { description: LOCKED_TOAST.description });
+        return;
+      }
       setTab(next);
       setVisited((prev) => (prev.has(next) ? prev : new Set(prev).add(next)));
       set({ [TAB_PARAM]: next });
       scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
     },
-    [set]
+    [set, isTabEnabled]
   );
 
   const uploadHandlers = useMemo(
@@ -133,7 +164,7 @@ export function LessonEditorModal({
       toast.error("Please fix the highlighted fields", { description: "Complete this step before moving on." });
       return;
     }
-    goTo(LESSON_TABS[Math.min(tabIndex + 1, LESSON_TABS.length - 1)]);
+    goTo(LESSON_TABS[Math.min(tabIndex + 1, LESSON_TABS.length - 1)], { unlock: true });
   };
 
   const submit = async (mode: "draft" | "publish") => {
@@ -150,7 +181,8 @@ export function LessonEditorModal({
       if (!parsed.success) {
         await form.trigger();
         const badTab = firstTabOf(parsed.error.issues.map((issue) => String(issue.path[0] ?? ""))) ?? tab;
-        goTo(badTab);
+        // Tabs before the first invalid one passed validation, so they count as completed.
+        goTo(badTab, { unlock: true });
         toast.error("Please fix the highlighted fields", {
           description: parsed.error.issues[0]?.message ?? "Some lesson details are missing or invalid.",
         });
@@ -163,7 +195,7 @@ export function LessonEditorModal({
           issues.forEach((issue) =>
             form.setError(issue.path as FieldPath<LessonFormValues>, { type: "manual", message: issue.message })
           );
-          goTo(LESSON_TABS.find((t) => issues.some((i) => i.tab === t)) ?? issues[0].tab);
+          goTo(LESSON_TABS.find((t) => issues.some((i) => i.tab === t)) ?? issues[0].tab, { unlock: true });
           toast.error("This lesson isn't ready yet", { description: issues[0].message });
           return;
         }
@@ -229,7 +261,7 @@ export function LessonEditorModal({
           className="flex min-h-0 flex-col lg:w-2/3 lg:flex-1 lg:border-r lg:border-dash"
         >
           <div className="shrink-0 px-8 pt-4">
-            <LessonEditorTabs active={tab} onChange={goTo} />
+            <LessonEditorTabs active={tab} onChange={goTo} isTabEnabled={isTabEnabled} />
           </div>
           <div ref={scrollRef} className="min-h-0 flex-1 px-8 py-5 lg:overflow-y-auto">
             {/* All tabs stay mounted so in-flight uploads and editor state survive tab switches. */}

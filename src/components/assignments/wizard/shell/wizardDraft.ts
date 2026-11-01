@@ -1,14 +1,16 @@
 import { WIZARD_STEPS, type AssignmentWizardValues, type WizardStep } from "@/validations/assignmentWizardSchema";
 
 /**
- * sessionStorage draft of the wizard (values + completed/visited steps) so a reload keeps the
- * exact step and data. One key for "create" and one per edited assignment id.
+ * sessionStorage draft of the wizard (values + completed steps + the step the user was last on) so
+ * leaving and coming back (or a reload) resumes at the exact step with the same data.
+ * One key for "create" and one per edited assignment id.
  */
 
 export interface WizardDraft {
   values: AssignmentWizardValues;
   completed: WizardStep[];
-  visited: WizardStep[];
+  /** Step the user was on when the draft was last written — the wizard resumes there. */
+  lastStep: WizardStep;
 }
 
 const PREFIX = "edupro_assignment_wizard_v1";
@@ -28,7 +30,7 @@ export function readWizardDraft(key: string): WizardDraft | null {
     return {
       values: parsed.values,
       completed: Array.isArray(parsed.completed) ? parsed.completed.filter(isStep) : [],
-      visited: Array.isArray(parsed.visited) ? parsed.visited.filter(isStep) : [],
+      lastStep: isStep(parsed.lastStep) ? parsed.lastStep : "basic",
     };
   } catch {
     return null;

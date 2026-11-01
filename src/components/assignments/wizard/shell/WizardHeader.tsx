@@ -39,7 +39,7 @@ export function WizardHeader({ mode, courseId, courseTitle, moduleLabel, assignm
         transition={{ duration: 0.25, ease: "easeOut" }}
         className="flex flex-col gap-4 sm:flex-row sm:items-start"
       >
-        <SecondaryButton leftIcon={<ArrowLeft />} onClick={onBack} className="shrink-0 text-blue!">
+        <SecondaryButton leftIcon={<ArrowLeft />} onClick={onBack} className="shrink-0">
           Back to Assignments
         </SecondaryButton>
         <div className="min-w-0">

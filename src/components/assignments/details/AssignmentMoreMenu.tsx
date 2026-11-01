@@ -34,7 +34,7 @@ export function AssignmentMoreMenu({ status, disabled, onEdit, onDuplicate, onTo
         { key: "delete", label: "Delete", icon: <Trash2 className="h-4 w-4" />, onClick: onDelete, danger: true, separatorBefore: true },
       ]}
       trigger={
-        <SecondaryButton leftIcon={<MoreVertical />} rightIcon={<ChevronDown />} className="text-blue!">
+        <SecondaryButton leftIcon={<MoreVertical />} rightIcon={<ChevronDown />}>
           More
         </SecondaryButton>
       }

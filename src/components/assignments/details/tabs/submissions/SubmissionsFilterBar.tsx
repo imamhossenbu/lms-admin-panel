@@ -60,7 +60,7 @@ export function SubmissionsFilterBar(p: SubmissionsFilterBarProps) {
             },
           ]}
           trigger={
-            <SecondaryButton leftIcon={<Download />} rightIcon={<ChevronDown />} className="text-blue!">
+            <SecondaryButton leftIcon={<Download />} rightIcon={<ChevronDown />}>
               Export
             </SecondaryButton>
           }

@@ -11,29 +11,37 @@ export interface WizardStepperItemProps {
   index: number;
   label: string;
   state: StepperItemState;
+  /** False → the step is locked (previous steps unfinished): rendered disabled with a not-allowed cursor. */
+  reachable: boolean;
+  /** Reachable and not the current step. */
   clickable: boolean;
   hasError?: boolean;
   onClick: () => void;
 }
 
-/** One stepper node: circle (number / green check) + label. Completed/visited steps are clickable. */
-export function WizardStepperItem({ index, label, state, clickable, hasError, onClick }: WizardStepperItemProps) {
+/** One stepper node: circle (number / orange check, same as the Create Course stepper) + label. Reachable steps are clickable; locked ones look disabled. */
+export function WizardStepperItem({ index, label, state, reachable, clickable, hasError, onClick }: WizardStepperItemProps) {
   return (
     <motion.button
       type="button"
       onClick={onClick}
       disabled={!clickable}
+      aria-disabled={!reachable || undefined}
+      title={reachable ? undefined : "Finish the previous steps first"}
       whileTap={clickable ? { scale: 0.95 } : undefined}
       aria-current={state === "active" ? "step" : undefined}
-      aria-label={`Step ${index + 1}: ${label}${state === "completed" ? " (completed)" : ""}`}
-      className={cn("group flex shrink-0 items-center gap-2.5 rounded-full pr-1 disabled:cursor-default", clickable && "cursor-pointer")}
+      aria-label={`Step ${index + 1}: ${label}${state === "completed" ? " (completed)" : reachable ? "" : " (locked)"}`}
+      className={cn(
+        "group flex shrink-0 items-center gap-2.5 rounded-full pr-1 transition-opacity",
+        clickable ? "cursor-pointer" : reachable ? "cursor-default" : "cursor-not-allowed opacity-50"
+      )}
     >
       <span className="relative flex h-9 w-9 shrink-0 items-center justify-center">
         {state === "active" && (
           <motion.span
             layoutId="wizard-step-active"
             transition={{ type: "spring", stiffness: 420, damping: 34 }}
-            className="absolute inset-0 rounded-full bg-blue shadow-md"
+            className="absolute inset-0 rounded-full bg-brand-orange edupro-glow-btn"
           />
         )}
         {state === "completed" && (
@@ -41,9 +49,9 @@ export function WizardStepperItem({ index, label, state, clickable, hasError, on
             initial={{ scale: 0.6, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ type: "spring", stiffness: 400, damping: 22 }}
-            className={cn("absolute inset-0 flex items-center justify-center rounded-full", hasError ? "bg-red-14" : "bg-green-bg")}
+            className={cn("absolute inset-0 flex items-center justify-center rounded-full", hasError ? "bg-red-14" : "bg-brand-orange-light")}
           >
-            <span className={cn("flex h-6 w-6 items-center justify-center rounded-full text-white", hasError ? "bg-red" : "bg-green")}>
+            <span className={cn("flex h-6 w-6 items-center justify-center rounded-full text-white", hasError ? "bg-red" : "bg-brand-orange")}>
               <Check className="h-3.5 w-3.5" strokeWidth={3} />
             </span>
           </motion.span>
@@ -59,7 +67,7 @@ export function WizardStepperItem({ index, label, state, clickable, hasError, on
         className={cn(
           "whitespace-nowrap body-sm-medium transition-colors",
           state === "active" ? "font-semibold! text-primary-500" : "text-primary-300",
-          clickable && state !== "active" && "group-hover:text-blue"
+          clickable && state !== "active" && "group-hover:text-brand-orange"
         )}
       >
         {label}

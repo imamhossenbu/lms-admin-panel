@@ -12,7 +12,7 @@ import { SecondaryButton } from "@/components/ui/secondary-button";
 import { cn } from "@/lib/cn";
 import { NOTE_MAX, lessonEditorNoteSchema, type LessonEditorNote } from "@/validations/lessonEditorSchema";
 import { CharCounter } from "@/components/ui/CharCounter";
-import { EditorBlueButton } from "../quiz/EditorBlueButton";
+import { PrimaryButton } from "@/components/ui/primary-button";
 import { SettingToggleRow } from "@/components/ui/SettingToggleRow";
 import { notePlainLength } from "./noteUtils";
 
@@ -97,9 +97,9 @@ export function NoteComposerCard({ editing, disabled, onSubmit, onCancelEdit }: 
           </div>
           <div className="flex shrink-0 items-center gap-2">
             {editing && <SecondaryButton onClick={onCancelEdit}>Cancel</SecondaryButton>}
-            <EditorBlueButton leftIcon={editing ? <Save /> : <Plus />} disabled={disabled} onClick={() => void submit()}>
+            <PrimaryButton leftIcon={editing ? <Save /> : <Plus />} disabled={disabled} onClick={() => void submit()}>
               {editing ? "Save Note" : "Add Note"}
-            </EditorBlueButton>
+            </PrimaryButton>
           </div>
         </div>
       </div>

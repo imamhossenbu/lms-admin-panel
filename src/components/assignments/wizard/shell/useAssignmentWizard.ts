@@ -37,13 +37,23 @@ const isStep = (s: string): s is WizardStep => (WIZARD_STEPS as readonly string[
 const errorText = (e: unknown, fallback: string) => (e instanceof Error && e.message ? e.message : fallback);
 const addStep = (list: WizardStep[], step: WizardStep) => (list.includes(step) ? list : [...list, step]);
 const EDIT_COMPLETED = WIZARD_STEPS.filter((s) => s !== "review");
+const stepParam = (step: WizardStep) => (step === "basic" ? null : step);
+
+/**
+ * Index of the first step that is not completed, counting only the CONTIGUOUS completed prefix in
+ * WIZARD_STEPS order. "review" is never completed, so it becomes the frontier once all 6 steps are done.
+ * Create mode: a step is reachable iff its index <= frontier (done steps + the next unfinished one).
+ */
+export const wizardFrontierIndex = (completed: readonly WizardStep[]) => {
+  const index = WIZARD_STEPS.findIndex((s) => s === "review" || !completed.includes(s));
+  return index === -1 ? WIZARD_STEPS.length - 1 : index;
+};
 
 /** All wizard state + navigation + validation + persistence. One react-hook-form for every step. */
 export function useAssignmentWizard({ mode, assignmentId, existing, baseValues, draft, draftKey }: UseAssignmentWizardOptions) {
   const router = useRouter();
   const url = useUrlParams();
   const rawStep = url.get("step");
-  const step: WizardStep = isStep(rawStep) ? rawStep : "basic";
 
   const form = useForm<Values>({
     resolver: zodResolver(assignmentWizardSchema),
@@ -52,16 +62,42 @@ export function useAssignmentWizard({ mode, assignmentId, existing, baseValues, 
   });
 
   const [completed, setCompleted] = useState<WizardStep[]>(() => draft?.completed ?? (mode === "edit" ? [...EDIT_COMPLETED] : []));
-  const [visitedState, setVisited] = useState<WizardStep[]>(() => draft?.visited ?? []);
-  // The current step always counts as visited (covers ?step= deep links and browser history).
-  const visited = useMemo(() => addStep(visitedState, step), [visitedState, step]);
+  // Opening without ?step while a draft exists resumes where the user left off (one-shot: cleared on any navigation).
+  const [resumeStep, setResumeStep] = useState<WizardStep | null>(() =>
+    !rawStep && draft && draft.lastStep !== "basic" ? draft.lastStep : null
+  );
+
+  const frontierStep = WIZARD_STEPS[wizardFrontierIndex(completed)];
+  /** Edit: every step. Create: completed steps + the first unfinished one (never skip ahead). */
+  const isReachable = useCallback(
+    (target: WizardStep) => mode === "edit" || WIZARD_STEPS.indexOf(target) <= WIZARD_STEPS.indexOf(frontierStep),
+    [mode, frontierStep]
+  );
+
+  const requested = isStep(rawStep) ? rawStep : null;
+  const wanted: WizardStep = requested ?? resumeStep ?? "basic";
+  // An unreachable deep link / stale resume target renders the frontier step straight away (URL follows below).
+  const step: WizardStep = isReachable(wanted) ? wanted : frontierStep;
   const [uploading, setUploading] = useState(false);
   const [busy, setBusy] = useState(false);
   const [leaveTarget, setLeaveTarget] = useState<string | null>(null);
 
   const baseline = useMemo(() => snapshotValues(baseValues), [baseValues]);
   const finishedRef = useRef(false);
-  const stepsRef = useRef({ completed, visited });
+  const stepsRef = useRef<Pick<WizardDraft, "completed" | "lastStep">>({ completed, lastStep: step });
+  const redirectedRef = useRef<string | null>(null);
+
+  // Keep ?step= in sync with the step actually shown (resume target, or the frontier for an unreachable link).
+  useEffect(() => {
+    if (rawStep === (stepParam(step) ?? "")) return;
+    if (requested && requested !== step && redirectedRef.current !== rawStep) {
+      redirectedRef.current = rawStep;
+      toast.info("Finish the previous steps first", {
+        description: `Complete ${WIZARD_STEP_LABEL[step]} before moving on to ${WIZARD_STEP_LABEL[requested]}.`,
+      });
+    }
+    url.set({ step: stepParam(step) });
+  }, [rawStep, requested, step, url]);
 
   const persist = useCallback(() => {
     if (finishedRef.current) return;
@@ -71,11 +107,11 @@ export function useAssignmentWizard({ mode, assignmentId, existing, baseValues, 
     else writeWizardDraft(draftKey, { values, ...stepsRef.current });
   }, [draftKey, form, baseline]);
 
-  // Keep the draft in sessionStorage on every change (values + step progress).
+  // Keep the draft in sessionStorage on every change (values + completed steps + current step).
   useEffect(() => {
-    stepsRef.current = { completed, visited };
+    stepsRef.current = { completed, lastStep: step };
     persist();
-  }, [completed, visited, persist]);
+  }, [completed, step, persist]);
 
   useEffect(() => {
     return form.subscribe({ formState: { values: true }, callback: () => persist() });
@@ -89,29 +125,25 @@ export function useAssignmentWizard({ mode, assignmentId, existing, baseValues, 
 
   const showStep = useCallback(
     (next: WizardStep) => {
-      setVisited((prev) => addStep(prev, next));
-      url.set({ step: next === "basic" ? null : next });
+      setResumeStep(null);
+      url.set({ step: stepParam(next) });
       if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
     },
-    [url]
-  );
-
-  const isClickable = useCallback(
-    (target: WizardStep) => {
-      if (mode === "edit") return true;
-      if (completed.includes(target) || visited.includes(target)) return true;
-      const lastDone = Math.max(-1, ...completed.map((s) => WIZARD_STEPS.indexOf(s)));
-      return WIZARD_STEPS.indexOf(target) <= lastDone + 1;
-    },
-    [mode, completed, visited]
+    [url, setResumeStep]
   );
 
   const goToStep = useCallback(
     (target: WizardStep) => {
       if (target === step || blockIfUploading()) return;
+      if (!isReachable(target)) {
+        toast.info("Finish the previous steps first", {
+          description: `Use "Save & Continue" on ${WIZARD_STEP_LABEL[frontierStep]} to unlock the next steps.`,
+        });
+        return;
+      }
       showStep(target);
     },
-    [step, blockIfUploading, showStep]
+    [step, blockIfUploading, isReachable, frontierStep, showStep]
   );
 
   const applyIssues = useCallback(
@@ -188,7 +220,7 @@ export function useAssignmentWizard({ mode, assignmentId, existing, baseValues, 
     }
     setCompleted((prev) => addStep(prev, step));
     showStep(WIZARD_STEPS[WIZARD_STEPS.indexOf(step) + 1]);
-  }, [step, submit, blockIfUploading, validateStep, showStep]);
+  }, [step, submit, blockIfUploading, validateStep, showStep, setCompleted]);
 
   const previous = useCallback(() => {
     const index = WIZARD_STEPS.indexOf(step);
@@ -226,7 +258,7 @@ export function useAssignmentWizard({ mode, assignmentId, existing, baseValues, 
     busy,
     uploading,
     setUploading,
-    isClickable,
+    isReachable,
     goToStep,
     next,
     previous,
