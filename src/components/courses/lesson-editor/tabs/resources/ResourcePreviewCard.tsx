@@ -3,7 +3,7 @@
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Download, ExternalLink, Eye } from "lucide-react";
-import { EditorSectionCard } from "@/components/courses/lesson-editor/shared/EditorSectionCard";
+import { IconSectionCard } from "@/components/ui/IconSectionCard";
 import { isSafeHttpUrl } from "@/components/courses/create/lesson/resources/resourceUtils";
 import type { LessonEditorResource } from "@/validations/lessonEditorSchema";
 import { ResourceIcon } from "./ResourceIcon";
@@ -14,7 +14,7 @@ export function ResourcePreviewCard({ items }: { items: LessonEditorResource[] }
   const visible = items.filter((r) => r.visible);
 
   return (
-    <EditorSectionCard icon={<Eye className="h-5 w-5" />} title="Resource Preview" description="This is how the resources will appear to students.">
+    <IconSectionCard icon={<Eye className="h-5 w-5" />} title="Resource Preview" description="This is how the resources will appear to students.">
       {visible.length === 0 ? (
         <p className="rounded-xl border border-dashed border-dash bg-gray-bg px-4 py-6 text-center body-xsm-regular text-primary-300">
           No visible resources yet. Students won&apos;t see a resources section.
@@ -59,7 +59,7 @@ export function ResourcePreviewCard({ items }: { items: LessonEditorResource[] }
           </AnimatePresence>
         </ul>
       )}
-    </EditorSectionCard>
+    </IconSectionCard>
   );
 }
 

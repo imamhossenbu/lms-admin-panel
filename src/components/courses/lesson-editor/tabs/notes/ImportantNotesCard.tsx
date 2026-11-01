@@ -3,7 +3,7 @@
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Pin } from "lucide-react";
-import { EditorSectionCard } from "@/components/courses/lesson-editor/shared/EditorSectionCard";
+import { IconSectionCard } from "@/components/ui/IconSectionCard";
 import type { LessonEditorNote } from "@/validations/lessonEditorSchema";
 import { noteMeta, splitNote } from "./noteUtils";
 
@@ -12,7 +12,7 @@ export function ImportantNotesCard({ notes }: { notes: LessonEditorNote[] }) {
   const important = notes.filter((n) => n.important);
 
   return (
-    <EditorSectionCard icon={<Pin className="h-5 w-5" />} tone="orange" title={`Important Notes (${important.length})`}>
+    <IconSectionCard icon={<Pin className="h-5 w-5" />} tone="orange" title={`Important Notes (${important.length})`}>
       {important.length === 0 ? (
         <p className="body-xsm-regular text-primary-300">Turn on &quot;Save as important note&quot; to pin a note here.</p>
       ) : (
@@ -42,7 +42,7 @@ export function ImportantNotesCard({ notes }: { notes: LessonEditorNote[] }) {
           </AnimatePresence>
         </ul>
       )}
-    </EditorSectionCard>
+    </IconSectionCard>
   );
 }
 

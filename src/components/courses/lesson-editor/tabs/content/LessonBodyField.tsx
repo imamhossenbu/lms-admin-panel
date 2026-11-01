@@ -5,7 +5,7 @@ import { Controller, useFormContext } from "react-hook-form";
 import { RichTextEditor } from "@/components/ui/RichTextEditor";
 import { EDITOR_CONTENT_MAX, type LessonEditorValues } from "@/validations/lessonEditorSchema";
 import { EditorFieldLabel } from "../../fields/FieldLabel";
-import { CharCounter } from "../../shared/CharCounter";
+import { CharCounter } from "@/components/ui/CharCounter";
 import { FieldError } from "../../fields/FieldError";
 
 /** Plain-text length of rich-text HTML (same rule as the schema). */

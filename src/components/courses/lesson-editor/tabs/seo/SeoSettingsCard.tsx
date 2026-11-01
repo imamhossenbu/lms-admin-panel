@@ -7,7 +7,7 @@ import { InputField } from "@/components/ui/InputField";
 import { TagsInput } from "@/components/ui/TagsInput";
 import { TextAreaField } from "@/components/ui/TextAreaField";
 import { ToneBadge } from "@/components/ui/ToneBadge";
-import { EditorSectionCard } from "@/components/courses/lesson-editor/shared/EditorSectionCard";
+import { IconSectionCard } from "@/components/ui/IconSectionCard";
 import { SEO_DESCRIPTION_MAX, SEO_TITLE_MAX, type LessonEditorValues } from "@/validations/lessonEditorSchema";
 import { fieldErrorMessage } from "../access/fieldError";
 import { FieldMeta } from "./FieldMeta";
@@ -23,7 +23,7 @@ export function SeoSettingsCard({ publicUrl }: { publicUrl: string }) {
   const description = useWatch({ control, name: "seo.description" }) ?? "";
 
   return (
-    <EditorSectionCard icon={<Search className="h-5 w-5" />} title="SEO Settings" description="Optimize this lesson for search engines and learners." bodyClassName="space-y-5">
+    <IconSectionCard icon={<Search className="h-5 w-5" />} title="SEO Settings" description="Optimize this lesson for search engines and learners." bodyClassName="space-y-5">
       <div>
         <InputField id="seo-title" label="SEO Title" required placeholder="e.g. Introduction to HTML - Learn the Basics" error={errors?.title?.message} {...register("seo.title")} />
         <FieldMeta hint={`Keep it under ${SEO_TITLE_MAX} characters and include the primary keyword.`} count={title.length} max={SEO_TITLE_MAX} />
@@ -87,7 +87,7 @@ export function SeoSettingsCard({ publicUrl }: { publicUrl: string }) {
         />
         <FieldMeta hint="Use a canonical URL if this lesson is also published at a different URL." />
       </div>
-    </EditorSectionCard>
+    </IconSectionCard>
   );
 }
 

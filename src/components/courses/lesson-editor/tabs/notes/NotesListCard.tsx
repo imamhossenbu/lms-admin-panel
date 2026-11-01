@@ -3,7 +3,7 @@
 import React from "react";
 import { AnimatePresence, Reorder } from "framer-motion";
 import { NotebookTabs } from "lucide-react";
-import { EditorSectionCard } from "@/components/courses/lesson-editor/shared/EditorSectionCard";
+import { IconSectionCard } from "@/components/ui/IconSectionCard";
 import type { LessonEditorNote } from "@/validations/lessonEditorSchema";
 import { NoteRow } from "./NoteRow";
 
@@ -26,7 +26,7 @@ export function NotesListCard({ notes, editingId, onReorder, onEdit, onDelete }:
   };
 
   return (
-    <EditorSectionCard icon={<NotebookTabs className="h-5 w-5" />} title={`All Notes (${notes.length})`} description="View and manage lesson notes.">
+    <IconSectionCard icon={<NotebookTabs className="h-5 w-5" />} title={`All Notes (${notes.length})`} description="View and manage lesson notes.">
       {notes.length === 0 ? (
         <p className="rounded-xl border border-dashed border-dash bg-gray-bg px-4 py-8 text-center body-sm-regular text-primary-300">
           No notes yet. Write your first note above.
@@ -49,7 +49,7 @@ export function NotesListCard({ notes, editingId, onReorder, onEdit, onDelete }:
           </AnimatePresence>
         </Reorder.Group>
       )}
-    </EditorSectionCard>
+    </IconSectionCard>
   );
 }
 

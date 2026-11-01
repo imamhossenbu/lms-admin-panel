@@ -3,7 +3,7 @@
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, Files } from "lucide-react";
-import { EditorSectionCard } from "@/components/courses/lesson-editor/shared/EditorSectionCard";
+import { IconSectionCard } from "@/components/ui/IconSectionCard";
 import { SecondaryButton } from "@/components/ui/secondary-button";
 import type { LessonEditorResource } from "@/validations/lessonEditorSchema";
 import { ResourcesTable, type ResourcesTableProps } from "./ResourcesTable";
@@ -19,7 +19,7 @@ export interface AddedResourcesCardProps extends ResourcesTableProps {
 /** "Added Resources (N)": DataTable, or the drag list while reorder mode is on. */
 export function AddedResourcesCard({ reordering, listError, onReorder, onDoneReorder, ...table }: AddedResourcesCardProps) {
   return (
-    <EditorSectionCard
+    <IconSectionCard
       icon={<Files className="h-5 w-5" />}
       title={`Added Resources (${table.items.length})`}
       description={reordering ? "Drag the handles or use the arrows, then click Done." : "Manage and organize lesson resources."}
@@ -47,7 +47,7 @@ export function AddedResourcesCard({ reordering, listError, onReorder, onDoneReo
           {listError}
         </p>
       )}
-    </EditorSectionCard>
+    </IconSectionCard>
   );
 }
 

@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { FileText } from "lucide-react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { toast } from "sonner";
-import { EditorSectionCard } from "@/components/courses/lesson-editor/shared/EditorSectionCard";
+import { IconSectionCard } from "@/components/ui/IconSectionCard";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import type { LessonEditorTabProps } from "@/components/courses/lesson-editor/tabTypes";
 import type { LessonEditorResource, LessonEditorValues } from "@/validations/lessonEditorSchema";
@@ -82,7 +82,7 @@ export function ResourcesTab({ onUploadingChange }: LessonEditorTabProps) {
     >
       <div className="min-w-0 space-y-5 lg:col-span-2">
         <div ref={formRef} className="scroll-mt-24">
-          <EditorSectionCard
+          <IconSectionCard
             icon={<FileText className="h-5 w-5" />}
             title={editing ? "Edit Resource" : "Learning Resources"}
             description={editing ? `Editing "${editing.title}". Save to update the table.` : "Add downloadable files, links and external resources for this lesson."}
@@ -94,7 +94,7 @@ export function ResourcesTab({ onUploadingChange }: LessonEditorTabProps) {
               onCancelEdit={() => setEditing(null)}
               onUploadingChange={(uploading) => onUploadingChange?.(uploading)}
             />
-          </EditorSectionCard>
+          </IconSectionCard>
         </div>
 
         <AddedResourcesCard

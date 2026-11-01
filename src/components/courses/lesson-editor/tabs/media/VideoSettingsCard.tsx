@@ -4,8 +4,8 @@ import React from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { Settings } from "lucide-react";
 import type { LessonEditorValues } from "@/validations/lessonEditorSchema";
-import { EditorSectionCard } from "../../shared/EditorSectionCard";
-import { SettingToggleRow } from "../../shared/SettingToggleRow";
+import { IconSectionCard } from "@/components/ui/IconSectionCard";
+import { SettingToggleRow } from "@/components/ui/SettingToggleRow";
 
 type PlayerKey = keyof LessonEditorValues["media"]["player"];
 
@@ -22,7 +22,7 @@ export function VideoSettingsCard() {
   const { control } = useFormContext<LessonEditorValues>();
 
   return (
-    <EditorSectionCard
+    <IconSectionCard
       icon={<Settings className="h-5 w-5" />}
       title="Video Settings"
       description="Configure video player settings and learning experience."
@@ -37,7 +37,7 @@ export function VideoSettingsCard() {
           render={({ field }) => <SettingToggleRow title={title} description={description} checked={field.value} onChange={field.onChange} />}
         />
       ))}
-    </EditorSectionCard>
+    </IconSectionCard>
   );
 }
 

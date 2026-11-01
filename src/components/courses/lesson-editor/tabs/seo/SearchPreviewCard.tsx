@@ -3,7 +3,7 @@
 import React from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { Eye } from "lucide-react";
-import { EditorSectionCard } from "@/components/courses/lesson-editor/shared/EditorSectionCard";
+import { IconSectionCard } from "@/components/ui/IconSectionCard";
 import { SEO_DESCRIPTION_MAX, SEO_TITLE_MAX, type LessonEditorValues } from "@/validations/lessonEditorSchema";
 import { previewBreadcrumb, truncateText } from "./seoAnalysis";
 
@@ -16,13 +16,13 @@ export function SearchPreviewCard({ publicUrl }: { publicUrl: string }) {
   const crumbs = previewBreadcrumb(publicUrl, slug ?? "");
 
   return (
-    <EditorSectionCard icon={<Eye className="h-5 w-5" />} title="Search Preview" description="This is how your lesson may appear in search results.">
+    <IconSectionCard icon={<Eye className="h-5 w-5" />} title="Search Preview" description="This is how your lesson may appear in search results.">
       <div className="rounded-xl border border-dash bg-white p-4">
         <p className="truncate body-xsm-regular text-primary-300">{crumbs.join(" › ")}</p>
         <p className="mt-1.5 break-words body-md-medium font-semibold! text-blue">{title}</p>
         <p className="mt-1 break-words body-sm-regular text-primary-400">{description}</p>
       </div>
-    </EditorSectionCard>
+    </IconSectionCard>
   );
 }
 

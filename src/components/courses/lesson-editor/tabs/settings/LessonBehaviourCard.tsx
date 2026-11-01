@@ -4,8 +4,8 @@ import React from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { SlidersHorizontal } from "lucide-react";
 import type { LessonEditorValues } from "@/validations/lessonEditorSchema";
-import { EditorSectionCard } from "../../shared/EditorSectionCard";
-import { SettingToggleRow } from "../../shared/SettingToggleRow";
+import { IconSectionCard } from "@/components/ui/IconSectionCard";
+import { SettingToggleRow } from "@/components/ui/SettingToggleRow";
 import { CompletionRuleField } from "./CompletionRuleField";
 
 type BehaviourKey = "freePreview" | "allowComments" | "allowQuestions" | "showInCurriculum" | "downloadableContent";
@@ -23,7 +23,7 @@ export function LessonBehaviourCard() {
   const { control } = useFormContext<LessonEditorValues>();
 
   return (
-    <EditorSectionCard
+    <IconSectionCard
       icon={<SlidersHorizontal className="h-5 w-5" />}
       title="Lesson Behaviour"
       description="Control how students interact with this lesson."
@@ -43,7 +43,7 @@ export function LessonBehaviourCard() {
       <div className="border-t border-dash pt-5">
         <CompletionRuleField />
       </div>
-    </EditorSectionCard>
+    </IconSectionCard>
   );
 }
 

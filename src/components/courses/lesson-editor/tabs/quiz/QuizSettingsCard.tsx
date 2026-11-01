@@ -4,9 +4,9 @@ import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ClipboardCheck } from "lucide-react";
 import { useController, useFormContext } from "react-hook-form";
-import { EditorSectionCard } from "@/components/courses/lesson-editor/shared/EditorSectionCard";
+import { IconSectionCard } from "@/components/ui/IconSectionCard";
 import type { LessonEditorValues } from "@/validations/lessonEditorSchema";
-import { SettingToggleRow } from "../../shared/SettingToggleRow";
+import { SettingToggleRow } from "@/components/ui/SettingToggleRow";
 import { QuizDetailsFields } from "./QuizDetailsFields";
 import { QuizDisabledState } from "./QuizDisabledState";
 
@@ -22,7 +22,7 @@ export function QuizSettingsCard() {
   };
 
   return (
-    <EditorSectionCard
+    <IconSectionCard
       icon={<ClipboardCheck className="h-5 w-5" />}
       title="Quiz Settings"
       description="Add a quiz to this lesson to test student knowledge."
@@ -53,7 +53,7 @@ export function QuizSettingsCard() {
           <QuizDisabledState key="disabled" onEnable={() => setEnabled(true)} />
         )}
       </AnimatePresence>
-    </EditorSectionCard>
+    </IconSectionCard>
   );
 }
 

@@ -5,9 +5,9 @@ import { useFormContext, useWatch } from "react-hook-form";
 import { CalendarCheck } from "lucide-react";
 import { InputField } from "@/components/ui/InputField";
 import { TextAreaField } from "@/components/ui/TextAreaField";
-import { EditorSectionCard } from "../../shared/EditorSectionCard";
+import { IconSectionCard } from "@/components/ui/IconSectionCard";
 import { EditorFieldLabel } from "../../fields/FieldLabel";
-import { CharCounter } from "../../shared/CharCounter";
+import { CharCounter } from "@/components/ui/CharCounter";
 import { EDITOR_SHORT_DESCRIPTION_MAX, EDITOR_TITLE_MAX, type LessonEditorValues } from "@/validations/lessonEditorSchema";
 import type { LessonEditorContext } from "@/types/lessonEditor";
 import { LessonMetaFields } from "./LessonMetaFields";
@@ -23,7 +23,7 @@ export function LessonContentCard({ context }: LessonContentCardProps) {
   const [title, shortDescription] = useWatch({ control, name: ["content.title", "content.shortDescription"] });
 
   return (
-    <EditorSectionCard
+    <IconSectionCard
       icon={<CalendarCheck className="h-5 w-5" />}
       title="Lesson Content"
       description="Add the basic information for this lesson."
@@ -56,7 +56,7 @@ export function LessonContentCard({ context }: LessonContentCardProps) {
 
       <LessonMetaFields context={context} />
       <LessonBodyField />
-    </EditorSectionCard>
+    </IconSectionCard>
   );
 }
 

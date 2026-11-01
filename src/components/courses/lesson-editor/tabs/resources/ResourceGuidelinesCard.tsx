@@ -1,6 +1,6 @@
 import React from "react";
 import { Info } from "lucide-react";
-import { EditorSectionCard } from "@/components/courses/lesson-editor/shared/EditorSectionCard";
+import { IconSectionCard } from "@/components/ui/IconSectionCard";
 
 const GUIDELINES = [
   "You can upload PDF, DOC, PPT, ZIP and other common files.",
@@ -13,7 +13,7 @@ const GUIDELINES = [
 /** Right "Resource Guidelines" info card. */
 export function ResourceGuidelinesCard() {
   return (
-    <EditorSectionCard icon={<Info className="h-5 w-5" />} title="Resource Guidelines">
+    <IconSectionCard icon={<Info className="h-5 w-5" />} title="Resource Guidelines">
       <ul className="space-y-2 rounded-xl border border-blue bg-blue-14 p-4">
         {GUIDELINES.map((line) => (
           <li key={line} className="flex items-start gap-2 body-xsm-regular text-primary-400">
@@ -22,7 +22,7 @@ export function ResourceGuidelinesCard() {
           </li>
         ))}
       </ul>
-    </EditorSectionCard>
+    </IconSectionCard>
   );
 }
 

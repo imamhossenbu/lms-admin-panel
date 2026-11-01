@@ -6,7 +6,7 @@ import { Paperclip } from "lucide-react";
 import type { LessonEditorValues } from "@/validations/lessonEditorSchema";
 import { Collapse } from "../access/Collapse";
 import { fieldErrorMessage } from "../access/fieldError";
-import { SettingToggleRow } from "../../shared/SettingToggleRow";
+import { SettingToggleRow } from "@/components/ui/SettingToggleRow";
 import type { LessonOption } from "../access/lessonOptions";
 import { PrerequisiteLessonList } from "./PrerequisiteLessonList";
 import { SubSectionHeader } from "./SubSectionHeader";

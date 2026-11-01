@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { SecondaryButton } from "@/components/ui/secondary-button";
 import type { LessonEditorValues } from "@/validations/lessonEditorSchema";
 import type { LessonEditorOption } from "@/types/lessonEditor";
-import { EditorSectionCard } from "../../shared/EditorSectionCard";
+import { IconSectionCard } from "@/components/ui/IconSectionCard";
 import { FieldError } from "../../fields/FieldError";
 import { SubtitlesTable } from "./SubtitlesTable";
 import { AddSubtitleModal } from "./AddSubtitleModal";
@@ -25,7 +25,7 @@ export function SubtitlesCard({ languages, onUploadingChange }: SubtitlesCardPro
   const rows = fields.map(({ id, language, fileName, url, status }) => ({ id, language, fileName, url, status }));
 
   return (
-    <EditorSectionCard
+    <IconSectionCard
       icon={<Captions className="h-5 w-5" />}
       title="Subtitle / Caption (Optional)"
       description="Upload subtitle files to make your video accessible."
@@ -55,7 +55,7 @@ export function SubtitlesCard({ languages, onUploadingChange }: SubtitlesCardPro
         onAdd={(subtitle) => append(subtitle)}
         onUploadingChange={onUploadingChange}
       />
-    </EditorSectionCard>
+    </IconSectionCard>
   );
 }
 

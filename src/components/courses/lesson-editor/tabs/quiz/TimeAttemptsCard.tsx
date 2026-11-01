@@ -3,7 +3,7 @@
 import React from "react";
 import { Clock } from "lucide-react";
 import { useFormContext } from "react-hook-form";
-import { EditorSectionCard } from "@/components/courses/lesson-editor/shared/EditorSectionCard";
+import { IconSectionCard } from "@/components/ui/IconSectionCard";
 import { InputField } from "@/components/ui/InputField";
 import { FieldLabel } from "@/components/courses/create/basic/FieldLabel";
 import type { LessonEditorValues } from "@/validations/lessonEditorSchema";
@@ -19,7 +19,7 @@ export function TimeAttemptsCard({ disabled }: { disabled?: boolean }) {
   const timeError = errors.quiz?.timeLimitMinutes?.message;
 
   return (
-    <EditorSectionCard icon={<Clock className="h-5 w-5" />} title="Time & Attempts" description="Limit how long and how often students can take the quiz." bodyClassName="space-y-5">
+    <IconSectionCard icon={<Clock className="h-5 w-5" />} title="Time & Attempts" description="Limit how long and how often students can take the quiz." bodyClassName="space-y-5">
       <div>
         <FieldLabel htmlFor="quiz-time-limit" label="Time Limit" optional />
         <InputField
@@ -45,7 +45,7 @@ export function TimeAttemptsCard({ disabled }: { disabled?: boolean }) {
         disabled={disabled}
         helper="Number of times a student can attempt this quiz."
       />
-    </EditorSectionCard>
+    </IconSectionCard>
   );
 }
 

@@ -6,7 +6,7 @@ import { CalendarDays, Clock, ShieldCheck } from "lucide-react";
 import { ChoiceCardGroup } from "@/components/ui/ChoiceCardGroup";
 import { InputField } from "@/components/ui/InputField";
 import type { LessonEditorValues } from "@/validations/lessonEditorSchema";
-import { EditorSectionCard } from "../../shared/EditorSectionCard";
+import { IconSectionCard } from "@/components/ui/IconSectionCard";
 import { EditorFieldLabel } from "../../fields/FieldLabel";
 
 type Status = LessonEditorValues["content"]["status"];
@@ -30,7 +30,7 @@ export function PublishStatusCard() {
   const isScheduled = status === "SCHEDULED";
 
   return (
-    <EditorSectionCard
+    <IconSectionCard
       icon={<ShieldCheck className="h-5 w-5" />}
       title="Publish & Status"
       description="Control the visibility and status of this lesson."
@@ -92,7 +92,7 @@ export function PublishStatusCard() {
         </div>
         {!isScheduled && <p className="mt-1.5 body-xsm-regular text-primary-300">Only required when the lesson is scheduled.</p>}
       </div>
-    </EditorSectionCard>
+    </IconSectionCard>
   );
 }
 

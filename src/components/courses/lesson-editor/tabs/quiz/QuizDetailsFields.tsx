@@ -8,7 +8,7 @@ import { ChoiceCardGroup } from "@/components/ui/ChoiceCardGroup";
 import { FieldLabel } from "@/components/courses/create/basic/FieldLabel";
 import { cn } from "@/lib/cn";
 import type { LessonEditorValues } from "@/validations/lessonEditorSchema";
-import { CharCounter } from "../../shared/CharCounter";
+import { CharCounter } from "@/components/ui/CharCounter";
 import { QUIZ_DESCRIPTION_MAX, QUIZ_KIND_OPTIONS, QUIZ_TITLE_MAX } from "./quizDisplay";
 
 /** Title, description, quiz type and passing score (body of "Quiz Settings"). */

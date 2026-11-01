@@ -4,10 +4,10 @@ import React from "react";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 import { CalendarDays, Clock } from "lucide-react";
 import { InputField } from "@/components/ui/InputField";
-import { EditorSectionCard } from "@/components/courses/lesson-editor/shared/EditorSectionCard";
+import { IconSectionCard } from "@/components/ui/IconSectionCard";
 import type { LessonEditorValues } from "@/validations/lessonEditorSchema";
 import { Collapse } from "./Collapse";
-import { SettingToggleRow } from "../../shared/SettingToggleRow";
+import { SettingToggleRow } from "@/components/ui/SettingToggleRow";
 
 /** "Enrollment & Date Restrictions": toggle + start/end date and time. */
 export function DateRestrictionCard() {
@@ -18,7 +18,7 @@ export function DateRestrictionCard() {
   const clock = <Clock className="h-4 w-4" />;
 
   return (
-    <EditorSectionCard icon={<CalendarDays className="h-5 w-5" />} title="Enrollment & Date Restrictions" description="Set time-based access rules for this lesson.">
+    <IconSectionCard icon={<CalendarDays className="h-5 w-5" />} title="Enrollment & Date Restrictions" description="Set time-based access rules for this lesson.">
       <Controller
         control={control}
         name="access.dateRestriction.enabled"
@@ -38,7 +38,7 @@ export function DateRestrictionCard() {
         <InputField id="access-end-date" type="date" label="End Date" leftElement={calendar} error={errors?.endDate?.message} {...register("access.dateRestriction.endDate")} />
         <InputField id="access-end-time" type="time" label="End Time" leftElement={clock} error={errors?.endTime?.message} {...register("access.dateRestriction.endTime")} />
       </Collapse>
-    </EditorSectionCard>
+    </IconSectionCard>
   );
 }
 

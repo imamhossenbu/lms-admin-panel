@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Settings2 } from "lucide-react";
-import { EditorSectionCard } from "@/components/courses/lesson-editor/shared/EditorSectionCard";
+import { IconSectionCard } from "@/components/ui/IconSectionCard";
 import type { LessonEditorValues } from "@/validations/lessonEditorSchema";
 import { ControlledSelectField } from "./ControlledSelectField";
 import { ControlledToggleRow } from "../../shared/ControlledToggleRow";
@@ -11,7 +11,7 @@ import { QUESTION_ORDER_HELP, QUESTION_ORDER_OPTIONS, SHOW_RESULTS_OPTIONS } fro
 /** Right "Question Settings": order, when to show results, correct answers / explanations. */
 export function QuestionSettingsCard({ disabled }: { disabled?: boolean }) {
   return (
-    <EditorSectionCard
+    <IconSectionCard
       icon={<Settings2 className="h-5 w-5" />}
       title="Question Settings"
       description="Configure general settings for quiz questions."
@@ -45,7 +45,7 @@ export function QuestionSettingsCard({ disabled }: { disabled?: boolean }) {
         description="Show answer explanations after submission."
         disabled={disabled}
       />
-    </EditorSectionCard>
+    </IconSectionCard>
   );
 }
 

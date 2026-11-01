@@ -6,14 +6,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { NotebookPen, Plus, Save } from "lucide-react";
 import { toast } from "sonner";
-import { EditorSectionCard } from "@/components/courses/lesson-editor/shared/EditorSectionCard";
+import { IconSectionCard } from "@/components/ui/IconSectionCard";
 import { RichTextEditor } from "@/components/ui/RichTextEditor";
 import { SecondaryButton } from "@/components/ui/secondary-button";
 import { cn } from "@/lib/cn";
 import { NOTE_MAX, lessonEditorNoteSchema, type LessonEditorNote } from "@/validations/lessonEditorSchema";
-import { CharCounter } from "../../shared/CharCounter";
+import { CharCounter } from "@/components/ui/CharCounter";
 import { EditorBlueButton } from "../quiz/EditorBlueButton";
-import { SettingToggleRow } from "../../shared/SettingToggleRow";
+import { SettingToggleRow } from "@/components/ui/SettingToggleRow";
 import { notePlainLength } from "./noteUtils";
 
 const composerSchema = lessonEditorNoteSchema
@@ -58,7 +58,7 @@ export function NoteComposerCard({ editing, disabled, onSubmit, onCancelEdit }: 
   });
 
   return (
-    <EditorSectionCard
+    <IconSectionCard
       icon={<NotebookPen className="h-5 w-5" />}
       title={editing ? "Edit Note" : "Instructor Notes"}
       description="Add private notes, tips or reminders for instructors or admins. These notes are not visible to students."
@@ -104,7 +104,7 @@ export function NoteComposerCard({ editing, disabled, onSubmit, onCancelEdit }: 
         </div>
       </div>
       {disabled && <p className="mt-3 body-xsm-regular text-primary-300">Turn on &quot;Enable Instructor Notes&quot; in Note Settings to write notes.</p>}
-    </EditorSectionCard>
+    </IconSectionCard>
   );
 }
 

@@ -6,7 +6,7 @@ import { Tags } from "lucide-react";
 import { TagsInput } from "@/components/ui/TagsInput";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 import type { LessonEditorValues } from "@/validations/lessonEditorSchema";
-import { EditorSectionCard } from "../../shared/EditorSectionCard";
+import { IconSectionCard } from "@/components/ui/IconSectionCard";
 
 const MAX_TAGS = 10;
 
@@ -15,7 +15,7 @@ export function LessonTagsCard() {
   const { control, formState: { errors } } = useFormContext<LessonEditorValues>();
 
   return (
-    <EditorSectionCard icon={<Tags className="h-5 w-5" />} title="Lesson Tags" description="Add keywords to help students find this lesson." tone="purple">
+    <IconSectionCard icon={<Tags className="h-5 w-5" />} title="Lesson Tags" description="Add keywords to help students find this lesson." tone="purple">
       <Controller
         control={control}
         name="settings.tags"
@@ -36,7 +36,7 @@ export function LessonTagsCard() {
           </>
         )}
       />
-    </EditorSectionCard>
+    </IconSectionCard>
   );
 }
 

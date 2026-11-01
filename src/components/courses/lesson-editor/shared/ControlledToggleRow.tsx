@@ -3,7 +3,7 @@
 import React from "react";
 import { useController, useFormContext, type FieldPathByValue } from "react-hook-form";
 import type { LessonEditorValues } from "@/validations/lessonEditorSchema";
-import { SettingToggleRow } from "../shared/SettingToggleRow";
+import { SettingToggleRow } from "@/components/ui/SettingToggleRow";
 
 export interface ControlledToggleRowProps {
   /** Boolean field of the Edit Lesson form, e.g. "quiz.showCorrectAnswers". */

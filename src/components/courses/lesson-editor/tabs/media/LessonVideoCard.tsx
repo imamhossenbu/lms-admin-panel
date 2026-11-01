@@ -7,7 +7,7 @@ import { FolderOpen, PlayCircle } from "lucide-react";
 import { toast } from "sonner";
 import { SecondaryButton } from "@/components/ui/secondary-button";
 import type { LessonEditorValues } from "@/validations/lessonEditorSchema";
-import { EditorSectionCard } from "../../shared/EditorSectionCard";
+import { IconSectionCard } from "@/components/ui/IconSectionCard";
 import { VideoSourceTabs } from "./VideoSourceTabs";
 import { VideoDropzone } from "./VideoDropzone";
 import { VideoUrlField } from "./VideoUrlField";
@@ -47,7 +47,7 @@ export function LessonVideoCard({ upload, onViewPreview }: LessonVideoCardProps)
   const showFileRow = (video.source === "UPLOAD" || video.source === "LIBRARY") && (!!video.url || upload.isUploading);
 
   return (
-    <EditorSectionCard
+    <IconSectionCard
       icon={<PlayCircle className="h-5 w-5" />}
       title="Lesson Video"
       description="Upload or add a video for this lesson. You can also embed from YouTube, Vimeo or other platforms."
@@ -100,7 +100,7 @@ export function LessonVideoCard({ upload, onViewPreview }: LessonVideoCardProps)
           toast.success("Video selected", { description: item.title });
         }}
       />
-    </EditorSectionCard>
+    </IconSectionCard>
   );
 }
 

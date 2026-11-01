@@ -5,7 +5,7 @@ import { useFormContext } from "react-hook-form";
 import { toast } from "sonner";
 import { Copy, Settings, Trash2 } from "lucide-react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
-import { EditorSectionCard } from "@/components/courses/lesson-editor/shared/EditorSectionCard";
+import { IconSectionCard } from "@/components/ui/IconSectionCard";
 import type { LessonEditorValues } from "@/validations/lessonEditorSchema";
 import type { LessonOption } from "../access/lessonOptions";
 import { CopyScheduleModal } from "./CopyScheduleModal";
@@ -38,7 +38,7 @@ export function QuickActionsCard({ courseId, lessonId, lessonOptions }: QuickAct
   };
 
   return (
-    <EditorSectionCard icon={<Settings className="h-5 w-5" />} title="Quick Actions" description="Common drip schedule actions.">
+    <IconSectionCard icon={<Settings className="h-5 w-5" />} title="Quick Actions" description="Common drip schedule actions.">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
         <QuickActionTile tone="red" icon={<Trash2 className="h-4 w-4" />} title="Clear Schedule" description="Remove all drip settings for this lesson." onClick={() => setConfirmOpen(true)} />
         <QuickActionTile tone="blue" icon={<Copy className="h-4 w-4" />} title="Copy Schedule" description="Copy drip schedule from another lesson." onClick={() => setCopyOpen(true)} />
@@ -55,7 +55,7 @@ export function QuickActionsCard({ courseId, lessonId, lessonOptions }: QuickAct
         onConfirm={handleClear}
       />
       <CopyScheduleModal isOpen={copyOpen} onClose={() => setCopyOpen(false)} courseId={courseId} lessonOptions={lessonOptions} onCopy={handleCopy} />
-    </EditorSectionCard>
+    </IconSectionCard>
   );
 }
 

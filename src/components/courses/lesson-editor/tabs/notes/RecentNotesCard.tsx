@@ -3,7 +3,7 @@
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { History } from "lucide-react";
-import { EditorSectionCard } from "@/components/courses/lesson-editor/shared/EditorSectionCard";
+import { IconSectionCard } from "@/components/ui/IconSectionCard";
 import type { LessonEditorNote } from "@/validations/lessonEditorSchema";
 import { noteMeta, recentNotes, splitNote } from "./noteUtils";
 
@@ -12,7 +12,7 @@ export function RecentNotesCard({ notes }: { notes: LessonEditorNote[] }) {
   const recent = recentNotes(notes, 3);
 
   return (
-    <EditorSectionCard icon={<History className="h-5 w-5" />} title="Recent Notes">
+    <IconSectionCard icon={<History className="h-5 w-5" />} title="Recent Notes">
       {recent.length === 0 ? (
         <p className="body-xsm-regular text-primary-300">Recently added notes will show up here.</p>
       ) : (
@@ -35,7 +35,7 @@ export function RecentNotesCard({ notes }: { notes: LessonEditorNote[] }) {
           </AnimatePresence>
         </ul>
       )}
-    </EditorSectionCard>
+    </IconSectionCard>
   );
 }
 

@@ -4,7 +4,7 @@ import React, { useMemo } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { AnimatePresence } from "framer-motion";
 import { CalendarDays } from "lucide-react";
-import { EditorSectionCard } from "@/components/courses/lesson-editor/shared/EditorSectionCard";
+import { IconSectionCard } from "@/components/ui/IconSectionCard";
 import type { LessonEditorValues } from "@/validations/lessonEditorSchema";
 import { LessonRow } from "../access/LessonRow";
 import type { LessonOption } from "../access/lessonOptions";
@@ -23,7 +23,7 @@ export function SchedulePreviewCard({ lessonOptions }: { lessonOptions: LessonOp
   const release = describeRelease(drip);
 
   return (
-    <EditorSectionCard icon={<CalendarDays className="h-5 w-5" />} title="Schedule Preview" description="See how this lesson will be released to students.">
+    <IconSectionCard icon={<CalendarDays className="h-5 w-5" />} title="Schedule Preview" description="See how this lesson will be released to students.">
       <ol>
         <AnimatePresence initial={false}>
           <TimelineStep key="enroll" marker="done" title="Student Enrolls" aside="Day 0" />
@@ -48,7 +48,7 @@ export function SchedulePreviewCard({ lessonOptions }: { lessonOptions: LessonOp
           />
         </AnimatePresence>
       </ol>
-    </EditorSectionCard>
+    </IconSectionCard>
   );
 }
 

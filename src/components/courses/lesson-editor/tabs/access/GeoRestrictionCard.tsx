@@ -3,12 +3,12 @@
 import React from "react";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 import { Globe } from "lucide-react";
-import { EditorSectionCard } from "@/components/courses/lesson-editor/shared/EditorSectionCard";
+import { IconSectionCard } from "@/components/ui/IconSectionCard";
 import type { LessonEditorValues } from "@/validations/lessonEditorSchema";
 import type { LessonEditorOption } from "@/types/lessonEditor";
 import { fieldErrorMessage } from "./fieldError";
 import { MultiSelectChips } from "./MultiSelectChips";
-import { SettingToggleRow } from "../../shared/SettingToggleRow";
+import { SettingToggleRow } from "@/components/ui/SettingToggleRow";
 
 /** "Geographic Restriction (Optional)": toggle + countries. */
 export function GeoRestrictionCard({ countries }: { countries: LessonEditorOption[] }) {
@@ -17,7 +17,7 @@ export function GeoRestrictionCard({ countries }: { countries: LessonEditorOptio
   const countriesError = fieldErrorMessage(formState.errors.access?.geoRestriction?.countries);
 
   return (
-    <EditorSectionCard icon={<Globe className="h-5 w-5" />} title="Geographic Restriction (Optional)" description="Restrict access based on student location.">
+    <IconSectionCard icon={<Globe className="h-5 w-5" />} title="Geographic Restriction (Optional)" description="Restrict access based on student location.">
       <Controller
         control={control}
         name="access.geoRestriction.enabled"
@@ -49,7 +49,7 @@ export function GeoRestrictionCard({ countries }: { countries: LessonEditorOptio
           )}
         />
       </div>
-    </EditorSectionCard>
+    </IconSectionCard>
   );
 }
 

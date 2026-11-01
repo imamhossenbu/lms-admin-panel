@@ -5,7 +5,7 @@ import { Controller, useFormContext } from "react-hook-form";
 import { BarChart3, Signal, SignalHigh, SignalLow } from "lucide-react";
 import { ChoiceCardGroup, type ChoiceOption } from "@/components/ui/ChoiceCardGroup";
 import type { LessonEditorValues } from "@/validations/lessonEditorSchema";
-import { EditorSectionCard } from "../../shared/EditorSectionCard";
+import { IconSectionCard } from "@/components/ui/IconSectionCard";
 
 type Difficulty = LessonEditorValues["settings"]["difficulty"];
 
@@ -20,7 +20,7 @@ export function DifficultyCard() {
   const { control } = useFormContext<LessonEditorValues>();
 
   return (
-    <EditorSectionCard icon={<BarChart3 className="h-5 w-5" />} title="Difficulty" description="Help students pick the right lesson." tone="orange">
+    <IconSectionCard icon={<BarChart3 className="h-5 w-5" />} title="Difficulty" description="Help students pick the right lesson." tone="orange">
       <Controller
         control={control}
         name="settings.difficulty"
@@ -28,7 +28,7 @@ export function DifficultyCard() {
           <ChoiceCardGroup name="lesson-difficulty" aria-label="Lesson difficulty" columns={2} value={field.value} onChange={field.onChange} options={DIFFICULTY_OPTIONS} className="sm:grid-cols-1" />
         )}
       />
-    </EditorSectionCard>
+    </IconSectionCard>
   );
 }
 

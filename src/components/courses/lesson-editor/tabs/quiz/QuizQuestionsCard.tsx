@@ -5,7 +5,7 @@ import { AnimatePresence, Reorder } from "framer-motion";
 import { ListChecks } from "lucide-react";
 import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 import { toast } from "sonner";
-import { EditorSectionCard } from "@/components/courses/lesson-editor/shared/EditorSectionCard";
+import { IconSectionCard } from "@/components/ui/IconSectionCard";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { QuizQuestionModal } from "@/components/courses/create/lesson/quiz/QuizQuestionModal";
 import { QuizAiGenerateModal, QUIZ_AI_MIN_BATCH } from "@/components/courses/create/lesson/quiz/QuizAiGenerateModal";
@@ -102,7 +102,7 @@ export function QuizQuestionsCard() {
   const editing = editor.index !== null ? (fields[editor.index] ?? null) : null;
 
   return (
-    <EditorSectionCard
+    <IconSectionCard
       icon={<ListChecks className="h-5 w-5" />}
       title="Questions"
       description={fields.length ? `${pluralize(fields.length, "question")} • Add, edit or reorder quiz questions.` : "Add, edit or reorder quiz questions."}
@@ -177,7 +177,7 @@ export function QuizQuestionsCard() {
         onClose={() => setDeleteIndex(null)}
         onConfirm={confirmDelete}
       />
-    </EditorSectionCard>
+    </IconSectionCard>
   );
 }
 

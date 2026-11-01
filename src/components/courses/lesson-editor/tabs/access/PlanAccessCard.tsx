@@ -3,13 +3,13 @@
 import React from "react";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 import { Crown } from "lucide-react";
-import { EditorSectionCard } from "@/components/courses/lesson-editor/shared/EditorSectionCard";
+import { IconSectionCard } from "@/components/ui/IconSectionCard";
 import type { LessonEditorValues } from "@/validations/lessonEditorSchema";
 import type { LessonEditorOption } from "@/types/lessonEditor";
 import { fieldErrorMessage } from "./fieldError";
 import { FieldGroupLabel } from "./FieldGroupLabel";
 import { MultiSelectChips } from "./MultiSelectChips";
-import { SettingToggleRow } from "../../shared/SettingToggleRow";
+import { SettingToggleRow } from "@/components/ui/SettingToggleRow";
 
 /** "Subscription & Plan Access": toggle + allowed plans. */
 export function PlanAccessCard({ plans }: { plans: LessonEditorOption[] }) {
@@ -18,7 +18,7 @@ export function PlanAccessCard({ plans }: { plans: LessonEditorOption[] }) {
   const plansError = fieldErrorMessage(formState.errors.access?.planRestriction?.planIds);
 
   return (
-    <EditorSectionCard icon={<Crown className="h-5 w-5" />} title="Subscription & Plan Access" description="Restrict this lesson to specific subscription plans.">
+    <IconSectionCard icon={<Crown className="h-5 w-5" />} title="Subscription & Plan Access" description="Restrict this lesson to specific subscription plans.">
       <Controller
         control={control}
         name="access.planRestriction.enabled"
@@ -51,7 +51,7 @@ export function PlanAccessCard({ plans }: { plans: LessonEditorOption[] }) {
           />
         )}
       />
-    </EditorSectionCard>
+    </IconSectionCard>
   );
 }
 

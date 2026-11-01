@@ -4,7 +4,7 @@ import React from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { Clock, Info } from "lucide-react";
 import { ChoiceCardGroup } from "@/components/ui/ChoiceCardGroup";
-import { EditorSectionCard } from "@/components/courses/lesson-editor/shared/EditorSectionCard";
+import { IconSectionCard } from "@/components/ui/IconSectionCard";
 import type { LessonEditorValues } from "@/validations/lessonEditorSchema";
 import { FieldGroupLabel } from "../access/FieldGroupLabel";
 import type { LessonOption } from "../access/lessonOptions";
@@ -18,7 +18,7 @@ export function DripScheduleCard({ lessonOptions }: { lessonOptions: LessonOptio
   const { control } = useFormContext<LessonEditorValues>();
 
   return (
-    <EditorSectionCard icon={<Clock className="h-5 w-5" />} title="Drip Schedule" description="Set when this lesson will be available to students." bodyClassName="space-y-5">
+    <IconSectionCard icon={<Clock className="h-5 w-5" />} title="Drip Schedule" description="Set when this lesson will be available to students." bodyClassName="space-y-5">
       <div className="flex items-start gap-2.5 rounded-xl border border-blue/20 bg-blue-14 px-4 py-3">
         <Info className="mt-0.5 h-4 w-4 shrink-0 text-blue" />
         <p className="body-sm-regular text-primary-400">
@@ -40,7 +40,7 @@ export function DripScheduleCard({ lessonOptions }: { lessonOptions: LessonOptio
       <ReleaseTimingBox />
       <DependenciesSection lessonOptions={lessonOptions} />
       <BeforeReleaseSection />
-    </EditorSectionCard>
+    </IconSectionCard>
   );
 }
 

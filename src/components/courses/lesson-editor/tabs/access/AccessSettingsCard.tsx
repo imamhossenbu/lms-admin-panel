@@ -4,7 +4,7 @@ import React from "react";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 import { Lock } from "lucide-react";
 import { ChoiceCardGroup } from "@/components/ui/ChoiceCardGroup";
-import { EditorSectionCard } from "@/components/courses/lesson-editor/shared/EditorSectionCard";
+import { IconSectionCard } from "@/components/ui/IconSectionCard";
 import type { LessonEditorValues } from "@/validations/lessonEditorSchema";
 import { ACCESS_TYPE_OPTIONS, VISIBILITY_OPTIONS } from "./accessOptions";
 import { Collapse } from "./Collapse";
@@ -20,7 +20,7 @@ export function AccessSettingsCard({ lessonOptions }: { lessonOptions: LessonOpt
   const prerequisiteError = formState.errors.access?.prerequisiteLessonId?.message;
 
   return (
-    <EditorSectionCard
+    <IconSectionCard
       icon={<Lock className="h-5 w-5" />}
       title="Access Settings"
       description="Control who can access this lesson and set enrollment restrictions."
@@ -51,7 +51,7 @@ export function AccessSettingsCard({ lessonOptions }: { lessonOptions: LessonOpt
           )}
         />
       </Collapse>
-    </EditorSectionCard>
+    </IconSectionCard>
   );
 }
 

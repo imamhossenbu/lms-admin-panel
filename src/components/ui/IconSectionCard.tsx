@@ -4,9 +4,9 @@ import React from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/cn";
 
-export type EditorSectionTone = "blue" | "green" | "orange" | "purple" | "yellow" | "red";
+export type IconSectionTone = "blue" | "green" | "orange" | "purple" | "yellow" | "red";
 
-const TONE: Record<EditorSectionTone, string> = {
+const TONE: Record<IconSectionTone, string> = {
   blue: "bg-blue-14 text-blue",
   green: "bg-green-bg text-green",
   orange: "bg-brand-orange-light text-brand-orange",
@@ -15,12 +15,12 @@ const TONE: Record<EditorSectionTone, string> = {
   red: "bg-red-14 text-red",
 };
 
-export interface EditorSectionCardProps {
+export interface IconSectionCardProps {
   /** Pass a sized icon, e.g. <Lock className="h-5 w-5" />. */
   icon: React.ReactNode;
   title: string;
   description?: string;
-  tone?: EditorSectionTone;
+  tone?: IconSectionTone;
   /** Right side of the header (toggle, "+ Add" button …). */
   action?: React.ReactNode;
   children?: React.ReactNode;
@@ -29,10 +29,10 @@ export interface EditorSectionCardProps {
 }
 
 /**
- * Card used by every Edit Lesson tab: rounded icon tile + title + description header, then body.
+ * Card with a rounded icon tile + title + description header (Edit Lesson tabs, Assignments …): rounded icon tile + title + description header, then body.
  * (Design: "Lesson Content", "Publish & Status", "Video Settings", "Access Settings" …)
  */
-export function EditorSectionCard({
+export function IconSectionCard({
   icon,
   title,
   description,
@@ -41,7 +41,7 @@ export function EditorSectionCard({
   children,
   className,
   bodyClassName,
-}: EditorSectionCardProps) {
+}: IconSectionCardProps) {
   return (
     <motion.section
       initial={{ opacity: 0, y: 6 }}
@@ -64,4 +64,4 @@ export function EditorSectionCard({
   );
 }
 
-export default EditorSectionCard;
+export default IconSectionCard;

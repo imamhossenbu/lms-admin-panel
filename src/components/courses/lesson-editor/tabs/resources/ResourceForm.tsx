@@ -16,9 +16,9 @@ import {
   lessonEditorResourceSchema,
   type LessonEditorResource,
 } from "@/validations/lessonEditorSchema";
-import { CharCounter } from "../../shared/CharCounter";
+import { CharCounter } from "@/components/ui/CharCounter";
 import { EditorBlueButton } from "../quiz/EditorBlueButton";
-import { SettingToggleRow } from "../../shared/SettingToggleRow";
+import { SettingToggleRow } from "@/components/ui/SettingToggleRow";
 import { ResourceUploadField } from "./ResourceUploadField";
 import { emptyResource, titleFromFileName } from "./resourceDisplay";
 

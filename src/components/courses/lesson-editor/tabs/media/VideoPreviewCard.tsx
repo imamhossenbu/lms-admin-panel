@@ -4,7 +4,7 @@ import React, { forwardRef } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { MonitorPlay } from "lucide-react";
 import type { LessonEditorValues } from "@/validations/lessonEditorSchema";
-import { EditorSectionCard } from "../../shared/EditorSectionCard";
+import { IconSectionCard } from "@/components/ui/IconSectionCard";
 import { VideoPlayerPreview } from "./VideoPlayerPreview";
 
 export interface VideoPreviewCardProps {
@@ -22,7 +22,7 @@ export const VideoPreviewCard = forwardRef<HTMLDivElement, VideoPreviewCardProps
 
   return (
     <div ref={ref} className="scroll-mt-6">
-      <EditorSectionCard icon={<MonitorPlay className="h-5 w-5" />} title="Video Preview" description="Preview how the video will look for students." tone="blue">
+      <IconSectionCard icon={<MonitorPlay className="h-5 w-5" />} title="Video Preview" description="Preview how the video will look for students." tone="blue">
         <VideoPlayerPreview
           url={video.url}
           localUrl={localUrlFor(video.url)}
@@ -35,7 +35,7 @@ export const VideoPreviewCard = forwardRef<HTMLDivElement, VideoPreviewCardProps
         {!player.enabled && (
           <p className="mt-3 body-xsm-regular text-yellow">The video player is disabled — students won&apos;t see this video until you enable it.</p>
         )}
-      </EditorSectionCard>
+      </IconSectionCard>
     </div>
   );
 });

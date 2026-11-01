@@ -4,7 +4,7 @@ import React from "react";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 import { ImageIcon } from "lucide-react";
 import type { LessonEditorValues } from "@/validations/lessonEditorSchema";
-import { EditorSectionCard } from "../../shared/EditorSectionCard";
+import { IconSectionCard } from "@/components/ui/IconSectionCard";
 import { ImageUploadPanel } from "../../fields/ImageUploadPanel";
 
 export interface LessonThumbnailCardProps {
@@ -17,7 +17,7 @@ export function LessonThumbnailCard({ onUploadingChange }: LessonThumbnailCardPr
   const title = useWatch({ control, name: "content.title" });
 
   return (
-    <EditorSectionCard icon={<ImageIcon className="h-5 w-5" />} title="Lesson Thumbnail" description="Upload a thumbnail for this lesson." tone="purple">
+    <IconSectionCard icon={<ImageIcon className="h-5 w-5" />} title="Lesson Thumbnail" description="Upload a thumbnail for this lesson." tone="purple">
       <Controller
         control={control}
         name="content.thumbnailUrl"
@@ -30,7 +30,7 @@ export function LessonThumbnailCard({ onUploadingChange }: LessonThumbnailCardPr
           />
         )}
       />
-    </EditorSectionCard>
+    </IconSectionCard>
   );
 }
 
