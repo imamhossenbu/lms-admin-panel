@@ -226,7 +226,7 @@ function ResetPasswordFormContent() {
                       setServerError(null);
                     }}
                     placeholder="Enter 6-digit code"
-                    className="w-full h-13 sm:h-13.5 pl-12 pr-4 rounded-xl border border-dash focus:border-brand-orange focus:ring-4 focus:ring-brand-orange/10 bg-white body-regular text-primary-500 placeholder:text-primary-300 focus:outline-none transition-all font-mono tracking-widest text-lg"
+                    className="w-full h-13 sm:h-13.5 pl-12 pr-4 rounded-xl border border-dash focus:border-brand-orange focus:ring-4 focus:ring-brand-orange/10 bg-white body-regular text-primary-500 placeholder:text-primary-300 focus:outline-none transition-all font-mono tracking-widest"
                   />
                 </div>
               </div>

@@ -176,7 +176,7 @@ export function CategoryFormModal({
           <div className="flex items-center gap-3">
             <CategoryIcon
               icon={icon}
-              className="w-14 h-14 text-2xl shadow-xs"
+              className="w-14 h-14 body-xl-regular shadow-xs"
               imgClassName="object-contain p-1.5"
             />
 
@@ -219,7 +219,7 @@ export function CategoryFormModal({
                   key={emoji}
                   type="button"
                   onClick={() => setIcon(emoji)}
-                  className={`w-8 h-8 rounded-md border text-base flex items-center justify-center transition-all cursor-pointer ${
+                  className={`w-8 h-8 rounded-md border body-regular flex items-center justify-center transition-all cursor-pointer ${
                     icon === emoji
                       ? "border-brand-orange bg-brand-orange-light ring-2 ring-brand-orange/20"
                       : "border-dash bg-white hover:bg-gray-50"

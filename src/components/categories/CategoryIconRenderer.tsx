@@ -42,9 +42,9 @@ export function CategoryIconRenderer({
   const IconComponent = config.icon;
 
   const sizeClasses = {
-    sm: "w-7 h-7 rounded-lg text-xs",
-    md: "w-8 h-8 rounded-lg text-sm",
-    lg: "w-10 h-10 rounded-xl text-base",
+    sm: "w-7 h-7 rounded-lg body-xsm-regular",
+    md: "w-8 h-8 rounded-lg body-sm-regular",
+    lg: "w-10 h-10 rounded-xl body-regular",
   };
 
   const iconSizes = {

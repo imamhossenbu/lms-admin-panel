@@ -175,7 +175,7 @@ export default function LoginPage() {
         mockupSrc="/images/edupro_mockup_clean_flush.png"
         mockupAlt="EduPro 3D Dashboard Mockup"
         topBadge={
-          <div className="hidden sm:flex items-center gap-2 text-xs text-slate-300">
+          <div className="hidden sm:flex items-center gap-2 body-xsm-regular text-slate-300">
             <span className="w-2 h-2 rounded-full bg-brand-orange shadow-sm shadow-brand-orange" />
             <span>Manage</span>
             <span className="text-slate-500">•</span>

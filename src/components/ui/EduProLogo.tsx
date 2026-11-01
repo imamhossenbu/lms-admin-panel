@@ -78,11 +78,6 @@ export function EduProLogo({
     lg: "w-11 h-11",
   };
 
-  const textSizes = {
-    sm: "text-lg",
-    md: "text-xl",
-    lg: "text-2xl",
-  };
 
   const isLight = variant === "light";
 
@@ -96,8 +91,8 @@ export function EduProLogo({
         <div className="flex flex-col text-left leading-tight">
           <span
             className={`${
-              size === "lg" ? "text-2xl" : size === "md" ? "text-xl" : "text-lg"
-            } font-extrabold tracking-tight ${
+              size === "lg" ? "body-xl-regular" : size === "md" ? "title-regular" : "body-l-regular"
+            } font-extrabold! tracking-tight ${
               isLight ? "text-white" : "text-primary-500"
             }`}
           >

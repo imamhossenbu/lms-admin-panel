@@ -42,7 +42,7 @@ export function StudentDetailsHeader({
           </Link>
 
           {/* Avatar with Initials / Photo */}
-          <div className="w-20 h-20 rounded-2xl bg-blue-14 border-2 border-white shadow-md flex items-center justify-center shrink-0 text-blue font-bold text-2xl tracking-tight">
+          <div className="w-20 h-20 rounded-2xl bg-blue-14 border-2 border-white shadow-md flex items-center justify-center shrink-0 text-blue body-xl-regular font-bold! tracking-tight">
             {student.initials}
           </div>
 

@@ -104,7 +104,7 @@ export function QuickCategoryAdd({
         <div className="sm:col-span-3">
           <InputField
             label="Icon / Emoji"
-            className="text-center text-lg"
+            className="text-center body-l-regular"
             placeholder="📚"
             maxLength={4}
             value={icon}

@@ -262,7 +262,7 @@ export function CategoryManagementModal({
                   maxLength={4}
                   value={icon}
                   onChange={(e) => setIcon(e.target.value)}
-                  className="w-12 h-9.5 text-center text-lg rounded-lg border border-dash bg-white focus:outline-none focus:border-brand-orange"
+                  className="w-12 h-9.5 text-center body-l-regular rounded-lg border border-dash bg-white focus:outline-none focus:border-brand-orange"
                 />
                 <span className="body-xsm-regular subtext-500 mr-2">Or choose:</span>
                 {emojiPresets.map((em) => (
@@ -270,7 +270,7 @@ export function CategoryManagementModal({
                     key={em}
                     type="button"
                     onClick={() => setIcon(em)}
-                    className={`w-9 h-9 rounded-lg text-base flex items-center justify-center border transition-all cursor-pointer ${
+                    className={`w-9 h-9 rounded-lg body-regular flex items-center justify-center border transition-all cursor-pointer ${
                       icon === em
                         ? "border-brand-orange bg-brand-orange-light text-brand-orange shadow-2xs"
                         : "border-dash bg-white hover:bg-gray-100"
@@ -333,7 +333,7 @@ export function CategoryManagementModal({
                 className="p-3.5 flex items-center justify-between gap-4 hover:bg-gray-50/60 transition-colors"
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <CategoryIcon icon={cat.icon} className="w-10 h-10 text-xl" />
+                  <CategoryIcon icon={cat.icon} className="w-10 h-10 title-regular" />
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
                       <span className="body-sm-medium text-primary-500 font-semibold truncate">

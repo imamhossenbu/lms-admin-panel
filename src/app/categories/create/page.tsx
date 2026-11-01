@@ -2,9 +2,8 @@
 
 import React, { useState, useRef, Suspense } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowLeft, FolderPlus, UploadCloud, CheckCircle2, Loader2 } from "lucide-react";
+import { FolderPlus, UploadCloud, CheckCircle2, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { InputField } from "@/components/ui/InputField";
 import { DropdownSelect } from "@/components/ui/DropdownSelect";
@@ -109,19 +108,9 @@ function CreateCategoryContent() {
       transition={{ duration: 0.28, ease: "easeOut" }}
       className="space-y-6 text-left max-w-4xl mx-auto pb-16"
     >
-      {/* Navigation Topbar */}
-      <div className="flex items-center justify-between">
-        <Link
-          href="/categories"
-          className="inline-flex items-center gap-2 text-sm text-primary-400 hover:text-blue font-medium transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to Categories Hub</span>
-        </Link>
-        <ToneBadge tone="navy">New Discipline</ToneBadge>
-      </div>
 
       <PageHeader
+        badge={<ToneBadge tone="navy">New Discipline</ToneBadge>}
         breadcrumbs={[{ label: "Categories", href: "/categories" }, { label: "Add New Category" }]}
         title="Add New Category"
         description="Define a new academic discipline or technology track for organizing courses."
@@ -165,7 +154,7 @@ function CreateCategoryContent() {
               Active Icon / Badge Preview
             </label>
             <div className="flex items-center gap-3 h-10 px-3 rounded-lg border border-dash bg-gray-bg">
-              <CategoryIcon icon={icon} className="w-6 h-6 text-lg" />
+              <CategoryIcon icon={icon} className="w-6 h-6 body-l-regular" />
               <span className="body-sm-medium text-primary-500 font-semibold truncate">
                 {icon.startsWith("http") ? "Custom Cloudinary Graphic" : `Emoji Symbol: ${icon}`}
               </span>
@@ -184,7 +173,7 @@ function CreateCategoryContent() {
                 key={em}
                 type="button"
                 onClick={() => setIcon(em)}
-                className={`w-9 h-9 text-lg rounded-md flex items-center justify-center transition-transform hover:scale-110 cursor-pointer ${
+                className={`w-9 h-9 body-l-regular rounded-md flex items-center justify-center transition-transform hover:scale-110 cursor-pointer ${
                   icon === em
                     ? "bg-brand-orange text-white shadow-sm ring-2 ring-brand-orange/30"
                     : "bg-white hover:bg-slate-100 border border-gray-200"
@@ -205,7 +194,7 @@ function CreateCategoryContent() {
               type="button"
               onClick={() => iconInputRef.current?.click()}
               disabled={isUploadingIcon}
-              className="h-9 px-3 rounded-md bg-white border border-dash hover:border-brand-orange text-brand-orange text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 ml-auto"
+              className="h-9 px-3 rounded-md bg-white border border-dash hover:border-brand-orange text-brand-orange body-xsm-medium font-semibold! flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 ml-auto"
             >
               {isUploadingIcon ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />

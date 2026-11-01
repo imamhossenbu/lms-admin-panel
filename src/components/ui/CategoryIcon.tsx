@@ -11,7 +11,7 @@ interface CategoryIconProps {
 
 export function CategoryIcon({
   icon,
-  className = "w-12 h-12 text-2xl",
+  className = "w-12 h-12 body-xl-regular",
   imgClassName = "object-contain p-1",
 }: CategoryIconProps) {
   const isImageUrl = Boolean(

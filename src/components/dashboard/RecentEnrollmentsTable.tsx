@@ -76,7 +76,7 @@ export function RecentEnrollmentsTable({
     <div className="bg-white rounded-xl border border-dash shadow-xs overflow-hidden flex flex-col justify-between">
       {/* Header */}
       <div className="px-4 py-3 flex items-center justify-between">
-        <h3 className="heading-h6 font-bold text-primary-500 text-sm">
+        <h3 className="heading-h6 font-bold text-primary-500">
           Recent Enrollments
         </h3>
         <Link

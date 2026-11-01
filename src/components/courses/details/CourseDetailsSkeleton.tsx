@@ -29,7 +29,7 @@ export function CourseSyllabusTabSkeleton() {
         <div className="rounded-xl border border-dash bg-white overflow-hidden shadow-2xs">
           <div className="p-4 bg-slate-50/80 border-b border-dash flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-slate-200 flex items-center justify-center font-bold text-xs" />
+              <div className="w-8 h-8 rounded-lg bg-slate-200 flex items-center justify-center" />
               <div className="space-y-1">
                 <div className="h-4 w-48 bg-slate-200 rounded" />
                 <div className="h-3 w-32 bg-slate-100 rounded" />

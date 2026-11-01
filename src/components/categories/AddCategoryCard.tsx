@@ -112,7 +112,7 @@ export function AddCategoryCard({
     <div className="bg-white rounded-xl border border-dash shadow-xs overflow-hidden text-left flex flex-col justify-between">
       {/* Card Header */}
       <div className="p-4 border-b border-dash flex items-center justify-between">
-        <h3 className="heading-h6 font-bold text-primary-500 text-sm">
+        <h3 className="heading-h6 font-bold text-primary-500">
           Add Category
         </h3>
         {onClose && (

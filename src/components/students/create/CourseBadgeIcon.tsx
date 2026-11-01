@@ -22,7 +22,7 @@ const BRAND_COLORS = {
 
 export function CourseBadgeIcon({ type, size = "md" }: CourseBadgeIconProps) {
   const dimClass =
-    size === "sm" ? "w-5 h-5 body-2xsm-regular" : size === "lg" ? "w-10 h-10 text-base rounded-lg" : "w-7 h-7 text-xs";
+    size === "sm" ? "w-5 h-5 body-2xsm-regular" : size === "lg" ? "w-10 h-10 body-regular rounded-lg" : "w-7 h-7 body-xsm-regular";
 
   switch (type) {
     case "html":

@@ -143,7 +143,7 @@ export function NotificationDropdown() {
           {/* Card Header */}
           <div className="px-5 py-4 border-b border-dash flex items-center justify-between bg-slate-50/60">
             <div className="flex items-center gap-2.5">
-              <h3 className="heading-h6 font-bold text-primary-500 text-sm">
+              <h3 className="heading-h6 font-bold text-primary-500">
                 Notifications
               </h3>
               {unreadCount > 0 && (

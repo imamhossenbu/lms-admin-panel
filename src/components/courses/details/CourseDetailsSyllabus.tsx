@@ -100,7 +100,7 @@ export function CourseDetailsSyllabus({
                   className="w-full px-4 py-3 bg-gray-bg hover:bg-slate-200/60 transition-colors flex items-center justify-between text-left cursor-pointer select-none"
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <span className="w-6 h-6 rounded-md bg-blue-14 text-blue font-bold text-xs flex items-center justify-center shrink-0">
+                    <span className="w-6 h-6 rounded-md bg-blue-14 text-blue body-xsm-medium font-bold! flex items-center justify-center shrink-0">
                       {mIdx + 1}
                     </span>
                     <div className="min-w-0">
@@ -144,7 +144,7 @@ export function CourseDetailsSyllabus({
                         >
                           <div className="flex items-center justify-between gap-3">
                             <div className="flex items-center gap-3 min-w-0">
-                              <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center shrink-0 text-slate-600 font-medium text-xs">
+                              <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center shrink-0 text-primary-400 body-xsm-medium">
                                 {mIdx + 1}.{lIdx + 1}
                               </div>
                               <div className="flex items-center gap-2 min-w-0">

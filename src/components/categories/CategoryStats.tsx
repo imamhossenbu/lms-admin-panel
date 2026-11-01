@@ -71,7 +71,7 @@ export function CategoryStats({ categories }: CategoryStatsProps) {
         <div className="flex items-center justify-between mb-2">
           <span className="body-xsm-medium text-primary-400">Highest Volume Field</span>
           <div className="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
-            <span className="text-sm">🏆</span>
+            <span className="body-sm-regular">🏆</span>
           </div>
         </div>
         <span className="body-sm-medium text-primary-500 font-bold truncate block">
