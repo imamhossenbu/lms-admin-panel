@@ -51,8 +51,8 @@ export function LiveClassesTable({
       render: (r) => <AttendeesCell attendees={r.attendees} capacity={r.item.capacity} status={r.status} />,
     },
     { key: "status", header: "Status", width: "112px", render: (r) => <LiveStatusBadge status={r.status} size="sm" /> },
-    { key: "platform", header: "Platform", width: "150px", render: (r) => <PlatformBadge platform={r.item.platform} /> },
-    { key: "actions", header: "Actions", align: "center", width: "72px", render: (r) => <LiveClassRowActions liveClass={r.item} handlers={handlers} /> },
+    { key: "platform", header: "Platform", width: "120px", render: (r) => <PlatformBadge platform={r.item.platform} compact /> },
+    { key: "actions", header: "Actions", align: "center", width: "80px", render: (r) => <LiveClassRowActions liveClass={r.item} handlers={handlers} /> },
   ];
 
   return (

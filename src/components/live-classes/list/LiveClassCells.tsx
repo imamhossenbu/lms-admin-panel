@@ -25,8 +25,8 @@ export function ClassTitleCell({ item, courseTitle }: { item: LiveClassItem; cou
 /** Calendar icon + "Oct 20, 2026" over "10:00 AM - 11:00 AM". */
 export function DateTimeCell({ item }: { item: LiveClassItem }) {
   return (
-    <div className="flex items-start gap-2">
-      <CalendarDays className="w-4 h-4 text-primary-300 shrink-0 mt-0.5" />
+    <div className="flex items-center gap-2">
+      <CalendarDays className="w-4 h-4 text-primary-300 shrink-0" />
       <div className="min-w-0">
         <p className="body-sm-regular text-primary-500 whitespace-nowrap">{formatLiveDate(item.date)}</p>
         <p className="body-2xsm-regular text-primary-300 whitespace-nowrap">{timeRange(item)}</p>

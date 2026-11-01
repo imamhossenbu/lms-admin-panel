@@ -18,6 +18,14 @@ export const LIVE_PLATFORM_LABEL: Record<LivePlatform, string> = {
   CUSTOM: "Custom Link",
 };
 
+/** Short labels for tight spaces (tables). */
+export const LIVE_PLATFORM_SHORT_LABEL: Record<LivePlatform, string> = {
+  ZOOM: "Zoom",
+  GOOGLE_MEET: "Meet",
+  TEAMS: "Teams",
+  CUSTOM: "Link",
+};
+
 export const LIVE_TYPE_LABEL: Record<LiveClassType, string> = {
   INTERACTIVE: "Live Class",
   WEBINAR: "Webinar",

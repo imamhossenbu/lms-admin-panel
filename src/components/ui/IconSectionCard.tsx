@@ -49,7 +49,7 @@ export function IconSectionCard({
       transition={{ duration: 0.25, ease: "easeOut" }}
       className={cn("dashboard-card shadow-2xs p-5", className)}
     >
-      <header className="flex items-start gap-3.5">
+      <header className="flex items-center gap-3.5">
         <span className={cn("flex h-11 w-11 shrink-0 items-center justify-center rounded-xl", TONE[tone])}>
           {icon}
         </span>
