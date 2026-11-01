@@ -1,86 +1,38 @@
 "use client";
 
-import React, { useState } from "react";
-import { ChevronDown, Plus } from "lucide-react";
+import React from "react";
+import { Plus } from "lucide-react";
+import PrimaryButton from "@/components/ui/primary-button";
+import { RangePickerButton } from "@/components/ui/date-range/RangePickerButton";
+import type { PickerRange } from "@/lib/analytics";
 
 interface DashboardHeaderProps {
-  selectedPeriod: string;
-  onPeriodChange: (period: string) => void;
+  /** Shared reporting period (navbar picker ⇄ URL). */
+  range: PickerRange;
+  /** Human label, e.g. "Last 30 days" or "All time". */
+  rangeLabel: string;
+  onRangeChange: (range: PickerRange) => void;
   onCreateCourse: () => void;
 }
 
-const PERIOD_OPTIONS = [
-  "Today",
-  "Last 7 days",
-  "Last 30 days",
-  "Last 90 days",
-  "This Year",
-];
-
-export function DashboardHeader({
-  selectedPeriod,
-  onPeriodChange,
-  onCreateCourse,
-}: DashboardHeaderProps) {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-
+export function DashboardHeader({ range, rangeLabel, onRangeChange, onCreateCourse }: DashboardHeaderProps) {
   return (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
       {/* Title & Subtitle - Compact & Sleek */}
       <div className="text-left">
-        <h1 className="h3-semibold font-bold! text-primary-500 tracking-tight leading-tight!">
-          Overview
-        </h1>
-        <p className="body-sm-regular text-primary-300 mt-0.5">
-          Here&apos;s what&apos;s happening across your LMS today.
-        </p>
+        <h1 className="h3-semibold font-bold! text-primary-500 tracking-tight leading-tight!">Overview</h1>
+        <p className="body-sm-regular text-primary-300 mt-0.5">Here&apos;s what&apos;s happening across your LMS.</p>
       </div>
 
       {/* Action Controls */}
       <div className="flex items-center gap-2.5">
-        {/* Period Selector Dropdown */}
-        <div className="relative">
-          <button
-            type="button"
-            onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-lg border border-dash bg-white body-sm-medium text-primary-500 shadow-2xs hover:bg-slate-50 transition-colors cursor-pointer"
-          >
-            <span>{selectedPeriod}</span>
-            <ChevronDown className="w-3.5 h-3.5 text-primary-300" />
-          </button>
+        {/* Period selector: the shared date range picker (same range as the navbar) */}
+        <RangePickerButton value={range} label={rangeLabel} onChange={onRangeChange} />
 
-          {dropdownOpen && (
-            <div className="absolute right-0 mt-1 w-36 bg-white rounded-xl shadow-lg border border-dash py-1 z-30 animate-in fade-in zoom-in-95 duration-100">
-              {PERIOD_OPTIONS.map((option) => (
-                <button
-                  key={option}
-                  type="button"
-                  onClick={() => {
-                    onPeriodChange(option);
-                    setDropdownOpen(false);
-                  }}
-                  className={`w-full text-left px-3.5 py-1.5 body-sm-medium transition-colors cursor-pointer ${
-                    selectedPeriod === option
-                      ? "text-brand-orange bg-brand-orange-light font-semibold"
-                      : "text-primary-500 hover:bg-slate-50"
-                  }`}
-                >
-                  {option}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Create Course Button */}
-        <button
-          type="button"
-          onClick={onCreateCourse}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand-orange hover:bg-brand-orange-hover text-white body-sm-medium font-semibold shadow-2xs transition-all cursor-pointer"
-        >
-          <Plus className="w-4 h-4 stroke-[2.5]" />
-          <span>Create Course</span>
-        </button>
+        {/* Create Course */}
+        <PrimaryButton leftIcon={<Plus className="w-4 h-4" strokeWidth={2.5} />} onClick={onCreateCourse}>
+          Create Course
+        </PrimaryButton>
       </div>
     </div>
   );

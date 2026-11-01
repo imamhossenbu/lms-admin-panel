@@ -2,57 +2,45 @@
 
 import React from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { DashboardEnrollment } from "@/types/dashboard";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import { DataTable, ColumnDef } from "@/components/ui/Datatable";
+import { Avatar } from "@/components/ui/Avatar";
+import { formatShortDate, type RecentEnrollmentRow } from "@/lib/analytics";
 
 interface RecentEnrollmentsTableProps {
-  enrollments: DashboardEnrollment[];
+  /** Newest enrollments (paid order courses) in the range (recentEnrollments). */
+  enrollments: RecentEnrollmentRow[];
 }
 
-const columns: ColumnDef<DashboardEnrollment>[] = [
+const columns: ColumnDef<RecentEnrollmentRow>[] = [
   {
     key: "student",
     header: "Student",
     render: (row) => (
       <div className="flex items-center gap-2">
-        <div className="relative w-6 h-6 rounded-full overflow-hidden bg-slate-100 shrink-0">
-          <Image
-            src={row.student.avatarUrl}
-            alt={row.student.name}
-            fill
-            sizes="24px"
-            className="object-cover"
-            unoptimized
-          />
-        </div>
-        <span className="body-sm-medium text-primary-500 font-medium truncate max-w-27.5">
-          {row.student.name}
-        </span>
+        <Avatar src={row.avatarUrl} name={row.studentName} size={24} />
+        <span className="body-sm-medium text-primary-500 font-medium truncate max-w-27.5">{row.studentName}</span>
       </div>
     ),
   },
   {
     key: "course",
     header: "Course",
-    render: (row) => (
-      <span className="body-sm-regular text-primary-400 truncate max-w-32.5 block">
-        {row.course}
-      </span>
-    ),
+    render: (row) => <span className="body-sm-regular text-primary-400 truncate max-w-32.5 block">{row.course}</span>,
   },
   {
     key: "progress",
     header: "Progress",
     render: (row) => (
       <div className="flex items-center gap-2.5 max-w-30">
-        <span className="body-2xsm-regular text-primary-500 w-7 font-bold">
-          {row.progress}%
-        </span>
+        <span className="body-2xsm-regular text-primary-500 w-7 font-bold">{row.progress}%</span>
         <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-brand-orange rounded-full transition-all duration-500"
-            style={{ width: `${row.progress}%` }}
+          <motion.div
+            className="h-full bg-brand-orange rounded-full"
+            initial={{ width: 0 }}
+            animate={{ width: `${row.progress}%` }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
           />
         </div>
       </div>
@@ -61,24 +49,18 @@ const columns: ColumnDef<DashboardEnrollment>[] = [
   {
     key: "enrolledAt",
     header: "Enrolled At",
-    render: (row) => (
-      <span className="body-sm-regular text-primary-300 whitespace-nowrap">
-        {row.enrolledAt}
-      </span>
-    ),
+    render: (row) => <span className="body-sm-regular text-primary-300 whitespace-nowrap">{formatShortDate(row.enrolledAt)}</span>,
   },
 ];
 
-export function RecentEnrollmentsTable({
-  enrollments,
-}: RecentEnrollmentsTableProps) {
+export function RecentEnrollmentsTable({ enrollments }: RecentEnrollmentsTableProps) {
+  const router = useRouter();
+
   return (
-    <div className="bg-white rounded-xl border border-dash shadow-xs overflow-hidden flex flex-col justify-between">
+    <div className="bg-white rounded-xl border border-dash shadow-xs overflow-hidden flex flex-col">
       {/* Header */}
       <div className="px-4 py-3 flex items-center justify-between">
-        <h3 className="heading-h6 font-bold text-primary-500">
-          Recent Enrollments
-        </h3>
+        <h3 className="heading-h6 font-bold text-primary-500">Recent Enrollments</h3>
         <Link
           href="/students"
           className="body-sm-medium font-semibold text-brand-orange hover:text-brand-orange-hover hover:underline transition-colors"
@@ -92,7 +74,8 @@ export function RecentEnrollmentsTable({
         <DataTable
           columns={columns}
           data={enrollments}
-          verticalBorders={false}
+          onRowClick={(row) => router.push(`/students/${row.studentId}`)}
+          emptyMessage="No enrollments in this period"
           containerClassName="border-0 rounded-none w-full"
           tableClassName="w-full"
           headerClassName="bg-transparent border-b border-dash body-2xsm-regular text-primary-300 font-semibold uppercase tracking-wider"

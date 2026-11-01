@@ -140,11 +140,19 @@ export const orderReference = (createdAt: string, number: number) => {
   return `EDU${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}${number}`;
 };
 
-export const buildMockOrders = (): OrderItem[] => {
+/** Hours between "now" and the newest seeded order. */
+export const NEWEST_ORDER_AGE_HOURS = 12;
+
+/**
+ * Deterministic order seed. Dates are relative to `now` (like every other mock seed): the newest order is
+ * placed NEWEST_ORDER_AGE_HOURS before `now` (snapped to the half hour) and the rest step back 8–38 h each,
+ * so "Last 7/30 days" on the Dashboard, Orders and Payments pages always contain orders.
+ */
+export const buildMockOrders = (now: Date = new Date()): OrderItem[] => {
   const statuses = buildStatuses();
   const rand = seeded(7);
-  // Oct 20, 2026 10:30 AM, the newest order in the design
-  let cursor = new Date(2026, 9, 20, 10, 30).getTime();
+  const HALF_HOUR = 30 * 60 * 1000;
+  let cursor = Math.floor((now.getTime() - NEWEST_ORDER_AGE_HOURS * 3600 * 1000) / HALF_HOUR) * HALF_HOUR;
 
   return Array.from({ length: TOTAL_ORDERS }, (_, i) => {
     const number = 1248 - i;

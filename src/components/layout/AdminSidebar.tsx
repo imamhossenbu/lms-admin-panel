@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
+  BarChart3,
   BookOpen,
   FolderTree,
   Users,
@@ -18,6 +19,7 @@ import {
   Award,
   Bell,
   Settings,
+  UserCog,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
@@ -42,6 +44,7 @@ const SIDEBAR_SECTIONS: NavCategory[] = [
     category: "Overview",
     items: [
       { href: "/", label: "Dashboard", icon: LayoutDashboard },
+      { href: "/analytics", label: "Analytics", icon: BarChart3 },
     ],
   },
   {
@@ -79,6 +82,7 @@ const SIDEBAR_SECTIONS: NavCategory[] = [
     items: [
       { href: "/certificates", label: "Certificates", icon: Award },
       { href: "/notifications", label: "Notifications", icon: Bell },
+      { href: "/users", label: "Team & Roles", icon: UserCog },
       { href: "/settings", label: "Settings", icon: Settings },
     ],
   },

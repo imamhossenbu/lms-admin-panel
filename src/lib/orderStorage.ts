@@ -2,7 +2,8 @@ import { OrderItem } from "@/types/order";
 import { buildMockOrders } from "@/data/mockOrderData";
 
 // v3: separate order/payment status views, bundles, notes and additional info
-const STORAGE_KEY = "edupro_orders_list_v3";
+// v4: seed dates are relative to the seeding time (newest order = now − 12h) instead of a fixed Oct 20, 2026
+const STORAGE_KEY = "edupro_orders_list_v4";
 export const ORDERS_UPDATED_EVENT = "edupro_orders_updated";
 
 export const getStoredOrders = (): OrderItem[] => {

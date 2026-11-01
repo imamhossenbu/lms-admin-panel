@@ -1,109 +1,107 @@
-import React from "react";
-import Link from "next/link";
-import { SectionCard } from "@/components/ui/SectionCard";
-import { ToneBadge } from "@/components/ui/ToneBadge";
-import { BookOpen, Star, Users, ArrowRight } from "lucide-react";
+"use client";
 
-interface TopCourseItem {
-  id: string;
-  title: string;
-  totalStudents: number;
-  ratingAverage: number | string;
-  price: number | string;
-  status: string;
-  category?: string;
-}
+import React, { useMemo } from "react";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { DataTable, ColumnDef } from "@/components/ui/Datatable";
+import { Avatar } from "@/components/ui/Avatar";
+import { ToneBadge } from "@/components/ui/ToneBadge";
+import { formatCurrency, formatNumber, type CourseRow } from "@/lib/analytics";
 
 interface TopCoursesCardProps {
-  courses?: TopCourseItem[];
+  /** topCourses(sources, range, "revenue", 5). */
+  courses: CourseRow[];
+  currency: string;
 }
 
-const DEFAULT_COURSES: TopCourseItem[] = [
-  {
-    id: "c-1",
-    title: "Fullstack Next.js 16 & AI Mastery",
-    totalStudents: 1420,
-    ratingAverage: 4.9,
-    price: 120,
-    status: "PUBLISHED",
-    category: "Web Development",
-  },
-  {
-    id: "c-2",
-    title: "Python Machine Learning Pro & PyTorch",
-    totalStudents: 980,
-    ratingAverage: 4.8,
-    price: 95,
-    status: "PUBLISHED",
-    category: "Artificial Intelligence",
-  },
-  {
-    id: "c-3",
-    title: "Docker & Kubernetes DevOps Architecture",
-    totalStudents: 750,
-    ratingAverage: 4.9,
-    price: 80,
-    status: "PUBLISHED",
-    category: "Cloud Engineering",
-  },
-];
+/** Best-selling courses in the range: enrollments, net revenue and share of the top list's revenue. */
+export function TopCoursesCard({ courses, currency }: TopCoursesCardProps) {
+  const maxRevenue = Math.max(0, ...courses.map((c) => c.revenue));
 
-export function TopCoursesCard({ courses }: TopCoursesCardProps) {
-  const displayCourses = courses && courses.length > 0 ? courses : DEFAULT_COURSES;
-
-  return (
-    <SectionCard
-      title="Top Performing Curriculums"
-      description="Highest enrollment velocity and student ratings"
-      action={
-        <Link
-          href="/courses"
-          className="body-sm-medium text-blue hover:underline flex items-center gap-1 group"
-        >
-          <span>Manage Catalog</span>
-          <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-        </Link>
-      }
-    >
-      <div className="space-y-3 pt-1">
-        {displayCourses.map((c) => (
-          <div
-            key={c.id}
-            className="p-3.5 rounded-xl bg-gray-bg/60 hover:bg-gray-bg border border-dash flex items-center justify-between gap-3 transition-colors text-left"
-          >
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-9 h-9 rounded-lg bg-blue-14 border border-blue flex items-center justify-center text-blue shrink-0">
-                <BookOpen className="w-4 h-4" />
-              </div>
-              <div className="truncate">
-                <span className="body-sm-medium text-primary-500 font-semibold block truncate">
-                  {c.title}
-                </span>
-                <div className="flex items-center gap-2 mt-0.5 body-xsm-regular subtext-500">
-                  <span className="flex items-center gap-0.5 text-amber-600 font-medium">
-                    <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
-                    {c.ratingAverage || "4.8"}
-                  </span>
-                  <span>•</span>
-                  <span className="flex items-center gap-0.5">
-                    <Users className="w-3 h-3 text-primary-300" />
-                    {Number(c.totalStudents || 0).toLocaleString()} learners
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="text-right shrink-0">
-              <span className="body-sm-medium text-primary-500 font-bold block">
-                ${c.price}
-              </span>
-              <ToneBadge tone="success" size="sm" className="mt-0.5 body-xsm-medium uppercase font-bold">
-                {c.status || "Active"}
-              </ToneBadge>
+  const columns = useMemo<ColumnDef<CourseRow>[]>(
+    () => [
+      {
+        key: "course",
+        header: "Course",
+        render: (row) => (
+          <div className="flex items-center gap-2.5 min-w-0">
+            <Avatar src={row.thumbnailUrl} name={row.title} size={32} className="rounded-lg" />
+            <div className="min-w-0">
+              <span className="body-sm-medium text-primary-500 font-medium block truncate max-w-56">{row.title}</span>
+              <span className="body-2xsm-regular text-primary-300 block truncate">{row.instructor}</span>
             </div>
           </div>
-        ))}
+        ),
+      },
+      {
+        key: "category",
+        header: "Category",
+        render: (row) => (
+          <ToneBadge tone="gray" size="sm">
+            {row.category}
+          </ToneBadge>
+        ),
+      },
+      {
+        key: "enrollments",
+        header: "Enrollments",
+        align: "right",
+        render: (row) => <span className="body-sm-medium text-primary-500 font-semibold">{formatNumber(row.enrollments)}</span>,
+      },
+      {
+        key: "revenue",
+        header: "Revenue",
+        align: "right",
+        render: (row) => (
+          <span className="body-sm-medium text-primary-500 font-semibold whitespace-nowrap">{formatCurrency(row.revenue, currency)}</span>
+        ),
+      },
+      {
+        key: "share",
+        header: "Performance",
+        render: (row) => (
+          <div className="h-1.5 w-28 bg-slate-100 rounded-full overflow-hidden">
+            <motion.div
+              className="h-full bg-brand-orange rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${maxRevenue ? (row.revenue / maxRevenue) * 100 : 0}%` }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+            />
+          </div>
+        ),
+      },
+    ],
+    [currency, maxRevenue]
+  );
+
+  return (
+    <div className="bg-white rounded-xl border border-dash shadow-xs overflow-hidden flex flex-col">
+      <div className="px-4 py-3 flex items-center justify-between">
+        <div className="text-left">
+          <h3 className="heading-h6 font-bold text-primary-500">Top Courses</h3>
+          <p className="body-xsm-regular text-primary-300 mt-0.5">Best sellers by revenue in the selected period</p>
+        </div>
+        <Link
+          href="/courses"
+          className="body-sm-medium font-semibold text-brand-orange hover:text-brand-orange-hover hover:underline transition-colors"
+        >
+          View all
+        </Link>
       </div>
-    </SectionCard>
+
+      <div className="w-full border-t border-dash overflow-x-auto">
+        <DataTable
+          columns={columns}
+          data={courses}
+          rowKey={(row) => row.courseId}
+          emptyMessage="No course sales in this period"
+          containerClassName="border-0 rounded-none w-full"
+          tableClassName="w-full"
+          headerClassName="bg-transparent border-b border-dash body-2xsm-regular text-primary-300 font-semibold uppercase tracking-wider"
+          thClassName="px-4 py-2.5 border-none"
+          cellClassName="px-4 py-2.5 border-none"
+        />
+      </div>
+    </div>
   );
 }

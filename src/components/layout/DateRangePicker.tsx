@@ -23,7 +23,17 @@ export function getGlobalDateRange(): DateRange {
   return last30();
 }
 
-const subscribe = (cb: () => void) => {
+/** Set the navbar's reporting period (session) and broadcast GLOBAL_DATE_RANGE_EVENT. */
+export function setGlobalDateRange(next: DateRange) {
+  try {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  } catch {
+    /* ignore */
+  }
+  window.dispatchEvent(new Event(GLOBAL_DATE_RANGE_EVENT));
+}
+
+export const subscribeGlobalDateRange = (cb: () => void) => {
   window.addEventListener(GLOBAL_DATE_RANGE_EVENT, cb);
   return () => window.removeEventListener(GLOBAL_DATE_RANGE_EVENT, cb);
 };
@@ -37,17 +47,10 @@ const readRaw = () => JSON.stringify(getGlobalDateRange());
  */
 export function DateRangePicker() {
   // Session value on the client, empty on the server (no hydration mismatch).
-  const raw = useSyncExternalStore(subscribe, readRaw, () => "");
+  const raw = useSyncExternalStore(subscribeGlobalDateRange, readRaw, () => "");
   const range: DateRange = raw ? (JSON.parse(raw) as DateRange) : {};
 
-  const update = (next: DateRange) => {
-    try {
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    } catch {
-      /* ignore */
-    }
-    window.dispatchEvent(new Event(GLOBAL_DATE_RANGE_EVENT));
-  };
+  const update = setGlobalDateRange;
 
   return (
     <SharedDateRangePicker

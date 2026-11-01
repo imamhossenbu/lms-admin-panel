@@ -272,6 +272,48 @@ export function DashboardSkeleton() {
           </div>
         </div>
       </div>
+
+      {/* 6. Row 5: Top Courses Table Skeleton */}
+      <div className="bg-white rounded-xl border border-dash overflow-hidden shadow-2xs">
+        <div className="p-4 flex justify-between items-center border-b border-dash">
+          <div className="space-y-1">
+            <div className="h-5 w-28 bg-slate-200 rounded-md" />
+            <div className="h-3 w-56 bg-slate-100 rounded-md" />
+          </div>
+          <div className="h-7 w-20 bg-slate-100 rounded-md border border-dash" />
+        </div>
+
+        <div className="bg-slate-50 border-b border-dash grid grid-cols-12 divide-x divide-dash px-3.5 py-2.5">
+          <div className="col-span-5 pr-2"><div className="h-3.5 w-20 bg-slate-200 rounded" /></div>
+          <div className="col-span-2 px-2"><div className="h-3.5 w-16 bg-slate-200 rounded" /></div>
+          <div className="col-span-2 px-2"><div className="h-3.5 w-16 bg-slate-200 rounded" /></div>
+          <div className="col-span-3 pl-2"><div className="h-3.5 w-20 bg-slate-200 rounded" /></div>
+        </div>
+
+        <div className="divide-y divide-dash">
+          {[1, 2, 3, 4, 5].map((r) => (
+            <div key={r} className="grid grid-cols-12 divide-x divide-dash px-3.5 py-3 items-center">
+              <div className="col-span-5 pr-2 flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-slate-200 shrink-0" />
+                <div className="space-y-1">
+                  <div className="h-3.5 w-40 bg-slate-200 rounded" />
+                  <div className="h-2.5 w-24 bg-slate-100 rounded" />
+                </div>
+              </div>
+              <div className="col-span-2 px-2">
+                <div className="h-5 w-20 bg-slate-100 rounded-md" />
+              </div>
+              <div className="col-span-2 px-2">
+                <div className="h-4 w-10 bg-slate-200 rounded" />
+              </div>
+              <div className="col-span-3 pl-2 flex items-center gap-3">
+                <div className="h-4 w-16 bg-slate-200 rounded" />
+                <div className="h-1.5 flex-1 bg-slate-100 rounded-full" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

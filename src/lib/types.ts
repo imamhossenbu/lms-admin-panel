@@ -9,17 +9,6 @@ export interface AdminAnalyticsData {
   recentOrders: AdminOrder[];
 }
 
-export interface AdminUserItem {
-  id: string;
-  name: string;
-  email: string;
-  role: "STUDENT" | "TEACHER" | "ADMIN";
-  status: "ACTIVE" | "BLOCKED" | "PENDING";
-  phone?: string;
-  avatar?: string;
-  createdAt: string;
-}
-
 export interface CourseLessonItem {
   id: string;
   title: string;

@@ -11,10 +11,14 @@ import {
   Tooltip,
   CartesianGrid,
 } from "recharts";
-import { CourseEnrollmentPoint } from "@/types/dashboard";
+import { ChartTooltip } from "@/components/ui/charts/ChartTooltip";
+import { ChartEmpty } from "@/components/ui/charts/ChartEmpty";
+import { AXIS_TICK, CHART } from "@/components/ui/charts/chartTheme";
+import { formatNumber, type BreakdownRow } from "@/lib/analytics";
 
 interface CourseEnrollmentChartProps {
-  data: CourseEnrollmentPoint[];
+  /** Top courses by new enrollments in the range (enrollmentsByCourse). */
+  data: BreakdownRow[];
 }
 
 export function CourseEnrollmentChart({ data }: CourseEnrollmentChartProps) {
@@ -27,7 +31,7 @@ export function CourseEnrollmentChart({ data }: CourseEnrollmentChartProps) {
             Course Enrollment
           </h3>
           <p className="body-sm-regular text-primary-300 mt-0.5">
-            Top performing courses by enrollment
+            Top courses by new enrollments
           </p>
         </div>
 
@@ -41,92 +45,67 @@ export function CourseEnrollmentChart({ data }: CourseEnrollmentChartProps) {
 
       {/* Chart Area */}
       <div className="w-full flex-1 min-h-65">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart
-            data={data}
-            margin={{ top: 15, right: 10, left: -15, bottom: 25 }}
-            barCategoryGap={20}
-          >
-            <CartesianGrid
-              strokeDasharray="3 3"
-              vertical={false}
-              stroke="var(--color-gray-bg)"
-            />
+        {data.length === 0 ? (
+          <ChartEmpty title="No enrollments in this period" message="Paid orders create enrollments; pick a wider date range." />
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={data} margin={{ top: 15, right: 10, left: -15, bottom: 25 }} barCategoryGap={20}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={CHART.grid} />
 
-            <XAxis
-              dataKey="courseName"
-              axisLine={false}
-              tickLine={false}
-              interval={0}
-              tick={({ x, y, payload }) => {
-                const words = payload.value.split(" ");
-                let line1 = payload.value;
-                let line2 = "";
-                if (words.length > 2) {
-                  line1 = words.slice(0, 2).join(" ");
-                  line2 = words.slice(2).join(" ");
-                }
-                return (
-                  <g transform={`translate(${x},${Number(y) + 8})`}>
-                    <text
-                      x={0}
-                      y={0}
-                      textAnchor="middle"
-                      fill="var(--color-primary-300)"
-                      fontSize={11}
-                      fontWeight={500}
-                    >
-                      <tspan x={0} dy="0.6em">
-                        {line1}
-                      </tspan>
-                      {line2 && (
-                        <tspan x={0} dy="1.2em">
-                          {line2}
-                        </tspan>
-                      )}
-                    </text>
-                  </g>
-                );
-              }}
-            />
-
-            <YAxis
-              axisLine={false}
-              tickLine={false}
-              tick={{ fill: "var(--color-primary-300)", fontSize: 12 }}
-              domain={[0, 200]}
-              ticks={[0, 50, 100, 150, 200]}
-            />
-
-            <Tooltip
-              cursor={{ fill: "transparent" }}
-              content={({ active, payload }) => {
-                if (active && payload && payload.length) {
-                  const item = payload[0].payload as CourseEnrollmentPoint;
+              <XAxis
+                dataKey="label"
+                axisLine={false}
+                tickLine={false}
+                interval={0}
+                tick={({ x, y, payload }) => {
+                  const words = String(payload.value).split(" ");
+                  const line1 = words.length > 2 ? words.slice(0, 2).join(" ") : String(payload.value);
+                  const line2 = words.length > 2 ? words.slice(2).join(" ") : "";
                   return (
-                    <div className="bg-white rounded-xl shadow-lg border border-dash px-3.5 py-2.5 text-left pointer-events-none z-50 animate-in fade-in zoom-in-95 duration-100">
-                      <p className="body-xsm-medium text-primary-500 font-bold">
-                        {item.courseName}
-                      </p>
-                      <p className="body-sm-medium text-brand-orange font-semibold mt-0.5">
-                        {item.enrollments} Enrolled Students
-                      </p>
-                    </div>
+                    <g transform={`translate(${x},${Number(y) + 8})`}>
+                      <text x={0} y={0} textAnchor="middle" fill={AXIS_TICK.fill} fontSize={AXIS_TICK.fontSize} fontWeight={500}>
+                        <tspan x={0} dy="0.6em">
+                          {line1}
+                        </tspan>
+                        {line2 && (
+                          <tspan x={0} dy="1.2em">
+                            {line2}
+                          </tspan>
+                        )}
+                      </text>
+                    </g>
                   );
-                }
-                return null;
-              }}
-            />
+                }}
+              />
 
-            <Bar
-              dataKey="enrollments"
-              fill="var(--color-brand-orange)"
-              barSize={36}
-              radius={[6, 6, 0, 0]}
-              className="cursor-pointer transition-opacity hover:opacity-85"
-            />
-          </BarChart>
-        </ResponsiveContainer>
+              <YAxis axisLine={false} tickLine={false} tick={AXIS_TICK} allowDecimals={false} />
+
+              <Tooltip
+                cursor={{ fill: "transparent" }}
+                content={({ active, payload }) => {
+                  if (!active || !payload?.length) return null;
+                  const item = payload[0].payload as BreakdownRow;
+                  return (
+                    <ChartTooltip title={item.label}>
+                      <p className="body-sm-medium text-brand-orange font-semibold">
+                        {formatNumber(item.value)} new {item.value === 1 ? "enrollment" : "enrollments"}
+                      </p>
+                      <p className="body-2xsm-regular text-primary-300 mt-0.5">{item.share}% of all enrollments</p>
+                    </ChartTooltip>
+                  );
+                }}
+              />
+
+              <Bar
+                dataKey="value"
+                fill={CHART.orange}
+                maxBarSize={36}
+                radius={[6, 6, 0, 0]}
+                className="cursor-pointer transition-opacity hover:opacity-85"
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        )}
       </div>
     </div>
   );
