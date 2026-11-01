@@ -33,7 +33,7 @@ export function CertificateStatCard({ icon, iconClassName, label, value, pill, c
             {label}
           </p>
           <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1">
-            <p className="heading-h4 font-bold! leading-tight text-primary-500 tabular-nums">{value.toLocaleString()}</p>
+            <p className="heading-h4 font-bold! text-primary-500 tabular-nums">{value.toLocaleString()}</p>
             {pill && (
               <ToneBadge tone={pill.tone} size="sm">
                 {pill.text}

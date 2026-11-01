@@ -45,19 +45,19 @@ export function CourseDetailsLearners({ course }: CourseDetailsLearnersProps) {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div className="p-3.5 rounded-xl bg-gray-bg border border-dash">
           <span className="body-xsm-regular subtext-500 block">Total Enrolled</span>
-          <span className="title-sm text-primary-500 font-bold block mt-0.5">
+          <span className="title-sm text-primary-500 block mt-0.5">
             {course.totalStudents.toLocaleString()}
           </span>
         </div>
         <div className="p-3.5 rounded-xl bg-gray-bg border border-dash">
           <span className="body-xsm-regular subtext-500 block">Completion Rate</span>
-          <span className="title-sm text-emerald-600 font-bold block mt-0.5">
+          <span className="title-sm text-green block mt-0.5">
             78.4%
           </span>
         </div>
         <div className="p-3.5 rounded-xl bg-gray-bg border border-dash">
           <span className="body-xsm-regular subtext-500 block">Average Quiz Score</span>
-          <span className="title-sm text-blue font-bold block mt-0.5">
+          <span className="title-sm text-blue block mt-0.5">
             91.2%
           </span>
         </div>
@@ -65,7 +65,7 @@ export function CourseDetailsLearners({ course }: CourseDetailsLearnersProps) {
 
       <div className="rounded-xl border border-dash overflow-hidden">
         <div className="px-4 py-3 bg-gray-bg border-b border-dash flex items-center justify-between">
-          <span className="body-sm-medium text-primary-500 font-bold">
+          <span className="body-sm-medium text-primary-500">
             Recent Enrolled Learners
           </span>
           <span className="body-xsm-regular subtext-500">Live Roster</span>
@@ -76,7 +76,7 @@ export function CourseDetailsLearners({ course }: CourseDetailsLearnersProps) {
               <div className="flex items-center gap-2.5">
                 <Avatar name={learner.name} size="sm" />
                 <div>
-                  <span className="body-sm-medium text-primary-500 font-semibold block leading-tight">
+                  <span className="body-sm-medium text-primary-500 block">
                     {learner.name}
                   </span>
                   <span className="body-xsm-regular subtext-500">
@@ -87,12 +87,12 @@ export function CourseDetailsLearners({ course }: CourseDetailsLearnersProps) {
 
               <div className="flex items-center gap-3">
                 <div className="text-right">
-                  <span className="body-xsm-medium text-primary-500 font-bold block">
+                  <span className="body-xsm-medium text-primary-500 block">
                     {learner.progress}%
                   </span>
                   <span className="body-2xsm-regular subtext-500">Completed</span>
                 </div>
-                <div className="w-16 h-1.5 rounded-full bg-gray-100 overflow-hidden">
+                <div className="w-16 h-1.5 rounded-full bg-slate-100 overflow-hidden">
                   <div
                     className="h-full bg-blue rounded-full"
                     style={{ width: `${learner.progress}%` }}

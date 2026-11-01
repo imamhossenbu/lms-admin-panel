@@ -29,7 +29,7 @@ export function AiOutlineNotice({ outline, onView, onRemove }: AiOutlineNoticePr
           <Sparkles className="w-4.5 h-4.5" />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="body-sm-medium font-semibold text-primary-500">
+          <p className="body-sm-medium text-primary-500">
             AI curriculum ready: {stats.moduleCount} modules · {stats.lessonCount} lessons
           </p>
           <p className="body-xsm-regular text-primary-300 mt-0.5">

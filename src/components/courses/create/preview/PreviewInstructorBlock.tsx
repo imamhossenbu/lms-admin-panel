@@ -24,7 +24,7 @@ export function PreviewInstructorBlock({ instructor, instructors, onInstructorCh
 
   return (
     <div className="rounded-xl border border-dash p-4 text-left">
-      {!detailed && <h4 className="body-md-medium font-semibold text-primary-500 mb-3">Instructor</h4>}
+      {!detailed && <h4 className="body-md-medium text-primary-500 mb-3">Instructor</h4>}
       <div className="flex items-center gap-3">
         {instructor ? (
           <Avatar src={instructor.avatarUrl} name={instructor.name} size={48} />
@@ -34,7 +34,7 @@ export function PreviewInstructorBlock({ instructor, instructors, onInstructorCh
           </span>
         )}
         <div className="min-w-0 flex-1">
-          <p className="body-sm-medium font-semibold text-primary-500 truncate">
+          <p className="body-sm-medium text-primary-500 truncate">
             {instructor?.name ?? "No instructor selected"}
           </p>
           <p className="body-xsm-regular text-primary-300 truncate">

@@ -43,7 +43,7 @@ export function InvitationDetailsCard({ member: m, busy, onResend, onRevoke }: I
       </dl>
       <div className="mt-3 rounded-lg border border-dash bg-gray-bg p-3">
         <p className="body-xsm-medium text-primary-300">Personal message</p>
-        <p className="mt-0.5 body-sm-regular text-primary-500">{m.invite.message || <span className="text-primary-300">No message was added.</span>}</p>
+        <p className="mt-0.5 body-sm-regular text-primary-500">{m.invite.message || <span className="body-sm-regular text-primary-300">No message was added.</span>}</p>
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
         <CardActionButton icon={<Send />} disabled={busy} onClick={onResend}>

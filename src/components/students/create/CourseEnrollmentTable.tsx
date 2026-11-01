@@ -37,15 +37,15 @@ export function CourseEnrollmentTable({
                 }`}
                 title="Select all courses"
               >
-                {allSelected && <Check className="w-3 h-3 stroke-[3]" />}
+                {allSelected && <Check className="w-3 h-3" strokeWidth={3} />}
               </button>
             </th>
-            <th className="py-3 px-3 text-primary-400 font-semibold w-10">#</th>
-            <th className="py-3 px-3 text-primary-400 font-semibold">Course Title</th>
-            <th className="py-3 px-3 text-primary-400 font-semibold">Category</th>
-            <th className="py-3 px-3 text-primary-400 font-semibold">Instructor</th>
-            <th className="py-3 px-3 text-primary-400 font-semibold">Duration</th>
-            <th className="py-3 px-3.5 text-primary-400 font-semibold text-right">Price</th>
+            <th className="py-3 px-3 body-xsm-medium font-semibold! text-primary-400 w-10">#</th>
+            <th className="py-3 px-3 body-xsm-medium font-semibold! text-primary-400">Course Title</th>
+            <th className="py-3 px-3 body-xsm-medium font-semibold! text-primary-400">Category</th>
+            <th className="py-3 px-3 body-xsm-medium font-semibold! text-primary-400">Instructor</th>
+            <th className="py-3 px-3 body-xsm-medium font-semibold! text-primary-400">Duration</th>
+            <th className="py-3 px-3.5 body-xsm-medium font-semibold! text-primary-400 text-right">Price</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-dash body-sm-regular">
@@ -72,7 +72,7 @@ export function CourseEnrollmentTable({
                         : "border-dash bg-white hover:border-primary-300"
                     }`}
                   >
-                    {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
+                    {isSelected && <Check className="w-3 h-3" strokeWidth={3} />}
                   </button>
                 </td>
 
@@ -85,7 +85,7 @@ export function CourseEnrollmentTable({
                 <td className="py-3 px-3">
                   <div className="flex items-center gap-2.5">
                     <CourseBadgeIcon type={course.iconType} />
-                    <span className="body-sm-medium text-primary-500 font-medium">
+                    <span className="body-sm-medium text-primary-500">
                       {course.title}
                     </span>
                   </div>
@@ -122,7 +122,7 @@ export function CourseEnrollmentTable({
                 {/* Price */}
                 <td className="py-3 px-3.5 text-right">
                   <span
-                    className={`body-sm-medium font-semibold ${
+                    className={`body-sm-medium ${
                       course.price.toLowerCase() === "free"
                         ? "text-green"
                         : "text-primary-500"

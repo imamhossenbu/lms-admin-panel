@@ -22,14 +22,14 @@ export function CourseDetailsOutcomes() {
     <div className="space-y-5 text-left">
       {/* What You'll Learn */}
       <div className="p-4 rounded-xl bg-gray-bg border border-dash space-y-3">
-        <h4 className="body-md-medium text-primary-500 font-bold flex items-center gap-2">
+        <h4 className="body-md-medium text-primary-500 flex items-center gap-2">
           <Award className="w-4 h-4 text-blue" />
           <span>What Students Will Master</span>
         </h4>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           {learningOutcomes.map((item, idx) => (
             <div key={idx} className="flex items-start gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+              <CheckCircle2 className="w-4 h-4 text-green shrink-0 mt-0.5" />
               <span className="body-sm-regular text-primary-500">{item}</span>
             </div>
           ))}
@@ -38,13 +38,13 @@ export function CourseDetailsOutcomes() {
 
       {/* Prerequisites */}
       <div className="p-4 rounded-xl bg-white border border-dash space-y-3">
-        <h4 className="body-md-medium text-primary-500 font-bold flex items-center gap-2">
-          <ShieldCheck className="w-4 h-4 text-amber-600" />
+        <h4 className="body-md-medium text-primary-500 flex items-center gap-2">
+          <ShieldCheck className="w-4 h-4 text-yellow" />
           <span>Recommended Prerequisites</span>
         </h4>
         <ul className="space-y-2 list-disc list-inside body-sm-regular text-primary-500">
           {prerequisites.map((req, idx) => (
-            <li key={idx} className="leading-relaxed">
+            <li key={idx}>
               {req}
             </li>
           ))}

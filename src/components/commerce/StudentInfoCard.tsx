@@ -38,7 +38,7 @@ export function StudentInfoCard({ student, totalOrders }: StudentInfoCardProps) 
         <div className="flex items-center gap-4 min-w-0">
           <Avatar src={student.avatarUrl} name={student.name} size={88} />
           <div className="min-w-0 space-y-1">
-            <p className="title-medium font-bold text-primary-500 truncate">{student.name}</p>
+            <p className="title-medium text-primary-500 truncate">{student.name}</p>
             <a href={`mailto:${student.email}`} className="block body-sm-regular text-primary-400 hover:text-blue truncate">
               {student.email}
             </a>

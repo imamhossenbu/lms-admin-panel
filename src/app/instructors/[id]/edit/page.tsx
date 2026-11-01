@@ -106,7 +106,7 @@ export default function EditInstructorPage({ params }: PageProps) {
           { label: instructor.name, href: detailsHref },
           { label: "Edit Instructor" },
         ]}
-        icon={<Edit3 className="w-5 h-5 stroke-[2.2]" />}
+        icon={<Edit3 className="w-5 h-5" strokeWidth={2.2} />}
         title={`Edit Instructor: ${instructor.name}`}
         subtitle="Update personal details, account status, and course assignments."
       />
@@ -125,7 +125,7 @@ export default function EditInstructorPage({ params }: PageProps) {
         cancelHref={detailsHref}
         submitLabel="Save Changes"
         submittingLabel="Saving Changes..."
-        submitIcon={<Check className="w-4 h-4 stroke-[2.2]" />}
+        submitIcon={<Check className="w-4 h-4" strokeWidth={2.2} />}
         onSubmit={handleSave}
       />
     </motion.div>

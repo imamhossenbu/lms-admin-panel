@@ -8,7 +8,7 @@ import { Check } from "lucide-react";
 export function PreviewLearnChecklist({ items }: { items: string[] }) {
   return (
     <div className="text-left">
-      <h4 className="title-sm font-semibold text-primary-500">What you&apos;ll learn</h4>
+      <h4 className="title-sm text-primary-500">What you&apos;ll learn</h4>
       {items.length ? (
         <ul className="mt-3 space-y-2.5">
           {items.map((item, index) => (

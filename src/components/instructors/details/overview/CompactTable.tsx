@@ -28,7 +28,7 @@ export function CompactTable<T extends Record<string, any>>({
         verticalBorders
         containerClassName="border-0 rounded-none"
         headerClassName="bg-slate-50 border-b border-dash"
-        thClassName="px-3 py-2 body-xsm-medium text-primary-400 font-semibold normal-case"
+        thClassName="px-3 py-2 body-xsm-medium text-primary-400 normal-case"
         cellClassName="px-3 py-2"
         emptyMessage={emptyMessage}
       />

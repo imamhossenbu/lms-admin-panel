@@ -204,7 +204,7 @@ export function CourseDetailsSkeleton({ activeTab = "syllabus" }: CourseDetailsS
       </div>
 
       {/* 2. Course Hero Banner Skeleton */}
-      <div className="rounded-xl overflow-hidden border border-dash bg-slate-900 text-white p-6 shadow-2xs">
+      <div className="rounded-xl overflow-hidden border border-dash bg-primary-500 text-white p-6 shadow-2xs">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
           {/* Banner Thumbnail Box (5 cols) */}
           <div className="md:col-span-5 h-48 md:h-56 rounded-xl bg-slate-800 border border-slate-700/60 flex items-center justify-center" />
@@ -216,7 +216,7 @@ export function CourseDetailsSkeleton({ activeTab = "syllabus" }: CourseDetailsS
               <div className="h-6 w-20 bg-slate-800 rounded-md" />
             </div>
             <div className="space-y-2">
-              <div className="h-7 w-3/4 bg-slate-700 rounded-lg" />
+              <div className="h-7 w-3/4 bg-primary-400 rounded-lg" />
               <div className="h-4 w-5/6 bg-slate-800 rounded" />
             </div>
             <div className="flex flex-wrap items-center gap-4 pt-2 border-t border-slate-800">

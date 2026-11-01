@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { PERMISSION_ACTIONS, ROLE_TONES, TEAM_MODULES, type RolePermissions } from "@/types/team";
-import { MODULE_ACTIONS, MODULE_LABEL, ACTION_LABEL, countPermissions } from "@/lib/teamPermissions";
+import { MODULE_ACTIONS, MODULE_LABEL, ACTION_LABEL, TOTAL_PERMISSIONS, countPermissions, normalizeExtras } from "@/lib/teamPermissions";
 
 export const ROLE_NAME_MAX = 40;
 export const ROLE_DESCRIPTION_MAX = 160;
@@ -27,6 +27,24 @@ export const permissionsSchema = z.record(moduleSchema, z.array(actionSchema)).s
   });
 });
 
+/**
+ * Per-member extras: every module present, only applicable actions, no duplicates. "View" is NOT required here
+ * because it can come from the role — role/extras overlap and the View rule are checked against the role
+ * (normalizeExtras / storage sanity).
+ */
+export const extraPermissionsSchema = z.record(moduleSchema, z.array(actionSchema)).superRefine((p, ctx) => {
+  TEAM_MODULES.forEach((m) => {
+    const row = p[m] ?? [];
+    const bad = row.find((a) => !MODULE_ACTIONS[m].includes(a));
+    if (bad) ctx.addIssue({ code: "custom", path: [m], message: `${ACTION_LABEL[bad]} doesn't apply to ${MODULE_LABEL[m]}` });
+    if (new Set(row).size !== row.length) ctx.addIssue({ code: "custom", path: [m], message: `Duplicate actions on ${MODULE_LABEL[m]}` });
+  });
+});
+
+/** Edit-extra-permissions modal (member detail). */
+export const extraPermissionsFormSchema = z.object({ extraPermissions: extraPermissionsSchema });
+export type ExtraPermissionsFormValues = { extraPermissions: RolePermissions };
+
 /** Role editor (/users/roles/new, /users/roles/[id]/edit). `takenNames` = other roles' names (lower-case). */
 export const roleFormSchema = (takenNames: string[] = []) =>
   z
@@ -47,15 +65,25 @@ export const roleFormSchema = (takenNames: string[] = []) =>
     });
 export type RoleFormValues = z.infer<ReturnType<typeof roleFormSchema>> & { permissions: RolePermissions };
 
-/** Invite modal. `memberEmails` = emails already on the team (members + pending invites), lower-case. */
-export const inviteFormSchema = (memberEmails: string[] = [], assignableRoleIds: string[] = []) =>
+/**
+ * Invite modal. `memberEmails` = emails already on the team (members + pending invites), lower-case.
+ * `rolePermissions` (by role id) lets the extras check ignore grants the chosen role already includes.
+ */
+export const inviteFormSchema = (memberEmails: string[] = [], assignableRoleIds: string[] = [], rolePermissions: Record<string, RolePermissions> = {}) =>
   z
     .object({
       emails: z.array(z.string()).min(1, "Add at least one email address").max(INVITE_MAX_EMAILS, `Invite up to ${INVITE_MAX_EMAILS} people at a time`),
       roleId: z.string().min(1, "Choose a role"),
       message: z.string().trim().max(INVITE_MESSAGE_MAX, `${INVITE_MESSAGE_MAX} characters or less`),
+      /** "Give extra permissions" switch; extras are only sent when it's on. */
+      giveExtras: z.boolean(),
+      extraPermissions: extraPermissionsSchema,
     })
     .superRefine((v, ctx) => {
+      const base = rolePermissions[v.roleId];
+      const extras = v.extraPermissions as RolePermissions;
+      if (v.giveExtras && countPermissions(base ? normalizeExtras(extras, base) : extras) === 0)
+        ctx.addIssue({ code: "custom", path: ["extraPermissions"], message: "Tick at least one extra permission, or turn this section off" });
       const seen = new Set<string>();
       for (const raw of v.emails) {
         const e = raw.trim().toLowerCase();
@@ -75,7 +103,7 @@ export const inviteFormSchema = (memberEmails: string[] = [], assignableRoleIds:
       }
       if (assignableRoleIds.length && v.roleId && !assignableRoleIds.includes(v.roleId)) ctx.addIssue({ code: "custom", path: ["roleId"], message: "This role can't be assigned by invitation" });
     });
-export type InviteFormValues = z.infer<ReturnType<typeof inviteFormSchema>>;
+export type InviteFormValues = z.infer<ReturnType<typeof inviteFormSchema>> & { extraPermissions: RolePermissions };
 
 /** Change-role modal. */
 export const changeRoleSchema = (currentRoleId: string) =>
@@ -87,17 +115,23 @@ export type ChangeRoleValues = z.infer<ReturnType<typeof changeRoleSchema>>;
 // ---------------------------------------------------------------- store records (seed / storage sanity)
 const isoSchema = z.string().refine((v) => !Number.isNaN(Date.parse(v)), "Invalid date");
 
-export const teamRoleSchema = z.object({
-  id: z.string().min(1),
-  name: z.string().trim().min(2).max(ROLE_NAME_MAX),
-  description: z.string().max(ROLE_DESCRIPTION_MAX),
-  tone: z.enum(ROLE_TONES),
-  isSystem: z.boolean(),
-  isLocked: z.boolean(),
-  permissions: permissionsSchema,
-  createdAt: isoSchema,
-  updatedAt: isoSchema,
-});
+export const teamRoleSchema = z
+  .object({
+    id: z.string().min(1),
+    name: z.string().trim().min(2).max(ROLE_NAME_MAX),
+    description: z.string().max(ROLE_DESCRIPTION_MAX),
+    tone: z.enum(ROLE_TONES),
+    isSystem: z.boolean(),
+    isLocked: z.boolean(),
+    permissions: permissionsSchema,
+    defaultPermissions: permissionsSchema.nullable(),
+    createdAt: isoSchema,
+    updatedAt: isoSchema,
+  })
+  .superRefine((r, ctx) => {
+    if (r.isSystem !== !!r.defaultPermissions) ctx.addIssue({ code: "custom", path: ["defaultPermissions"], message: "System roles (and only they) keep a default preset" });
+    if (r.isLocked && (!r.isSystem || countPermissions(r.permissions as RolePermissions) !== TOTAL_PERMISSIONS)) ctx.addIssue({ code: "custom", path: ["permissions"], message: "A locked role is a system role with every permission" });
+  });
 
 export const teamMemberSchema = z
   .object({
@@ -105,6 +139,7 @@ export const teamMemberSchema = z
     name: z.string().max(80),
     email: z.string().refine(isValidEmail, "Invalid email"),
     roleId: z.string().min(1),
+    extraPermissions: extraPermissionsSchema,
     status: z.enum(["ACTIVE", "INVITED", "SUSPENDED"]),
     isOwner: z.boolean(),
     twoFactorEnabled: z.boolean(),
@@ -125,6 +160,7 @@ export const teamMemberSchema = z
   })
   .superRefine((m, ctx) => {
     if (m.status === "INVITED" && !m.invite) ctx.addIssue({ code: "custom", path: ["invite"], message: "Invited members need invite details" });
+    if (m.isOwner && countPermissions(m.extraPermissions as RolePermissions) > 0) ctx.addIssue({ code: "custom", path: ["extraPermissions"], message: "The owner already has every permission" });
     if (m.status !== "INVITED" && (m.invite || !m.joinedAt || !m.name)) ctx.addIssue({ code: "custom", path: ["status"], message: "Joined members need a name and join date, and no invite" });
   });
 
@@ -143,7 +179,10 @@ export const teamEventSchema = z.object({
     "TWO_FA_RESET",
     "ROLE_CREATED",
     "ROLE_UPDATED",
+    "ROLE_RESET",
     "ROLE_DELETED",
+    "EXTRA_PERMISSIONS_GRANTED",
+    "EXTRA_PERMISSIONS_REMOVED",
   ]),
   actor: z.string().min(1),
   targetId: z.string().nullable(),

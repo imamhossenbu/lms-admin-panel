@@ -16,9 +16,9 @@ export function PricingSectionHeader({ title, description, optional, htmlFor, cl
   const Title = htmlFor ? "label" : "h3";
   return (
     <div className={cn("mb-3", className)}>
-      <Title htmlFor={htmlFor} className="block body-sm-medium font-semibold text-primary-500">
+      <Title htmlFor={htmlFor} className="block body-sm-medium text-primary-500">
         {title}
-        {optional && <span className="body-sm-regular font-normal text-primary-300 ml-1">(Optional)</span>}
+        {optional && <span className="body-sm-regular text-primary-300 ml-1">(Optional)</span>}
       </Title>
       {description && <p className="body-xsm-regular text-primary-300 mt-1">{description}</p>}
     </div>

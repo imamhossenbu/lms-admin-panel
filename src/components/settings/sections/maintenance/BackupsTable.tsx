@@ -102,7 +102,7 @@ export function BackupsTable({ backups }: BackupsTableProps) {
         subtitle="The platform will roll back to this point."
         message={
           <>
-            Everything created after <span className="font-semibold">{restoring ? settingsFullDate(restoring.at) : ""}</span> (enrollments, payments, content edits) will be replaced. Students may see
+            Everything created after <span className="body-sm-medium font-semibold!">{restoring ? settingsFullDate(restoring.at) : ""}</span> (enrollments, payments, content edits) will be replaced. Students may see
             maintenance briefly while the restore runs.
           </>
         }

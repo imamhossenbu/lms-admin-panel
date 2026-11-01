@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import type { TeamRole, TeamSeed } from "@/types/team";
-import { membersByRole, sortRoles } from "@/lib/teamStats";
+import { membersByRole, sortRoles, teamStats } from "@/lib/teamStats";
 import { PrimaryButton } from "@/components/ui/primary-button";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { ProTipCard } from "@/components/ui/ProTipCard";
@@ -19,13 +19,14 @@ export interface RolesTabProps {
   actions: TeamActions;
 }
 
-/** Roles & permissions: system + custom role cards (Edit/View, Duplicate, Delete) and "Create role". */
+/** Roles & permissions: system + custom role cards (Edit / View for Super Admin, Duplicate, Delete for custom) and "Create role". */
 export function RolesTab({ data, actions }: RolesTabProps) {
   const router = useRouter();
   const [deleting, setDeleting] = useState<TeamRole | null>(null);
   const roles = useMemo(() => sortRoles(data.roles), [data.roles]);
   const holders = useMemo(() => membersByRole(data.members), [data.members]);
   const custom = roles.filter((r) => !r.isSystem).length;
+  const stats = useMemo(() => teamStats(data), [data]);
 
   const askDelete = (r: TeamRole) => {
     const n = holders[r.id]?.length ?? 0;
@@ -42,7 +43,9 @@ export function RolesTab({ data, actions }: RolesTabProps) {
         <div>
           <h3 className="body-md-medium font-semibold! text-primary-500">Roles &amp; permissions</h3>
           <p className="body-sm-regular text-primary-300">
-            {roles.length - custom} system roles · {plural(custom, "custom role")}. System roles are read-only — duplicate one to customise it.
+            {roles.length - custom} system roles{stats.modifiedRoles ? ` (${stats.modifiedRoles} modified)` : ""} · {plural(custom, "custom role")}
+            {stats.membersWithExtras ? ` · ${plural(stats.membersWithExtras, "person has", "people have")} extra permissions` : ""}. Built-in roles start with default
+            permissions you can change and reset any time; Super Admin always has everything.
           </p>
         </div>
         <PrimaryButton leftIcon={<Plus className="h-4 w-4" />} onClick={() => router.push("/users/roles/new")}>
@@ -72,7 +75,7 @@ export function RolesTab({ data, actions }: RolesTabProps) {
       </motion.div>
 
       <ProTipCard title="Least privilege">
-        Give people the smallest role that lets them do their job. Create a custom role (for example &quot;Teaching Assistant&quot;) instead of handing out Admin.
+        Give people the smallest role that lets them do their job. For a one-off need, add extra permissions to that person instead of widening the whole role.
       </ProTipCard>
 
       <ConfirmModal

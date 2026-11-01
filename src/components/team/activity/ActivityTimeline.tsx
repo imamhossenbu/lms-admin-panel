@@ -38,11 +38,11 @@ export function ActivityTimeline({ events, linkableIds, compact }: ActivityTimel
               const meta = EVENT_META[e.type];
               const target =
                 e.targetId && linkableIds?.has(e.targetId) ? (
-                  <Link href={hrefFor(e)} onClick={(ev) => ev.stopPropagation()} className="font-semibold text-primary-500 hover:text-brand-orange">
+                  <Link href={hrefFor(e)} onClick={(ev) => ev.stopPropagation()} className="body-sm-medium font-semibold! text-primary-500 hover:text-brand-orange">
                     {e.targetName}
                   </Link>
                 ) : (
-                  <span className="font-semibold text-primary-500">{e.targetName}</span>
+                  <span className="body-sm-medium font-semibold! text-primary-500">{e.targetName}</span>
                 );
               return (
                 <motion.li
@@ -55,7 +55,7 @@ export function ActivityTimeline({ events, linkableIds, compact }: ActivityTimel
                   <span className={cn("relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ring-4 ring-white", meta.tile)}>{meta.icon}</span>
                   <div className="min-w-0 flex-1">
                     <p className="body-sm-regular text-primary-400">
-                      <span className="font-semibold text-primary-500">{e.actor}</span> {meta.verb}
+                      <span className="body-sm-medium font-semibold! text-primary-500">{e.actor}</span> {meta.verb}
                       {!isSelfEvent(e) && <> {target}</>}
                     </p>
                     {e.detail && (

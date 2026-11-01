@@ -34,7 +34,7 @@ export function TwoFactorCallout({ members, busy, onRemind }: TwoFactorCalloutPr
           >
             <span className="block">
               They&apos;ll be asked to set it up at their next sign-in (
-              <Link href="/settings?section=security" className="font-semibold text-primary-500 underline-offset-2 hover:underline">
+              <Link href="/settings?section=security" className="body-xsm-medium font-semibold! text-primary-500 underline-offset-2 hover:underline">
                 Settings › Security
               </Link>
               ).

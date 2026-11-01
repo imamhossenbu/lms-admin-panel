@@ -116,7 +116,7 @@ export function ModulePanel({ mode, initialValues, onCancel, onSubmit, onUploadi
       <form noValidate onSubmit={handleSubmit(onSubmit)} className="flex flex-col">
         <div className="flex items-start justify-between gap-3 px-5 pt-5">
           <div>
-            <h2 className="heading-h5 font-bold text-primary-500 flex items-center gap-2.5">
+            <h2 className="heading-h5 text-primary-500 flex items-center gap-2.5">
               <Sparkles className="w-6 h-6 text-brand-orange" />
               {mode === "create" ? "Add Module" : "Edit Module"}
             </h2>

@@ -71,7 +71,7 @@ export function LessonPreviewMedia({ title, thumbnailUrl, video, durationLabel }
         </>
       ) : (
         <div className="absolute inset-0 bg-linear-to-br from-brand-navy via-brand-card to-purple/60 p-5">
-          <p className="line-clamp-3 pr-16 heading-h5 font-bold text-white">
+          <p className="line-clamp-3 pr-16 heading-h5 text-white">
             {title || "Your lesson title"}
           </p>
           <PlayBadge />

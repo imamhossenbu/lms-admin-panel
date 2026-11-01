@@ -88,7 +88,7 @@ export function EduProLogo({
       </div>
 
       {showText && (
-        <div className="flex flex-col text-left leading-tight">
+        <div className="flex flex-col text-left">
           <span
             className={`${
               size === "lg" ? "body-xl-regular" : size === "md" ? "title-regular" : "body-l-regular"
@@ -110,7 +110,7 @@ export function EduProLogo({
           {subtitle && (
             <span
               className={`body-xsm-regular ${
-                isLight ? "text-slate-400" : "subtext-500"
+                isLight ? "text-white/60" : "subtext-500"
               }`}
             >
               {subtitle}

@@ -25,7 +25,7 @@ export function TemplateEditorHeader({ template, isSubmitting, isSendingTest, on
         { label: "Templates", href: "/notifications?tab=templates" },
         { label: template.name },
       ]}
-      title={<span className="heading-h3 font-bold! tracking-tight text-primary-500">Edit Template</span>}
+      title={<span className="heading-h3 font-bold! text-primary-500">Edit Template</span>}
       subtitle="Change the wording and channels of this automated message."
     >
       <SecondaryButton leftIcon={<Send className="h-4 w-4" />} isLoading={isSendingTest} disabled={isSendingTest || isSubmitting} onClick={onSendTest}>

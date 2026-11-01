@@ -52,7 +52,7 @@ export function CourseSummaryCard({
     >
       <div className="flex items-start justify-between gap-3 mb-4">
         <div className="min-w-0">
-          <h2 className="heading-h5 font-bold text-primary-500">{heading}</h2>
+          <h2 className="heading-h5 text-primary-500">{heading}</h2>
           <p className="body-sm-regular text-primary-300 mt-0.5">{subheading}</p>
         </div>
         {onEdit && <SummaryEditButton onClick={onEdit} label="Edit course details" />}
@@ -63,7 +63,7 @@ export function CourseSummaryCard({
           <Image src={thumbnail} alt={displayTitle} fill unoptimized sizes="480px" className="object-cover" />
         ) : (
           <div className="absolute inset-0 flex items-end bg-gradient-to-br from-brand-navy via-brand-surface to-brand-card p-4">
-            <p className="heading-h5 font-bold text-white line-clamp-2">{displayTitle}</p>
+            <p className="heading-h5 text-white line-clamp-2">{displayTitle}</p>
           </div>
         )}
         {onEditThumbnail && (
@@ -80,7 +80,7 @@ export function CourseSummaryCard({
         )}
       </div>
 
-      <h3 className="title-medium font-bold text-primary-500 mt-4">{displayTitle}</h3>
+      <h3 className="title-medium text-primary-500 mt-4">{displayTitle}</h3>
       {shortDescription.trim() && (
         <p className="body-sm-regular text-primary-300 mt-1.5 line-clamp-3">{shortDescription}</p>
       )}

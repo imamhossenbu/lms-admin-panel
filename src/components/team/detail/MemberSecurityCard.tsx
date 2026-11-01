@@ -58,7 +58,7 @@ export function MemberSecurityCard({ member: m, require2fa, busy, onReset2fa }: 
         </Row>
         <Row icon={<Globe className="h-4 w-4" />} label="Last IP address">
           <span className="tabular-nums">{m.lastLoginIp || "—"}</span>
-          {m.location && <span className="text-primary-300"> · {m.location}</span>}
+          {m.location && <span className="body-sm-regular text-primary-300"> · {m.location}</span>}
         </Row>
         <div className="pt-3">
           <p className="mb-2 body-xsm-medium font-semibold! text-primary-400">Active sessions · {sessions.length}</p>

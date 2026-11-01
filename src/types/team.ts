@@ -38,11 +38,14 @@ export interface TeamRole {
   name: string;
   description: string;
   tone: RoleTone;
-  /** Built-in role (can't be renamed, edited or deleted — duplicate it to customise). */
+  /** Built-in role: can't be renamed or deleted, but the Super Admin can change its permissions (and reset them). */
   isSystem: boolean;
-  /** Super Admin: always every permission. */
+  /** Super Admin: always every permission, never editable. */
   isLocked: boolean;
+  /** Current permissions (what people with this role can do right now). */
   permissions: RolePermissions;
+  /** System roles: the shipped preset ("Reset to default" restores it). null for custom roles. */
+  defaultPermissions: RolePermissions | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -66,6 +69,11 @@ export interface TeamMember {
   name: string;
   email: string;
   roleId: string;
+  /**
+   * Grants on top of the role (additive only). Never repeats an action the role already gives;
+   * holds "view" only when the role has no View on that module. Always empty for the owner / Super Admin.
+   */
+  extraPermissions: RolePermissions;
   status: MemberStatus;
   /** Workspace owner: can't be removed, suspended or moved off Super Admin. */
   isOwner: boolean;
@@ -90,7 +98,10 @@ export type TeamEventType =
   | "TWO_FA_RESET"
   | "ROLE_CREATED"
   | "ROLE_UPDATED"
-  | "ROLE_DELETED";
+  | "ROLE_RESET"
+  | "ROLE_DELETED"
+  | "EXTRA_PERMISSIONS_GRANTED"
+  | "EXTRA_PERMISSIONS_REMOVED";
 
 export interface TeamEvent {
   id: string;

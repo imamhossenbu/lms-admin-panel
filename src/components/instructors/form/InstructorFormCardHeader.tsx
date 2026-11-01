@@ -20,7 +20,7 @@ export function InstructorFormCardHeader({
         {icon}
       </div>
       <div className="min-w-0">
-        <h2 className="title-medium font-bold text-primary-500">{title}</h2>
+        <h2 className="title-medium text-primary-500">{title}</h2>
         {description && (
           <p className="body-sm-regular text-primary-300">{description}</p>
         )}

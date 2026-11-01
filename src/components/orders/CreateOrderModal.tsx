@@ -200,7 +200,7 @@ export function CreateOrderModal({ isOpen, onClose, onCreate }: CreateOrderModal
         {price !== undefined && (
           <div className="flex items-center justify-between rounded-lg bg-slate-50 border border-dash px-4 py-3">
             <span className="body-sm-regular text-primary-400">Order total</span>
-            <span className="body-medium font-semibold text-primary-500">
+            <span className="body-medium text-primary-500">
               {formatCurrency(price - couponDiscount(couponCode, price))}
             </span>
           </div>

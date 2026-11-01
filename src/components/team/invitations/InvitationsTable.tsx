@@ -7,8 +7,9 @@ import { DataTable, type ColumnDef } from "@/components/ui/Datatable";
 import { CardActionButton } from "@/components/ui/CardActionButton";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 import { inviteExpiresWithin, inviteState } from "@/lib/teamStats";
+import { extraCount } from "@/lib/teamPermissions";
 import { MemberIdentity } from "../shared/MemberIdentity";
-import { RoleBadge } from "../shared/TeamBadges";
+import { ExtraPermissionsBadge, RoleBadge } from "../shared/TeamBadges";
 import { expiresIn, fullDate, timeAgo } from "../shared/teamFormat";
 
 export interface InvitationsTableProps {
@@ -33,7 +34,17 @@ export function InvitationsTable({ rows, roles, busyId, onView, onResend, onRevo
         </div>
       ),
     },
-    { key: "role", header: "Role", width: "150px", render: (m) => <RoleBadge role={roles.find((r) => r.id === m.roleId)} className="max-w-full" /> },
+    {
+      key: "role",
+      header: "Role",
+      width: "176px",
+      render: (m) => (
+        <div className="flex min-w-0 items-center gap-1.5">
+          <RoleBadge role={roles.find((r) => r.id === m.roleId)} className="min-w-0 max-w-full" />
+          <ExtraPermissionsBadge count={extraCount(m)} />
+        </div>
+      ),
+    },
     {
       key: "sent",
       header: "Invited",

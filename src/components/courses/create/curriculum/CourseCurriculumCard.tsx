@@ -92,7 +92,7 @@ export function CourseCurriculumCard({
     >
       <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-4">
         <div>
-          <h2 className="heading-h5 font-bold text-primary-500">Course Curriculum</h2>
+          <h2 className="heading-h5 text-primary-500">Course Curriculum</h2>
           <p className="body-sm-regular text-primary-400 mt-1">
             Organize your course content into modules and lessons. You can drag and drop to reorder them.
           </p>
@@ -155,7 +155,7 @@ export function CourseCurriculumCard({
           <span className="w-12 h-12 rounded-full bg-brand-orange-light text-brand-orange flex items-center justify-center">
             <Layers className="w-6 h-6" />
           </span>
-          <p className="body-medium font-semibold text-primary-500">No modules yet</p>
+          <p className="body-medium text-primary-500">No modules yet</p>
           <p className="body-sm-regular text-primary-300 max-w-sm">
             Add your first module, or let AI generate a complete curriculum you can edit.
           </p>
@@ -166,7 +166,7 @@ export function CourseCurriculumCard({
         type="button"
         whileTap={{ scale: 0.99 }}
         onClick={onAddModule}
-        className="w-full h-14 rounded-xl border-2 border-dashed border-dash body-medium font-semibold text-brand-orange hover:border-brand-orange hover:bg-brand-orange-light inline-flex items-center justify-center gap-2 transition-colors cursor-pointer"
+        className="w-full h-14 rounded-xl border-2 border-dashed border-dash body-medium text-brand-orange hover:border-brand-orange hover:bg-brand-orange-light inline-flex items-center justify-center gap-2 transition-colors cursor-pointer"
       >
         <Plus className="w-5 h-5" />
         Add New Module

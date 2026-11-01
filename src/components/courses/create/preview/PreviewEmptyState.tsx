@@ -12,7 +12,7 @@ export function PreviewEmptyState({ icon, title, description }: PreviewEmptyStat
       <span className="w-11 h-11 rounded-full bg-gray-bg text-primary-300 flex items-center justify-center [&>svg]:w-5 [&>svg]:h-5">
         {icon}
       </span>
-      <p className="body-sm-medium font-semibold text-primary-500">{title}</p>
+      <p className="body-sm-medium text-primary-500">{title}</p>
       <p className="body-xsm-regular text-primary-300 max-w-64">{description}</p>
     </div>
   );

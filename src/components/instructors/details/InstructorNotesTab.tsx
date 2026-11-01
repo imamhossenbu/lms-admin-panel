@@ -66,7 +66,7 @@ export function InstructorNotesTab({ instructorId, notes }: InstructorNotesTabPr
           <span className="w-12 h-12 rounded-full bg-blue-14 text-blue flex items-center justify-center">
             <StickyNote className="w-6 h-6" />
           </span>
-          <p className="body-medium font-semibold text-primary-500">No notes yet</p>
+          <p className="body-medium text-primary-500">No notes yet</p>
           <p className="body-sm-regular text-primary-300 max-w-sm">
             Add an internal note to keep track of feedback, agreements, or follow-ups for this instructor.
           </p>
@@ -78,7 +78,7 @@ export function InstructorNotesTab({ instructorId, notes }: InstructorNotesTabPr
         title="Delete Note"
         message={
           <>
-            Delete <span className="font-semibold">&quot;{pendingDelete?.title}&quot;</span>? Other admins will no longer see it.
+            Delete <span className="body-sm-medium font-semibold!">&quot;{pendingDelete?.title}&quot;</span>? Other admins will no longer see it.
           </>
         }
         confirmLabel="Delete Note"

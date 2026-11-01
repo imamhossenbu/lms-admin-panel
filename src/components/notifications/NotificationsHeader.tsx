@@ -18,7 +18,7 @@ export function NotificationsHeader({ unread, onMarkAllRead, onNewBroadcast }: N
     <PageHeader
       className="mb-0"
       breadcrumbs={[{ label: "Notifications" }]}
-      title={<span className="heading-h3 font-bold! tracking-tight text-primary-500">Notifications</span>}
+      title={<span className="heading-h3 font-bold! text-primary-500">Notifications</span>}
       subtitle="Your inbox, student broadcasts and automated messages."
     >
       {unread > 0 && (

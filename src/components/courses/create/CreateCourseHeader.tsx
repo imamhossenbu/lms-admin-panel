@@ -52,7 +52,7 @@ export function CreateCourseHeader({
 
       <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
         <div className="min-w-0">
-          <h1 className="heading-h3-bold font-bold text-primary-500 tracking-tight">{title}</h1>
+          <h1 className="heading-h3-bold text-primary-500 tracking-tight">{title}</h1>
           <p className="body-regular text-primary-300 mt-1">
             {subtitle}
           </p>

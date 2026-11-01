@@ -41,7 +41,7 @@ export function CourseReviewPreviewCard({
     >
       <div className="flex items-start justify-between gap-3 mb-4">
         <div className="min-w-0">
-          <h2 className="heading-h5 font-bold text-primary-500">Course Preview</h2>
+          <h2 className="heading-h5 text-primary-500">Course Preview</h2>
           <p className="body-sm-regular text-primary-300 mt-0.5">This is how your course will appear to students.</p>
         </div>
         <SecondaryButton size="sm" icon={<ExternalLink />} onClick={onViewCourse}>
@@ -52,7 +52,7 @@ export function CourseReviewPreviewCard({
       <div className="space-y-4">
         <PreviewThumbnailHero thumbnail={thumbnail} title={title} />
         <div>
-          <h3 className="title-medium font-bold text-primary-500 break-words">{title || "Untitled course"}</h3>
+          <h3 className="title-medium text-primary-500 break-words">{title || "Untitled course"}</h3>
           <p className="body-sm-regular text-primary-300 mt-1.5 break-words">
             {shortDescription || "Add a short description to tell students what this course is about."}
           </p>

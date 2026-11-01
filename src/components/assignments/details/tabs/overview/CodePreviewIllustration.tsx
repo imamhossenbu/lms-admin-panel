@@ -26,7 +26,7 @@ const KIND_CLASS: Record<Token["kind"], string> = {
 export function CodePreviewIllustration() {
   return (
     <div className="grid grid-cols-1 overflow-hidden rounded-xl border border-dash sm:grid-cols-2" aria-hidden>
-      <pre className="overflow-x-auto bg-primary-500 p-3 body-2xsm-regular leading-relaxed">
+      <pre className="overflow-x-auto bg-primary-500 p-3 body-2xsm-regular">
         {LINES.map((tokens, i) => (
           <div key={i} className="flex gap-3 whitespace-pre">
             <span className="w-4 shrink-0 text-right text-primary-300">{i + 1}</span>

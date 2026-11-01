@@ -18,7 +18,7 @@ export function CoursesHeader({ onCreate, onCategories }: CoursesHeaderProps) {
     <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 text-left">
       <div>
         <Breadcrumb items={[{ label: "Courses" }]} className="mb-1.5" />
-        <h1 className="heading-h3 font-bold text-primary-500 tracking-tight">Courses</h1>
+        <h1 className="heading-h3 text-primary-500 tracking-tight">Courses</h1>
         <p className="body-sm-regular text-primary-400 mt-1">Create, publish and manage every course in your catalog.</p>
       </div>
       <div className="flex flex-wrap items-center gap-3">

@@ -42,7 +42,7 @@ export function InstructorTable({
             className="rounded-full ring-1 ring-dash shrink-0"
           />
           <div className="min-w-0">
-            <span className="body-sm-medium text-primary-500 font-bold group-hover:text-brand-orange transition-colors block truncate">
+            <span className="body-sm-medium text-primary-500 group-hover:text-brand-orange transition-colors block truncate">
               {row.name}
             </span>
             <span className="body-2xsm-regular text-primary-300 block truncate">
@@ -66,7 +66,7 @@ export function InstructorTable({
       header: "Courses",
       align: "center",
       render: (row) => (
-        <span className="body-sm-medium text-primary-500 font-semibold">
+        <span className="body-sm-medium text-primary-500">
           {row.coursesCount}
         </span>
       ),
@@ -76,7 +76,7 @@ export function InstructorTable({
       header: "Students",
       align: "center",
       render: (row) => (
-        <span className="body-sm-medium text-primary-500 font-semibold">
+        <span className="body-sm-medium text-primary-500">
           {row.studentsCount}
         </span>
       ),
@@ -85,7 +85,7 @@ export function InstructorTable({
       key: "revenue",
       header: "Total Revenue",
       render: (row) => (
-        <span className="body-sm-medium text-primary-500 font-semibold">
+        <span className="body-sm-medium text-primary-500">
           {row.totalRevenue}
         </span>
       ),
@@ -152,8 +152,8 @@ export function InstructorTable({
         verticalBorders={true}
         containerClassName="border-0 rounded-none w-full"
         tableClassName="w-full"
-        headerClassName="bg-gray-bg border-b border-dash body-sm-medium text-primary-500 font-semibold normal-case"
-        thClassName="px-3.5 py-3 text-primary-500 font-semibold normal-case"
+        headerClassName="bg-gray-bg border-b border-dash body-sm-medium text-primary-500 normal-case"
+        thClassName="px-3.5 py-3 text-primary-500 normal-case"
         cellClassName="px-3.5 py-3.5 cursor-pointer"
         emptyMessage="No instructors found matching your criteria."
       />

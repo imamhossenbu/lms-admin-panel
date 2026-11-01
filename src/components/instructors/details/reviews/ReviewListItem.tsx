@@ -18,7 +18,7 @@ export function ReviewListItem({ review, onHide }: ReviewListItemProps) {
       <div className="lg:col-span-3 flex items-center gap-3 min-w-0">
         <Avatar src={review.avatarUrl} name={review.studentName} size={48} />
         <div className="min-w-0">
-          <p className="body-medium font-semibold text-primary-500 truncate">{review.studentName}</p>
+          <p className="body-medium text-primary-500 truncate">{review.studentName}</p>
           <p className="body-sm-regular text-primary-300 truncate">{review.course.title}</p>
         </div>
       </div>
@@ -28,7 +28,7 @@ export function ReviewListItem({ review, onHide }: ReviewListItemProps) {
         <span className="body-sm-medium text-primary-500">{review.rating.toFixed(1)}</span>
       </div>
 
-      <p className="lg:col-span-5 body-sm-regular text-primary-400 leading-relaxed">{review.comment}</p>
+      <p className="lg:col-span-5 body-sm-regular text-primary-400">{review.comment}</p>
 
       <div className="lg:col-span-2 flex items-center justify-between lg:justify-end gap-4">
         <span className="body-sm-regular text-primary-300 whitespace-nowrap">{review.date}</span>

@@ -79,7 +79,7 @@ export function PillTabs<K extends string = string>({
                 "relative whitespace-nowrap px-4 py-2 rounded-xl body-sm-medium transition-colors duration-150 cursor-pointer flex items-center justify-center gap-2 shrink-0 z-10 select-none",
                 "disabled:cursor-not-allowed disabled:opacity-50",
                 fullWidth && "flex-1",
-                isActive ? "text-primary-500 font-semibold" : "text-primary-400 hover:text-primary-500 hover:bg-white/60"
+                isActive ? "text-primary-500" : "text-primary-400 hover:text-primary-500 hover:bg-white/60"
               )}
             >
               {isActive && (

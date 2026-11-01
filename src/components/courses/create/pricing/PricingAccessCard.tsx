@@ -18,7 +18,7 @@ export function PricingAccessCard() {
       className="dashboard-card shadow-2xs text-left"
     >
       <header className="px-5 py-4 border-b border-dash">
-        <h2 className="heading-h5 font-bold text-primary-500">Pricing &amp; Access</h2>
+        <h2 className="heading-h5 text-primary-500">Pricing &amp; Access</h2>
         <p className="body-sm-regular text-primary-400 mt-1">
           Set the price for your course and configure enrollment options.
         </p>

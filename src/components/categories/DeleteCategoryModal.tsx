@@ -60,14 +60,14 @@ export function DeleteCategoryModal({
       }
     >
       <div className="space-y-3 text-left">
-        <div className="p-3 rounded-xl bg-rose-50 border border-rose-200/60 flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
-          <div className="text-rose-900 body-sm-regular">
-            <span className="font-semibold block mb-0.5">Warning: Destructive Action</span>
+        <div className="p-3 rounded-xl bg-red-14 border border-red flex items-start gap-3">
+          <AlertTriangle className="w-5 h-5 text-red shrink-0 mt-0.5" />
+          <div className="text-red-dark body-sm-regular">
+            <span className="body-sm-regular font-semibold! block mb-0.5">Warning: Destructive Action</span>
             {courseCount > 0 ? (
               <p>
                 This category currently has{" "}
-                <span className="font-bold">{courseCount} associated courses</span>.
+                <span className="body-sm-regular font-bold!">{courseCount} associated courses</span>.
                 Deleting it may unassign those courses or cause broken filters.
               </p>
             ) : (

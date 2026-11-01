@@ -36,7 +36,7 @@ export function AssignmentStatTile({ icon, tone, value, label, caption, index = 
     >
       <span className={cn("flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl", TONE[tone])}>{icon}</span>
       <div className="min-w-0">
-        <p className="heading-h4 font-bold! text-primary-500 leading-tight">{value}</p>
+        <p className="heading-h4 font-bold! text-primary-500">{value}</p>
         <p className="body-sm-regular text-primary-300 truncate">{label}</p>
         {caption && <p className="body-xsm-regular text-primary-300">{caption}</p>}
       </div>

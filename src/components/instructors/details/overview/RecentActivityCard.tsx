@@ -49,7 +49,7 @@ export function RecentActivityCard({ activities, onViewAll }: RecentActivityCard
                   {style.icon}
                 </span>
                 <div className="flex-1 min-w-0">
-                  <p className="body-sm-medium text-primary-500 leading-snug">{activity.title}</p>
+                  <p className="body-sm-medium text-primary-500">{activity.title}</p>
                   {activity.subtitle && (
                     <p className="body-xsm-regular text-primary-300 truncate">{activity.subtitle}</p>
                   )}

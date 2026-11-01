@@ -16,8 +16,8 @@ export function buildInvoiceHtml(order: OrderItem): string {
   h1{font-size:28px;margin:0}.muted{color:#64748B}.row{display:flex;justify-content:space-between;gap:24px}
   table{width:100%;border-collapse:collapse;margin-top:32px}th,td{border:1px solid #E2E8F0;padding:12px;text-align:left}
   th{background:#F8FAFC;font-size:13px;color:#334155}.total{font-weight:700}
-  .stamp{display:inline-block;margin-top:24px;padding:6px 12px;border-radius:6px;font-weight:700;
-    color:${refunded ? "#DC2626" : "#059669"};background:${refunded ? "#FEF2F2" : "#ECFDF5"}}
+  .stamp{display:inline-block;margin-top:24px;padding:6px 12px;border-radius:6px;font-weight:700}
+  .stamp.paid{color:#059669;background:#ECFDF5}.stamp.refunded{color:#DC2626;background:#FEF2F2}
 </style></head><body>
   <div class="row"><div><h1>EduPro</h1><p class="muted">LMS course purchase invoice</p></div>
   <div style="text-align:right"><strong>${escape(invoiceNumber)}</strong><p class="muted">Order ${escape(order.orderNumber)}<br>${escape(formatOrderDateTime(order.paidAt ?? order.createdAt))}</p></div></div>
@@ -30,7 +30,7 @@ export function buildInvoiceHtml(order: OrderItem): string {
   <tr><td colspan="2">Subtotal</td><td style="text-align:right">${formatCurrency(order.subtotal)}</td></tr>
   <tr><td colspan="2">Discount${order.couponCode ? ` (${escape(order.couponCode)})` : ""}</td><td style="text-align:right">-${formatCurrency(order.discount)}</td></tr>
   <tr><td colspan="2" class="total">Total</td><td class="total" style="text-align:right">${formatCurrency(order.amount)}</td></tr></tbody></table>
-  <span class="stamp">${refunded ? `REFUNDED ${escape(formatOrderDateTime(order.refundedAt ?? ""))}` : "PAID"}</span>
+  <span class="stamp ${refunded ? "refunded" : "paid"}">${refunded ? `REFUNDED ${escape(formatOrderDateTime(order.refundedAt ?? ""))}` : "PAID"}</span>
 </body></html>`;
 }
 

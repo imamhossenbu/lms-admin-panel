@@ -133,7 +133,7 @@ export function NotesTabContent({
             />
           </div>
           <div className="space-y-0.5 whitespace-nowrap">
-            <div className="body-sm-medium font-semibold text-primary-500">
+            <div className="body-sm-medium text-primary-500">
               {row.author.name}
             </div>
             <div className="body-2xsm-regular text-primary-300">
@@ -149,7 +149,7 @@ export function NotesTabContent({
       width: "140px",
       render: (row) => (
         <div className="space-y-0.5 whitespace-nowrap">
-          <div className="body-sm-medium font-semibold text-primary-500">
+          <div className="body-sm-medium text-primary-500">
             {row.date}
           </div>
           <div className="body-2xsm-regular text-primary-300">
@@ -168,7 +168,7 @@ export function NotesTabContent({
           <button
             type="button"
             onClick={() => handleOpenEditModal(row)}
-            className="px-3 py-1.5 rounded-lg border border-dash bg-white text-blue hover:bg-blue-14 hover:border-blue/30 body-sm-medium font-semibold transition-colors cursor-pointer shadow-2xs"
+            className="px-3 py-1.5 rounded-lg border border-dash bg-white text-blue hover:bg-blue-14 hover:border-blue/30 body-sm-medium transition-colors cursor-pointer shadow-2xs"
           >
             Edit
           </button>
@@ -233,7 +233,7 @@ export function NotesTabContent({
             <StickyNote className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="title-medium font-bold text-primary-500">
+            <h2 className="title-medium text-primary-500">
               Notes
             </h2>
             <p className="body-sm-regular text-primary-300">
@@ -259,7 +259,7 @@ export function NotesTabContent({
             size="md"
             type="button"
             onClick={handleOpenAddModal}
-            icon={<Plus className="w-4 h-4 stroke-[2.2]" />}
+            icon={<Plus className="w-4 h-4" strokeWidth={2.2} />}
           >
             Add Note
           </PrimaryButton>
@@ -293,7 +293,7 @@ export function NotesTabContent({
           </button>
           <button
             type="button"
-            className="w-8 h-8 rounded-lg bg-blue text-white flex items-center justify-center body-sm-medium font-bold shadow-2xs"
+            className="w-8 h-8 rounded-lg bg-blue text-white flex items-center justify-center body-sm-medium shadow-2xs"
           >
             1
           </button>

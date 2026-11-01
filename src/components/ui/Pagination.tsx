@@ -85,9 +85,9 @@ export function Pagination({
             type="button"
             onClick={() => onPageChange(p)}
             className={cn(
-              "inline-flex h-8 w-8 items-center justify-center rounded-lg body-sm-medium font-bold transition-all cursor-pointer",
+              "inline-flex h-8 w-8 items-center justify-center rounded-lg body-sm-medium transition-all cursor-pointer",
               p === page
-                ? "bg-brand-orange text-white shadow-2xs font-bold"
+                ? "bg-brand-orange text-white shadow-2xs"
                 : "border border-dash bg-white text-primary-400 hover:bg-slate-50 hover:text-primary-500"
             )}
           >

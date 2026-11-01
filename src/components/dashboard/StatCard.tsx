@@ -63,7 +63,7 @@ export function StatCard({ stat }: { stat: DashboardStat }) {
       <div className="flex items-end justify-between mt-3 pt-0.5">
         <div className="flex items-center min-w-0">
           {change !== null && (
-            <span className={`body-xsm-medium font-bold flex items-center gap-0.5 ${trend.className}`}>
+            <span className={`body-xsm-medium flex items-center gap-0.5 ${trend.className}`}>
               <TrendIcon className="w-3.5 h-3.5" strokeWidth={2.5} />
               {change}
             </span>

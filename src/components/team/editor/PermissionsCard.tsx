@@ -7,6 +7,7 @@ import { emptyPermissions, fullPermissions } from "@/lib/teamPermissions";
 import { IconSectionCard } from "@/components/ui/IconSectionCard";
 import { CardActionButton } from "@/components/ui/CardActionButton";
 import { SettingsCallout } from "@/components/settings/sections/security/SettingsCallout";
+import { ModifiedRoleBadge } from "../shared/TeamBadges";
 import { PermissionMatrix } from "./PermissionMatrix";
 
 export interface PermissionsCardProps {
@@ -14,12 +15,14 @@ export interface PermissionsCardProps {
   onChange?: (next: RolePermissions) => void;
   readOnly?: boolean;
   error?: string;
+  /** Built-in role whose matrix differs from its default preset. */
+  modified?: boolean;
 }
 
 const viewEverywhere = (): RolePermissions => Object.fromEntries(TEAM_MODULES.map((m) => [m, ["view"]])) as unknown as RolePermissions;
 
 /** Permission matrix card with quick presets (Everything / View only / Clear) and the "at least one" error. */
-export function PermissionsCard({ value, onChange, readOnly, error }: PermissionsCardProps) {
+export function PermissionsCard({ value, onChange, readOnly, error, modified }: PermissionsCardProps) {
   return (
     <div id="role-permissions" className="scroll-mt-6">
     <IconSectionCard
@@ -29,7 +32,8 @@ export function PermissionsCard({ value, onChange, readOnly, error }: Permission
       description={readOnly ? "What people with this role can see and do." : "Tick what this role can do in each area. Use the header boxes to set a whole column."}
       action={
         !readOnly && onChange ? (
-          <div className="flex flex-wrap justify-end gap-2">
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            {modified && <ModifiedRoleBadge />}
             <CardActionButton icon={<ListChecks />} onClick={() => onChange(fullPermissions())}>
               Everything
             </CardActionButton>
@@ -48,7 +52,7 @@ export function PermissionsCard({ value, onChange, readOnly, error }: Permission
         <PermissionMatrix value={value} onChange={onChange} readOnly={readOnly} />
         {!readOnly && (
           <p className="body-xsm-regular text-primary-300">
-            <span className="font-semibold text-primary-400">View</span> turns on automatically when any other action in a row is allowed; turning View off clears the row. N/A means the action doesn&apos;t exist for that area.
+            <span className="body-xsm-medium font-semibold! text-primary-400">View</span> turns on automatically when any other action in a row is allowed; turning View off clears the row. N/A means the action doesn&apos;t exist for that area.
           </p>
         )}
       </div>

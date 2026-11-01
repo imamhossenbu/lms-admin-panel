@@ -26,7 +26,7 @@ export function DiscussionFormHeader({ mode, threadId, threadTitle, isSubmitting
   return (
     <PageHeader
       breadcrumbs={breadcrumbs}
-      title={<span className="heading-h3 font-bold! text-primary-500 tracking-tight">{mode === "create" ? "New Discussion" : "Edit Discussion"}</span>}
+      title={<span className="heading-h3 font-bold! text-primary-500">{mode === "create" ? "New Discussion" : "Edit Discussion"}</span>}
       subtitle={mode === "create" ? "Start a conversation, ask a question or post an update for a course." : "Update the content, course and moderation settings of this discussion."}
     >
       <DiscussionSubmitButton mode={mode} isSubmitting={isSubmitting} />

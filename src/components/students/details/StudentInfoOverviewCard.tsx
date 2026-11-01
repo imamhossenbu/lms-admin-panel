@@ -85,7 +85,7 @@ export function StudentInfoOverviewCard({
             <User className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="title-medium font-bold text-primary-500">
+            <h2 className="title-medium text-primary-500">
               {isEditing ? "Edit Student Information" : "Student Information"}
             </h2>
             {isEditing && (
@@ -116,7 +116,7 @@ export function StudentInfoOverviewCard({
             <PrimaryButton
               size="sm"
               onClick={handleSave}
-              leftIcon={<Check className="w-3.5 h-3.5 stroke-[2.5]" />}
+              leftIcon={<Check className="w-3.5 h-3.5" strokeWidth={2.5} />}
             >
               Save
             </PrimaryButton>
@@ -129,7 +129,7 @@ export function StudentInfoOverviewCard({
         <div className="divide-y divide-dash flex-1 flex flex-col justify-between pt-1">
           <div className="flex items-center justify-between py-3.5">
             <span className="body-sm-regular text-primary-400">Full Name</span>
-            <span className="body-sm-medium font-semibold text-primary-500">
+            <span className="body-sm-medium text-primary-500">
               {student.name}
             </span>
           </div>
@@ -176,7 +176,7 @@ export function StudentInfoOverviewCard({
 
           <div className="flex items-center justify-between py-3.5">
             <span className="body-sm-regular text-primary-400">Student ID</span>
-            <span className="body-sm-medium font-semibold text-primary-500 font-mono">
+            <span className="body-sm-medium text-primary-500 font-mono">
               {student.studentIdCode}
             </span>
           </div>

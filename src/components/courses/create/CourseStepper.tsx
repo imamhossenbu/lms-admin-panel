@@ -93,7 +93,7 @@ export function CourseStepper({ activeStep, onStepClick, isStepReachable, comple
                   ) : (
                     <span
                       className={cn(
-                        "relative body-md-medium font-semibold",
+                        "relative body-md-medium",
                         isActive ? "text-white" : isReachable ? "text-primary-500" : "text-primary-400"
                       )}
                     >
@@ -104,7 +104,7 @@ export function CourseStepper({ activeStep, onStepClick, isStepReachable, comple
                 <span className="text-left">
                   <span
                     className={cn(
-                      "block body-sm-medium font-semibold whitespace-nowrap",
+                      "block body-sm-medium whitespace-nowrap",
                       isActive ? "text-brand-orange" : "text-primary-500"
                     )}
                   >

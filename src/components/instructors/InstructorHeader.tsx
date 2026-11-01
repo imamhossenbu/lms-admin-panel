@@ -20,7 +20,7 @@ export function InstructorHeader({ onAddClick }: InstructorHeaderProps) {
         />
 
         {/* Page Heading & Subtitle */}
-        <h1 className="heading-h3 text-primary-500 font-bold tracking-tight">
+        <h1 className="heading-h3 text-primary-500 tracking-tight">
           Instructors
         </h1>
         <p className="body-sm-regular text-primary-400 mt-1">

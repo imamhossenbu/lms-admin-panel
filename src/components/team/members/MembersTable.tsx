@@ -5,8 +5,9 @@ import type { TeamMember, TeamRole } from "@/types/team";
 import { DataTable, type ColumnDef } from "@/components/ui/Datatable";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 import { inviteState, isActiveWithin } from "@/lib/teamStats";
+import { extraCount } from "@/lib/teamPermissions";
 import { MemberIdentity } from "../shared/MemberIdentity";
-import { MemberStatusBadge, RoleBadge, TwoFactorBadge } from "../shared/TeamBadges";
+import { ExtraPermissionsBadge, MemberStatusBadge, RoleBadge, TwoFactorBadge } from "../shared/TeamBadges";
 import { expiresIn, fullDate, shortDate, timeAgo } from "../shared/teamFormat";
 import { MemberRowActions, type MemberRowActionsProps } from "./MemberRowActions";
 
@@ -45,7 +46,17 @@ function LastActiveCell({ m }: { m: TeamMember }) {
 export function MembersTable({ rows, roles, open, busyId, emptyMessage, footer }: MembersTableProps) {
   const columns: ColumnDef<TeamMember>[] = [
     { key: "member", header: "Member", render: (m) => <MemberIdentity member={m} /> },
-    { key: "role", header: "Role", width: "150px", render: (m) => <RoleBadge role={roles.find((r) => r.id === m.roleId)} className="max-w-full" /> },
+    {
+      key: "role",
+      header: "Role",
+      width: "176px",
+      render: (m) => (
+        <div className="flex min-w-0 items-center gap-1.5">
+          <RoleBadge role={roles.find((r) => r.id === m.roleId)} className="min-w-0 max-w-full" />
+          <ExtraPermissionsBadge count={extraCount(m)} />
+        </div>
+      ),
+    },
     { key: "status", header: "Status", width: "124px", render: (m) => <MemberStatusBadge member={m} /> },
     { key: "2fa", header: "2FA", width: "70px", align: "center", render: (m) => <TwoFactorBadge member={m} /> },
     { key: "lastActive", header: "Last active", width: "116px", render: (m) => <LastActiveCell m={m} /> },
@@ -55,7 +66,7 @@ export function MembersTable({ rows, roles, open, busyId, emptyMessage, footer }
       width: "112px",
       render: (m) => (
         <span className="whitespace-nowrap body-sm-regular text-primary-500" title={fullDate(m.joinedAt ?? m.invite?.sentAt)}>
-          {m.joinedAt ? shortDate(m.joinedAt) : <span className="text-primary-300">Pending</span>}
+          {m.joinedAt ? shortDate(m.joinedAt) : <span className="body-sm-regular text-primary-300">Pending</span>}
         </span>
       ),
     },

@@ -114,7 +114,7 @@ export default function CreateInstructorPage() {
           { label: "Instructors", href: "/instructors" },
           { label: "Add New Instructor" },
         ]}
-        icon={<UserPlus className="w-5 h-5 stroke-[2.2]" />}
+        icon={<UserPlus className="w-5 h-5" strokeWidth={2.2} />}
         title="Add New Instructor"
         subtitle="Create a new instructor account and assign courses."
       />
@@ -124,7 +124,7 @@ export default function CreateInstructorPage() {
         cancelHref="/instructors"
         submitLabel="Create Instructor"
         submittingLabel="Creating Instructor..."
-        submitIcon={<UserPlus className="w-4 h-4 stroke-[2.2]" />}
+        submitIcon={<UserPlus className="w-4 h-4" strokeWidth={2.2} />}
         onSubmit={handleCreate}
       />
     </motion.div>

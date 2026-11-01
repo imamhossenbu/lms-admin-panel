@@ -84,7 +84,7 @@ export function ToneBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 whitespace-nowrap shrink-0 transition-colors font-semibold",
+        "inline-flex items-center gap-1.5 whitespace-nowrap shrink-0 transition-colors",
         roundedClass,
         SIZE_CLASS[size] || SIZE_CLASS.md,
         TONE_CLASS[tone] || TONE_CLASS.gray,

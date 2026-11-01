@@ -27,7 +27,7 @@ function StatTile({ icon, iconClassName, value, label, index }: StatTileProps) {
     >
       <span className={cn("w-12 h-12 rounded-xl flex items-center justify-center shrink-0", iconClassName)}>{icon}</span>
       <div className="min-w-0">
-        <p className="heading-h4 font-bold text-primary-500 leading-tight tabular-nums">{value.toLocaleString()}</p>
+        <p className="heading-h4 font-bold! text-primary-500 tabular-nums">{value.toLocaleString()}</p>
         <p className="body-sm-regular text-primary-300 truncate">{label}</p>
       </div>
     </motion.div>

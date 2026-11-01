@@ -68,7 +68,7 @@ export function CourseCard({
       label: "Manage Curriculum & Lessons",
       icon: <Layers className="w-4 h-4 text-blue" />,
       onClick: () => onManageCurriculum?.(course),
-      className: "font-bold text-blue bg-blue-50/50",
+      className: "text-blue bg-blue-14",
     },
     {
       label: "View Syllabus & Details",
@@ -82,9 +82,9 @@ export function CourseCard({
     },
     {
       label: "Archive Course",
-      icon: <Trash2 className="w-4 h-4 text-rose-500" />,
+      icon: <Trash2 className="w-4 h-4 text-red" />,
       onClick: () => onDelete?.(course.id),
-      className: "text-rose-600 hover:bg-rose-50",
+      className: "text-red hover:bg-red-14",
     },
   ];
 
@@ -96,7 +96,7 @@ export function CourseCard({
     >
       <div>
         {/* ================= 1. 16:9 BANNER IMAGE (Coursera & Udemy Style) ================= */}
-        <div className="relative aspect-video w-full bg-slate-900 overflow-hidden">
+        <div className="relative aspect-video w-full bg-primary-500 overflow-hidden">
           <Image
             src={bannerImage}
             alt={course.title}
@@ -121,7 +121,7 @@ export function CourseCard({
             <TagBadge
               tag={course.category?.name || "General"}
               bgColor="bg-white/95 backdrop-blur-md shadow-xs"
-              textColor="text-primary-500 font-semibold"
+              textColor="text-primary-500"
             />
           </div>
 
@@ -146,14 +146,14 @@ export function CourseCard({
 
           {/* Bottom Floating Info Pills */}
           <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between text-white">
-            <span className="body-xsm-medium bg-black/50 backdrop-blur-md px-2 py-0.5 rounded text-sky-200 flex items-center gap-1">
+            <span className="body-xsm-medium bg-black/50 backdrop-blur-md px-2 py-0.5 rounded text-white/85 flex items-center gap-1">
               <PlayCircle className="w-3.5 h-3.5" />
               <span>{course.level || "Intermediate"}</span>
             </span>
 
             <ToneBadge
               tone={course.status === "PUBLISHED" ? "green" : "orange"}
-              className="body-xsm-medium uppercase tracking-wider bg-white/90 shadow-2xs font-bold"
+              className="body-xsm-medium uppercase tracking-wider bg-white/90 shadow-2xs"
             >
               {course.status}
             </ToneBadge>
@@ -163,7 +163,7 @@ export function CourseCard({
         {/* ================= 2. COURSE CONTENT BODY ================= */}
         <div className="p-4 space-y-3">
           {/* Title */}
-          <h3 className="body-medium text-primary-500 font-semibold leading-snug line-clamp-2 group-hover:text-blue transition-colors">
+          <h3 className="body-medium text-primary-500 line-clamp-2 group-hover:text-blue transition-colors">
             {course.title}
           </h3>
 
@@ -178,8 +178,8 @@ export function CourseCard({
           {/* Ratings & Enrolled Learners */}
           <div className="flex items-center justify-between pt-1 body-xsm-regular subtext-500">
             <div className="flex items-center gap-1">
-              <span className="flex items-center gap-0.5 text-amber-600 font-bold body-sm-medium">
-                <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+              <span className="flex items-center gap-0.5 text-yellow body-sm-medium">
+                <Star className="w-3.5 h-3.5 fill-yellow text-yellow" />
                 <span>{course.ratingAverage > 0 ? course.ratingAverage : "5.0"}</span>
               </span>
               <span className="text-primary-300">•</span>
@@ -189,7 +189,7 @@ export function CourseCard({
               </span>
             </div>
 
-            <span className="flex items-center gap-1 text-blue body-xsm-medium font-semibold group-hover:translate-x-0.5 transition-transform">
+            <span className="flex items-center gap-1 text-blue body-xsm-medium group-hover:translate-x-0.5 transition-transform">
               <span>Syllabus</span>
               <ArrowRight className="w-3 h-3" />
             </span>
@@ -206,11 +206,11 @@ export function CourseCard({
 
         <div className="text-right">
           {course.isFree ? (
-            <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-green-bg text-green body-sm-medium font-bold">
+            <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-green-bg text-green body-sm-medium">
               FREE
             </span>
           ) : (
-            <span className="h6-medium text-primary-500 font-bold">
+            <span className="h6-medium text-primary-500">
               ${course.price}
             </span>
           )}

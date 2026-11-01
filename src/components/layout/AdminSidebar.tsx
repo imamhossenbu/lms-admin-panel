@@ -131,10 +131,10 @@ export function AdminSidebar() {
                   <EduProCapIcon className="w-6 h-6 text-brand-orange" />
                 </div>
                 <div className="flex flex-col text-left">
-                  <span className="body-medium font-extrabold text-primary-500 tracking-tight leading-none">
+                  <span className="body-medium text-primary-500 tracking-tight">
                     EduPro
                   </span>
-                  <span className="body-2xsm-regular text-primary-300 mt-0.5 leading-none">
+                  <span className="body-2xsm-regular text-primary-300 mt-0.5">
                     LMS Admin Panel
                   </span>
                 </div>
@@ -177,7 +177,7 @@ export function AdminSidebar() {
                       className={cn(
                         "flex items-center gap-3 px-3 py-2 rounded-xl transition-all group",
                         isActive
-                          ? "bg-brand-orange-light text-brand-orange font-semibold border-l-4 border-brand-orange rounded-l-none"
+                          ? "bg-brand-orange-light text-brand-orange border-l-4 border-brand-orange rounded-l-none"
                           : "text-primary-400 hover:bg-slate-50 hover:text-primary-500",
                         collapsed && "justify-center px-0 w-11 h-10 mx-auto"
                       )}

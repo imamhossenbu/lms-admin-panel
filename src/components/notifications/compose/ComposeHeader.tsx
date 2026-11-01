@@ -30,7 +30,7 @@ export function ComposeHeader({ mode, broadcastId, broadcastTitle, busy, onSaveD
   return (
     <PageHeader
       breadcrumbs={composeBreadcrumbs(mode, broadcastId, broadcastTitle)}
-      title={<span className="heading-h3 font-bold! text-primary-500 tracking-tight">{mode === "create" ? "New Broadcast" : "Edit Broadcast"}</span>}
+      title={<span className="heading-h3 font-bold! text-primary-500">{mode === "create" ? "New Broadcast" : "Edit Broadcast"}</span>}
       subtitle={mode === "create" ? "Send an announcement to students or instructors across In-app, Email and Push." : "Update this broadcast before it goes out."}
     >
       <div className="flex flex-wrap items-center gap-3">

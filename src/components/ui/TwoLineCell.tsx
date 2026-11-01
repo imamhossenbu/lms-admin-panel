@@ -9,14 +9,14 @@ export function TwoLineCell({ title, sub }: TwoLineCellProps) {
   return (
     <div className="min-w-0">
       <p
-        className="body-sm-medium truncate text-primary-500 font-semibold"
+        className="body-sm-medium truncate text-primary-500"
         title={title}
       >
         {title}
       </p>
       {sub && (
         <p
-          className="body-xsm-regular subtext-500 truncate !leading-tight mt-0.5"
+          className="body-xsm-regular subtext-500 truncate mt-0.5"
           title={sub}
         >
           {sub}

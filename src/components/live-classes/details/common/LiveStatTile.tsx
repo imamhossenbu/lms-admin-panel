@@ -45,7 +45,7 @@ export function LiveStatTile({ icon, tone, value, label, percent, index = 0, com
     >
       <span className={cn("flex shrink-0 items-center justify-center rounded-xl", compact ? "h-11 w-11" : "h-13 w-13", TILE[tone])}>{icon}</span>
       <div className="min-w-0 flex-1">
-        <p className={cn("font-bold! text-primary-500 leading-tight", compact ? "body-l-medium" : "heading-h5")}>{value}</p>
+        <p className={cn("font-bold! text-primary-500", compact ? "body-l-medium" : "heading-h5")}>{value}</p>
         <p className="body-sm-regular text-primary-300 truncate">{label}</p>
         {percent && <p className={cn("body-xsm-medium font-semibold! @3xs:hidden", PCT[tone])}>{percent}</p>}
       </div>

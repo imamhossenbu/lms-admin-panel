@@ -50,7 +50,7 @@ export function BasicInformationCard({
           onClick={onGenerateAi}
           whileHover={{ y: -1 }}
           whileTap={{ scale: 0.97 }}
-          className="inline-flex items-center gap-2 h-10 px-4 rounded-lg border border-purple/30 bg-purple-14 text-purple body-sm-medium font-semibold whitespace-nowrap hover:border-purple transition-colors cursor-pointer"
+          className="inline-flex items-center gap-2 h-10 px-4 rounded-lg border border-purple/30 bg-purple-14 text-purple body-sm-medium whitespace-nowrap hover:border-purple transition-colors cursor-pointer"
         >
           <Sparkles className="w-4 h-4" />
           Generate with AI

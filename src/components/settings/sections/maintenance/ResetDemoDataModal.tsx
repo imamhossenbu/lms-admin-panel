@@ -83,7 +83,7 @@ export function ResetDemoDataModal({ isOpen, onClose }: ResetDemoDataModalProps)
           }}
         >
           <label htmlFor={id} className="mb-2 block body-sm-medium text-primary-500">
-            Type <span className="font-semibold text-red">{PHRASE}</span> to confirm
+            Type <span className="body-sm-medium font-semibold! text-red">{PHRASE}</span> to confirm
           </label>
           <InputField
             id={id}

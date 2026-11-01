@@ -15,7 +15,7 @@ export function StudentGrowthChart({ data }: { data: StudentGrowthPoint[] }) {
       {/* Header with Title and Legend */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
         <div className="text-left">
-          <h3 className="heading-h5 font-bold text-primary-500">Student Growth</h3>
+          <h3 className="heading-h5 text-primary-500">Student Growth</h3>
           <p className="body-sm-regular text-primary-300 mt-0.5">New students vs active students</p>
         </div>
 
@@ -56,12 +56,12 @@ export function StudentGrowthChart({ data }: { data: StudentGrowthPoint[] }) {
                         <p className="flex items-center gap-1.5">
                           <span className="w-2 h-2 rounded-full bg-brand-orange" />
                           <span>New Students:</span>
-                          <span className="font-bold ml-auto pl-3">{formatNumber(item.newStudents)}</span>
+                          <span className="body-xsm-medium font-bold! ml-auto pl-3">{formatNumber(item.newStudents)}</span>
                         </p>
                         <p className="flex items-center gap-1.5">
                           <span className="w-2 h-2 rounded-full bg-brand-orange/30" />
                           <span>Active Students:</span>
-                          <span className="font-bold ml-auto pl-3">{formatNumber(item.activeStudents)}</span>
+                          <span className="body-xsm-medium font-bold! ml-auto pl-3">{formatNumber(item.activeStudents)}</span>
                         </p>
                       </div>
                     </ChartTooltip>

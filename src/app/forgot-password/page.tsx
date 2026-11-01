@@ -153,7 +153,7 @@ export default function ForgotPasswordPage() {
           <div className="space-y-2">
             <label
               htmlFor="reset-email"
-              className="block body-sm-regular text-primary-500 font-semibold tracking-tight"
+              className="block body-sm-medium text-primary-500 tracking-tight"
             >
               Email Address
             </label>

@@ -29,7 +29,7 @@ const PRINT_ACCENT: Record<CertificateAccent, { main: string; soft: string }> = 
 
 function qrHtml(code: string) {
   const cells = qrMatrix(code)
-    .map((on) => `<i style="background:${on ? "#0F172A" : "#FFFFFF"}"></i>`)
+    .map((on) => (on ? `<i class="on"></i>` : `<i></i>`))
     .join("");
   return `<div class="qr"><div class="qr-grid">${cells}</div><span>${escape(code)}</span></div>`;
 }
@@ -112,7 +112,7 @@ export function buildCertificateHtml({ certificate, template, courseTitle }: Cer
   .signer .line{border-top:1px solid #64748B;margin:4px 0}.signer strong{font-size:14px;color:#0F172A}
   .qr{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:#64748B}
   .qr-grid{display:grid;grid-template-columns:repeat(${QR_SIZE},1fr);gap:1px;width:80px;padding:3px;background:#FFFFFF;border:1px solid #E2E8F0}
-  .qr-grid i{display:block;aspect-ratio:1}
+  .qr-grid i{display:block;aspect-ratio:1;background:#FFFFFF}.qr-grid i.on{background:#0F172A}
   footer{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;width:100%}
   .meta{display:flex;align-items:flex-end;gap:16px;font-size:12px;color:#64748B}.meta strong{color:#0F172A}
   .classic{border:10px double ${accent.main};padding:12px}

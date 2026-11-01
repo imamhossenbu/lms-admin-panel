@@ -29,7 +29,7 @@ export function OrderPaymentInfoCard({ order }: { order: OrderItem }) {
           <PaymentMethodLogo method={order.paymentMethod} size="lg" />
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <p className="title-medium font-bold text-primary-500">{order.paymentMethod}</p>
+              <p className="title-medium text-primary-500">{order.paymentMethod}</p>
               <PaymentStatusBadge status={order.status} size="sm" />
             </div>
             <p className="body-sm-regular text-primary-300 truncate">{order.transactionId || "Not paid yet"}</p>
@@ -54,7 +54,7 @@ export function OrderPaymentInfoCard({ order }: { order: OrderItem }) {
         </div>
         <div className="md:pl-5">
           <Block label="Amount">
-            <p className="heading-h5 font-bold text-primary-500">{formatCurrency(order.amount)}</p>
+            <p className="heading-h5 text-primary-500">{formatCurrency(order.amount)}</p>
             <p className="body-xsm-regular text-primary-300">{order.currency}</p>
           </Block>
         </div>

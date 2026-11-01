@@ -41,7 +41,7 @@ export function CourseDetailsHero({
     <div className="relative rounded-xl overflow-hidden border border-dash bg-primary-500 text-white">
       <div className="grid grid-cols-1 md:grid-cols-12 gap-0">
         {/* Banner Image Preview */}
-        <div className="md:col-span-5 relative min-h-55 md:min-h-full bg-slate-900 overflow-hidden">
+        <div className="md:col-span-5 relative min-h-55 md:min-h-full bg-primary-500 overflow-hidden">
           <Image
             src={fallbackBanner}
             alt={course.title}
@@ -59,11 +59,11 @@ export function CourseDetailsHero({
             <TagBadge
               tag={course.category?.name || "Engineering"}
               bgColor="bg-white/90 backdrop-blur-md"
-              textColor="text-primary-500 font-bold"
+              textColor="text-primary-500"
             />
           </div>
           <div className="absolute bottom-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-white body-xsm-medium">
-            <PlayCircle className="w-3.5 h-3.5 text-sky-300" />
+            <PlayCircle className="w-3.5 h-3.5 text-white/80" />
             <span>{formattedHours} on-demand video</span>
           </div>
         </div>
@@ -75,23 +75,23 @@ export function CourseDetailsHero({
               <ToneBadge
                 tone={course.status === "PUBLISHED" ? "success" : "orange"}
                 size="sm"
-                className="font-bold uppercase tracking-wider"
+                className="uppercase tracking-wider"
               >
                 {course.status}
               </ToneBadge>
-              <span className="body-xsm-medium text-sky-200 bg-white/10 px-2 py-0.5 rounded">
+              <span className="body-xsm-medium text-white/85 bg-white/10 px-2 py-0.5 rounded">
                 {course.level || "Intermediate"}
               </span>
-              <span className="body-xsm-medium text-sky-200 bg-white/10 px-2 py-0.5 rounded flex items-center gap-1">
+              <span className="body-xsm-medium text-white/85 bg-white/10 px-2 py-0.5 rounded flex items-center gap-1">
                 <Globe className="w-3.5 h-3.5" />
                 <span>English</span>
               </span>
             </div>
 
-            <h2 className="title-medium text-white font-bold leading-snug">
+            <h2 className="title-medium text-white">
               {course.title}
             </h2>
-            <p className="body-sm-regular text-slate-300 mt-2 line-clamp-2">
+            <p className="body-sm-regular text-white/75 mt-2 line-clamp-2">
               {course.description ||
                 "Comprehensive professional masterclass designed with modular learning phases, live quizzes, and industry-standard architecture exercises."}
             </p>
@@ -100,28 +100,28 @@ export function CourseDetailsHero({
           {/* Stats Strip */}
           <div className="grid grid-cols-3 gap-2 py-3 border-y border-white/10 text-left">
             <div>
-              <span className="body-xsm-regular text-slate-400 block">
+              <span className="body-xsm-regular text-white/60 block">
                 Enrolled Students
               </span>
-              <span className="body-sm-medium text-white font-bold flex items-center gap-1 mt-0.5">
-                <Users className="w-3.5 h-3.5 text-sky-300" />
+              <span className="body-sm-medium text-white flex items-center gap-1 mt-0.5">
+                <Users className="w-3.5 h-3.5 text-white/80" />
                 {course.totalStudents.toLocaleString()}
               </span>
             </div>
             <div>
-              <span className="body-xsm-regular text-slate-400 block">
+              <span className="body-xsm-regular text-white/60 block">
                 Student Rating
               </span>
-              <span className="body-sm-medium text-amber-300 font-bold flex items-center gap-1 mt-0.5">
-                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+              <span className="body-sm-medium text-yellow flex items-center gap-1 mt-0.5">
+                <Star className="w-3.5 h-3.5 fill-yellow text-yellow" />
                 {course.ratingAverage > 0 ? course.ratingAverage : "5.0"}
               </span>
             </div>
             <div>
-              <span className="body-xsm-regular text-slate-400 block">
+              <span className="body-xsm-regular text-white/60 block">
                 Catalog Price
               </span>
-              <span className="body-sm-medium text-emerald-300 font-bold mt-0.5 block">
+              <span className="body-sm-medium text-green mt-0.5 block">
                 {course.isFree ? "Free Access" : `$${course.price}`}
               </span>
             </div>
@@ -132,10 +132,10 @@ export function CourseDetailsHero({
             <div className="flex items-center gap-2.5">
               <Avatar name={course.instructorName || "Faculty"} size="sm" />
               <div>
-                <span className="body-sm-medium text-white font-semibold block leading-tight">
+                <span className="body-sm-medium text-white block">
                   {course.instructorName || "Lead Technical Faculty"}
                 </span>
-                <span className="body-xsm-regular text-slate-400">
+                <span className="body-xsm-regular text-white/60">
                   Verified Instructor
                 </span>
               </div>
@@ -150,7 +150,7 @@ export function CourseDetailsHero({
                     onClose?.();
                     onEditCourse(course);
                   }}
-                  className="bg-white text-primary-500 hover:bg-slate-100 font-bold border-none"
+                  className="bg-white text-primary-500 hover:bg-slate-100 border-none"
                 >
                   Edit Course in Studio
                 </PrimaryButton>

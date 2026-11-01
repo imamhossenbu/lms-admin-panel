@@ -37,7 +37,7 @@ export function ScheduleCalendar({ view, anchor, today, events, onViewChange, on
     <div className="space-y-4">
       <div className="rounded-xl border border-dash bg-white overflow-hidden">
         <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3.5 border-b border-dash">
-          <h3 className="title-medium font-bold text-primary-500">{getRangeLabel(anchor, view)}</h3>
+          <h3 className="title-medium text-primary-500">{getRangeLabel(anchor, view)}</h3>
           <SegmentedControl<CalendarView>
             value={view}
             onChange={onViewChange}

@@ -17,7 +17,7 @@ export function OrdersHeader({ onExportCsv, onExportJson, onCreateOrder }: Order
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-left">
       <div>
         <Breadcrumb items={[{ label: "Orders" }]} className="mb-1.5" />
-        <h1 className="heading-h3 font-bold text-primary-500 tracking-tight">Orders</h1>
+        <h1 className="heading-h3 text-primary-500 tracking-tight">Orders</h1>
         <p className="body-sm-regular text-primary-400 mt-1">View and manage all course purchases and orders.</p>
       </div>
       <div className="flex items-center gap-3 shrink-0">

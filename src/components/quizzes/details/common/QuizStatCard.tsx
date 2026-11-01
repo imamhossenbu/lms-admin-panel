@@ -51,7 +51,7 @@ export function QuizStatCard({ icon: Icon, tone, label, value, trend = null, cap
         </span>
         <div className="min-w-0 flex-1">
           <p className="body-sm-regular text-primary-300">{label}</p>
-          <p className="mt-0.5 heading-h4 font-bold! text-primary-500 leading-tight whitespace-nowrap">{value}</p>
+          <p className="mt-0.5 heading-h4 font-bold! text-primary-500 whitespace-nowrap">{value}</p>
           {(trend !== null || caption) && (
             <div className="mt-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-1">
               <TrendPill value={trend} />

@@ -27,7 +27,7 @@ export function LiveClassFormHeader({ mode, classId, classTitle, isSubmitting, d
   return (
     <PageHeader
       breadcrumbs={breadcrumbs}
-      title={<span className="heading-h3 font-bold! text-primary-500 tracking-tight">{mode === "create" ? "Schedule Live Class" : "Edit Live Class"}</span>}
+      title={<span className="heading-h3 font-bold! text-primary-500">{mode === "create" ? "Schedule Live Class" : "Edit Live Class"}</span>}
       subtitle={mode === "create" ? "Create a new live class session for your course." : "Update the details, schedule and settings of this live class."}
     >
       <LiveFormSubmitButton mode={mode} isSubmitting={isSubmitting} disabled={disabled} />

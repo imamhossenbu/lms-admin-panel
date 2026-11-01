@@ -63,7 +63,7 @@ export function QuickCategoryAdd({
 
       toast.success("Category Created!", {
         description: `"${newOption.name}" has been created and selected.`,
-        icon: <CheckCircle2 className="w-5 h-5 text-emerald-500" />,
+        icon: <CheckCircle2 className="w-5 h-5 text-green" />,
       });
     } catch (err: any) {
       console.warn("Category quick create fallback:", err);
@@ -85,7 +85,7 @@ export function QuickCategoryAdd({
   return (
     <div className="p-3.5 rounded-xl bg-brand-orange-soft border border-brand-orange/20 space-y-3 animate-in fade-in duration-200">
       <div className="flex items-center justify-between">
-        <span className="body-xs-medium text-brand-orange font-bold flex items-center gap-1.5">
+        <span className="body-xs-medium text-brand-orange flex items-center gap-1.5">
           <FolderPlus className="w-3.5 h-3.5" />
           <span>Quick Create New Category</span>
         </span>

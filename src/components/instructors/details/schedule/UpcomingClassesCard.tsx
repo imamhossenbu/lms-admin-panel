@@ -21,7 +21,7 @@ export function UpcomingClassesCard({ events, instructorEmail, onViewOnCalendar,
   return (
     <div className="rounded-xl border border-dash bg-white">
       <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-dash">
-        <h3 className="title-medium font-bold text-primary-500">Upcoming Classes ({events.length})</h3>
+        <h3 className="title-medium text-primary-500">Upcoming Classes ({events.length})</h3>
         {events.length > COLLAPSED_COUNT && (
           <button
             type="button"

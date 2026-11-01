@@ -60,7 +60,7 @@ export function CategoryToolbar({
           onClick={() => onViewModeChange("table")}
           className={`h-full flex items-center gap-1.5 px-3 rounded-md body-sm-medium transition-all cursor-pointer ${
             viewMode === "table"
-              ? "bg-white text-primary-500 font-semibold shadow-2xs border border-dash"
+              ? "bg-white text-primary-500 shadow-2xs border border-dash"
               : "text-primary-400 hover:text-primary-500"
           }`}
           title="Table View"
@@ -74,7 +74,7 @@ export function CategoryToolbar({
           onClick={() => onViewModeChange("grid")}
           className={`h-full flex items-center gap-1.5 px-3 rounded-md body-sm-medium transition-all cursor-pointer ${
             viewMode === "grid"
-              ? "bg-white text-primary-500 font-semibold shadow-2xs border border-dash"
+              ? "bg-white text-primary-500 shadow-2xs border border-dash"
               : "text-primary-400 hover:text-primary-500"
           }`}
           title="Grid View"

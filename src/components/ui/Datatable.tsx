@@ -114,7 +114,7 @@ export function DataTable<T extends Record<string, any>>({
               <th className="py-3.5 px-4 w-10 border-r border-dash">
                 <input
                   type="checkbox"
-                  className="rounded border-gray-300 text-blue focus:ring-blue"
+                  className="rounded border-slate-300 text-blue focus:ring-blue"
                   checked={allSelected}
                   onChange={(e) => onSelectAll?.(e.target.checked)}
                 />
@@ -187,7 +187,7 @@ export function DataTable<T extends Record<string, any>>({
                           handleHeaderClick();
                         }}
                         className={cn(
-                          "p-0.5 rounded transition-colors hover:bg-gray-200 cursor-pointer focus:outline-none",
+                          "p-0.5 rounded transition-colors hover:bg-slate-200 cursor-pointer focus:outline-none",
                           col.filter?.selectedValue || col.sortDirection
                             ? "text-primary-500"
                             : "subtext-500"
@@ -266,9 +266,9 @@ export function DataTable<T extends Record<string, any>>({
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.22, ease: "easeOut", delay: Math.min(rowIndex, 12) * 0.025 }}
                     className={cn(
-                      "border-b border-dash transition-colors hover:bg-gray-50/50",
+                      "border-b border-dash transition-colors hover:bg-slate-50/50",
                       onRowClick && "cursor-pointer",
-                      isSelected && "bg-orange-50/30"
+                      isSelected && "bg-brand-orange-light/30"
                     )}
                     onClick={() => onRowClick?.(row)}
                   >
@@ -279,7 +279,7 @@ export function DataTable<T extends Record<string, any>>({
                       >
                         <input
                           type="checkbox"
-                          className="rounded border-gray-300 text-blue focus:ring-blue"
+                          className="rounded border-slate-300 text-blue focus:ring-blue"
                           checked={isSelected}
                           onChange={(e) => onSelectRow?.(key, e.target.checked)}
                         />

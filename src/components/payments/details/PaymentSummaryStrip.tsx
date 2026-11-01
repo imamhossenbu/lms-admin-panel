@@ -18,7 +18,7 @@ export function PaymentSummaryStrip({ order }: { order: OrderItem }) {
           label: "Transaction ID",
           content: (
             <>
-              <p className="heading-h4 font-bold text-primary-500">{transactionCode(order)}</p>
+              <p className="heading-h4 text-primary-500">{transactionCode(order)}</p>
               <div className="flex items-center gap-1">
                 <p className="body-sm-regular text-primary-300 truncate">{order.transactionId || transactionHash(order)}</p>
                 <CopyButton value={order.transactionId || transactionHash(order)} label="Gateway reference copied" />
@@ -54,7 +54,7 @@ export function PaymentSummaryStrip({ order }: { order: OrderItem }) {
           label: "Amount",
           content: (
             <>
-              <p className="heading-h4 font-bold text-primary-500">{formatCurrency(order.amount)}</p>
+              <p className="heading-h4 text-primary-500">{formatCurrency(order.amount)}</p>
               <p className="body-sm-regular text-primary-300">{order.currency}</p>
             </>
           ),

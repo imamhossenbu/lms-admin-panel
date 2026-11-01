@@ -77,7 +77,7 @@ export function OutlineModuleItem({
         className="flex cursor-pointer items-center gap-3 px-3 py-3 transition-colors hover:bg-slate-50"
       >
         <OutlineDragHandle controls={controls} label={`Reorder ${module.title}`} disabled={disabled} />
-        <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-orange-light body-medium font-semibold text-brand-orange">
+        <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-orange-light body-medium text-brand-orange">
           {index + 1}
         </span>
 

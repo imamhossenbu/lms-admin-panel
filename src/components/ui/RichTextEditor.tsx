@@ -56,7 +56,7 @@ export function RichTextEditor({
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
-          class: "text-blue underline font-medium hover:text-blue-800",
+          class: "body-sm-medium text-blue underline hover:opacity-80",
         },
       }),
       Placeholder.configure({
@@ -70,7 +70,7 @@ export function RichTextEditor({
     },
     editorProps: {
       attributes: {
-        class: `focus:outline-none p-3.5 text-primary-500 body-sm-regular prose prose-sm max-w-none leading-relaxed min-h-[${minHeight}]`,
+        class: `focus:outline-none p-3.5 text-primary-500 body-sm-regular prose prose-sm max-w-none min-h-[${minHeight}]`,
       },
     },
   });
@@ -151,8 +151,8 @@ export function RichTextEditor({
               }
               className={`p-1.5 rounded-md transition-colors cursor-pointer ${
                 editor.isActive("heading", { level: 1 })
-                  ? "bg-white text-blue font-bold shadow-2xs"
-                  : "text-primary-400 hover:text-primary-500 hover:bg-gray-200/60"
+                  ? "bg-white text-blue shadow-2xs"
+                  : "text-primary-400 hover:text-primary-500 hover:bg-slate-200/60"
               }`}
               title="Heading 1"
             >
@@ -165,8 +165,8 @@ export function RichTextEditor({
               }
               className={`p-1.5 rounded-md transition-colors cursor-pointer ${
                 editor.isActive("heading", { level: 2 })
-                  ? "bg-white text-blue font-bold shadow-2xs"
-                  : "text-primary-400 hover:text-primary-500 hover:bg-gray-200/60"
+                  ? "bg-white text-blue shadow-2xs"
+                  : "text-primary-400 hover:text-primary-500 hover:bg-slate-200/60"
               }`}
               title="Heading 2"
             >
@@ -179,8 +179,8 @@ export function RichTextEditor({
               }
               className={`p-1.5 rounded-md transition-colors cursor-pointer ${
                 editor.isActive("heading", { level: 3 })
-                  ? "bg-white text-blue font-bold shadow-2xs"
-                  : "text-primary-400 hover:text-primary-500 hover:bg-gray-200/60"
+                  ? "bg-white text-blue shadow-2xs"
+                  : "text-primary-400 hover:text-primary-500 hover:bg-slate-200/60"
               }`}
               title="Heading 3"
             >
@@ -196,8 +196,8 @@ export function RichTextEditor({
               disabled={!editor.can().chain().focus().toggleBold().run()}
               className={`p-1.5 rounded-md transition-colors cursor-pointer ${
                 editor.isActive("bold")
-                  ? "bg-white text-blue font-bold shadow-2xs"
-                  : "text-primary-400 hover:text-primary-500 hover:bg-gray-200/60"
+                  ? "bg-white text-blue shadow-2xs"
+                  : "text-primary-400 hover:text-primary-500 hover:bg-slate-200/60"
               }`}
               title="Bold (Ctrl+B)"
             >
@@ -209,8 +209,8 @@ export function RichTextEditor({
               disabled={!editor.can().chain().focus().toggleItalic().run()}
               className={`p-1.5 rounded-md transition-colors cursor-pointer ${
                 editor.isActive("italic")
-                  ? "bg-white text-blue font-bold shadow-2xs"
-                  : "text-primary-400 hover:text-primary-500 hover:bg-gray-200/60"
+                  ? "bg-white text-blue shadow-2xs"
+                  : "text-primary-400 hover:text-primary-500 hover:bg-slate-200/60"
               }`}
               title="Italic (Ctrl+I)"
             >
@@ -221,8 +221,8 @@ export function RichTextEditor({
               onClick={() => editor.chain().focus().toggleUnderline().run()}
               className={`p-1.5 rounded-md transition-colors cursor-pointer ${
                 editor.isActive("underline")
-                  ? "bg-white text-blue font-bold shadow-2xs"
-                  : "text-primary-400 hover:text-primary-500 hover:bg-gray-200/60"
+                  ? "bg-white text-blue shadow-2xs"
+                  : "text-primary-400 hover:text-primary-500 hover:bg-slate-200/60"
               }`}
               title="Underline (Ctrl+U)"
             >
@@ -234,8 +234,8 @@ export function RichTextEditor({
               disabled={!editor.can().chain().focus().toggleStrike().run()}
               className={`p-1.5 rounded-md transition-colors cursor-pointer ${
                 editor.isActive("strike")
-                  ? "bg-white text-blue font-bold shadow-2xs"
-                  : "text-primary-400 hover:text-primary-500 hover:bg-gray-200/60"
+                  ? "bg-white text-blue shadow-2xs"
+                  : "text-primary-400 hover:text-primary-500 hover:bg-slate-200/60"
               }`}
               title="Strikethrough"
             >
@@ -247,8 +247,8 @@ export function RichTextEditor({
               disabled={!editor.can().chain().focus().toggleCode().run()}
               className={`p-1.5 rounded-md transition-colors cursor-pointer ${
                 editor.isActive("code")
-                  ? "bg-white text-blue font-bold shadow-2xs"
-                  : "text-primary-400 hover:text-primary-500 hover:bg-gray-200/60"
+                  ? "bg-white text-blue shadow-2xs"
+                  : "text-primary-400 hover:text-primary-500 hover:bg-slate-200/60"
               }`}
               title="Inline Code"
             >
@@ -263,8 +263,8 @@ export function RichTextEditor({
               onClick={() => editor.chain().focus().toggleBulletList().run()}
               className={`p-1.5 rounded-md transition-colors cursor-pointer ${
                 editor.isActive("bulletList")
-                  ? "bg-white text-blue font-bold shadow-2xs"
-                  : "text-primary-400 hover:text-primary-500 hover:bg-gray-200/60"
+                  ? "bg-white text-blue shadow-2xs"
+                  : "text-primary-400 hover:text-primary-500 hover:bg-slate-200/60"
               }`}
               title="Bullet List"
             >
@@ -275,8 +275,8 @@ export function RichTextEditor({
               onClick={() => editor.chain().focus().toggleOrderedList().run()}
               className={`p-1.5 rounded-md transition-colors cursor-pointer ${
                 editor.isActive("orderedList")
-                  ? "bg-white text-blue font-bold shadow-2xs"
-                  : "text-primary-400 hover:text-primary-500 hover:bg-gray-200/60"
+                  ? "bg-white text-blue shadow-2xs"
+                  : "text-primary-400 hover:text-primary-500 hover:bg-slate-200/60"
               }`}
               title="Numbered List"
             >
@@ -287,8 +287,8 @@ export function RichTextEditor({
               onClick={() => editor.chain().focus().toggleBlockquote().run()}
               className={`p-1.5 rounded-md transition-colors cursor-pointer ${
                 editor.isActive("blockquote")
-                  ? "bg-white text-blue font-bold shadow-2xs"
-                  : "text-primary-400 hover:text-primary-500 hover:bg-gray-200/60"
+                  ? "bg-white text-blue shadow-2xs"
+                  : "text-primary-400 hover:text-primary-500 hover:bg-slate-200/60"
               }`}
               title="Blockquote"
             >
@@ -299,8 +299,8 @@ export function RichTextEditor({
               onClick={() => editor.chain().focus().toggleCodeBlock().run()}
               className={`p-1.5 rounded-md transition-colors cursor-pointer ${
                 editor.isActive("codeBlock")
-                  ? "bg-white text-blue font-bold shadow-2xs"
-                  : "text-primary-400 hover:text-primary-500 hover:bg-gray-200/60"
+                  ? "bg-white text-blue shadow-2xs"
+                  : "text-primary-400 hover:text-primary-500 hover:bg-slate-200/60"
               }`}
               title="Code Block"
             >
@@ -309,7 +309,7 @@ export function RichTextEditor({
             <button
               type="button"
               onClick={() => editor.chain().focus().setHorizontalRule().run()}
-              className="p-1.5 rounded-md text-primary-400 hover:text-primary-500 hover:bg-gray-200/60 transition-colors cursor-pointer"
+              className="p-1.5 rounded-md text-primary-400 hover:text-primary-500 hover:bg-slate-200/60 transition-colors cursor-pointer"
               title="Horizontal Divider"
             >
               <Minus className="w-3.5 h-3.5" />
@@ -323,8 +323,8 @@ export function RichTextEditor({
               onClick={setLink}
               className={`p-1.5 rounded-md transition-colors cursor-pointer ${
                 editor.isActive("link")
-                  ? "bg-white text-blue font-bold shadow-2xs"
-                  : "text-primary-400 hover:text-primary-500 hover:bg-gray-200/60"
+                  ? "bg-white text-blue shadow-2xs"
+                  : "text-primary-400 hover:text-primary-500 hover:bg-slate-200/60"
               }`}
               title="Add Link"
             >
@@ -334,7 +334,7 @@ export function RichTextEditor({
               <button
                 type="button"
                 onClick={() => editor.chain().focus().unsetLink().run()}
-                className="p-1.5 rounded-md text-rose-500 hover:bg-rose-50 transition-colors cursor-pointer"
+                className="p-1.5 rounded-md text-red hover:bg-red-14 transition-colors cursor-pointer"
                 title="Remove Link"
               >
                 <Unlink className="w-3.5 h-3.5" />
@@ -348,7 +348,7 @@ export function RichTextEditor({
               type="button"
               onClick={() => editor.chain().focus().undo().run()}
               disabled={!editor.can().chain().focus().undo().run()}
-              className="p-1.5 rounded-md text-primary-400 hover:text-primary-500 hover:bg-gray-200/60 disabled:opacity-40 transition-colors cursor-pointer"
+              className="p-1.5 rounded-md text-primary-400 hover:text-primary-500 hover:bg-slate-200/60 disabled:opacity-40 transition-colors cursor-pointer"
               title="Undo (Ctrl+Z)"
             >
               <Undo className="w-3.5 h-3.5" />
@@ -357,7 +357,7 @@ export function RichTextEditor({
               type="button"
               onClick={() => editor.chain().focus().redo().run()}
               disabled={!editor.can().chain().focus().redo().run()}
-              className="p-1.5 rounded-md text-primary-400 hover:text-primary-500 hover:bg-gray-200/60 disabled:opacity-40 transition-colors cursor-pointer"
+              className="p-1.5 rounded-md text-primary-400 hover:text-primary-500 hover:bg-slate-200/60 disabled:opacity-40 transition-colors cursor-pointer"
               title="Redo (Ctrl+Y)"
             >
               <Redo className="w-3.5 h-3.5" />
@@ -373,7 +373,7 @@ export function RichTextEditor({
         {/* Word Counter & Format Indicator Footer */}
         <div className="px-3 py-1.5 bg-gray-bg border-t border-dash flex items-center justify-between body-2xsm-regular text-primary-400 select-none">
           <span className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
+            <span className="w-1.5 h-1.5 rounded-full bg-green inline-block" />
             TipTap Rich Text Engine Active
           </span>
           <span>

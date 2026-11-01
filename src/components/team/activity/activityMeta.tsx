@@ -1,5 +1,5 @@
 import React from "react";
-import { Ban, KeyRound, MailPlus, MailX, RotateCcw, Send, ShieldCheck, ShieldPlus, ShieldX, UserCheck, UserCog, UserMinus } from "lucide-react";
+import { Ban, History, KeyRound, KeySquare, MailPlus, MailX, RotateCcw, Send, ShieldCheck, ShieldMinus, ShieldPlus, ShieldX, UserCheck, UserCog, UserMinus } from "lucide-react";
 import type { TeamEvent, TeamEventType } from "@/types/team";
 
 export type ActivityGroup = "invitations" | "access" | "roles" | "security";
@@ -25,8 +25,11 @@ export const EVENT_META: Record<TeamEventType, { icon: React.ReactNode; tile: st
   TWO_FA_ENABLED: { icon: <ShieldCheck className="h-4 w-4" />, tile: "bg-green-bg text-green", verb: "turned on two-factor authentication", group: "security" },
   TWO_FA_RESET: { icon: <KeyRound className="h-4 w-4" />, tile: "bg-yellow-bg text-yellow", verb: "reset two-factor authentication for", group: "security" },
   ROLE_CREATED: { icon: <ShieldPlus className="h-4 w-4" />, tile: "bg-brand-orange-light text-brand-orange", verb: "created the role", group: "roles" },
-  ROLE_UPDATED: { icon: <ShieldCheck className="h-4 w-4" />, tile: "bg-brand-orange-light text-brand-orange", verb: "edited permissions of", group: "roles" },
+  ROLE_UPDATED: { icon: <ShieldCheck className="h-4 w-4" />, tile: "bg-brand-orange-light text-brand-orange", verb: "updated the permissions of", group: "roles" },
+  ROLE_RESET: { icon: <History className="h-4 w-4" />, tile: "bg-yellow-bg text-yellow", verb: "restored the default permissions of", group: "roles" },
   ROLE_DELETED: { icon: <ShieldX className="h-4 w-4" />, tile: "bg-red-14 text-red", verb: "deleted the role", group: "roles" },
+  EXTRA_PERMISSIONS_GRANTED: { icon: <KeySquare className="h-4 w-4" />, tile: "bg-blue-14 text-blue", verb: "granted extra permissions to", group: "access" },
+  EXTRA_PERMISSIONS_REMOVED: { icon: <ShieldMinus className="h-4 w-4" />, tile: "bg-gray-bg text-primary-400", verb: "removed extra permissions from", group: "access" },
 };
 
 /** Self events ("Jahid Hasan joined the team") have no separate target. */

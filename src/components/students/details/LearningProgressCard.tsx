@@ -26,7 +26,7 @@ export function LearningProgressCard({ student }: LearningProgressCardProps) {
           <div className="w-10 h-10 rounded-lg bg-blue-14 text-blue flex items-center justify-center shrink-0">
             <TrendingUp className="w-5 h-5" />
           </div>
-          <h2 className="title-medium font-bold text-primary-500">
+          <h2 className="title-medium text-primary-500">
             Learning Progress
           </h2>
         </div>
@@ -55,7 +55,7 @@ export function LearningProgressCard({ student }: LearningProgressCardProps) {
                 cx="65"
                 cy="65"
                 r={radius}
-                className="text-slate-100"
+                className="text-gray-bg"
                 strokeWidth="11"
                 stroke="currentColor"
                 fill="transparent"
@@ -75,7 +75,7 @@ export function LearningProgressCard({ student }: LearningProgressCardProps) {
               />
             </svg>
             <div className="absolute flex flex-col items-center justify-center text-center">
-              <span className="heading-h3 font-bold text-primary-500 tracking-tight leading-none">
+              <span className="heading-h3 text-primary-500 tracking-tight">
                 {overallProgress}%
               </span>
               <span className="body-2xsm-regular text-primary-300 mt-1">
@@ -100,7 +100,7 @@ export function LearningProgressCard({ student }: LearningProgressCardProps) {
                 <span className="text-primary-300">
                   {learningMetrics.completedLessons.current} / {learningMetrics.completedLessons.total}
                 </span>
-                <span className="font-semibold text-primary-500 w-8 text-right">
+                <span className="body-xsm-medium font-semibold! text-primary-500 w-8 text-right">
                   {learningMetrics.completedLessons.percentage}%
                 </span>
               </div>
@@ -126,7 +126,7 @@ export function LearningProgressCard({ student }: LearningProgressCardProps) {
                 <span className="text-primary-300">
                   {learningMetrics.quizzesPassed.current} / {learningMetrics.quizzesPassed.total}
                 </span>
-                <span className="font-semibold text-primary-500 w-8 text-right">
+                <span className="body-xsm-medium font-semibold! text-primary-500 w-8 text-right">
                   {learningMetrics.quizzesPassed.percentage}%
                 </span>
               </div>
@@ -152,7 +152,7 @@ export function LearningProgressCard({ student }: LearningProgressCardProps) {
                 <span className="text-primary-300">
                   {learningMetrics.assignmentsSubmitted.current} / {learningMetrics.assignmentsSubmitted.total}
                 </span>
-                <span className="font-semibold text-primary-500 w-8 text-right">
+                <span className="body-xsm-medium font-semibold! text-primary-500 w-8 text-right">
                   {learningMetrics.assignmentsSubmitted.percentage}%
                 </span>
               </div>
@@ -178,7 +178,7 @@ export function LearningProgressCard({ student }: LearningProgressCardProps) {
                 <span className="text-primary-300">
                   {learningMetrics.certificatesEarned.current} / {learningMetrics.certificatesEarned.total}
                 </span>
-                <span className="font-semibold text-primary-500 w-8 text-right">
+                <span className="body-xsm-medium font-semibold! text-primary-500 w-8 text-right">
                   {learningMetrics.certificatesEarned.percentage}%
                 </span>
               </div>

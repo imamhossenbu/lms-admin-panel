@@ -58,11 +58,11 @@ export function CurriculumModuleItem(props: CurriculumModuleItemProps) {
         )}
       >
         <OutlineDragHandle controls={controls} label={`Reorder ${module.title}`} />
-        <span className="w-9 h-9 rounded-full bg-brand-orange-light text-brand-orange body-medium font-bold flex items-center justify-center shrink-0 ring-1 ring-brand-orange/20">
+        <span className="w-9 h-9 rounded-full bg-brand-orange-light text-brand-orange body-medium flex items-center justify-center shrink-0 ring-1 ring-brand-orange/20">
           {index + 1}
         </span>
         <button type="button" onClick={props.onToggle} className="flex-1 min-w-0 flex items-center gap-2 text-left cursor-pointer">
-          <span className="body-medium font-semibold text-primary-500 truncate">{module.title}</span>
+          <span className="body-medium text-primary-500 truncate">{module.title}</span>
         </button>
         <button
           type="button"

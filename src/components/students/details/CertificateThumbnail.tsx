@@ -16,46 +16,46 @@ export function CertificateThumbnail({
     if (!isEarned) {
       return {
         border: "border-slate-300",
-        innerBorder: "border-slate-200",
+        innerBorder: "border-dash",
         bg: "bg-slate-50",
-        seal: "text-slate-400 bg-slate-200",
-        text: "text-slate-400",
+        seal: "text-primary-300 bg-slate-200",
+        text: "text-primary-300",
       };
     }
 
     switch (accentColor) {
       case "amber":
         return {
-          border: "border-amber-400/80",
-          innerBorder: "border-amber-300/60",
-          bg: "bg-amber-50/50",
-          seal: "text-amber-500 bg-amber-100",
-          text: "text-amber-700",
+          border: "border-yellow",
+          innerBorder: "border-yellow/30",
+          bg: "bg-yellow-bg/50",
+          seal: "text-yellow bg-yellow-14",
+          text: "text-yellow",
         };
       case "blue":
         return {
-          border: "border-blue-400/80",
-          innerBorder: "border-blue-300/60",
-          bg: "bg-blue-50/50",
-          seal: "text-blue-500 bg-blue-100",
-          text: "text-blue-700",
+          border: "border-blue",
+          innerBorder: "border-blue/30",
+          bg: "bg-blue-14",
+          seal: "text-blue bg-blue-14",
+          text: "text-blue",
         };
       case "purple":
         return {
-          border: "border-purple-400/80",
-          innerBorder: "border-purple-300/60",
-          bg: "bg-purple-50/50",
-          seal: "text-purple-500 bg-purple-100",
-          text: "text-purple-700",
+          border: "border-purple/40",
+          innerBorder: "border-purple/25",
+          bg: "bg-purple-14",
+          seal: "text-purple bg-purple-14",
+          text: "text-purple",
         };
       case "green":
       default:
         return {
-          border: "border-emerald-400/80",
-          innerBorder: "border-emerald-300/60",
-          bg: "bg-emerald-50/50",
-          seal: "text-emerald-500 bg-emerald-100",
-          text: "text-emerald-700",
+          border: "border-green",
+          innerBorder: "border-green/30",
+          bg: "bg-green-bg/50",
+          seal: "text-green bg-green-bg",
+          text: "text-green",
         };
     }
   };
@@ -72,7 +72,7 @@ export function CertificateThumbnail({
       >
         {/* Top mini header */}
         <span
-          className={`text-[5px] font-bold tracking-widest uppercase ${theme.text} scale-90`}
+          className={`body-2xsm-regular font-bold! tracking-widest uppercase whitespace-nowrap ${theme.text} h-1.5 flex items-center scale-45`}
         >
           Certificate
         </span>

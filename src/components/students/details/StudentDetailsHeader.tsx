@@ -39,7 +39,7 @@ export function StudentDetailsHeader({
           {/* Student Info */}
           <div className="space-y-1.5">
             <div className="flex flex-wrap items-center gap-3">
-              <h1 className="heading-h3 font-bold text-primary-500">
+              <h1 className="heading-h3 text-primary-500">
                 {student.name}
               </h1>
               <ToneBadge
@@ -73,7 +73,7 @@ export function StudentDetailsHeader({
           <PrimaryButton
             type="button"
             onClick={onEdit}
-            icon={<Edit3 className="w-4 h-4 stroke-[2.2]" />}
+            icon={<Edit3 className="w-4 h-4" strokeWidth={2.2} />}
           >
             Edit Student
           </PrimaryButton>

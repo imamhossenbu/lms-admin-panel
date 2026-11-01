@@ -41,8 +41,8 @@ export function LoginProtectionCard() {
           <SettingsCallout tone={valid ? "info" : "warning"}>
             {valid ? (
               <span className="body-sm-regular text-primary-400">
-                After <span className="font-semibold text-primary-500">{attempts} failed attempts</span> the account is locked for{" "}
-                <span className="font-semibold text-primary-500">{formatMinutes(lockout)}</span>.
+                After <span className="body-sm-medium font-semibold! text-primary-500">{attempts} failed attempts</span> the account is locked for{" "}
+                <span className="body-sm-medium font-semibold! text-primary-500">{formatMinutes(lockout)}</span>.
               </span>
             ) : (
               <span className="body-sm-regular text-primary-400">Enter valid numbers to preview the lockout rule.</span>

@@ -25,7 +25,7 @@ export function DeleteAssignmentModal({ isOpen, title, submissionCount, onClose,
       confirmIcon={<Trash2 />}
       message={
         <>
-          <strong className="font-semibold">&ldquo;{title}&rdquo;</strong> and its {submissionCount} submission{submissionCount === 1 ? "" : "s"} will be
+          <strong className="body-sm-medium font-semibold!">&ldquo;{title}&rdquo;</strong> and its {submissionCount} submission{submissionCount === 1 ? "" : "s"} will be
           permanently deleted.
         </>
       }

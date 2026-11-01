@@ -34,7 +34,7 @@ export function DetailCard({
             </span>
           )}
           <div className="min-w-0">
-            <h2 className={cn("font-bold text-primary-500", icon ? "title-medium" : "heading-h5")}>
+            <h2 className={cn("text-primary-500", icon ? "title-medium" : "heading-h5")}>
               {title}
             </h2>
             {description && (

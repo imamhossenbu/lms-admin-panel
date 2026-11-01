@@ -220,7 +220,7 @@ export function CategoryManagementModal({
             className="p-4.5 rounded-xl bg-gray-bg border border-dash space-y-4 animate-in fade-in duration-200"
           >
             <div className="flex items-center justify-between pb-3 border-b border-dash">
-              <h4 className="body-sm-medium text-primary-500 font-semibold flex items-center gap-2">
+              <h4 className="body-sm-medium text-primary-500 flex items-center gap-2">
                 <FolderPlus className="w-4 h-4 text-brand-orange" />
                 <span>Create New Learning Category</span>
               </h4>
@@ -273,7 +273,7 @@ export function CategoryManagementModal({
                     className={`w-9 h-9 rounded-lg body-regular flex items-center justify-center border transition-all cursor-pointer ${
                       icon === em
                         ? "border-brand-orange bg-brand-orange-light text-brand-orange shadow-2xs"
-                        : "border-dash bg-white hover:bg-gray-100"
+                        : "border-dash bg-white hover:bg-slate-100"
                     }`}
                   >
                     {em}
@@ -330,16 +330,16 @@ export function CategoryManagementModal({
             {categories.map((cat) => (
               <div
                 key={cat.id}
-                className="p-3.5 flex items-center justify-between gap-4 hover:bg-gray-50/60 transition-colors"
+                className="p-3.5 flex items-center justify-between gap-4 hover:bg-slate-50/60 transition-colors"
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <CategoryIcon icon={cat.icon} className="w-10 h-10 title-regular" />
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="body-sm-medium text-primary-500 font-semibold truncate">
+                      <span className="body-sm-medium text-primary-500 truncate">
                         {cat.name}
                       </span>
-                      <span className="body-2xsm-regular font-mono text-primary-300 bg-gray-100 px-1.5 py-0.5 rounded">
+                      <span className="body-2xsm-regular font-mono text-primary-300 bg-slate-100 px-1.5 py-0.5 rounded">
                         /{cat.slug}
                       </span>
                     </div>
@@ -364,7 +364,7 @@ export function CategoryManagementModal({
                   <button
                     type="button"
                     onClick={() => handleDelete(cat.id, cat.name)}
-                    className="p-1.5 text-primary-300 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors cursor-pointer"
+                    className="p-1.5 text-primary-300 hover:text-red hover:bg-red-14 rounded-md transition-colors cursor-pointer"
                     title="Delete Category"
                   >
                     <Trash2 className="w-4 h-4" />

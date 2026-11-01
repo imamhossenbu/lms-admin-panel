@@ -47,7 +47,7 @@ const LOGO_SIZE = {
 export function PaymentMethodLogo({ method, size = "sm" }: { method: PaymentMethod; size?: keyof typeof LOGO_SIZE }) {
   const style = METHOD_STYLE[method];
   return (
-    <span aria-hidden className={cn("flex items-center justify-center font-bold shrink-0", LOGO_SIZE[size], style.className)}>
+    <span aria-hidden className={cn("flex items-center justify-center shrink-0", LOGO_SIZE[size], style.className)}>
       {style.glyph}
     </span>
   );

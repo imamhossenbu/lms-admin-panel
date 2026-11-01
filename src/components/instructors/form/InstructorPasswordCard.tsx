@@ -35,7 +35,7 @@ export function InstructorPasswordCard({ mode = "create" }: InstructorPasswordCa
         </div>
 
         <div className="flex-1 min-w-0 space-y-3">
-          <h2 className="title-medium font-bold text-primary-500 leading-10">
+          <h2 className="title-medium text-primary-500">
             Password
           </h2>
 
@@ -43,7 +43,7 @@ export function InstructorPasswordCard({ mode = "create" }: InstructorPasswordCa
             <div className="flex items-start gap-3">
               <KeyRound className="w-5 h-5 text-green shrink-0 mt-0.5" />
               <div>
-                <h3 className="body-medium font-bold text-primary-500">{copy.title}</h3>
+                <h3 className="body-medium text-primary-500">{copy.title}</h3>
                 <p className="body-sm-regular text-primary-400 mt-0.5">{copy.description}</p>
               </div>
             </div>

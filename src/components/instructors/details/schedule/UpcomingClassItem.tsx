@@ -59,7 +59,7 @@ export function UpcomingClassItem({ event, onViewOnCalendar, onToggleCancel, ins
         <span className="body-xsm-medium uppercase">
           {start.toLocaleDateString("en-US", { month: "short" })}
         </span>
-        <span className="heading-h5 font-bold leading-none mt-0.5">
+        <span className="heading-h5 mt-0.5">
           {String(start.getDate()).padStart(2, "0")}
         </span>
       </div>
@@ -68,7 +68,7 @@ export function UpcomingClassItem({ event, onViewOnCalendar, onToggleCancel, ins
         <p className="body-xsm-regular text-primary-300">
           {formatTime(event.start)} - {formatTime(event.end)}
         </p>
-        <p className={`body-sm-medium font-semibold text-primary-500 truncate ${isCancelled ? "line-through" : ""}`}>
+        <p className={`body-sm-medium text-primary-500 truncate ${isCancelled ? "line-through" : ""}`}>
           {event.title}
         </p>
         <p className="body-xsm-regular text-primary-300 truncate">{event.course.title}</p>

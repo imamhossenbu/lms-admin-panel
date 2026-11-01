@@ -29,7 +29,7 @@ export function EditStudentActions({
         type="submit"
         isLoading={isSubmitting}
         disabled={isSubmitting}
-        leftIcon={<Check className="w-4 h-4 stroke-[2.2]" />}
+        leftIcon={<Check className="w-4 h-4" strokeWidth={2.2} />}
       >
         {isSubmitting ? "Saving Changes..." : "Save Changes"}
       </PrimaryButton>

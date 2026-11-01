@@ -48,10 +48,10 @@ export function NoteCardBlock({ note }: NoteCardBlockProps) {
 
   return (
     <div className={`p-4 rounded-xl ${styles.container} space-y-1 text-left`}>
-      <h5 className={`body-sm-medium font-bold ${styles.title}`}>
+      <h5 className={`body-sm-medium ${styles.title}`}>
         {note.categoryLabel}
       </h5>
-      <p className="body-sm-regular text-primary-400 leading-relaxed">
+      <p className="body-sm-regular text-primary-400">
         {note.content}
       </p>
     </div>

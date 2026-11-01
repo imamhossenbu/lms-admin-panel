@@ -20,7 +20,7 @@ const columns: ColumnDef<RecentEnrollmentRow>[] = [
     render: (row) => (
       <div className="flex items-center gap-2">
         <Avatar src={row.avatarUrl} name={row.studentName} size={24} />
-        <span className="body-sm-medium text-primary-500 font-medium truncate max-w-27.5">{row.studentName}</span>
+        <span className="body-sm-medium text-primary-500 truncate max-w-27.5">{row.studentName}</span>
       </div>
     ),
   },
@@ -34,7 +34,7 @@ const columns: ColumnDef<RecentEnrollmentRow>[] = [
     header: "Progress",
     render: (row) => (
       <div className="flex items-center gap-2.5 max-w-30">
-        <span className="body-2xsm-regular text-primary-500 w-7 font-bold">{row.progress}%</span>
+        <span className="body-2xsm-regular text-primary-500 w-7">{row.progress}%</span>
         <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
           <motion.div
             className="h-full bg-brand-orange rounded-full"
@@ -60,10 +60,10 @@ export function RecentEnrollmentsTable({ enrollments }: RecentEnrollmentsTablePr
     <div className="bg-white rounded-xl border border-dash shadow-xs overflow-hidden flex flex-col">
       {/* Header */}
       <div className="px-4 py-3 flex items-center justify-between">
-        <h3 className="heading-h6 font-bold text-primary-500">Recent Enrollments</h3>
+        <h3 className="heading-h6 text-primary-500">Recent Enrollments</h3>
         <Link
           href="/students"
-          className="body-sm-medium font-semibold text-brand-orange hover:text-brand-orange-hover hover:underline transition-colors"
+          className="body-sm-medium text-brand-orange hover:text-brand-orange-hover hover:underline transition-colors"
         >
           View all
         </Link>
@@ -78,7 +78,7 @@ export function RecentEnrollmentsTable({ enrollments }: RecentEnrollmentsTablePr
           emptyMessage="No enrollments in this period"
           containerClassName="border-0 rounded-none w-full"
           tableClassName="w-full"
-          headerClassName="bg-transparent border-b border-dash body-2xsm-regular text-primary-300 font-semibold uppercase tracking-wider"
+          headerClassName="bg-transparent border-b border-dash body-2xsm-regular text-primary-300 uppercase tracking-wider"
           thClassName="px-4 py-2.5 border-none"
           cellClassName="px-4 py-2.5 border-none"
         />

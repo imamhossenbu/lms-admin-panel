@@ -10,7 +10,7 @@ import { RoleViewOnly } from "./RoleViewOnly";
 
 export type RoleEditorViewProps = { mode: "create" } | { mode: "edit"; roleId: string };
 
-/** Route entry for /users/roles/new (?from=<roleId>) and /users/roles/[id]/edit (system roles open read-only). */
+/** Route entry for /users/roles/new (?from=<roleId>) and /users/roles/[id]/edit (custom + built-in roles are editable; Super Admin opens read-only). */
 export function RoleEditorView(props: RoleEditorViewProps) {
   const ready = useTeamReady();
   const { roles, members } = useTeamStore();
@@ -25,7 +25,7 @@ export function RoleEditorView(props: RoleEditorViewProps) {
 
   const role = roles.find((r) => r.id === props.roleId);
   if (!role) return <TeamNotFound what="role" />;
-  if (role.isSystem) return <RoleViewOnly role={role} members={members} />;
+  if (role.isLocked) return <RoleViewOnly role={role} members={members} />;
   return <RoleEditorForm key={role.id} mode="edit" original={role} roles={roles} members={members} />;
 }
 

@@ -35,7 +35,7 @@ export function SectionCard({
         )}
       >
         <div>
-          <h2 className="body-medium text-primary-500 font-semibold">{title}</h2>
+          <h2 className="body-medium text-primary-500">{title}</h2>
           {description && (
             <p className="body-sm-regular subtext-500 mt-0.5">{description}</p>
           )}

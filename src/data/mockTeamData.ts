@@ -1,10 +1,13 @@
 import type { PermissionAction, RolePermissions, RoleTone, TeamEvent, TeamEventType, TeamMember, TeamModule, TeamRole, TeamSeed } from "@/types/team";
-import { countPermissions, fullPermissions, modulesWithAccess, normalizePermissions } from "@/lib/teamPermissions";
+import { countPermissions, emptyPermissions, fullPermissions, listGrants, mergePermissions, modulesWithAccess, normalizeExtras, normalizePermissions } from "@/lib/teamPermissions";
 
 /**
  * Deterministic mock data for Team & Roles (mock-first), relative to "now".
  * 13 admin-panel staff: the owner (Imam Hossain, Super Admin), admins, content, support, finance and
- * a custom Marketing role; 3 invitations (2 pending, 1 expired) and one suspended member.
+ * custom Marketing / Teaching Assistant roles; 3 invitations (2 pending, 1 expired) and one suspended member.
+ * System roles keep their shipped preset in `defaultPermissions`; Support has been modified (Orders → Export,
+ * Quizzes → View added). Rafiq (Content Manager +3) and Sadia (Support +1) hold extra permissions, and Lamia's
+ * pending Support invitation carries one extra.
  * Counts on the page (pending invites, 2FA coverage, members per role) are DERIVED in src/lib/teamStats.ts.
  */
 
@@ -32,17 +35,30 @@ const ALL: Record<string, PermissionAction[]> = {
   crud: ["view", "manage", "delete"],
 };
 
-const role = (id: string, name: string, description: string, tone: RoleTone, permissions: RolePermissions, opts: { system: boolean; locked?: boolean; ageDays: number; editedDays: number }, now: number): TeamRole => ({
+const role = (
+  id: string,
+  name: string,
+  description: string,
+  tone: RoleTone,
+  permissions: RolePermissions,
+  opts: { system: boolean; locked?: boolean; ageDays: number; editedDays: number; /** System roles: current permissions when they differ from the preset. */ current?: RolePermissions },
+  now: number
+): TeamRole => ({
   id,
   name,
   description,
   tone,
   isSystem: opts.system,
   isLocked: !!opts.locked,
-  permissions,
+  permissions: opts.current ?? permissions,
+  defaultPermissions: opts.system ? permissions : null,
   createdAt: new Date(now - opts.ageDays * D).toISOString(),
   updatedAt: new Date(now - opts.editedDays * D).toISOString(),
 });
+
+/** Owner's edits to the Support preset. */
+const SUPPORT_CHANGES: Grants = { orders: ["export"], quizzes: ["view"] };
+const SUPPORT_EDITED_DAYS = 9;
 
 function buildRoles(now: number): TeamRole[] {
   const admin = fullPermissions();
@@ -98,16 +114,28 @@ function buildRoles(now: number): TeamRole[] {
     community: ["view", "manage"],
   };
 
+  // Support was adjusted by the owner 9 days ago (see the ROLE_UPDATED event).
+  const supportPreset = normalizePermissions(support);
+  const supportNow = mergePermissions(supportPreset, SUPPORT_CHANGES);
+
   return [
     role(SUPER_ADMIN_ROLE_ID, "Super Admin", "Full, unrestricted access to everything, including billing, settings and the team.", "orange", fullPermissions(), { system: true, locked: true, ageDays: 720, editedDays: 720 }, now),
     role("role-admin", "Admin", "Runs day-to-day operations across every area. Can't manage the team or change platform settings.", "blue", admin, { system: true, ageDays: 720, editedDays: 720 }, now),
     role("role-content", "Content Manager", "Builds and maintains courses, lessons, quizzes and assignments, and moderates discussions.", "purple", normalizePermissions(content), { system: true, ageDays: 720, editedDays: 720 }, now),
-    role("role-support", "Support", "Helps learners: student accounts, orders lookup, community replies and certificates.", "green", normalizePermissions(support), { system: true, ageDays: 720, editedDays: 720 }, now),
+    role("role-support", "Support", "Helps learners: student accounts, orders lookup, community replies and certificates.", "green", supportPreset, { system: true, ageDays: 720, editedDays: SUPPORT_EDITED_DAYS, current: supportNow }, now),
     role("role-finance", "Finance", "Handles orders, payments, refunds and revenue exports.", "yellow", normalizePermissions(finance), { system: true, ageDays: 720, editedDays: 720 }, now),
     role("role-marketing", "Marketing", "Sends broadcasts and reads analytics to plan campaigns. Read-only on the catalogue.", "red", normalizePermissions(marketing), { system: false, ageDays: 140, editedDays: 12 }, now),
     role("role-ta", "Teaching Assistant", "Grades assignments and quizzes and answers course questions.", "gray", normalizePermissions(ta), { system: false, ageDays: 60, editedDays: 20 }, now),
   ];
 }
+
+
+/** Extra permissions on top of the role (normalised against the role in buildTeamSeed). */
+const EXTRAS: Record<string, { grants: Grants; daysAgo: number }> = {
+  rafiq: { grants: { analytics: ["export"], students: ["view"], orders: ["view"] }, daysAgo: 15 },
+  sadia: { grants: { payments: ["refund"] }, daysAgo: 6 },
+  lamia: { grants: { courses: ["view"] }, daysAgo: 0 },
+};
 
 interface MemberSpec {
   key: string;
@@ -146,11 +174,14 @@ export function buildTeamSeed(now: Date = new Date()): TeamSeed {
   const roles = buildRoles(t);
   const iso = (msAgo: number) => new Date(t - Math.max(0, msAgo)).toISOString();
 
+  const extrasFor = (key: string, roleId: string) => normalizeExtras(EXTRAS[key]?.grants, roles.find((r) => r.id === roleId)!.permissions);
+
   const members: TeamMember[] = MEMBERS.map((m) => ({
     id: `member-${m.key}`,
     name: m.name,
     email: m.email,
     roleId: m.roleId,
+    extraPermissions: m.key === "imam" ? emptyPermissions() : extrasFor(m.key, m.roleId),
     status: m.status,
     isOwner: m.key === "imam",
     twoFactorEnabled: m.twoFa,
@@ -168,6 +199,7 @@ export function buildTeamSeed(now: Date = new Date()): TeamSeed {
       name: "",
       email: inv.email,
       roleId: inv.roleId,
+      extraPermissions: extrasFor(inv.key, inv.roleId),
       status: "INVITED",
       isOwner: false,
       twoFactorEnabled: false,
@@ -204,9 +236,18 @@ export function buildTeamSeed(now: Date = new Date()): TeamSeed {
     return `${modulesWithAccess(p).length} modules · ${countPermissions(p)} permissions`;
   };
 
+  const extrasDetail = (k: string) => listGrants(byKey(k).extraPermissions);
+  const extraN = (k: string) => {
+    const n = countPermissions(byKey(k).extraPermissions);
+    return n ? ` + ${n} extra permission${n === 1 ? "" : "s"}` : "";
+  };
+
   const events: TeamEvent[] = [
     ev("TWO_FA_ENABLED", "member-jahid", "Jahid Hasan", "Authenticator app", 3 * H + 20 * MIN, "Jahid Hasan"),
-    ev("INVITED", "member-lamia", "lamia.khan@edupro.com", "as Support", invAt("lamia")),
+    ev("INVITED", "member-lamia", "lamia.khan@edupro.com", `as Support${extraN("lamia")}`, invAt("lamia")),
+    ev("EXTRA_PERMISSIONS_GRANTED", "member-sadia", "Sadia Chowdhury", extrasDetail("sadia"), EXTRAS.sadia.daysAgo * D + 3 * H),
+    ev("ROLE_UPDATED", "role-support", "Support", "Added Orders → Export, Quizzes → View", SUPPORT_EDITED_DAYS * D),
+    ev("EXTRA_PERMISSIONS_GRANTED", "member-rafiq", "Rafiq Islam", extrasDetail("rafiq"), EXTRAS.rafiq.daysAgo * D + 5 * H),
     ev("INVITE_RESENT", "member-kabir", "kabir.dev@edupro.com", "Reminder sent", 3 * D + 2 * H),
     ev("ROLE_UPDATED", "role-marketing", "Marketing", "Added Analytics → Export", 12 * D),
     ev("INVITED", "member-kabir", "kabir.dev@edupro.com", "as Teaching Assistant", invAt("kabir")),

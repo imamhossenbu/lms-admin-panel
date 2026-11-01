@@ -23,7 +23,7 @@ export function StatChip({ icon, tone, value, label }: StatChipProps) {
     <div className="flex items-center gap-2.5 rounded-xl border border-dash p-2.5">
       <span className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-full", TONE[tone])}>{icon}</span>
       <div className="min-w-0">
-        <p className="body-medium font-bold! text-primary-500 leading-tight">{value}</p>
+        <p className="body-medium font-bold! text-primary-500">{value}</p>
         <p className="body-xsm-regular text-primary-300 whitespace-nowrap">{label}</p>
       </div>
     </div>

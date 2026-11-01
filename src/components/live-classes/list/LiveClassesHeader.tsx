@@ -20,7 +20,7 @@ export function LiveClassesHeader({ filteredCount, selectedCount, onExportFilter
   return (
     <PageHeader
       breadcrumbs={[{ label: "Live Classes" }]}
-      title={<span className="heading-h3 font-bold! text-primary-500 tracking-tight">Live Classes</span>}
+      title={<span className="heading-h3 font-bold! text-primary-500">Live Classes</span>}
       subtitle="Manage and schedule your live classes, webinars and online sessions."
     >
       <AppDropdownMenu

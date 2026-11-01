@@ -26,7 +26,7 @@ export function StudentInformationCard({
           <User className="w-5 h-5" />
         </div>
         <div>
-          <h2 className="title-medium font-bold text-primary-500">
+          <h2 className="title-medium text-primary-500">
             Student Information
           </h2>
           <p className="body-sm-regular text-primary-300">

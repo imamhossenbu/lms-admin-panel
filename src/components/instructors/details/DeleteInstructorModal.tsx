@@ -68,7 +68,7 @@ export function DeleteInstructorModal({
             className="rounded-full ring-1 ring-dash shrink-0"
           />
           <div className="min-w-0 flex-1">
-            <p className="body-sm-medium font-semibold text-primary-500 truncate">
+            <p className="body-sm-medium text-primary-500 truncate">
               {instructor.name}
             </p>
             <p className="body-xsm-regular text-primary-300 truncate">{instructor.email}</p>
@@ -81,7 +81,7 @@ export function DeleteInstructorModal({
         <div className="p-3.5 rounded-xl bg-red-14 border border-red/30 flex items-start gap-3">
           <AlertTriangle className="w-5 h-5 text-red shrink-0 mt-0.5" />
           <div className="body-sm-regular text-red-dark space-y-2">
-            <p className="font-semibold">Deleting this instructor will:</p>
+            <p className="body-sm-medium font-semibold!">Deleting this instructor will:</p>
             <ul className="space-y-1.5">
               <li className="flex items-center gap-2">
                 <BookOpen className="w-4 h-4 shrink-0" />

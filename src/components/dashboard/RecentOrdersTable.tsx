@@ -23,7 +23,7 @@ export function RecentOrdersTable({ orders, currency }: RecentOrdersTableProps) 
       {
         key: "orderNumber",
         header: "Order ID",
-        render: (row) => <span className="body-sm-medium text-primary-500 font-medium whitespace-nowrap">{row.orderNumber}</span>,
+        render: (row) => <span className="body-sm-medium text-primary-500 whitespace-nowrap">{row.orderNumber}</span>,
       },
       {
         key: "student",
@@ -31,7 +31,7 @@ export function RecentOrdersTable({ orders, currency }: RecentOrdersTableProps) 
         render: (row) => (
           <div className="flex items-center gap-2">
             <Avatar src={row.avatarUrl} name={row.studentName} size={24} />
-            <span className="body-sm-medium text-primary-500 font-medium truncate max-w-26.25">{row.studentName}</span>
+            <span className="body-sm-medium text-primary-500 truncate max-w-26.25">{row.studentName}</span>
           </div>
         ),
       },
@@ -44,7 +44,7 @@ export function RecentOrdersTable({ orders, currency }: RecentOrdersTableProps) 
         key: "amount",
         header: "Amount",
         render: (row) => (
-          <span className="body-sm-medium font-semibold text-primary-500 whitespace-nowrap">{formatCurrency(row.amount, currency)}</span>
+          <span className="body-sm-medium text-primary-500 whitespace-nowrap">{formatCurrency(row.amount, currency)}</span>
         ),
       },
       {
@@ -72,10 +72,10 @@ export function RecentOrdersTable({ orders, currency }: RecentOrdersTableProps) 
     <div className="bg-white rounded-xl border border-dash shadow-xs overflow-hidden flex flex-col">
       {/* Header */}
       <div className="px-4 py-3 flex items-center justify-between">
-        <h3 className="heading-h6 font-bold text-primary-500">Recent Orders</h3>
+        <h3 className="heading-h6 text-primary-500">Recent Orders</h3>
         <Link
           href="/orders"
-          className="body-sm-medium font-semibold text-brand-orange hover:text-brand-orange-hover hover:underline transition-colors"
+          className="body-sm-medium text-brand-orange hover:text-brand-orange-hover hover:underline transition-colors"
         >
           View all
         </Link>
@@ -90,7 +90,7 @@ export function RecentOrdersTable({ orders, currency }: RecentOrdersTableProps) 
           emptyMessage="No orders in this period"
           containerClassName="border-0 rounded-none w-full"
           tableClassName="w-full"
-          headerClassName="bg-transparent border-b border-dash body-2xsm-regular text-primary-300 font-semibold uppercase tracking-wider"
+          headerClassName="bg-transparent border-b border-dash body-2xsm-regular text-primary-300 uppercase tracking-wider"
           thClassName="px-3.5 py-2.5 border-none"
           cellClassName="px-3.5 py-2.5 border-none"
         />

@@ -26,7 +26,7 @@ export function PermissionSummaryChips({ permissions, hideNone, className }: Per
       {GROUPS.filter((g) => s[g.key].length > 0 && !(hideNone && g.key === "none")).map((g) => (
         <div key={g.key}>
           <p className="mb-1.5 body-xsm-medium font-semibold! text-primary-400">
-            {g.label} <span className="font-normal text-primary-300">· {s[g.key].length}</span>
+            {g.label} <span className="body-xsm-regular text-primary-300">· {s[g.key].length}</span>
           </p>
           <div className="flex flex-wrap gap-1.5">
             {s[g.key].map((m) => (

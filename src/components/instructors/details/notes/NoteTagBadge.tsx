@@ -31,7 +31,7 @@ interface NoteTagBadgeProps {
 /** Note tag with a stable colour per tag name. */
 export function NoteTagBadge({ tag, size = "lg", icon }: NoteTagBadgeProps) {
   return (
-    <ToneBadge tone={getTagTone(tag)} size={size} icon={icon} className="font-medium">
+    <ToneBadge tone={getTagTone(tag)} size={size} icon={icon}>
       {tag}
     </ToneBadge>
   );

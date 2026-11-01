@@ -1,17 +1,30 @@
-import type { MemberStatus, TeamEvent, TeamEventType, TeamMember, TeamRole, TeamSeed } from "@/types/team";
+import type { MemberStatus, RolePermissions, TeamEvent, TeamEventType, TeamMember, TeamRole, TeamSeed } from "@/types/team";
 import type { RoleFormValues } from "@/validations/teamSchema";
 import { INVITE_EXPIRY_DAYS, isValidEmail } from "@/validations/teamSchema";
 import { buildTeamSeed, OWNER_NAME, SUPER_ADMIN_ROLE_ID } from "@/data/mockTeamData";
-import { ACTION_LABEL, MODULE_LABEL, countPermissions, modulesWithAccess, normalizePermissions } from "@/lib/teamPermissions";
+import {
+  ACTION_LABEL,
+  MODULE_LABEL,
+  countPermissions,
+  emptyPermissions,
+  isRoleModified,
+  listGrants,
+  modulesWithAccess,
+  normalizeExtras,
+  normalizePermissions,
+  samePermissions,
+  subtractPermissions,
+} from "@/lib/teamPermissions";
 import { TEAM_MODULES } from "@/types/team";
 
 /**
  * Mock-first persistence for Team & Roles (localStorage + simulated latency).
  * /users, /users/[id] and the role editor all read this store and listen to TEAM_UPDATED_EVENT.
- * Every mutation appends to the activity log. The signed-in admin is the owner (OWNER_NAME).
+ * Every mutation appends to the activity log. The signed-in admin is the owner (OWNER_NAME, Super Admin).
+ * v2: system roles keep `defaultPermissions` (editable + resettable), members carry additive `extraPermissions`.
  */
 
-const STORAGE_KEY = "edupro_team_v1";
+const STORAGE_KEY = "edupro_team_v2";
 export const TEAM_UPDATED_EVENT = "edupro_team_updated";
 const wait = (ms = 450) => new Promise((r) => setTimeout(r, ms));
 const uid = (p: string) => `${p}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
@@ -24,7 +37,14 @@ function read(): TeamSeed {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const p = JSON.parse(raw) as TeamSeed;
-      if (Array.isArray(p?.members) && Array.isArray(p?.roles) && Array.isArray(p?.events)) return p;
+      if (
+        Array.isArray(p?.members) &&
+        Array.isArray(p?.roles) &&
+        Array.isArray(p?.events) &&
+        p.members.every((m) => m && typeof m.extraPermissions === "object") &&
+        p.roles.every((r) => r && "defaultPermissions" in r)
+      )
+        return p;
     }
   } catch {
     /* re-seed */
@@ -88,11 +108,16 @@ export async function fetchRole(id: string): Promise<TeamRole | null> {
 /** Emails already on the team (members + invitations), lower-case — for duplicate checks. */
 export const teamEmails = (d: TeamSeed = read()) => d.members.map((m) => m.email.toLowerCase());
 
-export async function inviteMembers(emails: string[], roleId: string, message: string): Promise<TeamMember[]> {
+const plural = (n: number, w: string) => `${n} ${w}${n === 1 ? "" : "s"}`;
+const extrasSuffix = (extras: RolePermissions) => (countPermissions(extras) ? ` + ${plural(countPermissions(extras), "extra permission")}` : "");
+
+/** Invites people to a role, optionally with extra permissions on top (pruned against the role). */
+export async function inviteMembers(emails: string[], roleId: string, message: string, extraPermissions?: Partial<RolePermissions>): Promise<TeamMember[]> {
   await wait(700);
   const d = read();
   const role = getRole(d, roleId);
-  if (role.id === SUPER_ADMIN_ROLE_ID) throw new Error("Super Admin can't be assigned by invitation.");
+  if (role.id === SUPER_ADMIN_ROLE_ID || role.isLocked) throw new Error("Super Admin can't be assigned by invitation.");
+  const extras = normalizeExtras(extraPermissions, role.permissions);
   const taken = new Set(teamEmails(d));
   const clean = Array.from(new Set(emails.map((e) => e.trim().toLowerCase())));
   const invalid = clean.find((e) => !isValidEmail(e));
@@ -107,6 +132,7 @@ export async function inviteMembers(emails: string[], roleId: string, message: s
     name: "",
     email,
     roleId,
+    extraPermissions: structuredClone(extras),
     status: "INVITED",
     isOwner: false,
     twoFactorEnabled: false,
@@ -116,7 +142,7 @@ export async function inviteMembers(emails: string[], roleId: string, message: s
     joinedAt: null,
     invite: { status: "PENDING", sentAt: new Date(now).toISOString(), expiresAt: new Date(now + INVITE_EXPIRY_DAYS * DAY).toISOString(), message: message.trim(), invitedBy: ACTOR, resentCount: 0 },
   }));
-  write(withEvents({ ...d, members: [...d.members, ...created] }, ...created.map((m) => event("INVITED", m.id, m.email, `as ${role.name}`))));
+  write(withEvents({ ...d, members: [...d.members, ...created] }, ...created.map((m) => event("INVITED", m.id, m.email, `as ${role.name}${extrasSuffix(extras)}`))));
   return created;
 }
 
@@ -161,8 +187,10 @@ export async function updateMember(id: string, patch: MemberPatch): Promise<Team
     if (m.isOwner) throw new Error("The workspace owner always stays Super Admin.");
     const to = getRole(d, patch.roleId);
     if (to.id === SUPER_ADMIN_ROLE_ID && m.status === "INVITED") throw new Error("Super Admin can't be assigned to a pending invitation.");
-    next = { ...next, roleId: to.id };
-    events.push(event("ROLE_CHANGED", m.id, displayName(m), `${roleName(d, m.roleId)} → ${to.name}`));
+    const kept = normalizeExtras(m.extraPermissions, to.permissions);
+    const dropped = countPermissions(subtractPermissions(m.extraPermissions, kept));
+    next = { ...next, roleId: to.id, extraPermissions: kept };
+    events.push(event("ROLE_CHANGED", m.id, displayName(m), `${roleName(d, m.roleId)} → ${to.name}${dropped ? ` · ${plural(dropped, "extra permission")} now included in the role` : ""}`));
   }
   if (patch.status && patch.status !== m.status) {
     if (m.isOwner) throw new Error("The workspace owner can't be suspended.");
@@ -181,6 +209,29 @@ export async function removeMember(id: string) {
   const m = getMember(d, id);
   if (m.isOwner) throw new Error("The workspace owner can't be removed.");
   write(withEvents({ ...d, members: d.members.filter((x) => x.id !== id) }, event(m.status === "INVITED" ? "INVITE_REVOKED" : "REMOVED", null, displayName(m), `Was ${roleName(d, m.roleId)}`)));
+}
+
+/**
+ * Replaces a member's extra permissions (grants on top of their role). Pruned against the role so extras
+ * never repeat role permissions; View is added where the role has none. Logs granted / removed events.
+ */
+export async function setMemberExtraPermissions(id: string, extraPermissions: Partial<RolePermissions>): Promise<TeamMember> {
+  await wait(550);
+  const d = read();
+  const m = getMember(d, id);
+  if (m.isOwner) throw new Error("The workspace owner already has every permission.");
+  const role = getRole(d, m.roleId);
+  if (role.isLocked) throw new Error(`${role.name} already has every permission.`);
+  const next = normalizeExtras(extraPermissions, role.permissions);
+  if (samePermissions(next, m.extraPermissions)) return m;
+  const added = subtractPermissions(next, m.extraPermissions);
+  const removed = subtractPermissions(m.extraPermissions, next);
+  const events: TeamEvent[] = [];
+  if (countPermissions(removed)) events.push(event("EXTRA_PERMISSIONS_REMOVED", m.id, displayName(m), countPermissions(next) === 0 ? `All extras removed (${listGrants(removed)})` : listGrants(removed)));
+  if (countPermissions(added)) events.push(event("EXTRA_PERMISSIONS_GRANTED", m.id, displayName(m), listGrants(added)));
+  const updated: TeamMember = { ...m, extraPermissions: next };
+  write(withEvents({ ...d, members: d.members.map((x) => (x.id === id ? updated : x)) }, ...events));
+  return updated;
 }
 
 /** Mock: turns 2FA off so the member must enrol again at next sign-in. */
@@ -217,7 +268,8 @@ function diffPermissions(before: TeamRole["permissions"], after: TeamRole["permi
     before[m].filter((a) => !after[m].includes(a)).forEach((a) => removed.push(`${MODULE_LABEL[m]} → ${ACTION_LABEL[a]}`));
   });
   const fmt = (verb: string, xs: string[]) => (xs.length ? `${verb} ${xs.slice(0, 2).join(", ")}${xs.length > 2 ? ` +${xs.length - 2}` : ""}` : "");
-  return [fmt("Added", added), fmt("removed", removed)].filter(Boolean).join(", ");
+  const out = [fmt("Added", added), fmt("removed", removed)].filter(Boolean).join(", ");
+  return out.charAt(0).toUpperCase() + out.slice(1);
 }
 
 export async function createRole(v: RoleFormValues): Promise<TeamRole> {
@@ -225,20 +277,42 @@ export async function createRole(v: RoleFormValues): Promise<TeamRole> {
   const d = read();
   assertUniqueName(d, v.name);
   const now = new Date().toISOString();
-  const r: TeamRole = { id: uid("role"), name: v.name.trim(), description: v.description.trim(), tone: v.tone, isSystem: false, isLocked: false, permissions: normalizePermissions(v.permissions), createdAt: now, updatedAt: now };
+  const r: TeamRole = { id: uid("role"), name: v.name.trim(), description: v.description.trim(), tone: v.tone, isSystem: false, isLocked: false, permissions: normalizePermissions(v.permissions), defaultPermissions: null, createdAt: now, updatedAt: now };
   write(withEvents({ ...d, roles: [...d.roles, r] }, event("ROLE_CREATED", r.id, r.name, scope(r))));
   return r;
 }
 
+/** Re-prunes extras of everyone holding `role` after its permissions change (keeps extras ∩ role = ∅). */
+const repruneHolders = (members: TeamMember[], role: TeamRole) =>
+  members.map((m) => (m.roleId === role.id ? { ...m, extraPermissions: role.isLocked ? emptyPermissions() : normalizeExtras(m.extraPermissions, role.permissions) } : m));
+
+/**
+ * Custom roles: everything editable. System roles: description, colour and permissions are editable,
+ * the name is fixed. Super Admin (locked) can't be edited at all.
+ */
 export async function updateRole(id: string, v: RoleFormValues): Promise<TeamRole> {
   await wait(650);
   const d = read();
   const cur = getRole(d, id);
-  if (cur.isSystem) throw new Error("System roles can't be edited. Duplicate it to make a custom version.");
+  if (cur.isLocked) throw new Error(`${cur.name} always has every permission and can't be edited.`);
+  if (cur.isSystem && v.name.trim() !== cur.name) throw new Error(`System role names can't be changed. ${cur.name} keeps its name.`);
   assertUniqueName(d, v.name, id);
-  const next: TeamRole = { ...cur, name: v.name.trim(), description: v.description.trim(), tone: v.tone, permissions: normalizePermissions(v.permissions), updatedAt: new Date().toISOString() };
+  const next: TeamRole = { ...cur, name: cur.isSystem ? cur.name : v.name.trim(), description: v.description.trim(), tone: v.tone, permissions: normalizePermissions(v.permissions), updatedAt: new Date().toISOString() };
   const changes = [cur.name !== next.name ? `Renamed from ${cur.name}` : "", diffPermissions(cur.permissions, next.permissions)].filter(Boolean).join(" · ");
-  write(withEvents({ ...d, roles: d.roles.map((r) => (r.id === id ? next : r)) }, event("ROLE_UPDATED", id, next.name, changes || "Details updated")));
+  write(withEvents({ ...d, roles: d.roles.map((r) => (r.id === id ? next : r)), members: repruneHolders(d.members, next) }, event("ROLE_UPDATED", id, next.name, changes || "Details updated")));
+  return next;
+}
+
+/** System roles: restores the shipped preset permissions (name, description and colour are kept). */
+export async function resetRoleToDefault(id: string): Promise<TeamRole> {
+  await wait(600);
+  const d = read();
+  const cur = getRole(d, id);
+  if (cur.isLocked) throw new Error(`${cur.name} always has every permission.`);
+  if (!cur.isSystem || !cur.defaultPermissions) throw new Error("Only built-in roles have default permissions.");
+  if (!isRoleModified(cur)) throw new Error(`${cur.name} already uses its default permissions.`);
+  const next: TeamRole = { ...cur, permissions: normalizePermissions(structuredClone(cur.defaultPermissions)), updatedAt: new Date().toISOString() };
+  write(withEvents({ ...d, roles: d.roles.map((r) => (r.id === id ? next : r)), members: repruneHolders(d.members, next) }, event("ROLE_RESET", id, next.name, diffPermissions(cur.permissions, next.permissions) || "Default permissions restored")));
   return next;
 }
 
@@ -259,7 +333,7 @@ export async function duplicateRole(id: string): Promise<TeamRole> {
   let name = `${src.name} (Copy)`.slice(0, 40);
   for (let i = 2; d.roles.some((r) => r.name.toLowerCase() === name.toLowerCase()); i++) name = `${src.name} (Copy ${i})`.slice(0, 40);
   const now = new Date().toISOString();
-  const copy: TeamRole = { ...structuredClone(src), id: uid("role"), name, isSystem: false, isLocked: false, tone: src.tone, createdAt: now, updatedAt: now };
+  const copy: TeamRole = { ...structuredClone(src), id: uid("role"), name, isSystem: false, isLocked: false, defaultPermissions: null, tone: src.tone, createdAt: now, updatedAt: now };
   write(withEvents({ ...d, roles: [...d.roles, copy] }, event("ROLE_CREATED", copy.id, copy.name, `Duplicated from ${src.name}`)));
   return copy;
 }

@@ -15,8 +15,8 @@ export function AmountBreakdown({ order, footer }: { order: OrderItem; footer?: 
       />
       <Row label={`Tax (${taxRate}%)`} value={formatCurrency(order.tax)} />
       <div className="border-t border-dashed border-dash pt-3 flex items-center justify-between gap-4">
-        <span className="body-medium font-semibold text-primary-500">Total Amount</span>
-        <span className="heading-h5 font-bold text-blue">
+        <span className="body-medium text-primary-500">Total Amount</span>
+        <span className="heading-h5 text-blue">
           {formatCurrency(order.amount)} <span className="body-sm-medium">{order.currency}</span>
         </span>
       </div>

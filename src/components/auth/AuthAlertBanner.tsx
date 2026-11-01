@@ -33,20 +33,20 @@ export function AuthAlertBanner({
       } ${className}`}
     >
       {isError ? (
-        <AlertCircle className="w-5 h-5 text-red-dark shrink-0 mt-0.5 stroke-[2]" />
+        <AlertCircle className="w-5 h-5 text-red-dark shrink-0 mt-0.5" strokeWidth={2} />
       ) : (
-        <CheckCircle2 className="w-5 h-5 text-green shrink-0 mt-0.5 stroke-[2]" />
+        <CheckCircle2 className="w-5 h-5 text-green shrink-0 mt-0.5" strokeWidth={2} />
       )}
       <div className="flex-1 space-y-1">
         <p
-          className={`body-sm-medium font-bold ${
+          className={`body-sm-medium ${
             isError ? "text-red-dark" : "text-green"
           }`}
         >
           {title || defaultTitle}
         </p>
         <p
-          className={`body-sm-regular font-medium leading-relaxed ${
+          className={`body-sm-regular ${
             isError ? "text-red-dark" : "text-green"
           }`}
         >

@@ -1,4 +1,4 @@
-import { PERMISSION_ACTIONS, TEAM_MODULES, type PermissionAction, type RolePermissions, type TeamModule } from "@/types/team";
+import { PERMISSION_ACTIONS, TEAM_MODULES, type PermissionAction, type RolePermissions, type TeamMember, type TeamModule, type TeamRole } from "@/types/team";
 
 /**
  * Permission model for Team & Roles: which actions apply to which module, plus pure helpers
@@ -178,3 +178,51 @@ export function describePermissions(p: RolePermissions): string {
 
 export const samePermissions = (a: RolePermissions, b: RolePermissions) =>
   TEAM_MODULES.every((m) => a[m].length === b[m].length && a[m].every((x) => b[m].includes(x)));
+
+// ---------------------------------------------------------------- system-role defaults & per-member extras
+
+/** System role whose permissions differ from its shipped preset. */
+export const isRoleModified = (r: Pick<TeamRole, "permissions" | "defaultPermissions" | "isLocked">) =>
+  !r.isLocked && !!r.defaultPermissions && !samePermissions(r.permissions, r.defaultPermissions);
+
+/** Union of two permission sets (canonical order, View added wherever another action is on). */
+export function mergePermissions(a: RolePermissions, b: Partial<RolePermissions>): RolePermissions {
+  return Object.fromEntries(TEAM_MODULES.map((m) => [m, normalizeRow(m, [...a[m], ...(b[m] ?? [])])])) as unknown as RolePermissions;
+}
+
+/**
+ * Extras relative to a role: keeps only applicable actions the role doesn't already give, and adds
+ * "view" to an extras row only when the role has no View there (so role ∪ extras always obeys the View rule).
+ */
+export function normalizeExtras(extras: Partial<RolePermissions> | null | undefined, base: RolePermissions): RolePermissions {
+  return Object.fromEntries(
+    TEAM_MODULES.map((m) => {
+      const set = new Set((extras?.[m] ?? []).filter((a) => isApplicable(m, a) && !base[m].includes(a)));
+      if (set.size > 0 && !base[m].includes("view")) set.add("view");
+      return [m, PERMISSION_ACTIONS.filter((a) => set.has(a))];
+    })
+  ) as unknown as RolePermissions;
+}
+
+/** Actions in `extras` that `base` already grants (should always be 0 for stored members). */
+export const overlapCount = (extras: RolePermissions, base: RolePermissions) => TEAM_MODULES.reduce((n, m) => n + extras[m].filter((a) => base[m].includes(a)).length, 0);
+
+/** What the member can actually do: role ∪ extras (owner / Super Admin → everything). */
+export function effectivePermissions(member: Pick<TeamMember, "isOwner" | "extraPermissions">, role: Pick<TeamRole, "permissions" | "isLocked"> | undefined): RolePermissions {
+  if (member.isOwner || role?.isLocked) return fullPermissions();
+  return mergePermissions(role?.permissions ?? emptyPermissions(), member.extraPermissions ?? {});
+}
+
+/** Number of extra actions granted on top of the role. */
+export const extraCount = (m: Pick<TeamMember, "extraPermissions">) => (m.extraPermissions ? countPermissions(m.extraPermissions) : 0);
+
+/** "Analytics → Export, Students → View +1" (first `max` grants). */
+export function listGrants(p: RolePermissions, max = 2): string {
+  const items = TEAM_MODULES.flatMap((m) => p[m].map((a) => `${MODULE_LABEL[m]} → ${ACTION_LABEL[a]}`));
+  return `${items.slice(0, max).join(", ")}${items.length > max ? ` +${items.length - max}` : ""}`;
+}
+
+/** Actions in `a` that are not in `b`. */
+export function subtractPermissions(a: RolePermissions, b: RolePermissions): RolePermissions {
+  return Object.fromEntries(TEAM_MODULES.map((m) => [m, a[m].filter((x) => !b[m].includes(x))])) as unknown as RolePermissions;
+}

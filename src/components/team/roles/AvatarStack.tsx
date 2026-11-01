@@ -13,7 +13,7 @@ export function AvatarStack({ members, max = 4, size = 28 }: { members: TeamMemb
         <Avatar key={m.id} name={m.name || m.email} size={size} className="border-2 border-white" />
       ))}
       {extra > 0 && (
-        <span className="flex shrink-0 items-center justify-center rounded-full border-2 border-white bg-slate-100 body-2xsm-regular font-semibold text-primary-400" style={{ width: size, height: size }}>
+        <span className="flex shrink-0 items-center justify-center rounded-full border-2 border-white bg-slate-100 body-2xsm-regular font-semibold! text-primary-400" style={{ width: size, height: size }}>
           +{extra}
         </span>
       )}

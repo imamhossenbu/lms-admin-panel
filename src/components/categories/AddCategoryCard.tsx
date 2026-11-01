@@ -112,7 +112,7 @@ export function AddCategoryCard({
     <div className="bg-white rounded-xl border border-dash shadow-xs overflow-hidden text-left flex flex-col justify-between">
       {/* Card Header */}
       <div className="p-4 border-b border-dash flex items-center justify-between">
-        <h3 className="heading-h6 font-bold text-primary-500">
+        <h3 className="heading-h6 text-primary-500">
           Add Category
         </h3>
         {onClose && (
@@ -131,7 +131,7 @@ export function AddCategoryCard({
       <form onSubmit={handleSubmit(onSubmit)} className="p-4 space-y-4">
         {/* Category Name */}
         <div>
-          <label className="block body-sm-medium text-primary-500 font-medium mb-1.5">
+          <label className="block body-sm-medium text-primary-500 mb-1.5">
             Category Name <span className="text-red">*</span>
           </label>
           <input
@@ -141,7 +141,7 @@ export function AddCategoryCard({
             className="w-full h-9 px-3 rounded-lg border border-dash body-sm-regular text-primary-500 focus:outline-none focus:border-brand-orange transition-colors"
           />
           {errors.name && (
-            <p className="body-2xsm-regular text-red font-medium mt-1">
+            <p className="body-2xsm-regular text-red mt-1">
               {errors.name.message}
             </p>
           )}
@@ -149,7 +149,7 @@ export function AddCategoryCard({
 
         {/* Description */}
         <div>
-          <label className="block body-sm-medium text-primary-500 font-medium mb-1.5">
+          <label className="block body-sm-medium text-primary-500 mb-1.5">
             Description
           </label>
           <div className="relative">
@@ -162,12 +162,12 @@ export function AddCategoryCard({
               })}
               className="w-full p-2.5 rounded-lg border border-dash body-sm-regular text-primary-500 focus:outline-none focus:border-brand-orange transition-colors resize-none pb-6"
             />
-            <span className="absolute right-2.5 bottom-2 body-2xsm-regular text-primary-300 font-medium select-none">
+            <span className="absolute right-2.5 bottom-2 body-2xsm-regular text-primary-300 select-none">
               {descriptionCount}/200
             </span>
           </div>
           {errors.description && (
-            <p className="body-2xsm-regular text-red font-medium mt-1">
+            <p className="body-2xsm-regular text-red mt-1">
               {errors.description.message}
             </p>
           )}
@@ -175,7 +175,7 @@ export function AddCategoryCard({
 
         {/* Category Icon */}
         <div>
-          <label className="block body-sm-medium text-primary-500 font-medium mb-2">
+          <label className="block body-sm-medium text-primary-500 mb-2">
             Category Icon
           </label>
           <div className="grid grid-cols-5 gap-2">
@@ -200,7 +200,7 @@ export function AddCategoryCard({
             })}
           </div>
           {errors.iconId && (
-            <p className="body-2xsm-regular text-red font-medium mt-1">
+            <p className="body-2xsm-regular text-red mt-1">
               {errors.iconId.message}
             </p>
           )}
@@ -208,7 +208,7 @@ export function AddCategoryCard({
 
         {/* Status Dropdown */}
         <div>
-          <label className="block body-sm-medium text-primary-500 font-medium mb-1.5">
+          <label className="block body-sm-medium text-primary-500 mb-1.5">
             Status
           </label>
           <div className="relative">

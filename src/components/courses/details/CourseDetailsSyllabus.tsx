@@ -53,9 +53,9 @@ export function CourseDetailsSyllabus({
       case "VIDEO":
         return <PlayCircle className="w-4 h-4 text-blue" />;
       case "QUIZ":
-        return <HelpCircle className="w-4 h-4 text-purple-600" />;
+        return <HelpCircle className="w-4 h-4 text-purple" />;
       default:
-        return <FileText className="w-4 h-4 text-amber-600" />;
+        return <FileText className="w-4 h-4 text-yellow" />;
     }
   };
 
@@ -64,7 +64,7 @@ export function CourseDetailsSyllabus({
       {/* Syllabus Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-gray-bg border border-dash">
         <div>
-          <h3 className="body-medium text-primary-500 font-bold">
+          <h3 className="body-medium text-primary-500">
             Curriculum & Instructional Syllabus
           </h3>
           <p className="body-xsm-regular subtext-500 mt-0.5">
@@ -73,7 +73,7 @@ export function CourseDetailsSyllabus({
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="body-xsm-medium px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+          <span className="body-xsm-medium px-2.5 py-1 rounded-full bg-slate-100 text-primary-400 border border-dash">
             Read-Only Syllabus Overview
           </span>
         </div>
@@ -83,10 +83,10 @@ export function CourseDetailsSyllabus({
       <div className="space-y-3">
         {displayModules.length === 0 ? (
           <div className="py-12 text-center rounded-xl border border-dashed border-dash bg-white space-y-2">
-            <div className="w-10 h-10 rounded-full bg-slate-50 text-slate-400 flex items-center justify-center mx-auto">
+            <div className="w-10 h-10 rounded-full bg-slate-50 text-primary-300 flex items-center justify-center mx-auto">
               <BookOpen className="w-5 h-5" />
             </div>
-            <p className="body-sm-medium text-primary-500 font-semibold">
+            <p className="body-sm-medium text-primary-500">
               No modules published in this curriculum yet
             </p>
             <p className="body-xsm-regular subtext-500 max-w-sm mx-auto">
@@ -111,7 +111,7 @@ export function CourseDetailsSyllabus({
                       {mIdx + 1}
                     </span>
                     <div className="min-w-0">
-                      <span className="body-sm-medium text-primary-500 font-bold block truncate">
+                      <span className="body-sm-medium text-primary-500 block truncate">
                         {module.title}
                       </span>
                       <span className="body-xsm-regular subtext-500">
@@ -156,7 +156,7 @@ export function CourseDetailsSyllabus({
                               </div>
                               <div className="flex items-center gap-2 min-w-0">
                                 {getLessonIcon(lesson.type)}
-                                <span className="body-sm-regular text-primary-500 font-medium truncate">
+                                <span className="body-sm-regular text-primary-500 truncate">
                                   {lesson.title}
                                 </span>
                               </div>
@@ -164,7 +164,7 @@ export function CourseDetailsSyllabus({
 
                             <div className="flex items-center gap-2 shrink-0">
                               {lesson.isPreview && (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded body-2xsm-regular font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded body-2xsm-regular bg-green-bg text-green border border-green">
                                   <Eye className="w-3 h-3" />
                                   <span>Free Preview</span>
                                 </span>
@@ -193,7 +193,7 @@ export function CourseDetailsSyllabus({
                                   href={lesson.videoUrl}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-1 body-2xsm-regular text-blue font-medium hover:underline ml-1"
+                                  className="inline-flex items-center gap-1 body-2xsm-regular text-blue hover:underline ml-1"
                                   title="Open lecture stream in new tab"
                                 >
                                   <ExternalLink className="w-3 h-3" />
@@ -209,7 +209,7 @@ export function CourseDetailsSyllabus({
                                       selectedLessonContent === lesson.id ? null : lesson.id
                                     )
                                   }
-                                  className="body-2xsm-regular text-slate-500 hover:text-slate-900 border border-slate-200 px-2 py-0.5 rounded cursor-pointer transition-colors"
+                                  className="body-2xsm-regular text-primary-300 hover:text-primary-500 border border-dash px-2 py-0.5 rounded cursor-pointer transition-colors"
                                 >
                                   {selectedLessonContent === lesson.id ? "Hide Notes" : "View Notes"}
                                 </button>
@@ -229,7 +229,7 @@ export function CourseDetailsSyllabus({
 
                           {/* Expandable Content Preview */}
                           {selectedLessonContent === lesson.id && lesson.content && (
-                            <div className="mt-1 p-3 rounded bg-slate-50 border border-slate-200 body-xsm-regular text-slate-700 whitespace-pre-wrap max-h-48 overflow-y-auto">
+                            <div className="mt-1 p-3 rounded bg-slate-50 border border-dash body-xsm-regular text-primary-400 whitespace-pre-wrap max-h-48 overflow-y-auto">
                               {lesson.content}
                             </div>
                           )}

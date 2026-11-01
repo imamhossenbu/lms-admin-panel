@@ -260,7 +260,7 @@ export function CategoryDrawer({
                   )}
                 </div>
                 <div>
-                  <h2 className="title-medium text-primary-500 font-bold leading-none">
+                  <h2 className="title-medium text-primary-500">
                     {mode === "details"
                       ? "Category Details"
                       : mode === "edit"
@@ -305,7 +305,7 @@ export function CategoryDrawer({
                           size="lg"
                         />
                         <div>
-                          <h3 className="heading-h5 text-primary-500 font-bold">
+                          <h3 className="heading-h5 text-primary-500">
                             {category.name}
                           </h3>
                           <span className="body-xsm-regular text-primary-300 font-mono">
@@ -332,7 +332,7 @@ export function CategoryDrawer({
                       <span className="body-2xsm-regular text-primary-300 block">
                         Total Courses
                       </span>
-                      <span className="heading-h5 text-primary-500 font-bold block mt-0.5">
+                      <span className="heading-h5 text-primary-500 block mt-0.5">
                         {category.totalCourses}
                       </span>
                     </div>
@@ -340,7 +340,7 @@ export function CategoryDrawer({
                       <span className="body-2xsm-regular text-primary-300 block">
                         Published
                       </span>
-                      <span className="heading-h5 text-brand-orange font-bold block mt-0.5">
+                      <span className="heading-h5 text-brand-orange block mt-0.5">
                         {category.publishedCourses}
                       </span>
                     </div>
@@ -348,7 +348,7 @@ export function CategoryDrawer({
                       <span className="body-2xsm-regular text-primary-300 block">
                         Sub-categories
                       </span>
-                      <span className="heading-h5 text-blue font-bold block mt-0.5">
+                      <span className="heading-h5 text-blue block mt-0.5">
                         {category.subCategories?.length || 0}
                       </span>
                     </div>
@@ -359,7 +359,7 @@ export function CategoryDrawer({
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5">
                         <Layers className="w-4 h-4 text-primary-400" />
-                        <h4 className="title-sm text-primary-500 font-bold">
+                        <h4 className="title-sm text-primary-500">
                           Sub-categories ({category.subCategories?.length || 0})
                         </h4>
                       </div>
@@ -377,7 +377,7 @@ export function CategoryDrawer({
                             className="p-3 flex items-center justify-between hover:bg-slate-50 transition-colors"
                           >
                             <div>
-                              <span className="body-sm-medium text-primary-500 font-semibold block">
+                              <span className="body-sm-medium text-primary-500 block">
                                 {sub.name}
                               </span>
                               <span className="body-2xsm-regular text-primary-300 font-mono">
@@ -385,7 +385,7 @@ export function CategoryDrawer({
                               </span>
                             </div>
                             <div className="flex items-center gap-2">
-                              <span className="body-2xsm-regular px-2 py-0.5 rounded bg-slate-100 text-primary-400 font-medium">
+                              <span className="body-2xsm-regular px-2 py-0.5 rounded bg-slate-100 text-primary-400">
                                 {sub.courseCount} courses
                               </span>
                               <ToneBadge
@@ -454,7 +454,7 @@ export function CategoryDrawer({
                         }
                         className={`py-2 px-3 rounded-md body-sm-medium transition-all cursor-pointer ${
                           !isSubCategory
-                            ? "bg-white text-primary-500 font-bold shadow-2xs"
+                            ? "bg-white text-primary-500 shadow-2xs"
                             : "text-primary-300 hover:text-primary-500"
                         }`}
                       >
@@ -469,7 +469,7 @@ export function CategoryDrawer({
                         }
                         className={`py-2 px-3 rounded-md body-sm-medium transition-all cursor-pointer ${
                           isSubCategory
-                            ? "bg-white text-brand-orange font-bold shadow-2xs"
+                            ? "bg-white text-brand-orange shadow-2xs"
                             : "text-primary-300 hover:text-primary-500"
                         }`}
                       >

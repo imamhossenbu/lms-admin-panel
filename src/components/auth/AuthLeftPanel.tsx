@@ -56,10 +56,10 @@ export function AuthLeftPanel({
       <div className="relative z-10 my-auto p-7 sm:p-10 lg:pl-12 xl:pl-14 lg:pr-4 xl:pr-4 py-6 max-w-full lg:max-w-100 xl:max-w-112.5">
         {/* Hero Title */}
         <div className="space-y-3">
-          <h1 className="heading-display-h1 text-white tracking-tight leading-[1.12]">
+          <h1 className="heading-display-h1 text-white tracking-tight">
             {title}
           </h1>
-          <p className="body-regular text-slate-300 font-normal leading-relaxed mt-3">
+          <p className="body-regular text-white/75 mt-3">
             {description}
           </p>
         </div>
@@ -69,7 +69,7 @@ export function AuthLeftPanel({
       </div>
 
       {/* Bottom Footnote */}
-      <div className="relative z-10 p-7 sm:p-10 lg:pl-12 xl:pl-14 lg:pb-12 xl:pb-14 pt-0 flex items-center gap-2 body-xsm-regular text-slate-400">
+      <div className="relative z-10 p-7 sm:p-10 lg:pl-12 xl:pl-14 lg:pb-12 xl:pb-14 pt-0 flex items-center gap-2 body-xsm-regular text-white/60">
         <span className="w-4 h-0.5 bg-brand-orange rounded-full inline-block" />
         <span>{footerTagline}</span>
       </div>

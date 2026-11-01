@@ -72,7 +72,7 @@ export function QuizzesTabContent({
       render: (row) => (
         <div className="flex items-center gap-3">
           <CourseBadgeIcon type={row.iconType} size="md" />
-          <span className="body-sm-medium font-semibold text-primary-500 whitespace-nowrap">
+          <span className="body-sm-medium text-primary-500 whitespace-nowrap">
             {row.title}
           </span>
         </div>
@@ -114,7 +114,7 @@ export function QuizzesTabContent({
 
         return (
           <div className="space-y-1.5 min-w-27.5">
-            <div className="body-sm-medium font-bold text-primary-500">
+            <div className="body-sm-medium text-primary-500">
               {row.scoreCurrent} / {row.scoreTotal}
             </div>
             <div className="flex items-center gap-2">
@@ -124,7 +124,7 @@ export function QuizzesTabContent({
                   style={{ width: `${Math.min(pct, 100)}%` }}
                 />
               </div>
-              <span className="body-2xsm-regular text-primary-300 font-medium">
+              <span className="body-2xsm-regular text-primary-300">
                 {pct}%
               </span>
             </div>
@@ -207,7 +207,7 @@ export function QuizzesTabContent({
                   toast.success(`Quiz "${row.title}" assigned to student.`);
                 }
               }}
-              className="text-blue hover:underline body-sm-medium font-semibold cursor-pointer px-1.5 py-1"
+              className="text-blue hover:underline body-sm-medium cursor-pointer px-1.5 py-1"
             >
               {isAttempted ? "View" : "Assign"}
             </button>
@@ -299,7 +299,7 @@ export function QuizzesTabContent({
             <BookOpen className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="title-medium font-bold text-primary-500">
+            <h2 className="title-medium text-primary-500">
               Quizzes
             </h2>
             <p className="body-sm-regular text-primary-300">
@@ -370,7 +370,7 @@ export function QuizzesTabContent({
           </button>
           <button
             type="button"
-            className="w-8 h-8 rounded-lg bg-blue text-white flex items-center justify-center body-sm-medium font-bold shadow-2xs"
+            className="w-8 h-8 rounded-lg bg-blue text-white flex items-center justify-center body-sm-medium shadow-2xs"
           >
             1
           </button>

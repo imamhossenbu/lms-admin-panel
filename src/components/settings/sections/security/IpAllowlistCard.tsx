@@ -102,7 +102,7 @@ export function IpAllowlistCard() {
                         <motion.ul key="invalid" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="mt-2 space-y-1 overflow-hidden">
                           {invalid.map((x) => (
                             <li key={x.ip} className="body-xsm-regular text-red">
-                              <span className="font-semibold">{x.ip}</span> — {x.error}
+                              <span className="body-xsm-medium font-semibold!">{x.ip}</span> — {x.error}
                             </li>
                           ))}
                         </motion.ul>
@@ -130,7 +130,7 @@ export function IpAllowlistCard() {
                   )
                 }
               >
-                You&apos;re signed in from <span className="font-mono font-semibold text-primary-500">{MOCK_CURRENT_IP}</span>.
+                You&apos;re signed in from <span className="font-mono body-xsm-medium font-semibold! text-primary-500">{MOCK_CURRENT_IP}</span>.
               </SettingsCallout>
             </div>
           </motion.div>

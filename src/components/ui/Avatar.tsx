@@ -58,7 +58,7 @@ export function Avatar({
           className="object-cover"
         />
       ) : name ? (
-        <span className="body-xsm-medium font-semibold text-primary-500 select-none">
+        <span className="body-xsm-medium text-primary-500 select-none">
           {getInitials(name)}
         </span>
       ) : (

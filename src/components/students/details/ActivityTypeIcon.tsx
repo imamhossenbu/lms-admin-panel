@@ -43,7 +43,7 @@ export function ActivityTypeIcon({ type }: ActivityTypeIconProps) {
           className="w-8 h-8 rounded-full bg-red-14 text-red flex items-center justify-center shrink-0 border border-red/20 shadow-2xs"
           title="Failed Quiz"
         >
-          <X className="w-3.5 h-3.5 stroke-[2.5]" />
+          <X className="w-3.5 h-3.5" strokeWidth={2.5} />
         </div>
       );
     case "account_created":

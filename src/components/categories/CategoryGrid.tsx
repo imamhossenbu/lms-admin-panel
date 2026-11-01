@@ -39,11 +39,11 @@ export function CategoryGrid({
               </div>
 
               <div className="flex items-center gap-2 mb-1">
-                <h4 className="heading-h6 font-bold text-primary-500">
+                <h4 className="heading-h6 text-primary-500">
                   {category.name}
                 </h4>
                 {subCount > 0 && (
-                  <span className="body-2xsm-regular px-2 py-0.5 rounded-full bg-slate-100 text-primary-400 font-medium flex items-center gap-1">
+                  <span className="body-2xsm-regular px-2 py-0.5 rounded-full bg-slate-100 text-primary-400 flex items-center gap-1">
                     <Layers className="w-3 h-3 text-brand-orange" />
                     <span>{subCount}</span>
                   </span>
@@ -56,7 +56,7 @@ export function CategoryGrid({
             </div>
 
             <div className="pt-3 mt-3 border-t border-dash flex items-center justify-between">
-              <span className="flex items-center gap-1 body-2xsm-regular font-semibold text-primary-500">
+              <span className="flex items-center gap-1 body-2xsm-regular text-primary-500">
                 <BookOpen className="w-3.5 h-3.5 text-brand-orange" />
                 <span>{category.totalCourses} Courses</span>
               </span>

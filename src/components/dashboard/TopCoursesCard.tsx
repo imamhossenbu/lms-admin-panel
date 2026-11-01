@@ -27,7 +27,7 @@ export function TopCoursesCard({ courses, currency }: TopCoursesCardProps) {
           <div className="flex items-center gap-2.5 min-w-0">
             <Avatar src={row.thumbnailUrl} name={row.title} size={32} className="rounded-lg" />
             <div className="min-w-0">
-              <span className="body-sm-medium text-primary-500 font-medium block truncate max-w-56">{row.title}</span>
+              <span className="body-sm-medium text-primary-500 block truncate max-w-56">{row.title}</span>
               <span className="body-2xsm-regular text-primary-300 block truncate">{row.instructor}</span>
             </div>
           </div>
@@ -46,14 +46,14 @@ export function TopCoursesCard({ courses, currency }: TopCoursesCardProps) {
         key: "enrollments",
         header: "Enrollments",
         align: "right",
-        render: (row) => <span className="body-sm-medium text-primary-500 font-semibold">{formatNumber(row.enrollments)}</span>,
+        render: (row) => <span className="body-sm-medium text-primary-500">{formatNumber(row.enrollments)}</span>,
       },
       {
         key: "revenue",
         header: "Revenue",
         align: "right",
         render: (row) => (
-          <span className="body-sm-medium text-primary-500 font-semibold whitespace-nowrap">{formatCurrency(row.revenue, currency)}</span>
+          <span className="body-sm-medium text-primary-500 whitespace-nowrap">{formatCurrency(row.revenue, currency)}</span>
         ),
       },
       {
@@ -78,12 +78,12 @@ export function TopCoursesCard({ courses, currency }: TopCoursesCardProps) {
     <div className="bg-white rounded-xl border border-dash shadow-xs overflow-hidden flex flex-col">
       <div className="px-4 py-3 flex items-center justify-between">
         <div className="text-left">
-          <h3 className="heading-h6 font-bold text-primary-500">Top Courses</h3>
+          <h3 className="heading-h6 text-primary-500">Top Courses</h3>
           <p className="body-xsm-regular text-primary-300 mt-0.5">Best sellers by revenue in the selected period</p>
         </div>
         <Link
           href="/courses"
-          className="body-sm-medium font-semibold text-brand-orange hover:text-brand-orange-hover hover:underline transition-colors"
+          className="body-sm-medium text-brand-orange hover:text-brand-orange-hover hover:underline transition-colors"
         >
           View all
         </Link>
@@ -97,7 +97,7 @@ export function TopCoursesCard({ courses, currency }: TopCoursesCardProps) {
           emptyMessage="No course sales in this period"
           containerClassName="border-0 rounded-none w-full"
           tableClassName="w-full"
-          headerClassName="bg-transparent border-b border-dash body-2xsm-regular text-primary-300 font-semibold uppercase tracking-wider"
+          headerClassName="bg-transparent border-b border-dash body-2xsm-regular text-primary-300 uppercase tracking-wider"
           thClassName="px-4 py-2.5 border-none"
           cellClassName="px-4 py-2.5 border-none"
         />

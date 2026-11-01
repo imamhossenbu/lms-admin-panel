@@ -8,7 +8,6 @@ import type { TeamMember, TeamRole } from "@/types/team";
 import { IconSectionCard } from "@/components/ui/IconSectionCard";
 import { ProTipCard } from "@/components/ui/ProTipCard";
 import { SettingsCallout } from "@/components/settings/sections/security/SettingsCallout";
-import { CardActionButton } from "@/components/ui/CardActionButton";
 import { RoleBadge } from "../shared/TeamBadges";
 import { fullDate } from "../shared/teamFormat";
 import { RoleEditorHeader } from "./RoleEditorHeader";
@@ -16,7 +15,7 @@ import { PermissionsCard } from "./PermissionsCard";
 import { RoleSummaryCard } from "./RoleSummaryCard";
 import { RoleMembersCard } from "./RoleMembersCard";
 
-/** System roles: read-only details + matrix, with "Duplicate to customise" (opens Create role prefilled). */
+/** Super Admin (locked): read-only details + full matrix. "Duplicate" opens Create role prefilled. */
 export function RoleViewOnly({ role, members }: { role: TeamRole; members: TeamMember[] }) {
   const router = useRouter();
   const duplicate = () => router.push(`/users/roles/new?from=${role.id}`);
@@ -24,22 +23,12 @@ export function RoleViewOnly({ role, members }: { role: TeamRole; members: TeamM
 
   return (
     <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25, ease: "easeOut" }} className="space-y-5 pb-8 text-left">
-      <RoleEditorHeader mode="view" roleName={role.name} locked={role.isLocked} isSubmitting={false} onDuplicate={duplicate} />
+      <RoleEditorHeader mode="view" roleName={role.name} isSystem locked={role.isLocked} isSubmitting={false} onDuplicate={duplicate} />
 
       <div className="grid grid-cols-1 items-start gap-5 xl:grid-cols-12">
         <div className="min-w-0 space-y-5 xl:col-span-8">
-          <SettingsCallout
-            tone={role.isLocked ? "warning" : "info"}
-            title={role.isLocked ? "Super Admin always has every permission" : "This is a built-in role"}
-            action={
-              <CardActionButton onClick={duplicate} aria-label={`Duplicate ${role.name} to customise`}>
-                Duplicate to customise
-              </CardActionButton>
-            }
-          >
-            {role.isLocked
-              ? "It can't be edited or limited, so the workspace owner can never be locked out."
-              : "System roles stay the same so everyone knows what they mean. Duplicate it to create a custom role you can change."}
+          <SettingsCallout tone="warning" title="Super Admin always has every permission">
+            It can&apos;t be edited or limited, so the workspace owner can never be locked out. Every other role — built-in or custom — can be edited.
           </SettingsCallout>
 
           <IconSectionCard icon={<IdCard className="h-5 w-5" />} tone="orange" title="Role details" action={<RoleBadge role={role} size="md" />}>
@@ -68,7 +57,7 @@ export function RoleViewOnly({ role, members }: { role: TeamRole; members: TeamM
         <aside className="min-w-0 space-y-5 xl:sticky xl:top-6 xl:col-span-4">
           <RoleSummaryCard permissions={role.permissions} />
           <RoleMembersCard members={assigned} roleId={role.id} />
-          <ProTipCard>Need almost the same access with one change? Duplicate this role, adjust it, then move people to the new role.</ProTipCard>
+          <ProTipCard>Need someone with almost everything? Give them Admin plus a few extra permissions from their profile instead of Super Admin.</ProTipCard>
         </aside>
       </div>
     </motion.div>

@@ -1,5 +1,5 @@
 import React from "react";
-import { Crown, Lock, ShieldCheck, ShieldOff } from "lucide-react";
+import { Crown, Lock, PenLine, Plus, ShieldCheck, ShieldOff } from "lucide-react";
 import type { TeamMember, TeamRole } from "@/types/team";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 import { inviteState } from "@/lib/teamStats";
@@ -66,5 +66,29 @@ export function SystemRoleBadge({ locked }: { locked?: boolean }) {
     <ToneBadge tone="navy" size="sm" icon={locked ? <Lock className="h-3 w-3" /> : undefined}>
       {locked ? "Locked" : "System"}
     </ToneBadge>
+  );
+}
+
+/** System role whose permissions differ from its default preset. */
+export function ModifiedRoleBadge({ size = "sm" }: { size?: "sm" | "md" }) {
+  return (
+    <span className="inline-flex shrink-0" title="Permissions differ from this built-in role's defaults">
+      <ToneBadge tone="yellow" size={size} icon={<PenLine className="h-3 w-3" />}>
+        Modified
+      </ToneBadge>
+    </span>
+  );
+}
+
+/** "+N" next to a role badge when the member has extra permissions on top of the role. */
+export function ExtraPermissionsBadge({ count, size = "sm", long }: { count: number; size?: "sm" | "md"; /** "+3 extra" instead of "+3". */ long?: boolean }) {
+  if (count <= 0) return null;
+  const text = `${count} extra permission${count === 1 ? "" : "s"}`;
+  return (
+    <span className="inline-flex shrink-0" title={text} aria-label={text}>
+      <ToneBadge tone="blue" size={size} icon={long ? <Plus className="h-3 w-3" /> : undefined}>
+        {long ? `${count} extra` : `+${count}`}
+      </ToneBadge>
+    </span>
   );
 }

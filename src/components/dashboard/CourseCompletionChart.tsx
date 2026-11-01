@@ -26,13 +26,13 @@ export function CourseCompletionChart({ data }: CourseCompletionChartProps) {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="text-left">
-          <h3 className="heading-h5 font-bold text-primary-500">Course Completion</h3>
+          <h3 className="heading-h5 text-primary-500">Course Completion</h3>
           <p className="body-sm-regular text-primary-300 mt-0.5">Course seats completed by students</p>
         </div>
 
         <Link
           href="/students"
-          className="body-sm-medium font-semibold text-brand-orange hover:text-brand-orange-hover hover:underline transition-colors"
+          className="body-sm-medium text-brand-orange hover:text-brand-orange-hover hover:underline transition-colors"
         >
           View all
         </Link>
@@ -66,7 +66,7 @@ export function CourseCompletionChart({ data }: CourseCompletionChartProps) {
 
             {/* Centered Stat Badge */}
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
-              <span className="heading-h2-bold text-primary-500 leading-none">{data.completionRate}%</span>
+              <span className="heading-h2-bold text-primary-500">{data.completionRate}%</span>
               <span className="body-2xsm-regular text-primary-300 mt-1">Completion Rate</span>
             </div>
           </div>
@@ -81,7 +81,7 @@ export function CourseCompletionChart({ data }: CourseCompletionChartProps) {
                 </div>
 
                 <div className="flex items-center gap-4">
-                  <span className="body-sm-medium font-bold text-primary-500">{formatNumber(cat.count)}</span>
+                  <span className="body-sm-medium text-primary-500">{formatNumber(cat.count)}</span>
                   <span className="body-sm-regular text-primary-300 w-9 text-right">{cat.pct}%</span>
                 </div>
               </div>

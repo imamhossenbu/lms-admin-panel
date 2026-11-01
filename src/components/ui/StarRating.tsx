@@ -20,7 +20,7 @@ export function StarRating({ rating, max = 5, size = "md", className }: StarRati
           key={i}
           className={cn(
             SIZE_CLASS[size],
-            i < rounded ? "text-yellow fill-current" : "text-slate-200 fill-current"
+            i < rounded ? "text-yellow fill-current" : "text-primary-300/20 fill-current"
           )}
         />
       ))}

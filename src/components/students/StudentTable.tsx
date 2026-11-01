@@ -44,7 +44,7 @@ export function StudentTable({
             size={32}
             className="rounded-full ring-1 ring-dash shrink-0"
           />
-          <span className="body-sm-medium text-primary-500 font-bold group-hover:text-brand-orange transition-colors">
+          <span className="body-sm-medium text-primary-500 group-hover:text-brand-orange transition-colors">
             {row.name}
           </span>
         </div>
@@ -65,7 +65,7 @@ export function StudentTable({
       width: "140px",
       align: "center",
       render: (row) => (
-        <span className="body-sm-medium text-primary-500 font-semibold">
+        <span className="body-sm-medium text-primary-500">
           {row.enrolledCoursesCount}
         </span>
       ),
@@ -80,7 +80,7 @@ export function StudentTable({
 
         return (
           <div className="space-y-1.5 w-full max-w-32.5">
-            <span className="body-2xsm-regular text-primary-500 font-medium block">
+            <span className="body-2xsm-regular text-primary-500 block">
               {row.completedCoursesCount} ({row.completionRate}%)
             </span>
             <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
@@ -138,7 +138,7 @@ export function StudentTable({
               e.stopPropagation();
               onViewDetails(row);
             }}
-            className="w-7 h-7 flex items-center justify-center rounded-lg border border-dash bg-white hover:bg-slate-100 text-primary-400 hover:text-primary-600 transition-colors cursor-pointer shadow-2xs"
+            className="w-7 h-7 flex items-center justify-center rounded-lg border border-dash bg-white hover:bg-slate-100 text-primary-400 hover:text-primary-500 transition-colors cursor-pointer shadow-2xs"
             title={`View details for ${row.name}`}
           >
             <Eye className="w-3.5 h-3.5" />
@@ -172,8 +172,8 @@ export function StudentTable({
         verticalBorders={true}
         containerClassName="border-0 rounded-none w-full"
         tableClassName="w-full"
-        headerClassName="bg-gray-bg border-b border-dash body-sm-medium text-primary-500 font-semibold normal-case"
-        thClassName="px-3.5 py-3 text-primary-500 font-semibold normal-case"
+        headerClassName="bg-gray-bg border-b border-dash body-sm-medium text-primary-500 normal-case"
+        thClassName="px-3.5 py-3 text-primary-500 normal-case"
         cellClassName="px-3.5 py-3.5 cursor-pointer"
       />
     </div>

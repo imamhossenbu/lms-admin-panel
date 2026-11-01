@@ -70,7 +70,7 @@ export function PreviewHero({ data, size }: PreviewHeroProps) {
           key={data.title || "untitled"}
           initial={{ opacity: 0.4 }}
           animate={{ opacity: 1 }}
-          className={cn("font-bold text-primary-500 break-words", isLarge ? "heading-h4" : "title-sm")}
+          className={cn("text-primary-500 break-words", isLarge ? "heading-h4" : "title-sm")}
         >
           {data.title || "Untitled course"}
         </motion.h3>

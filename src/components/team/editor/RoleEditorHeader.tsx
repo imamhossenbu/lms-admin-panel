@@ -1,11 +1,12 @@
 "use client";
 
 import React from "react";
-import { Copy, Save, ShieldPlus } from "lucide-react";
+import { Copy, RotateCcw, Save, ShieldPlus } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { PrimaryButton } from "@/components/ui/primary-button";
+import { SecondaryButton } from "@/components/ui/secondary-button";
 import type { BreadcrumbItem } from "@/components/ui/Breadcrumb";
-import { SystemRoleBadge } from "../shared/TeamBadges";
+import { ModifiedRoleBadge, SystemRoleBadge } from "../shared/TeamBadges";
 
 export const ROLE_FORM_ID = "team-role-form";
 export type RoleEditorMode = "create" | "edit" | "view";
@@ -13,39 +14,63 @@ export type RoleEditorMode = "create" | "edit" | "view";
 export interface RoleEditorHeaderProps {
   mode: RoleEditorMode;
   roleName?: string;
+  /** Built-in role (edit / view). */
+  isSystem?: boolean;
   locked?: boolean;
+  /** System role: current (form) permissions differ from the default preset. */
+  modified?: boolean;
   isSubmitting: boolean;
   onDuplicate?: () => void;
+  /** System role: opens the "Reset to default" confirm. */
+  onReset?: () => void;
+  canReset?: boolean;
 }
 
 const TITLE: Record<RoleEditorMode, string> = { create: "Create role", edit: "Edit role", view: "View role" };
-const SUBTITLE: Record<RoleEditorMode, string> = {
-  create: "Name the role and choose exactly what people with it can see and do.",
-  edit: "Changes apply immediately to everyone who has this role.",
-  view: "Built-in roles can't be changed. Duplicate it to make a version you can edit.",
-};
 
-/** 🏠 › Team & Roles › Roles › {name}, title + orange Save / Create / Duplicate to customise. */
-export function RoleEditorHeader({ mode, roleName, locked, isSubmitting, onDuplicate }: RoleEditorHeaderProps) {
+function subtitle(mode: RoleEditorMode, isSystem?: boolean) {
+  if (mode === "create") return "Name the role and choose exactly what people with it can see and do.";
+  if (mode === "view") return "Super Admin always has every permission, so the workspace owner can never be locked out.";
+  return isSystem
+    ? "Built-in role: the name stays the same, but you can change its permissions and reset them to the defaults at any time."
+    : "Changes apply immediately to everyone who has this role.";
+}
+
+/** 🏠 › Team & Roles › Roles › {name}, title + badges + Reset to default (system) + orange Save / Create / Duplicate. */
+export function RoleEditorHeader({ mode, roleName, isSystem, locked, modified, isSubmitting, onDuplicate, onReset, canReset }: RoleEditorHeaderProps) {
   const breadcrumbs: BreadcrumbItem[] = [
     { label: "Team & Roles", href: "/users" },
     { label: "Roles", href: "/users?tab=roles" },
     { label: mode === "create" ? "New role" : roleName || "Role" },
   ];
+  const badge =
+    mode !== "create" && isSystem ? (
+      <span className="inline-flex flex-wrap items-center gap-1.5">
+        <SystemRoleBadge locked={locked} />
+        {modified && <ModifiedRoleBadge />}
+      </span>
+    ) : undefined;
   return (
     <PageHeader
       className="mb-0"
       breadcrumbs={breadcrumbs}
-      title={<span className="heading-h3 font-bold! tracking-tight text-primary-500">{mode === "view" && roleName ? roleName : TITLE[mode]}</span>}
-      badge={mode === "view" ? <SystemRoleBadge locked={locked} /> : undefined}
-      subtitle={SUBTITLE[mode]}
+      title={<span className="heading-h3 font-bold! tracking-tight text-primary-500">{mode !== "create" && roleName ? roleName : TITLE[mode]}</span>}
+      badge={badge}
+      subtitle={subtitle(mode, isSystem)}
     >
       {mode === "view" ? (
         <PrimaryButton leftIcon={<Copy className="h-4 w-4" />} onClick={onDuplicate}>
-          Duplicate to customise
+          Duplicate
         </PrimaryButton>
       ) : (
-        <RoleSubmitButton mode={mode} isSubmitting={isSubmitting} />
+        <div className="flex flex-wrap items-center gap-2.5">
+          {isSystem && onReset && (
+            <SecondaryButton type="button" leftIcon={<RotateCcw className="h-4 w-4" />} onClick={onReset} disabled={!canReset || isSubmitting} title={canReset ? "Restore the built-in permissions" : "Already using the default permissions"}>
+              Reset to default
+            </SecondaryButton>
+          )}
+          <RoleSubmitButton mode={mode} isSubmitting={isSubmitting} />
+        </div>
       )}
     </PageHeader>
   );

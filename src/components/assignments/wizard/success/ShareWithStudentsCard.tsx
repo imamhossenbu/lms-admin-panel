@@ -49,10 +49,10 @@ export function ShareWithStudentsCard({ link, title }: ShareWithStudentsCardProp
           <MessageCircle className="h-4.5 w-4.5" />
         </ShareTargetButton>
         <ShareTargetButton label="Share on Facebook" tone="bg-blue text-white" href={`https://www.facebook.com/sharer/sharer.php?u=${enc(link)}`}>
-          <span className="title-bold leading-none">f</span>
+          <span className="title-bold">f</span>
         </ShareTargetButton>
         <ShareTargetButton label="Share on X" tone="bg-primary-500 text-white" href={`https://twitter.com/intent/tweet?text=${enc(message)}&url=${enc(link)}`}>
-          <span className="title-bold leading-none">X</span>
+          <span className="title-bold">X</span>
         </ShareTargetButton>
       </div>
     </IconSectionCard>

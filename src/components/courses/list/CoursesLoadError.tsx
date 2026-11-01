@@ -8,7 +8,7 @@ export function CoursesLoadError({ message, onRetry }: { message: string; onRetr
       <span className="w-12 h-12 rounded-full bg-red-14 text-red flex items-center justify-center">
         <CloudOff className="w-6 h-6" />
       </span>
-      <h2 className="heading-h5 font-bold text-primary-500">Couldn&apos;t load courses</h2>
+      <h2 className="heading-h5 text-primary-500">Couldn&apos;t load courses</h2>
       <p className="body-sm-regular text-primary-300 max-w-md">{message}</p>
       <button
         type="button"

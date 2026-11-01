@@ -37,7 +37,7 @@ export function CommunityStatCard({ icon, iconClassName, label, value, delta, ca
           {label}
         </p>
         <div className="mt-0.5 flex items-center gap-2">
-          <p className={cn("heading-h4 font-bold! leading-tight tabular-nums", valueClassName ?? "text-primary-500")}>{value.toLocaleString()}</p>
+          <p className={cn("heading-h4 font-bold! tabular-nums", valueClassName ?? "text-primary-500")}>{value.toLocaleString()}</p>
           {hasDelta && (
             <ToneBadge tone={delta > 0 ? "green" : delta < 0 ? "red" : "gray"} size="sm" icon={delta > 0 ? <ArrowUp className="h-3 w-3" /> : delta < 0 ? <ArrowDown className="h-3 w-3" /> : undefined}>
               {Math.abs(delta)}%

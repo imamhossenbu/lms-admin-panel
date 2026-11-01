@@ -60,7 +60,7 @@ export function StatCard({
 
       {/* Middle Section: Value */}
       <div
-        className="h6-medium text-primary-text-500 leading-none my-auto min-w-0 truncate"
+        className="h6-medium text-primary-text-500 my-auto min-w-0 truncate"
         title={String(value)}
       >
         {value}
@@ -78,7 +78,7 @@ export function StatCard({
         <div className="flex items-center gap-1 body-xsm-regular">
           <span
             className={cn(
-              "inline-flex items-center gap-0.5 font-medium",
+              "inline-flex items-center gap-0.5 body-xsm-medium",
               trend.direction === "up" ? "text-green" : "text-red"
             )}
           >

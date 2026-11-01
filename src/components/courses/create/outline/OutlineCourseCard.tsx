@@ -46,7 +46,7 @@ export function OutlineCourseCard({
 
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-          <h3 className="heading-h5 font-semibold text-primary-500">{title || "Untitled Course"}</h3>
+          <h3 className="heading-h5 text-primary-500">{title || "Untitled Course"}</h3>
           <motion.button
             type="button"
             onClick={onEditDetails}

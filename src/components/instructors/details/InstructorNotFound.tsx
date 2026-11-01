@@ -10,7 +10,7 @@ export function InstructorNotFound() {
       <div className="w-12 h-12 rounded-full bg-red-14 text-red flex items-center justify-center">
         <UserX className="w-6 h-6" />
       </div>
-      <h1 className="heading-h5 font-bold text-primary-500">Instructor not found</h1>
+      <h1 className="heading-h5 text-primary-500">Instructor not found</h1>
       <p className="body-sm-regular text-primary-300 max-w-sm">
         This instructor may have been removed, or the link is incorrect.
       </p>

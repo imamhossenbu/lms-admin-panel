@@ -11,7 +11,7 @@ export function AssignmentsLoadError({ message, onRetry }: { message: string; on
       <span className="w-12 h-12 rounded-full bg-red-14 text-red flex items-center justify-center">
         <CloudOff className="w-6 h-6" />
       </span>
-      <h2 className="heading-h5 font-bold text-primary-500">Couldn&apos;t load assignments</h2>
+      <h2 className="heading-h5 font-bold! text-primary-500">Couldn&apos;t load assignments</h2>
       <p className="body-sm-regular text-primary-300 max-w-md">{message}</p>
       <PrimaryButton variant="outline" className="mt-2" onClick={onRetry} leftIcon={<RotateCw className="w-4 h-4" />}>
         Try Again

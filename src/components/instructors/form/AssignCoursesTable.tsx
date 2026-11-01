@@ -98,7 +98,7 @@ export function AssignCoursesTable({
         verticalBorders
         containerClassName="border-0 rounded-none"
         headerClassName="bg-slate-50 border-b border-dash"
-        thClassName="px-3.5 py-3 body-xsm-medium text-primary-400 font-semibold normal-case"
+        thClassName="px-3.5 py-3 body-xsm-medium text-primary-400 normal-case"
         cellClassName="px-3.5 py-3"
         emptyMessage="No courses match your search."
       />

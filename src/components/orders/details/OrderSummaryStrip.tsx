@@ -21,7 +21,7 @@ export function OrderSummaryStrip({ order }: { order: OrderItem }) {
           content: (
             <>
               <div className="flex items-center gap-1.5">
-                <p className="heading-h4 font-bold text-primary-500">{order.orderNumber}</p>
+                <p className="heading-h4 text-primary-500">{order.orderNumber}</p>
                 <CopyButton value={order.orderNumber} label="Order ID copied" />
               </div>
               <p className="body-sm-regular text-primary-300">{order.reference}</p>
@@ -46,7 +46,7 @@ export function OrderSummaryStrip({ order }: { order: OrderItem }) {
           label: "Total Amount",
           content: (
             <>
-              <p className="heading-h4 font-bold text-primary-500">{formatCurrency(order.amount)}</p>
+              <p className="heading-h4 text-primary-500">{formatCurrency(order.amount)}</p>
               <p className="body-sm-regular text-primary-300">{order.currency}</p>
             </>
           ),

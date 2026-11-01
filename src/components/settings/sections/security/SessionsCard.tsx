@@ -62,7 +62,7 @@ export function SessionsCard() {
               </div>
               {Number.isFinite(field.value) && field.value >= 5 && (
                 <p className="body-xsm-regular text-primary-300">
-                  Idle admins are signed out after <span className="font-semibold text-primary-500">{formatMinutes(field.value)}</span>.
+                  Idle admins are signed out after <span className="body-xsm-medium font-semibold! text-primary-500">{formatMinutes(field.value)}</span>.
                 </p>
               )}
             </div>

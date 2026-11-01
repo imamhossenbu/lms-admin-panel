@@ -50,13 +50,20 @@ export function MemberDetailSkeleton() {
       </div>
       <div className="grid grid-cols-1 items-start gap-5 xl:grid-cols-12">
         <div className="dashboard-card space-y-4 p-5 xl:col-span-8">
-          <CardHead actions={2} />
+          <CardHead actions={3} />
           <div className="flex gap-3 rounded-xl border border-dash bg-gray-bg p-3.5">
             <Skeleton className="h-6 w-28 rounded-md" />
             <div className="flex-1 space-y-1.5">
               <Skeleton className="h-3.5 w-full" />
               <Skeleton className="h-3.5 w-2/3" />
             </div>
+          </div>
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex gap-4">
+              <Skeleton className="h-3.5 w-36" />
+              <Skeleton className="h-3.5 w-28" />
+            </div>
+            <Skeleton className="h-3.5 w-28" />
           </div>
           <div className="overflow-hidden rounded-lg border border-dash">
             <div className="flex divide-x divide-dash border-b border-dash bg-slate-50">

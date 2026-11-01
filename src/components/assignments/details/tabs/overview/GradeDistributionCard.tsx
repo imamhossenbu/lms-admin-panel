@@ -69,7 +69,7 @@ export function GradeDistributionCard({
               </PieChart>
             </ResponsiveContainer>
             <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-              <span className="heading-h4 font-bold! text-primary-500 leading-none">
+              <span className="heading-h4 font-bold! text-primary-500">
                 {graded}
               </span>
               <span className="mt-1 body-xsm-regular text-primary-300">

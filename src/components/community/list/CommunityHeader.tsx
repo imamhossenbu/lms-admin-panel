@@ -19,7 +19,7 @@ export function CommunityHeader({ exportCount, onExport, onCreate }: CommunityHe
     <PageHeader
       className="mb-0"
       breadcrumbs={[{ label: "Community" }]}
-      title={<span className="heading-h3 font-bold! tracking-tight text-primary-500">Community</span>}
+      title={<span className="heading-h3 font-bold! text-primary-500">Community</span>}
       subtitle="Moderate course discussions, answer questions and keep conversations healthy."
     >
       <SecondaryButton leftIcon={<Download className="h-4 w-4" />} disabled={exportCount === 0} onClick={onExport} title={`Export ${exportCount} discussion${exportCount === 1 ? "" : "s"} (CSV)`}>

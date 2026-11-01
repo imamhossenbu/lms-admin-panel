@@ -58,7 +58,7 @@ function HeaderStat({ icon, value, label }: { icon: React.ReactNode; value: Reac
     <div className="flex items-center gap-3 [&>svg]:w-6 [&>svg]:h-6 [&>svg]:text-primary-300 [&>svg]:shrink-0">
       {icon}
       <div>
-        <p className="heading-h5 font-bold text-primary-500 leading-tight whitespace-nowrap">{value}</p>
+        <p className="heading-h5 text-primary-500 whitespace-nowrap">{value}</p>
         <p className="body-sm-regular text-primary-300">{label}</p>
       </div>
     </div>
@@ -99,7 +99,7 @@ export function InstructorDetailsHeader({
           <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
             <div className="space-y-2.5 min-w-0">
               <div className="flex flex-wrap items-center gap-3">
-                <h1 className="heading-h3 font-bold text-primary-500">{instructor.name}</h1>
+                <h1 className="heading-h3 text-primary-500">{instructor.name}</h1>
                 <ToneBadge tone={instructor.status === "Active" ? "green" : "red"} dot>
                   {instructor.status}
                 </ToneBadge>
@@ -152,7 +152,7 @@ export function InstructorDetailsHeader({
 
           {showSummary && (
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-              <p className="body-sm-regular text-primary-400 leading-relaxed max-w-2xl">
+              <p className="body-sm-regular text-primary-400 max-w-2xl">
                 {instructor.bio || "No bio added yet."}
               </p>
               <DividedRow className="gap-x-7 gap-y-3 shrink-0 lg:pl-7 lg:border-l lg:border-dash" dividerClassName="h-10">

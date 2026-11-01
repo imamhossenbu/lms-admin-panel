@@ -51,7 +51,7 @@ export function RecentActivityTimelineCard({
           <div className="w-10 h-10 rounded-lg bg-blue-14 text-blue flex items-center justify-center shrink-0">
             <Clock className="w-5 h-5" />
           </div>
-          <h2 className="title-medium font-bold text-primary-500">
+          <h2 className="title-medium text-primary-500">
             Recent Activity
           </h2>
         </div>
@@ -89,7 +89,7 @@ export function RecentActivityTimelineCard({
               {/* Text Info */}
               <div className="flex-1 min-w-0">
                 <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
-                  <h4 className="body-sm-medium font-semibold text-primary-500">
+                  <h4 className="body-sm-medium text-primary-500">
                     {act.title}
                   </h4>
                   <span className="body-2xsm-regular text-primary-300 shrink-0">

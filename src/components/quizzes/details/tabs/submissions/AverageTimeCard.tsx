@@ -25,7 +25,7 @@ export function AverageTimeCard({ quiz, attempts }: { quiz: QuizItem; attempts: 
         </span>
         <div className="min-w-0 flex-1">
           <p className="body-sm-regular text-primary-300">Average Time Taken</p>
-          <p className="heading-h4 font-bold! text-primary-500 leading-tight whitespace-nowrap">{formatDuration(m.avgTimeSeconds)}</p>
+          <p className="heading-h4 font-bold! text-primary-500 whitespace-nowrap">{formatDuration(m.avgTimeSeconds)}</p>
         </div>
         {trend !== null && (
           <div className="flex flex-col items-start gap-1 @xs:items-end">

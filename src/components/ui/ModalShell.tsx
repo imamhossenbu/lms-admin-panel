@@ -138,7 +138,7 @@ export function ModalShell({
                   id={titleId}
                   className={cn(
                     "text-primary-500 flex items-center gap-3",
-                    headerVariant === "hero" ? "heading-h4 font-bold" : "h6-medium"
+                    headerVariant === "hero" ? "heading-h4" : "h6-medium"
                   )}
                 >
                   {titleIcon && <span className="shrink-0 flex [&>svg]:w-8 [&>svg]:h-8">{titleIcon}</span>}
@@ -161,7 +161,7 @@ export function ModalShell({
                   type="button"
                   onClick={onClose}
                   aria-label="Close"
-                  className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-dash text-primary-300 transition-colors hover:bg-gray-100 hover:text-primary-500"
+                  className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-dash text-primary-300 transition-colors hover:bg-slate-100 hover:text-primary-500"
                 >
                   <X className="h-4 w-4" />
                 </button>

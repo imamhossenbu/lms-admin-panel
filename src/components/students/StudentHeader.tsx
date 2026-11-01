@@ -21,7 +21,7 @@ export function StudentHeader({ onAddClick }: StudentHeaderProps) {
         />
 
         {/* Title & Subtitle */}
-        <h1 className="heading-h4 text-primary-500 font-bold tracking-tight">
+        <h1 className="heading-h4 text-primary-500 tracking-tight">
           Students
         </h1>
         <p className="body-sm-regular text-primary-300 mt-0.5">
@@ -34,7 +34,7 @@ export function StudentHeader({ onAddClick }: StudentHeaderProps) {
         <PrimaryButton
           type="button"
           onClick={onAddClick}
-          icon={<Plus className="w-4 h-4 stroke-[2.5]" />}
+          icon={<Plus className="w-4 h-4" strokeWidth={2.5} />}
           size="md"
           className="shrink-0 self-start sm:self-auto"
         >

@@ -18,7 +18,7 @@ export function StudentNextStepsCard() {
         <div className="w-10 h-10 rounded-lg bg-blue-14 text-blue flex items-center justify-center shrink-0">
           <Send className="w-5 h-5" />
         </div>
-        <h2 className="title-medium font-bold text-primary-500">
+        <h2 className="title-medium text-primary-500">
           What happens next?
         </h2>
       </div>
@@ -30,7 +30,7 @@ export function StudentNextStepsCard() {
             <div className="w-5 h-5 rounded-full bg-blue-14 text-blue body-xsm-medium font-bold! flex items-center justify-center shrink-0 mt-0.5 border border-blue/30">
               {idx + 1}
             </div>
-            <p className="body-sm-regular text-primary-400 leading-snug">
+            <p className="body-sm-regular text-primary-400">
               {text}
             </p>
           </div>

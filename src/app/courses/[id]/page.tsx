@@ -80,11 +80,11 @@ function CourseDetailsContent() {
   if (!course) {
     return (
       <div className="py-20 text-center space-y-4 max-w-md mx-auto">
-        <div className="w-12 h-12 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mx-auto">
+        <div className="w-12 h-12 rounded-full bg-red-14 text-red flex items-center justify-center mx-auto">
           <AlertCircle className="w-6 h-6" />
         </div>
         <div>
-          <h3 className="title-sm text-primary-500 font-bold">Course Not Found</h3>
+          <h3 className="title-sm text-primary-500">Course Not Found</h3>
           <p className="body-sm-regular subtext-500 mt-1">
             The requested course could not be located in the catalog or may have been deleted.
           </p>
@@ -112,7 +112,7 @@ function CourseDetailsContent() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-dash">
         <div className="space-y-1">
           <Breadcrumb items={[{ label: "Courses", href: "/courses" }, { label: course.title }]} />
-          <h1 className="title-md text-primary-500 font-bold tracking-tight">
+          <h1 className="title-md text-primary-500 tracking-tight">
             {course.title}
           </h1>
         </div>

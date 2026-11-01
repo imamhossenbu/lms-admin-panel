@@ -196,13 +196,13 @@ function VerifyEmailFormContent() {
           isResetMode ? (
             <>
               We&apos;ve sent a 6-digit security code to{" "}
-              <span className="body-medium text-primary-500 font-semibold">{email}</span>. Please enter
+              <span className="body-medium text-primary-500">{email}</span>. Please enter
               the code below to proceed with resetting your password.
             </>
           ) : (
             <>
               We&apos;ve sent a 6-digit verification code to{" "}
-              <span className="body-medium text-primary-500 font-semibold">{email}</span>. Please enter
+              <span className="body-medium text-primary-500">{email}</span>. Please enter
               the code below to continue.
             </>
           )
@@ -221,10 +221,10 @@ function VerifyEmailFormContent() {
               <CheckCircle2 className="w-8 h-8" />
             </div>
             <div className="space-y-1">
-              <h3 className="heading-h4 text-primary-500 font-bold">
+              <h3 className="heading-h4 text-primary-500">
                 {isResetMode ? "Code Verified Successfully!" : "Email Successfully Verified!"}
               </h3>
-              <p className="body-sm-regular text-primary-400 leading-relaxed max-w-sm mx-auto">
+              <p className="body-sm-regular text-primary-400 max-w-sm mx-auto">
                 {isResetMode
                   ? "Security code validated. Click the button below to set your new password."
                   : "Your identity has been authenticated. Click the button below to enter your dashboard."}
@@ -237,7 +237,7 @@ function VerifyEmailFormContent() {
                     ? `/reset-password?token=${encodeURIComponent(verifiedResetToken || fullCode)}&email=${encodeURIComponent(email)}`
                     : "/"
                 }
-                className="inline-flex items-center justify-center gap-2 w-full h-12.5 rounded-xl bg-brand-orange bg-brand-orange:hover text-white body-medium font-semibold shadow-md edupro-glow-btn transition-all cursor-pointer"
+                className="inline-flex items-center justify-center gap-2 w-full h-12.5 rounded-xl bg-brand-orange bg-brand-orange:hover text-white body-medium shadow-md edupro-glow-btn transition-all cursor-pointer"
               >
                 <span>{isResetMode ? "Set New Password Now" : "Enter Dashboard"}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -248,7 +248,7 @@ function VerifyEmailFormContent() {
           <form onSubmit={handleSubmit} className="space-y-6 text-left">
             {/* 6-Digit OTP Box Grid */}
             <div className="space-y-2.5">
-              <label className="block body-sm-regular text-primary-500 font-semibold tracking-tight">
+              <label className="block body-sm-medium text-primary-500 tracking-tight">
                 Verification Code
               </label>
 

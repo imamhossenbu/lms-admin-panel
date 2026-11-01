@@ -53,7 +53,7 @@ function CreateCategoryContent() {
         setIcon(res.url);
         toast.success("Icon uploaded to Cloudinary CDN!", {
           id: toastId,
-          icon: <CheckCircle2 className="w-5 h-5 text-emerald-500" />,
+          icon: <CheckCircle2 className="w-5 h-5 text-green" />,
         });
       }
     } catch {
@@ -155,7 +155,7 @@ function CreateCategoryContent() {
             </label>
             <div className="flex items-center gap-3 h-10 px-3 rounded-lg border border-dash bg-gray-bg">
               <CategoryIcon icon={icon} className="w-6 h-6 body-l-regular" />
-              <span className="body-sm-medium text-primary-500 font-semibold truncate">
+              <span className="body-sm-medium text-primary-500 truncate">
                 {icon.startsWith("http") ? "Custom Cloudinary Graphic" : `Emoji Symbol: ${icon}`}
               </span>
             </div>
@@ -176,7 +176,7 @@ function CreateCategoryContent() {
                 className={`w-9 h-9 body-l-regular rounded-md flex items-center justify-center transition-transform hover:scale-110 cursor-pointer ${
                   icon === em
                     ? "bg-brand-orange text-white shadow-sm ring-2 ring-brand-orange/30"
-                    : "bg-white hover:bg-slate-100 border border-gray-200"
+                    : "bg-white hover:bg-slate-100 border border-dash"
                 }`}
               >
                 {em}
@@ -216,7 +216,7 @@ function CreateCategoryContent() {
             value={desc}
             onChange={(e) => setDesc(e.target.value)}
             placeholder="Describe what courses belong to this category and the core competencies learners will achieve..."
-            className="w-full px-3.5 py-2.5 rounded-lg border border-dash bg-white body-sm-regular text-primary-500 placeholder:text-gray-400 focus:outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange transition-all resize-y"
+            className="w-full px-3.5 py-2.5 rounded-lg border border-dash bg-white body-sm-regular text-primary-500 placeholder:text-primary-300 focus:outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange transition-all resize-y"
           />
         </div>
 

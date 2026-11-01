@@ -65,7 +65,7 @@ export function ActivityLogTabContent({
       header: "Date & Time",
       render: (row) => (
         <div className="space-y-0.5 whitespace-nowrap">
-          <div className="body-sm-medium font-semibold text-primary-500">
+          <div className="body-sm-medium text-primary-500">
             {row.date}
           </div>
           <div className="body-2xsm-regular text-primary-300">
@@ -86,7 +86,7 @@ export function ActivityLogTabContent({
       header: "Details",
       render: (row) => (
         <div className="space-y-0.5">
-          <div className="body-sm-medium font-bold text-primary-500 whitespace-nowrap">
+          <div className="body-sm-medium text-primary-500 whitespace-nowrap">
             {row.activityTitle}
           </div>
           <div className="body-2xsm-regular text-primary-400">
@@ -107,7 +107,7 @@ export function ActivityLogTabContent({
           <div className="flex items-center gap-3">
             <CourseBadgeIcon type={row.relatedItemIcon} size="md" />
             <div className="space-y-0.5">
-              <div className="body-sm-medium font-semibold text-primary-500 whitespace-nowrap">
+              <div className="body-sm-medium text-primary-500 whitespace-nowrap">
                 {row.relatedItemName}
               </div>
               <div className="body-2xsm-regular text-primary-300 whitespace-nowrap">
@@ -130,7 +130,7 @@ export function ActivityLogTabContent({
             <History className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="title-medium font-bold text-primary-500">
+            <h2 className="title-medium text-primary-500">
               Activity Log
             </h2>
             <p className="body-sm-regular text-primary-300">
@@ -200,7 +200,7 @@ export function ActivityLogTabContent({
           </button>
           <button
             type="button"
-            className="w-8 h-8 rounded-lg bg-blue text-white flex items-center justify-center body-sm-medium font-bold shadow-2xs"
+            className="w-8 h-8 rounded-lg bg-blue text-white flex items-center justify-center body-sm-medium shadow-2xs"
           >
             1
           </button>

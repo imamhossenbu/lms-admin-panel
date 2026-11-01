@@ -39,7 +39,7 @@ export function EnrolledCoursesMiniCard({
       render: (row) => (
         <div className="flex items-center gap-2.5">
           <CourseBadgeIcon type={row.iconType} size="sm" />
-          <span className="body-sm-medium text-primary-500 font-semibold truncate max-w-55 xl:max-w-70">
+          <span className="body-sm-medium text-primary-500 truncate max-w-55 xl:max-w-70">
             {row.title}
           </span>
         </div>
@@ -58,7 +58,7 @@ export function EnrolledCoursesMiniCard({
 
         return (
           <div className="flex items-center gap-2 min-w-24">
-            <span className="body-xsm-medium font-semibold text-primary-500 w-7">
+            <span className="body-xsm-medium text-primary-500 w-7">
               {row.progress}%
             </span>
             <div className="h-1.5 flex-1 bg-slate-100 rounded-full overflow-hidden">
@@ -117,7 +117,7 @@ export function EnrolledCoursesMiniCard({
           <div className="w-10 h-10 rounded-lg bg-blue-14 text-blue flex items-center justify-center shrink-0">
             <BookOpen className="w-5 h-5" />
           </div>
-          <h2 className="title-medium font-bold text-primary-500">
+          <h2 className="title-medium text-primary-500">
             Enrolled Courses ({courses.length})
           </h2>
         </div>

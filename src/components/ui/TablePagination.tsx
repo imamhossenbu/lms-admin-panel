@@ -61,9 +61,9 @@ export function TablePagination({
       )}
     >
       <span className="body-sm-regular text-primary-400">
-        Showing <span className="font-semibold text-primary-500">{startItem}</span> to{" "}
-        <span className="font-semibold text-primary-500">{endItem}</span> of{" "}
-        <span className="font-semibold text-primary-500">{totalCount.toLocaleString()}</span> {itemLabel}
+        Showing <span className="body-sm-regular font-semibold! text-primary-500">{startItem}</span> to{" "}
+        <span className="body-sm-regular font-semibold! text-primary-500">{endItem}</span> of{" "}
+        <span className="body-sm-regular font-semibold! text-primary-500">{totalCount.toLocaleString()}</span> {itemLabel}
       </span>
 
       <div className="flex items-center gap-2 self-end sm:self-auto">
@@ -90,7 +90,7 @@ export function TablePagination({
                 onClick={() => onPageChange(item)}
                 aria-current={item === currentPage ? "page" : undefined}
                 className={cn(
-                  "w-8 h-8 rounded-lg body-sm-medium font-bold transition-all cursor-pointer",
+                  "w-8 h-8 rounded-lg body-sm-medium transition-all cursor-pointer",
                   item === currentPage
                     ? "bg-brand-orange text-white shadow-2xs"
                     : "border border-dash text-primary-400 hover:bg-slate-50 hover:text-primary-500"

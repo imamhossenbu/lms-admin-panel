@@ -13,7 +13,7 @@ export function ReviewSummary({ reviews }: { reviews: InstructorReviewRow[] }) {
   return (
     <div className="flex flex-col sm:flex-row sm:items-center gap-6">
       <div className="rounded-xl border border-dash px-8 py-4 text-center shrink-0">
-        <p className="heading-h3 font-bold text-primary-500">{average.toFixed(1)}</p>
+        <p className="heading-h3 text-primary-500">{average.toFixed(1)}</p>
         <StarRating rating={average} size="lg" className="my-1.5" />
         <p className="body-sm-regular text-primary-400">{total.toLocaleString()} reviews</p>
       </div>

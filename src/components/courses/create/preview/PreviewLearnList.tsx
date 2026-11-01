@@ -9,7 +9,7 @@ import { PreviewEmptyState } from "./PreviewEmptyState";
 export function PreviewLearnList({ items }: { items: string[] }) {
   return (
     <div className="rounded-xl border border-dash p-4 text-left">
-      <h4 className="body-md-medium font-semibold text-primary-500">What You&apos;ll Learn</h4>
+      <h4 className="body-md-medium text-primary-500">What You&apos;ll Learn</h4>
       {items.length ? (
         <ul className="mt-3 space-y-2.5">
           <AnimatePresence initial={false}>

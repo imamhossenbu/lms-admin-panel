@@ -19,16 +19,16 @@ export function InstructorNextStepsCard({ steps = DEFAULT_STEPS }: InstructorNex
     <div className="bg-blue-14 rounded-xl border border-blue/20 p-6 space-y-4 text-left">
       <div className="flex items-center gap-3">
         <Send className="w-5 h-5 text-blue shrink-0" />
-        <h2 className="title-medium font-bold text-primary-500">What happens next?</h2>
+        <h2 className="title-medium text-primary-500">What happens next?</h2>
       </div>
 
       <ol className="space-y-3.5">
         {steps.map((text, idx) => (
           <li key={text} className="flex items-start gap-3">
-            <span className="w-6 h-6 rounded-full bg-white text-primary-500 body-xsm-medium font-bold flex items-center justify-center shrink-0 border border-dash">
+            <span className="w-6 h-6 rounded-full bg-white text-primary-500 body-xsm-medium flex items-center justify-center shrink-0 border border-dash">
               {idx + 1}
             </span>
-            <p className="body-sm-regular text-primary-400 leading-snug pt-0.5">{text}</p>
+            <p className="body-sm-regular text-primary-400 pt-0.5">{text}</p>
           </li>
         ))}
       </ol>

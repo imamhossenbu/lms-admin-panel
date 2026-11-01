@@ -18,7 +18,7 @@ export function PreviewThumbnailHero({ thumbnail, title }: PreviewThumbnailHeroP
         <Image src={thumbnail} alt={title || "Course thumbnail"} fill unoptimized sizes="520px" className="object-cover" />
       ) : (
         <div className="absolute inset-0 flex items-center bg-gradient-to-br from-brand-navy via-brand-card to-blue p-6">
-          <span className="heading-h4 font-bold text-white line-clamp-2 w-3/5">{title || "Untitled course"}</span>
+          <span className="heading-h4 text-white line-clamp-2 w-3/5">{title || "Untitled course"}</span>
         </div>
       )}
       <motion.span

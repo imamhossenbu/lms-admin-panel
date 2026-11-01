@@ -15,7 +15,7 @@ export function PreviewOverviewTab({ data }: { data: CoursePreviewData }) {
 
   return (
     <div className="rounded-xl border border-dash p-4 text-left">
-      <h4 className="body-md-medium font-semibold text-primary-500">About This Course</h4>
+      <h4 className="body-md-medium text-primary-500">About This Course</h4>
       <p className="body-sm-regular text-primary-300 mt-2 break-words">
         {data.shortDescription || "Your short description will appear here as you type."}
       </p>

@@ -21,7 +21,7 @@ export function SelectedCoursesChips({
   return (
     <div className="pt-3 border-t border-dash space-y-2.5 text-left">
       <div className="flex items-center gap-2">
-        <span className="body-sm-medium text-primary-500 font-semibold">
+        <span className="body-sm-medium text-primary-500">
           Selected Courses ({selectedCourses.length})
         </span>
       </div>

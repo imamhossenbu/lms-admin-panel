@@ -261,7 +261,7 @@ export function AiOutlineReviewModal({
         message={
           dialogModule ? (
             <>
-              Delete <span className="font-semibold">&ldquo;{dialogModule.title}&rdquo;</span>
+              Delete <span className="body-sm-regular font-semibold!">&ldquo;{dialogModule.title}&rdquo;</span>
               {dialogModule.lessons.length > 0
                 ? ` and its ${dialogModule.lessons.length} ${dialogModule.lessons.length === 1 ? "lesson" : "lessons"}`
                 : ""}{" "}

@@ -75,7 +75,7 @@ export function EnrolledCoursesTabContent({
         <div className="flex items-center gap-3">
           <CourseBadgeIcon type={row.iconType} size="md" />
           <div>
-            <h4 className="body-sm-medium font-semibold text-primary-500">
+            <h4 className="body-sm-medium text-primary-500">
               {row.title}
             </h4>
             <span className="body-2xsm-regular text-primary-300">
@@ -126,7 +126,7 @@ export function EnrolledCoursesTabContent({
                 style={{ width: `${Math.max(row.progress, 0)}%` }}
               />
             </div>
-            <span className="body-xsm-medium font-semibold text-primary-500 w-8 text-right">
+            <span className="body-xsm-medium text-primary-500 w-8 text-right">
               {row.progress}%
             </span>
           </div>
@@ -246,7 +246,7 @@ export function EnrolledCoursesTabContent({
             <BookOpen className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="title-medium font-bold text-primary-500">
+            <h2 className="title-medium text-primary-500">
               Enrolled Courses
             </h2>
             <p className="body-sm-regular text-primary-300">
@@ -280,7 +280,7 @@ export function EnrolledCoursesTabContent({
             size="md"
             type="button"
             onClick={onEnrollNew}
-            icon={<Plus className="w-4 h-4 stroke-[2.2]" />}
+            icon={<Plus className="w-4 h-4" strokeWidth={2.2} />}
           >
             Enroll in Course
           </PrimaryButton>
@@ -314,7 +314,7 @@ export function EnrolledCoursesTabContent({
           </button>
           <button
             type="button"
-            className="w-8 h-8 rounded-lg bg-brand-orange text-white flex items-center justify-center body-sm-medium font-bold shadow-2xs"
+            className="w-8 h-8 rounded-lg bg-brand-orange text-white flex items-center justify-center body-sm-medium shadow-2xs"
           >
             1
           </button>

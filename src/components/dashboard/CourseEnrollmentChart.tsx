@@ -27,7 +27,7 @@ export function CourseEnrollmentChart({ data }: CourseEnrollmentChartProps) {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="text-left">
-          <h3 className="heading-h5 font-bold text-primary-500">
+          <h3 className="heading-h5 text-primary-500">
             Course Enrollment
           </h3>
           <p className="body-sm-regular text-primary-300 mt-0.5">
@@ -37,7 +37,7 @@ export function CourseEnrollmentChart({ data }: CourseEnrollmentChartProps) {
 
         <Link
           href="/courses"
-          className="body-sm-medium font-semibold text-brand-orange hover:text-brand-orange-hover hover:underline transition-colors"
+          className="body-sm-medium text-brand-orange hover:text-brand-orange-hover hover:underline transition-colors"
         >
           View all
         </Link>
@@ -87,7 +87,7 @@ export function CourseEnrollmentChart({ data }: CourseEnrollmentChartProps) {
                   const item = payload[0].payload as BreakdownRow;
                   return (
                     <ChartTooltip title={item.label}>
-                      <p className="body-sm-medium text-brand-orange font-semibold">
+                      <p className="body-sm-medium text-brand-orange">
                         {formatNumber(item.value)} new {item.value === 1 ? "enrollment" : "enrollments"}
                       </p>
                       <p className="body-2xsm-regular text-primary-300 mt-0.5">{item.share}% of all enrollments</p>

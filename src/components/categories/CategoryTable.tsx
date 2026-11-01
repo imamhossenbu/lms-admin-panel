@@ -85,11 +85,11 @@ export function CategoryTable({
             <CategoryIconRenderer iconId={row.iconId} size="md" />
             <div className="flex flex-col">
               <div className="flex items-center gap-2">
-                <span className="body-sm-medium text-primary-500 font-bold group-hover:text-brand-orange transition-colors">
+                <span className="body-sm-medium text-primary-500 group-hover:text-brand-orange transition-colors">
                   {row.name}
                 </span>
                 {subCount > 0 && (
-                  <span className="body-2xsm-regular px-1.5 py-0.5 rounded-full bg-slate-200/70 text-primary-500 font-medium">
+                  <span className="body-2xsm-regular px-1.5 py-0.5 rounded-full bg-slate-200/70 text-primary-500">
                     {subCount} sub
                   </span>
                 )}
@@ -120,7 +120,7 @@ export function CategoryTable({
       width: "120px",
       align: "center",
       render: (row) => (
-        <span className="body-sm-medium text-primary-500 font-semibold">
+        <span className="body-sm-medium text-primary-500">
           {row.totalCourses}
         </span>
       ),
@@ -131,7 +131,7 @@ export function CategoryTable({
       width: "110px",
       align: "center",
       render: (row) => (
-        <span className="body-sm-medium text-brand-orange font-semibold">
+        <span className="body-sm-medium text-brand-orange">
           {row.publishedCourses}
         </span>
       ),
@@ -207,7 +207,7 @@ export function CategoryTable({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Layers className="w-4 h-4 text-brand-orange" />
-            <h5 className="body-sm-medium text-primary-500 font-bold">
+            <h5 className="body-sm-medium text-primary-500">
               Sub-categories under &ldquo;{row.name}&rdquo; ({subCategories.length})
             </h5>
           </div>
@@ -226,7 +226,7 @@ export function CategoryTable({
                 <div className="flex items-center gap-3">
                   <span className="w-2 h-2 rounded-full bg-brand-orange shrink-0" />
                   <div>
-                    <span className="body-sm-medium text-primary-500 font-semibold block">
+                    <span className="body-sm-medium text-primary-500 block">
                       {sub.name}
                     </span>
                     <span className="body-2xsm-regular text-primary-300 font-mono">
@@ -236,7 +236,7 @@ export function CategoryTable({
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <span className="body-2xsm-regular px-2.5 py-1 rounded-md bg-slate-100 text-primary-500 font-medium">
+                  <span className="body-2xsm-regular px-2.5 py-1 rounded-md bg-slate-100 text-primary-500">
                     {sub.courseCount} courses
                   </span>
 
@@ -283,8 +283,8 @@ export function CategoryTable({
         verticalBorders={true}
         containerClassName="border-0 rounded-none w-full"
         tableClassName="w-full"
-        headerClassName="bg-gray-bg border-b border-dash body-sm-medium text-primary-500 font-semibold normal-case"
-        thClassName="px-3.5 py-3 text-primary-500 font-semibold normal-case body-sm-medium"
+        headerClassName="bg-gray-bg border-b border-dash body-sm-medium text-primary-500 normal-case"
+        thClassName="px-3.5 py-3 text-primary-500 normal-case body-sm-medium"
         cellClassName="px-3.5 py-3.5"
       />
     </div>

@@ -22,7 +22,7 @@ export function PreviewCurriculumTab({ outline }: { outline: AiOutline | null })
     <ol className="rounded-xl border border-dash divide-y divide-dash text-left">
       {outline.modules.map((module, index) => (
         <li key={module.id} className="flex items-center gap-3 px-4 py-3">
-          <span className="w-7 h-7 rounded-lg bg-brand-orange-light text-brand-orange body-xsm-medium font-semibold flex items-center justify-center shrink-0">
+          <span className="w-7 h-7 rounded-lg bg-brand-orange-light text-brand-orange body-xsm-medium flex items-center justify-center shrink-0">
             {index + 1}
           </span>
           <div className="min-w-0 flex-1">

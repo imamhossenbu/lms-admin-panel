@@ -34,7 +34,7 @@ export function LessonContentChecklist({ settingsDone }: LessonContentChecklistP
   return (
     <section className="rounded-xl border border-dash bg-white p-4">
       <div className="flex items-center justify-between gap-3">
-        <h3 className="body-medium font-semibold text-primary-500">Content Checklist</h3>
+        <h3 className="body-medium text-primary-500">Content Checklist</h3>
         <span className="body-xsm-regular text-primary-300 whitespace-nowrap">
           {completed} of {items.length} completed
         </span>

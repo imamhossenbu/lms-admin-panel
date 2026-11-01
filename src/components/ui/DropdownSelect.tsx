@@ -112,7 +112,7 @@ export function DropdownSelect({
           "hover:border-slate-300 focus:border-brand-orange",
           open && "border-brand-orange ring-2 ring-brand-orange/10",
           disabled && "opacity-50 cursor-not-allowed",
-          value ? "text-primary-500 font-medium" : "subtext-500",
+          value ? "text-primary-500" : "subtext-500",
           buttonClassName
         )}
       >
@@ -163,7 +163,7 @@ export function DropdownSelect({
                   className={cn(
                     "w-full rounded-lg px-3 py-2 text-left body-md-medium transition-colors cursor-pointer flex items-center justify-between gap-2.5",
                     isSelected
-                      ? "bg-brand-orange-light text-brand-orange font-semibold"
+                      ? "bg-brand-orange-light text-brand-orange"
                       : "text-primary-500 hover:bg-slate-50",
                     optionClassName
                   )}

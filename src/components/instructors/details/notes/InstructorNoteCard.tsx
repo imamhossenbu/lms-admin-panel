@@ -33,7 +33,7 @@ export function InstructorNoteCard({ note, highlighted = false, onEdit, onDelete
         <div className="flex items-center gap-3 min-w-0">
           <Avatar src={note.author.avatarUrl} name={note.author.name} size={44} />
           <div className="min-w-0">
-            <p className="body-medium font-semibold text-primary-500 truncate">{note.author.name}</p>
+            <p className="body-medium text-primary-500 truncate">{note.author.name}</p>
             <p className="body-sm-regular text-primary-300">
               {formatNoteDate(note.createdAt)}
               {note.updatedAt && " · Edited"}
@@ -63,7 +63,7 @@ export function InstructorNoteCard({ note, highlighted = false, onEdit, onDelete
 
       <div className="space-y-1">
         <div className="flex flex-wrap items-center gap-2">
-          <h3 className="body-medium font-semibold text-primary-500">{note.title}</h3>
+          <h3 className="body-medium text-primary-500">{note.title}</h3>
           <ToneBadge tone={PRIORITY_TONE[note.priority]} size="sm">
             {note.priority} Priority
           </ToneBadge>

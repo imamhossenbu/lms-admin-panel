@@ -25,7 +25,7 @@ export function InstructorFormHeader({
           {icon}
         </div>
         <div className="min-w-0">
-          <h1 className="heading-h4 font-bold text-primary-500 tracking-tight truncate">
+          <h1 className="heading-h4 text-primary-500 tracking-tight truncate">
             {title}
           </h1>
           <p className="body-sm-regular text-primary-300 mt-0.5">{subtitle}</p>

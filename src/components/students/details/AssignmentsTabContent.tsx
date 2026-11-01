@@ -115,7 +115,7 @@ export function AssignmentsTabContent({
       render: (row, idx) => (
         <div className="flex items-center gap-3">
           {getAssignmentIcon(idx)}
-          <span className="body-sm-medium font-semibold text-primary-500 truncate max-w-50">
+          <span className="body-sm-medium text-primary-500 truncate max-w-50">
             {row.title}
           </span>
         </div>
@@ -194,7 +194,7 @@ export function AssignmentsTabContent({
       render: (row) => (
         <span
           className={`body-sm-medium whitespace-nowrap ${
-            row.score !== "—" ? "font-bold text-primary-500" : "text-primary-300"
+            row.score !== "—" ? "text-primary-500" : "text-primary-300"
           }`}
         >
           {row.score}
@@ -207,7 +207,7 @@ export function AssignmentsTabContent({
       render: (row) => (
         <span
           className={`body-sm-medium ${
-            row.grade !== "—" ? "font-bold text-primary-500" : "text-primary-300"
+            row.grade !== "—" ? "text-primary-500" : "text-primary-300"
           }`}
         >
           {row.grade}
@@ -277,7 +277,7 @@ export function AssignmentsTabContent({
             <BookOpen className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="title-medium font-bold text-primary-500">
+            <h2 className="title-medium text-primary-500">
               Assignments
             </h2>
             <p className="body-sm-regular text-primary-300">
@@ -356,7 +356,7 @@ export function AssignmentsTabContent({
           </button>
           <button
             type="button"
-            className="w-8 h-8 rounded-lg bg-brand-orange text-white flex items-center justify-center body-sm-medium font-bold shadow-2xs"
+            className="w-8 h-8 rounded-lg bg-brand-orange text-white flex items-center justify-center body-sm-medium shadow-2xs"
           >
             1
           </button>

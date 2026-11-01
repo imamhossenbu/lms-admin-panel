@@ -11,7 +11,7 @@ export function StudentPasswordSection() {
         <div className="w-8 h-8 rounded-lg bg-blue-14 text-blue flex items-center justify-center shrink-0">
           <Lock className="w-4 h-4" />
         </div>
-        <h3 className="title-medium font-bold text-primary-500">Password</h3>
+        <h3 className="title-medium text-primary-500">Password</h3>
       </div>
 
       {/* Generated Password Info Box */}
@@ -21,7 +21,7 @@ export function StudentPasswordSection() {
             <KeyRound className="w-4 h-4" />
           </div>
           <div>
-            <h4 className="body-medium font-bold text-primary-500">
+            <h4 className="body-medium text-primary-500">
               A secure password will be automatically generated.
             </h4>
             <p className="body-sm-regular text-primary-400 mt-0.5">

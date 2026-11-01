@@ -27,7 +27,7 @@ export function TemplateDesignerHeader({ mode, templateName, isSubmitting, disab
   return (
     <PageHeader
       breadcrumbs={breadcrumbs}
-      title={<span className="heading-h3 font-bold! text-primary-500 tracking-tight">{mode === "create" ? "New Certificate Template" : "Edit Certificate Template"}</span>}
+      title={<span className="heading-h3 font-bold! text-primary-500">{mode === "create" ? "New Certificate Template" : "Edit Certificate Template"}</span>}
       subtitle={
         mode === "create"
           ? "Design the certificate learners receive and decide when it is issued."

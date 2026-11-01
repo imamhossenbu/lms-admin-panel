@@ -78,7 +78,7 @@ export function AdminNavbar() {
             className="w-full h-10 pl-10 pr-12 rounded-xl bg-gray-bg/60 border border-dash body-sm-regular text-primary-500 placeholder:text-primary-300 focus:outline-none focus:border-brand-orange focus:bg-white transition-all"
           />
           <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-            <kbd className="body-2xsm-regular font-semibold text-primary-300 px-1.5 py-0.5 rounded border border-slate-200 bg-white shadow-2xs">
+            <kbd className="body-2xsm-regular text-primary-300 px-1.5 py-0.5 rounded border border-slate-200 bg-white shadow-2xs">
               ⌘ K
             </kbd>
           </div>
@@ -113,10 +113,10 @@ export function AdminNavbar() {
               />
             </div>
             <div className="hidden lg:flex flex-col text-left">
-              <span className="body-sm-medium font-bold text-primary-500 leading-tight">
+              <span className="body-sm-medium text-primary-500">
                 {user?.name || "Admin"}
               </span>
-              <span className="body-2xsm-regular text-primary-300 leading-tight">
+              <span className="body-2xsm-regular text-primary-300">
                 Super Admin
               </span>
             </div>
@@ -126,13 +126,13 @@ export function AdminNavbar() {
           {dropdownOpen && (
             <div className="absolute right-0 mt-2 w-60 bg-white rounded-xl shadow-xl border border-dash py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
               <div className="px-4 py-2.5 border-b border-dash">
-                <p className="body-sm-medium font-bold text-primary-500 truncate">
+                <p className="body-sm-medium text-primary-500 truncate">
                   {user?.name || "Admin"}
                 </p>
                 <p className="body-2xsm-regular text-primary-300 truncate">
                   {user?.email || "admin@edupro.com"}
                 </p>
-                <div className="mt-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-green-bg text-green body-2xsm-regular font-semibold">
+                <div className="mt-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-green-bg text-green body-2xsm-regular">
                   <Shield className="w-3 h-3 text-green" />
                   <span>Super Admin Verified</span>
                 </div>

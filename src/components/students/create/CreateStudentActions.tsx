@@ -27,7 +27,7 @@ export function CreateStudentActions({
         type="submit"
         isLoading={isSubmitting}
         disabled={isSubmitting}
-        leftIcon={<UserPlus className="w-4 h-4 stroke-[2.2]" />}
+        leftIcon={<UserPlus className="w-4 h-4" strokeWidth={2.2} />}
       >
         {isSubmitting ? "Creating Student..." : "Create Student"}
       </PrimaryButton>

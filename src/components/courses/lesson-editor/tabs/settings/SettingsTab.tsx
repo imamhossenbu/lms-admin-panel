@@ -21,7 +21,7 @@ export const SettingsTab: React.FC<LessonEditorTabProps> = () => {
           <DifficultyCard />
           <LessonTagsCard />
           <ProTipCard>
-            Turn on <strong className="text-primary-500">Free Preview</strong> for your first lesson — it is the best way to convert visitors into enrolled students.
+            Turn on <strong className="body-xsm-regular font-bold! text-primary-500">Free Preview</strong> for your first lesson — it is the best way to convert visitors into enrolled students.
           </ProTipCard>
         </>
       }

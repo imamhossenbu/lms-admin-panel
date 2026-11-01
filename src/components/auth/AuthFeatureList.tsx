@@ -26,10 +26,10 @@ export function AuthFeatureList({
               <Icon className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
             </div>
             <div>
-              <h3 className="body-sm-medium text-white tracking-tight leading-snug">
+              <h3 className="body-sm-medium text-white tracking-tight">
                 {feature.title}
               </h3>
-              <p className="body-xsm-regular text-slate-400 leading-tight mt-0.5">
+              <p className="body-xsm-regular text-white/60 mt-0.5">
                 {feature.description}
               </p>
             </div>

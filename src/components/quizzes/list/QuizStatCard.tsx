@@ -30,7 +30,7 @@ export function QuizStatCard({ icon, iconClassName, label, value, pill, caption,
       <div className="min-w-0">
         <p className="truncate body-sm-regular text-primary-400">{label}</p>
         <div className="mt-0.5 flex items-center gap-2">
-          <p className="heading-h4 font-bold! leading-tight text-primary-500 tabular-nums">{value.toLocaleString()}</p>
+          <p className="heading-h4 font-bold! text-primary-500 tabular-nums">{value.toLocaleString()}</p>
           <ToneBadge tone={pill.tone} size="sm">
             {pill.text}
           </ToneBadge>

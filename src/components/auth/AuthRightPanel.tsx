@@ -35,10 +35,10 @@ export function AuthRightPanel({
             className="mb-5 sm:mb-6"
           />
 
-          <h2 className="heading-h2-bold text-primary-500 tracking-tight leading-tight">
+          <h2 className="heading-h2-bold text-primary-500 tracking-tight">
             {title}
           </h2>
-          <div className="body-regular subtext-500 mt-2.5 leading-relaxed">
+          <div className="body-regular subtext-500 mt-2.5">
             {subtitle}
           </div>
         </div>

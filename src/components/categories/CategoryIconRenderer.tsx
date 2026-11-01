@@ -21,16 +21,16 @@ interface CategoryIconRendererProps {
 }
 
 const ICON_MAP = {
-  code: { icon: Code2, bg: "bg-purple-50", text: "text-purple-600" },
-  design: { icon: Palette, bg: "bg-rose-50", text: "text-rose-600" },
-  marketing: { icon: Megaphone, bg: "bg-orange-50", text: "text-brand-orange" },
-  business: { icon: Briefcase, bg: "bg-emerald-50", text: "text-emerald-600" },
-  photography: { icon: Camera, bg: "bg-amber-50", text: "text-amber-600" },
-  "data-science": { icon: BarChart2, bg: "bg-blue-50", text: "text-blue-600" },
-  language: { icon: Globe, bg: "bg-indigo-50", text: "text-indigo-600" },
+  code: { icon: Code2, bg: "bg-purple-14", text: "text-purple" },
+  design: { icon: Palette, bg: "bg-red-14", text: "text-red" },
+  marketing: { icon: Megaphone, bg: "bg-brand-orange-light", text: "text-brand-orange" },
+  business: { icon: Briefcase, bg: "bg-green-bg", text: "text-green" },
+  photography: { icon: Camera, bg: "bg-yellow-bg", text: "text-yellow" },
+  "data-science": { icon: BarChart2, bg: "bg-blue-14", text: "text-blue" },
+  language: { icon: Globe, bg: "bg-blue-14", text: "text-blue" },
   health: { icon: Heart, bg: "bg-green-bg", text: "text-green" },
-  music: { icon: Music, bg: "bg-pink-50", text: "text-pink-600" },
-  other: { icon: LayoutGrid, bg: "bg-sky-50", text: "text-sky-600" },
+  music: { icon: Music, bg: "bg-red-14", text: "text-red" },
+  other: { icon: LayoutGrid, bg: "bg-blue-14", text: "text-blue" },
 };
 
 export function CategoryIconRenderer({

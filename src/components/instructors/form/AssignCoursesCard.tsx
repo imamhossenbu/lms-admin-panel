@@ -66,7 +66,7 @@ export function AssignCoursesCard({
           icon={<BookOpen className="w-5 h-5" />}
           title={
             <>
-              Assign Courses <span className="font-normal text-primary-300">(Optional)</span>
+              Assign Courses <span className="title-regular text-primary-300">(Optional)</span>
             </>
           }
           description="Select the courses this instructor will teach. You can assign multiple courses."

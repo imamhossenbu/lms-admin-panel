@@ -27,7 +27,7 @@ export function AssignmentsHeader({ course }: AssignmentsHeaderProps) {
     <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 text-left">
       <div className="min-w-0">
         <Breadcrumb className="mb-3" items={items} />
-        <h1 className="heading-h3 font-bold text-primary-500 tracking-tight">Assignments</h1>
+        <h1 className="heading-h3 font-bold! text-primary-500">Assignments</h1>
         <p className="body-regular text-primary-400 mt-1">
           {course
             ? "Create and manage assignments for this course. Track student submissions and grades."

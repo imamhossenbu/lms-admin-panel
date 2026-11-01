@@ -175,12 +175,12 @@ export default function LoginPage() {
         mockupSrc="/images/edupro_mockup_clean_flush.png"
         mockupAlt="EduPro 3D Dashboard Mockup"
         topBadge={
-          <div className="hidden sm:flex items-center gap-2 body-xsm-regular text-slate-300">
+          <div className="hidden sm:flex items-center gap-2 body-xsm-regular text-white/80">
             <span className="w-2 h-2 rounded-full bg-brand-orange shadow-sm shadow-brand-orange" />
             <span>Manage</span>
-            <span className="text-slate-500">•</span>
+            <span className="text-primary-300">•</span>
             <span>Teach</span>
-            <span className="text-slate-500">•</span>
+            <span className="text-primary-300">•</span>
             <span>Grow</span>
           </div>
         }
@@ -204,7 +204,7 @@ export default function LoginPage() {
           <div className="space-y-2">
             <label
               htmlFor="email-address"
-              className="block body-sm-regular text-primary-500 font-semibold tracking-tight"
+              className="block body-sm-medium text-primary-500 tracking-tight"
             >
               Email Address
             </label>
@@ -238,7 +238,7 @@ export default function LoginPage() {
             <div className="flex items-center justify-between">
               <label
                 htmlFor="password-field"
-                className="block body-sm-regular text-primary-500 font-semibold tracking-tight"
+                className="block body-sm-medium text-primary-500 tracking-tight"
               >
                 Password
               </label>
@@ -301,7 +301,7 @@ export default function LoginPage() {
 
             <Link
               href="/forgot-password"
-              className="body-sm-medium font-semibold text-brand-orange hover:text-brand-orange-hover hover:underline transition-colors cursor-pointer"
+              className="body-sm-medium text-brand-orange hover:text-brand-orange-hover hover:underline transition-colors cursor-pointer"
             >
               Forgot password?
             </Link>

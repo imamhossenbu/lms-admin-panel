@@ -8,7 +8,8 @@ import { Avatar } from "@/components/ui/Avatar";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { SecondaryButton } from "@/components/ui/secondary-button";
 import { ToneBadge } from "@/components/ui/ToneBadge";
-import { MemberStatusBadge, OwnerBadge, RoleBadge } from "../shared/TeamBadges";
+import { ExtraPermissionsBadge, MemberStatusBadge, OwnerBadge, RoleBadge } from "../shared/TeamBadges";
+import { extraCount } from "@/lib/teamPermissions";
 import { fullDate, shortDate, timeAgo } from "../shared/teamFormat";
 import type { MemberDialogOpeners } from "../shared/useMemberDialogs";
 
@@ -51,6 +52,7 @@ export function MemberProfileHeader({ member: m, role, open, busy }: MemberProfi
               </h1>
               {m.isOwner && <OwnerBadge size="md" />}
               <RoleBadge role={role} size="md" />
+              <ExtraPermissionsBadge count={extraCount(m)} size="md" />
               <MemberStatusBadge member={m} size="md" />
             </div>
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1">

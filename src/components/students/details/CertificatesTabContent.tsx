@@ -72,7 +72,7 @@ export function CertificatesTabContent({
             isEarned={row.status === "Issued"}
           />
           <div>
-            <h4 className="body-sm-medium font-semibold text-primary-500 whitespace-nowrap">
+            <h4 className="body-sm-medium text-primary-500 whitespace-nowrap">
               {row.title}
             </h4>
             <span className="body-2xsm-regular text-primary-300 whitespace-nowrap">
@@ -160,7 +160,7 @@ export function CertificatesTabContent({
                   });
                 }
               }}
-              className={`body-sm-medium font-semibold px-1.5 py-1 ${
+              className={`body-sm-medium px-1.5 py-1 ${
                 isIssued
                   ? "text-blue hover:underline cursor-pointer"
                   : "text-primary-300 cursor-not-allowed"
@@ -241,7 +241,7 @@ export function CertificatesTabContent({
             <Award className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="title-medium font-bold text-primary-500">
+            <h2 className="title-medium text-primary-500">
               Certificates
             </h2>
             <p className="body-sm-regular text-primary-300">
@@ -305,7 +305,7 @@ export function CertificatesTabContent({
           </button>
           <button
             type="button"
-            className="w-8 h-8 rounded-lg bg-blue text-white flex items-center justify-center body-sm-medium font-bold shadow-2xs"
+            className="w-8 h-8 rounded-lg bg-blue text-white flex items-center justify-center body-sm-medium shadow-2xs"
           >
             1
           </button>

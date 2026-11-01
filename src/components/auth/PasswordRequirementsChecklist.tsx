@@ -36,12 +36,13 @@ export function PasswordRequirementsChecklist({
             }`}
           >
             <Check
-              className={`w-2.5 h-2.5 ${req.valid ? "stroke-[3]" : "stroke-[2.5]"}`}
+              className="w-2.5 h-2.5"
+              strokeWidth={req.valid ? 3 : 2.5}
             />
           </span>
           <span
             className={`transition-colors duration-150 body-sm-regular ${
-              req.valid ? "text-primary-400 font-medium" : "subtext-500"
+              req.valid ? "text-primary-400" : "subtext-500"
             }`}
           >
             {req.label}

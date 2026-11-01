@@ -15,7 +15,7 @@ import { InvitationDetailsCard } from "./InvitationDetailsCard";
 import { MemberActivityCard } from "./MemberActivityCard";
 import { MemberDetailSkeleton } from "./MemberDetailSkeleton";
 
-/** /users/[id] — profile header + Access (role, read-only matrix), Security (or Invitation) and Activity. */
+/** /users/[id] — profile header + Access (role + extra permissions, effective matrix), Security (or Invitation) and Activity. */
 export function MemberDetailView({ memberId }: { memberId: string }) {
   const router = useRouter();
   const ready = useTeamReady();
@@ -38,7 +38,7 @@ export function MemberDetailView({ memberId }: { memberId: string }) {
       <MemberProfileHeader member={member} role={role} open={open} busy={busy} />
       <div className="grid grid-cols-1 items-start gap-5 xl:grid-cols-12">
         <div className="min-w-0 space-y-5 xl:col-span-8">
-          <MemberAccessCard member={member} role={role} onChangeRole={() => open.changeRole(member)} />
+          <MemberAccessCard member={member} role={role} busy={busy} onChangeRole={() => open.changeRole(member)} onSaveExtras={(extras) => actions.setExtras(member, extras)} />
         </div>
         <aside className="min-w-0 space-y-5 xl:col-span-4">
           {member.status === "INVITED" ? (

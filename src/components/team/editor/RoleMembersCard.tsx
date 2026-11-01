@@ -7,7 +7,8 @@ import type { TeamMember } from "@/types/team";
 import { IconSectionCard } from "@/components/ui/IconSectionCard";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 import { MemberIdentity } from "../shared/MemberIdentity";
-import { MemberStatusBadge } from "../shared/TeamBadges";
+import { ExtraPermissionsBadge, MemberStatusBadge } from "../shared/TeamBadges";
+import { extraCount } from "@/lib/teamPermissions";
 
 const MAX = 6;
 
@@ -29,6 +30,7 @@ export function RoleMembersCard({ members, roleId, isNew }: { members: TeamMembe
             <li key={m.id}>
               <Link href={`/users/${m.id}`} className="-mx-2 flex items-center gap-2 rounded-lg px-2 py-2 transition-colors hover:bg-slate-50">
                 <MemberIdentity member={m} size={30} className="flex-1" />
+                <ExtraPermissionsBadge count={extraCount(m)} />
                 <MemberStatusBadge member={m} />
               </Link>
             </li>

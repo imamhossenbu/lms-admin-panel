@@ -19,7 +19,7 @@ export function CoursePreviewCard({ onExpand, ...contentProps }: CoursePreviewCa
       className="bg-white rounded-xl border border-dash shadow-2xs p-5"
     >
       <div className="flex items-center justify-between gap-3 mb-4">
-        <h2 className="heading-h5 font-bold text-primary-500">Course Preview</h2>
+        <h2 className="heading-h5 text-primary-500">Course Preview</h2>
         <button
           type="button"
           onClick={onExpand}

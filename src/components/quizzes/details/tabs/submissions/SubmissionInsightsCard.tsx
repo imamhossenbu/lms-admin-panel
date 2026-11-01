@@ -33,7 +33,7 @@ function InsightRow({ icon: Icon, tone, value, label, pct, index }: { icon: type
           <Icon className="h-4.5 w-4.5" />
         </span>
         <div className="min-w-0">
-          <p className="body-medium font-semibold! text-primary-500 leading-tight">{value}</p>
+          <p className="body-medium font-semibold! text-primary-500">{value}</p>
           <p className="body-xsm-regular text-primary-300 whitespace-nowrap">{label}</p>
         </div>
       </div>

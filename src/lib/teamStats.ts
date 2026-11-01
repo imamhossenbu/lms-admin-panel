@@ -1,4 +1,5 @@
-import type { InviteStatus, TeamEvent, TeamMember, TeamRole, TeamSeed } from "@/types/team";
+import type { InviteStatus, RolePermissions, TeamEvent, TeamMember, TeamRole, TeamSeed } from "@/types/team";
+import { countPermissions, effectivePermissions, extraCount, isRoleModified } from "@/lib/teamPermissions";
 
 /** Derived numbers for /users (stat row, tab counts, role cards). Pure — pass `now` in tests. */
 
@@ -34,6 +35,12 @@ export interface TeamStats {
   /** Active members without 2FA (shown in the "2FA required" callout). */
   without2fa: TeamMember[];
   customRoles: number;
+  /** System roles whose permissions differ from their default preset. */
+  modifiedRoles: number;
+  /** Members + invitations holding extra permissions on top of their role. */
+  membersWithExtras: number;
+  /** Extra grants across the whole team. */
+  extraGrants: number;
 }
 
 export function teamStats(seed: Pick<TeamSeed, "members" | "roles">, now: number = Date.now()): TeamStats {
@@ -53,6 +60,9 @@ export function teamStats(seed: Pick<TeamSeed, "members" | "roles">, now: number
     twoFaCoverage: active.length ? Math.round((twoFa.length / active.length) * 100) : 100,
     without2fa: active.filter((m) => !m.twoFactorEnabled),
     customRoles: seed.roles.filter((r) => !r.isSystem).length,
+    modifiedRoles: seed.roles.filter(isRoleModified).length,
+    membersWithExtras: seed.members.filter((m) => extraCount(m) > 0).length,
+    extraGrants: seed.members.reduce((n, m) => n + extraCount(m), 0),
   };
 }
 
@@ -70,3 +80,9 @@ export const sortRoles = (roles: TeamRole[]) => [...roles.filter((r) => r.isSyst
 /** Events about a member (as the target or the actor). */
 export const memberEvents = (events: TeamEvent[], m: TeamMember) =>
   events.filter((e) => e.targetId === m.id || (!!m.name && e.actor === m.name)).sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
+
+/** Effective permissions of a member (role ∪ extras; owner / Super Admin → everything). */
+export const memberPermissions = (m: TeamMember, roles: TeamRole[]): RolePermissions => effectivePermissions(m, roles.find((r) => r.id === m.roleId));
+
+/** Number of effective permissions of a member. */
+export const memberPermissionCount = (m: TeamMember, roles: TeamRole[]) => countPermissions(memberPermissions(m, roles));

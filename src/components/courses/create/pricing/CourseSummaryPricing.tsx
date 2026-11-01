@@ -25,7 +25,7 @@ export function CourseSummaryPricing({ onEdit }: CourseSummaryPricingProps) {
   return (
     <div className="pt-5 mt-5 border-t border-dash">
       <div className="flex items-center justify-between gap-3 mb-3">
-        <h3 className="title-medium font-bold text-primary-500">Pricing &amp; Access</h3>
+        <h3 className="title-medium text-primary-500">Pricing &amp; Access</h3>
         <SummaryEditButton onClick={onEdit} label="Edit pricing and access" />
       </div>
       <motion.div
@@ -38,7 +38,7 @@ export function CourseSummaryPricing({ onEdit }: CourseSummaryPricingProps) {
       >
         <Icon className={isFree ? "w-6 h-6 text-green shrink-0" : "w-6 h-6 text-brand-orange shrink-0"} />
         <div className="min-w-0">
-          <p className={isFree ? "body-sm-medium font-semibold text-green" : "body-sm-medium font-semibold text-brand-orange"}>
+          <p className={isFree ? "body-sm-medium text-green" : "body-sm-medium text-brand-orange"}>
             {priceSummaryLabel({ priceType, price })}
           </p>
           <p className="body-xsm-regular text-primary-400 mt-0.5">

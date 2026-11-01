@@ -2,7 +2,8 @@
 
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
-import type { TeamMember, TeamRole } from "@/types/team";
+import type { RolePermissions, TeamMember, TeamRole } from "@/types/team";
+import { countPermissions } from "@/lib/teamPermissions";
 import {
   deleteRole,
   duplicateRole,
@@ -11,6 +12,7 @@ import {
   resendInvite,
   resetTwoFactor,
   revokeInvite,
+  setMemberExtraPermissions,
   updateMember,
 } from "@/lib/teamStorage";
 import { errorText, plural } from "./teamFormat";
@@ -41,7 +43,16 @@ export function useTeamActions() {
   }, []);
 
   const changeRole = (m: TeamMember, role: TeamRole) =>
-    run(m.id, "Changing role...", () => updateMember(m.id, { roleId: role.id }), () => ({ title: "Role updated", description: `${nameOf(m)} is now ${role.name}.` }), "Couldn't change the role");
+    run(
+      m.id,
+      "Changing role...",
+      () => updateMember(m.id, { roleId: role.id }),
+      (next) => {
+        const n = countPermissions(next.extraPermissions);
+        return { title: "Role updated", description: `${nameOf(m)} is now ${role.name}${n ? ` + ${plural(n, "extra permission")}` : ""}.` };
+      },
+      "Couldn't change the role"
+    );
 
   const setSuspended = (m: TeamMember, suspended: boolean, reason?: string) =>
     run(
@@ -67,13 +78,27 @@ export function useTeamActions() {
   const remind2fa = (members: TeamMember[]) =>
     run("remind-2fa", "Sending reminders...", () => remindTwoFactor(members.map((m) => m.id)), (n) => ({ title: "Reminders sent", description: `${plural(n, "member")} will get an email asking them to turn on 2FA.` }), "Couldn't send reminders");
 
+  const setExtras = (m: TeamMember, extras: RolePermissions) =>
+    run(
+      m.id,
+      countPermissions(extras) ? "Saving extra permissions..." : "Removing extra permissions...",
+      () => setMemberExtraPermissions(m.id, extras),
+      (next) => {
+        const n = countPermissions(next.extraPermissions);
+        return n
+          ? { title: "Extra permissions saved", description: `${nameOf(m)} now has ${plural(n, "extra permission")} on top of their role.` }
+          : { title: "Extra permissions removed", description: `${nameOf(m)} now has exactly what their role allows.` };
+      },
+      "Couldn't update extra permissions"
+    );
+
   const duplicate = (r: TeamRole) =>
     run(r.id, "Duplicating role...", () => duplicateRole(r.id), (copy) => ({ title: "Role duplicated", description: `"${copy.name}" is ready to customise.` }), "Couldn't duplicate the role");
 
   const removeRole = (r: TeamRole) =>
     run(r.id, "Deleting role...", () => deleteRole(r.id), () => ({ title: "Role deleted", description: `"${r.name}" was removed.` }), "Couldn't delete the role");
 
-  return { busyId, changeRole, setSuspended, remove, reset2fa, resend, revoke, remind2fa, duplicate, removeRole };
+  return { busyId, changeRole, setSuspended, remove, reset2fa, resend, revoke, remind2fa, setExtras, duplicate, removeRole };
 }
 
 export type TeamActions = ReturnType<typeof useTeamActions>;

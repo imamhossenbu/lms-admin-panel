@@ -4,11 +4,13 @@ import React, { useMemo } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Send } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "sonner";
-import type { TeamRole, TeamSeed } from "@/types/team";
+import type { RolePermissions, TeamRole, TeamSeed } from "@/types/team";
 import { INVITE_EXPIRY_DAYS, INVITE_MAX_EMAILS, INVITE_MESSAGE_MAX, inviteFormSchema, isValidEmail, type InviteFormValues } from "@/validations/teamSchema";
 import { inviteMembers, teamEmails } from "@/lib/teamStorage";
 import { sortRoles } from "@/lib/teamStats";
+import { countPermissions, emptyPermissions, normalizeExtras } from "@/lib/teamPermissions";
 import { SUPER_ADMIN_ROLE_ID } from "@/data/mockTeamData";
 import { ModalShell } from "@/components/ui/ModalShell";
 import { TagsInput } from "@/components/ui/TagsInput";
@@ -19,8 +21,10 @@ import { FieldLabel } from "@/components/ui/SelectField";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 import { PrimaryButton } from "@/components/ui/primary-button";
 import { SecondaryButton } from "@/components/ui/secondary-button";
+import { ToggleSwitch } from "@/components/ui/ToggleSwitch";
 import { SettingsCallout } from "@/components/settings/sections/security/SettingsCallout";
 import { RoleAccessPreview } from "../shared/RoleAccessPreview";
+import { ExtraPermissionsPicker, extrasSummary } from "../shared/ExtraPermissionsPicker";
 import { errorText, plural } from "../shared/teamFormat";
 
 export interface InviteMemberModalProps {
@@ -38,14 +42,16 @@ const splitEmails = (tags: string[]) => Array.from(new Set(tags.flatMap((t) => t
 function InviteForm({ data, onClose, onInvited }: Omit<InviteMemberModalProps, "isOpen">) {
   const roles = useMemo(() => sortRoles(data.roles).filter((r) => r.id !== SUPER_ADMIN_ROLE_ID), [data.roles]);
   const taken = useMemo(() => teamEmails(data), [data]);
-  const schema = useMemo(() => inviteFormSchema(taken, roles.map((r) => r.id)), [taken, roles]);
+  const schema = useMemo(() => inviteFormSchema(taken, roles.map((r) => r.id), Object.fromEntries(roles.map((r) => [r.id, r.permissions]))), [taken, roles]);
   const { control, register, handleSubmit, formState } = useForm<InviteFormValues>({
     resolver: zodResolver(schema),
     mode: "onChange",
-    defaultValues: { emails: [], roleId: roles.some((r) => r.id === DEFAULT_ROLE) ? DEFAULT_ROLE : (roles[0]?.id ?? ""), message: "" },
+    defaultValues: { emails: [], roleId: roles.some((r) => r.id === DEFAULT_ROLE) ? DEFAULT_ROLE : (roles[0]?.id ?? ""), message: "", giveExtras: false, extraPermissions: emptyPermissions() },
   });
-  const [emails, roleId, message] = useWatch({ control, name: ["emails", "roleId", "message"] });
+  const [emails, roleId, message, giveExtras, rawExtras] = useWatch({ control, name: ["emails", "roleId", "message", "giveExtras", "extraPermissions"] });
   const role: TeamRole | undefined = roles.find((r) => r.id === roleId);
+  /** Extras as they'll be saved: pruned against the chosen role (re-pruned whenever the role changes). */
+  const extras = role ? normalizeExtras(rawExtras as RolePermissions, role.permissions) : emptyPermissions();
   const { errors, isSubmitting } = formState;
 
   const tagTone = (tag: string) => {
@@ -57,12 +63,15 @@ function InviteForm({ data, onClose, onInvited }: Omit<InviteMemberModalProps, "
 
   const submit = async (v: InviteFormValues) => {
     const target = roles.find((r) => r.id === v.roleId);
-    const toastId = toast.loading(`Sending ${plural(v.emails.length, "invitation")}...`, { description: target ? `As ${target.name}` : undefined });
+    const sendExtras = v.giveExtras && target ? normalizeExtras(v.extraPermissions, target.permissions) : emptyPermissions();
+    const n = countPermissions(sendExtras);
+    const as = target ? (n ? extrasSummary(target.name, n) : target.name) : "";
+    const toastId = toast.loading(`Sending ${plural(v.emails.length, "invitation")}...`, { description: as ? `As ${as}` : undefined });
     try {
-      const created = await inviteMembers(v.emails, v.roleId, v.message);
+      const created = await inviteMembers(v.emails, v.roleId, v.message, sendExtras);
       toast.success(created.length === 1 ? "Invitation sent" : "Invitations sent", {
         id: toastId,
-        description: `${created.length === 1 ? created[0].email : plural(created.length, "person", "people")} will get an email to join as ${target?.name}. Links expire in ${INVITE_EXPIRY_DAYS} days.`,
+        description: `${created.length === 1 ? created[0].email : plural(created.length, "person", "people")} will get an email to join as ${as}. Links expire in ${INVITE_EXPIRY_DAYS} days.`,
       });
       onInvited?.(created.length);
       onClose();
@@ -78,7 +87,7 @@ function InviteForm({ data, onClose, onInvited }: Omit<InviteMemberModalProps, "
       onClose={isSubmitting ? () => {} : onClose}
       title="Invite team members"
       subtitle="They'll get an email with a link to join the admin panel."
-      maxWidth="lg"
+      maxWidth={giveExtras ? "xl" : "lg"}
       footer={
         <>
           <SecondaryButton onClick={onClose} disabled={isSubmitting}>
@@ -93,7 +102,7 @@ function InviteForm({ data, onClose, onInvited }: Omit<InviteMemberModalProps, "
       <form id="invite-member-form" noValidate onSubmit={handleSubmit(submit)} className="space-y-5">
         <div>
           <FieldLabel htmlFor="invite-emails">
-            Email addresses <span className="text-red">*</span>
+            Email addresses <span className="body-sm-regular text-red">*</span>
           </FieldLabel>
           <Controller
             control={control}
@@ -129,7 +138,7 @@ function InviteForm({ data, onClose, onInvited }: Omit<InviteMemberModalProps, "
 
         <div>
           <FieldLabel>
-            Role <span className="text-red">*</span>
+            Role <span className="body-sm-regular text-red">*</span>
           </FieldLabel>
           <Controller
             control={control}
@@ -143,6 +152,45 @@ function InviteForm({ data, onClose, onInvited }: Omit<InviteMemberModalProps, "
             <RoleAccessPreview role={role} />
           </div>
         </div>
+
+        {role && (
+          <div className="rounded-xl border border-dash p-4">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="body-sm-medium font-semibold! text-primary-500">Give extra permissions</p>
+                <p className="body-xsm-regular text-primary-300">
+                  {giveExtras ? `Tick what they need beyond ${role.name}. Saved with the invitation and applied when they join.` : `Add access on top of ${role.name} without creating a new role.`}
+                </p>
+              </div>
+              <Controller
+                control={control}
+                name="giveExtras"
+                render={({ field }) => <ToggleSwitch id="invite-give-extras" tone="orange" checked={field.value} onChange={(on) => field.onChange(on)} label={<span className="sr-only">Give extra permissions</span>} />}
+              />
+            </div>
+            <AnimatePresence initial={false}>
+              {giveExtras && (
+                <motion.div key="extras" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.22, ease: "easeOut" }} className="overflow-hidden">
+                  <div className="pt-4">
+                    <Controller
+                      control={control}
+                      name="extraPermissions"
+                      render={({ field }) => (
+                        <ExtraPermissionsPicker
+                          role={role}
+                          value={extras}
+                          onChange={(next) => field.onChange(next)}
+                          error={(errors.extraPermissions as { message?: string } | undefined)?.message}
+                          disabled={isSubmitting}
+                        />
+                      )}
+                    />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
 
         <div>
           <FieldLabel htmlFor="invite-message">Personal message (optional)</FieldLabel>
@@ -158,7 +206,7 @@ function InviteForm({ data, onClose, onInvited }: Omit<InviteMemberModalProps, "
   );
 }
 
-/** Invite modal: multiple emails (per-email validation), role + live access preview, optional message. */
+/** Invite modal: multiple emails (per-email validation), role + live access preview, optional extra permissions, optional message. */
 export function InviteMemberModal({ isOpen, ...rest }: InviteMemberModalProps) {
   if (!isOpen) return null;
   return <InviteForm {...rest} />;

@@ -154,7 +154,7 @@ export function AddEditNoteModal({
       <form onSubmit={handleSubmit} className="space-y-5 text-left">
         {/* Note Category Field with full-width alignment */}
         <div className="space-y-2">
-          <label className="block body-sm-medium text-primary-500 font-semibold">
+          <label className="block body-sm-medium text-primary-500">
             Note Category
           </label>
           <AppSelect
@@ -169,7 +169,7 @@ export function AddEditNoteModal({
         {/* Note Description Field */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <label className="block body-sm-medium text-primary-500 font-semibold">
+            <label className="block body-sm-medium text-primary-500">
               Note Description
             </label>
             <span className="body-2xsm-regular text-primary-300">
@@ -185,14 +185,14 @@ export function AddEditNoteModal({
             maxLength={500}
             rows={4}
             placeholder="Write specific feedback, support notes, or observation about this student..."
-            className={`w-full p-3.5 rounded-xl border bg-slate-50 body-sm-regular text-primary-500 placeholder:text-primary-300 focus:outline-none focus:bg-white transition-colors resize-none leading-relaxed ${
+            className={`w-full p-3.5 rounded-xl border bg-slate-50 body-sm-regular text-primary-500 placeholder:text-primary-300 focus:outline-none focus:bg-white transition-colors resize-none ${
               error
                 ? "border-red focus:border-red"
                 : "border-dash focus:border-brand-orange"
             }`}
           />
           {error && (
-            <p className="body-2xsm-regular text-red font-medium">{error}</p>
+            <p className="body-2xsm-regular text-red">{error}</p>
           )}
         </div>
       </form>

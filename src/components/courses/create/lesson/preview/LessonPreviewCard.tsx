@@ -23,7 +23,7 @@ export function LessonPreviewCard() {
       <div className="flex items-start gap-2.5">
         <Eye className="mt-0.5 h-5 w-5 shrink-0 text-primary-500" />
         <div>
-          <h3 className="body-medium font-semibold text-primary-500">Lesson Preview</h3>
+          <h3 className="body-medium text-primary-500">Lesson Preview</h3>
           <p className="body-xsm-regular text-primary-300">This is how the lesson will appear to students.</p>
         </div>
       </div>
@@ -32,7 +32,7 @@ export function LessonPreviewCard() {
         <LessonPreviewMedia title={title ?? ""} thumbnailUrl={thumbnailUrl ?? ""} video={video} durationLabel={chip} />
       </div>
 
-      <h4 className="mt-3 break-words body-medium font-semibold text-primary-500">{title?.trim() || "Untitled lesson"}</h4>
+      <h4 className="mt-3 break-words body-medium text-primary-500">{title?.trim() || "Untitled lesson"}</h4>
       <p className="mt-1 line-clamp-3 break-words body-sm-regular text-primary-300">
         {summary?.trim() || "Add a short description so students know what they will learn."}
       </p>

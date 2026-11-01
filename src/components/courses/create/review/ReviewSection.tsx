@@ -28,7 +28,7 @@ export function ReviewSection({ icon, title, subtitle, onEdit, children }: Revie
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-3 border-b border-dash pb-3 mb-3">
             <div className="min-w-0">
-              <h3 className="title-sm font-semibold text-primary-500">{title}</h3>
+              <h3 className="title-sm text-primary-500">{title}</h3>
               <p className="body-sm-regular text-primary-300 mt-0.5">{subtitle}</p>
             </div>
             <ReviewEditButton onClick={onEdit} label={`Edit ${title}`} />

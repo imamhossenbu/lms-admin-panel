@@ -51,7 +51,7 @@ export function SubmissionStatusCard({ submissions }: { submissions: AssignmentS
               </PieChart>
             </ResponsiveContainer>
             <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-              <span className="heading-h4 font-bold text-primary-500">{s.total}</span>
+              <span className="heading-h4 font-bold! text-primary-500">{s.total}</span>
               <span className="body-2xsm-regular text-primary-300">Submissions</span>
             </div>
           </div>

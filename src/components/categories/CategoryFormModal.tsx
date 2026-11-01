@@ -91,7 +91,7 @@ export function CategoryFormModal({
         setIcon(res.url);
         toast.success("Icon uploaded to Cloudinary!", {
           id: toastId,
-          icon: <CheckCircle2 className="w-5 h-5 text-emerald-500" />,
+          icon: <CheckCircle2 className="w-5 h-5 text-green" />,
         });
       }
     } catch {
@@ -169,7 +169,7 @@ export function CategoryFormModal({
       <form onSubmit={handleSubmit} className="space-y-4 text-left">
         {/* Icon & Emoji Selection */}
         <div className="space-y-2 p-3.5 rounded-xl bg-gray-bg border border-dash">
-          <label className="body-sm-medium text-primary-500 font-semibold block">
+          <label className="body-sm-medium text-primary-500 block">
             Category Icon / Visual Mark
           </label>
 
@@ -222,7 +222,7 @@ export function CategoryFormModal({
                   className={`w-8 h-8 rounded-md border body-regular flex items-center justify-center transition-all cursor-pointer ${
                     icon === emoji
                       ? "border-brand-orange bg-brand-orange-light ring-2 ring-brand-orange/20"
-                      : "border-dash bg-white hover:bg-gray-50"
+                      : "border-dash bg-white hover:bg-slate-50"
                   }`}
                 >
                   {emoji}

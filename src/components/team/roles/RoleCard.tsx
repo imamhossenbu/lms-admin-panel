@@ -4,12 +4,12 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Copy, Eye, Pencil, ShieldCheck, Trash2 } from "lucide-react";
 import type { TeamMember, TeamRole } from "@/types/team";
-import { TOTAL_PERMISSIONS, countPermissions, modulesWithAccess } from "@/lib/teamPermissions";
+import { TOTAL_PERMISSIONS, countPermissions, isRoleModified, modulesWithAccess } from "@/lib/teamPermissions";
 import { CardActionButton } from "@/components/ui/CardActionButton";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 import { cn } from "@/lib/cn";
 import { ROLE_TONE_META } from "../shared/roleTone";
-import { SystemRoleBadge } from "../shared/TeamBadges";
+import { ModifiedRoleBadge, SystemRoleBadge } from "../shared/TeamBadges";
 import { plural } from "../shared/teamFormat";
 import { AvatarStack } from "./AvatarStack";
 
@@ -22,11 +22,12 @@ export interface RoleCardProps {
   onDelete: () => void;
 }
 
-/** Role tile: colour icon, name + System/Custom badge, description, coverage bar, holders, actions. */
+/** Role tile: colour icon, name + System/Modified/Custom badges, description, coverage bar, holders, actions. */
 export function RoleCard({ role, members, busy, onOpen, onDuplicate, onDelete }: RoleCardProps) {
   const tone = ROLE_TONE_META[role.tone];
   const granted = countPermissions(role.permissions);
   const pct = Math.round((granted / TOTAL_PERMISSIONS) * 100);
+  const modified = isRoleModified(role);
   return (
     <motion.article
       layout
@@ -47,6 +48,7 @@ export function RoleCard({ role, members, busy, onOpen, onDuplicate, onDelete }:
               {role.name}
             </h3>
             {role.isSystem ? <SystemRoleBadge locked={role.isLocked} /> : <ToneBadge tone="purple" size="sm">Custom</ToneBadge>}
+            {modified && <ModifiedRoleBadge />}
           </div>
           <p className="mt-0.5 line-clamp-2 body-sm-regular text-primary-300" title={role.description}>
             {role.description || "No description."}
@@ -59,7 +61,7 @@ export function RoleCard({ role, members, busy, onOpen, onDuplicate, onDelete }:
           <span>
             {plural(modulesWithAccess(role.permissions).length, "module")} · {plural(granted, "permission")}
           </span>
-          <span className="font-semibold text-primary-500 tabular-nums">{pct}%</span>
+          <span className="body-xsm-medium font-semibold! text-primary-500 tabular-nums">{pct}%</span>
         </div>
         <div className="h-1.5 overflow-hidden rounded-full bg-slate-100">
           <motion.div className={cn("h-full rounded-full", tone.swatch)} initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 0.5, ease: "easeOut" }} />
@@ -72,8 +74,8 @@ export function RoleCard({ role, members, busy, onOpen, onDuplicate, onDelete }:
       </div>
 
       <footer className="mt-auto flex flex-wrap items-center gap-2 border-t border-dash pt-4">
-        <CardActionButton icon={role.isSystem ? <Eye /> : <Pencil />} onClick={onOpen}>
-          {role.isSystem ? "View" : "Edit"}
+        <CardActionButton icon={role.isLocked ? <Eye /> : <Pencil />} onClick={onOpen} aria-label={`${role.isLocked ? "View" : "Edit"} ${role.name}`}>
+          {role.isLocked ? "View" : "Edit"}
         </CardActionButton>
         <CardActionButton icon={<Copy />} onClick={onDuplicate} disabled={busy}>
           Duplicate

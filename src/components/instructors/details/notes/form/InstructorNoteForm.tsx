@@ -73,7 +73,7 @@ export function InstructorNoteForm({ mode, defaultValues, cancelHref, onSubmit }
     <div className="bg-white rounded-xl border border-dash shadow-2xs p-6 grid grid-cols-1 xl:grid-cols-12 gap-8 text-left">
       <form onSubmit={handleSubmit(submit)} noValidate className="xl:col-span-8 space-y-5">
         <div>
-          <h1 className="heading-h3 font-bold text-primary-500">{mode === "create" ? "Add Note" : "Edit Note"}</h1>
+          <h1 className="heading-h3 text-primary-500">{mode === "create" ? "Add Note" : "Edit Note"}</h1>
           <p className="body-sm-regular text-primary-300 mt-1">
             {mode === "create"
               ? "Add an internal note about this instructor. This note will only be visible to admins."

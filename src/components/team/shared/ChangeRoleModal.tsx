@@ -7,13 +7,15 @@ import { UserCog } from "lucide-react";
 import type { TeamMember, TeamRole } from "@/types/team";
 import { changeRoleSchema, type ChangeRoleValues } from "@/validations/teamSchema";
 import { SUPER_ADMIN_ROLE_ID } from "@/data/mockTeamData";
-import { countPermissions } from "@/lib/teamPermissions";
+import { countPermissions, extraCount, listGrants, normalizeExtras, subtractPermissions } from "@/lib/teamPermissions";
 import { sortRoles } from "@/lib/teamStats";
 import { ModalShell } from "@/components/ui/ModalShell";
 import { ChoiceCardGroup } from "@/components/ui/ChoiceCardGroup";
 import { PrimaryButton } from "@/components/ui/primary-button";
 import { SecondaryButton } from "@/components/ui/secondary-button";
+import { SettingsCallout } from "@/components/settings/sections/security/SettingsCallout";
 import { RoleAccessPreview } from "./RoleAccessPreview";
+import { plural } from "./teamFormat";
 
 export interface ChangeRoleModalProps {
   member: TeamMember | null;
@@ -27,6 +29,12 @@ function ChangeRoleForm({ member, roles, onClose, onSubmit }: ChangeRoleModalPro
   const schema = useMemo(() => changeRoleSchema(member.roleId), [member.roleId]);
   const { control, handleSubmit, formState } = useForm<ChangeRoleValues>({ resolver: zodResolver(schema), defaultValues: { roleId: member.roleId } });
   const roleId = useWatch({ control, name: "roleId" });
+  const target = roles.find((r) => r.id === roleId);
+  const extrasNow = extraCount(member);
+  const kept = target ? (target.isLocked ? null : normalizeExtras(member.extraPermissions, target.permissions)) : member.extraPermissions;
+  const dropped = kept ? subtractPermissions(member.extraPermissions, kept) : member.extraPermissions;
+  const nDropped = countPermissions(dropped);
+  const nKept = kept ? countPermissions(kept) : 0;
   const options = sortRoles(roles)
     .filter((r) => r.id !== SUPER_ADMIN_ROLE_ID || member.status !== "INVITED")
     .map((r) => ({ value: r.id, title: r.name, description: `${countPermissions(r.permissions)} permissions${r.id === member.roleId ? " · current" : ""}` }));
@@ -67,13 +75,25 @@ function ChangeRoleForm({ member, roles, onClose, onSubmit }: ChangeRoleModalPro
           render={({ field }) => <ChoiceCardGroup name="team-role" aria-label="Role" value={field.value} onChange={field.onChange} options={options} columns={2} />}
         />
         {formState.errors.roleId && <p className="body-xsm-regular text-red">{formState.errors.roleId.message}</p>}
-        <RoleAccessPreview role={roles.find((r) => r.id === roleId)} />
+        <RoleAccessPreview role={target} />
+        {extrasNow > 0 && target && target.id !== member.roleId && (
+          <SettingsCallout
+            tone={nDropped ? "warning" : "info"}
+            title={target.isLocked ? `${target.name} has every permission` : `${plural(nKept, "extra permission")} will be kept`}
+          >
+            {target.isLocked
+              ? `Their ${plural(extrasNow, "extra permission")} will be removed because ${target.name} already includes everything.`
+              : nDropped
+                ? `${plural(nDropped, "extra permission")} (${listGrants(dropped, 3)}) ${nDropped === 1 ? "is" : "are"} already included in ${target.name}, so ${nDropped === 1 ? "it's" : "they're"} dropped. The rest stay on top of the new role.`
+                : `Extras stay on top of ${target.name}. You can change them later from the member's profile.`}
+          </SettingsCallout>
+        )}
       </form>
     </ModalShell>
   );
 }
 
-/** Role picker (radio cards) + live access preview. Remounts per member so defaults are fresh. */
+/** Role picker (radio cards) + live access preview + note on how extra permissions carry over. Remounts per member so defaults are fresh. */
 export function ChangeRoleModal(props: ChangeRoleModalProps) {
   if (!props.member) return null;
   return <ChangeRoleForm key={props.member.id} {...props} member={props.member} />;

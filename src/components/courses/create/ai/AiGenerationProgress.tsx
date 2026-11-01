@@ -23,8 +23,8 @@ export function AiGenerationProgress({ completed }: AiGenerationProgressProps) {
   return (
     <div className="flex flex-col items-center px-2 py-2 text-center sm:px-6" aria-live="polite" aria-busy="true">
       <AiRobotIllustration size="lg" />
-      <h3 className="mt-6 heading-h3 font-bold text-primary-500">Creating your course outline...</h3>
-      <p className="mt-3 max-w-2xl body-l-medium font-normal text-primary-400">
+      <h3 className="mt-6 heading-h3 text-primary-500">Creating your course outline...</h3>
+      <p className="mt-3 max-w-2xl body-l-medium text-primary-400">
         Our AI is analyzing your input and generating a complete curriculum with modules, lessons and learning
         activities.
       </p>

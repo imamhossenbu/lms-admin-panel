@@ -33,9 +33,9 @@ export function CategoryPagination({
   return (
     <div className="p-3.5 sm:p-4 border-t border-dash flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-left">
       <span className="body-sm-regular text-primary-400">
-        Showing <span className="font-semibold text-primary-500">{startItem}</span> to{" "}
-        <span className="font-semibold text-primary-500">{endItem}</span> of{" "}
-        <span className="font-semibold text-primary-500">{totalCount}</span> categories
+        Showing <span className="body-sm-regular font-semibold! text-primary-500">{startItem}</span> to{" "}
+        <span className="body-sm-regular font-semibold! text-primary-500">{endItem}</span> of{" "}
+        <span className="body-sm-regular font-semibold! text-primary-500">{totalCount}</span> categories
       </span>
 
       <div className="flex items-center gap-2 self-end sm:self-auto">
@@ -59,7 +59,7 @@ export function CategoryPagination({
                 key={page}
                 type="button"
                 onClick={() => onPageChange(page)}
-                className={`w-8 h-8 rounded-lg body-sm-medium font-bold transition-all cursor-pointer ${
+                className={`w-8 h-8 rounded-lg body-sm-medium transition-all cursor-pointer ${
                   isActive
                     ? "bg-brand-orange text-white shadow-2xs"
                     : "border border-dash text-primary-400 hover:bg-slate-50"

@@ -41,9 +41,9 @@ export function RevenueOverviewChart({ data, currency, metric, onMetricChange }:
       {/* Header */}
       <div className="flex items-center justify-between gap-3 mb-4">
         <div className="text-left min-w-0">
-          <h3 className="heading-h5 font-bold text-primary-500">Revenue Overview</h3>
+          <h3 className="heading-h5 text-primary-500">Revenue Overview</h3>
           <p className="body-sm-regular text-primary-300 mt-0.5 truncate">
-            {SUBTITLE[metric]} · <span className="font-semibold text-primary-500">{format(total)}</span>
+            {SUBTITLE[metric]} · <span className="body-sm-medium font-semibold! text-primary-500">{format(total)}</span>
           </p>
         </div>
 
@@ -91,7 +91,7 @@ export function RevenueOverviewChart({ data, currency, metric, onMetricChange }:
                   const item = payload[0].payload as RevenuePoint;
                   return (
                     <ChartTooltip title={item.fullLabel}>
-                      <p className="flex items-center gap-1.5 font-bold">
+                      <p className="flex items-center gap-1.5 body-xsm-medium font-bold!">
                         <span className="w-2 h-2 rounded-full bg-brand-orange shrink-0" />
                         {format(item[field])}
                       </p>

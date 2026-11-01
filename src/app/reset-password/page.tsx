@@ -184,17 +184,17 @@ function ResetPasswordFormContent() {
               <CheckCircle2 className="w-8 h-8" />
             </div>
             <div className="space-y-1">
-              <h3 className="heading-h4 text-primary-500 font-bold">
+              <h3 className="heading-h4 text-primary-500">
                 Password Successfully Reset!
               </h3>
-              <p className="body-sm-regular text-primary-400 leading-relaxed max-w-sm mx-auto">
+              <p className="body-sm-regular text-primary-400 max-w-sm mx-auto">
                 Your new password has been verified and applied. Click below to continue to the sign-in page.
               </p>
             </div>
             <div className="pt-2">
               <Link
                 href="/login"
-                className="inline-flex items-center justify-center gap-2 w-full h-12.5 rounded-xl bg-brand-orange bg-brand-orange:hover text-white body-medium font-semibold shadow-md edupro-glow-btn transition-all cursor-pointer"
+                className="inline-flex items-center justify-center gap-2 w-full h-12.5 rounded-xl bg-brand-orange bg-brand-orange:hover text-white body-medium shadow-md edupro-glow-btn transition-all cursor-pointer"
               >
                 <span>Continue to Sign In</span>
                 <ArrowRight className="w-4 h-4" />
@@ -208,7 +208,7 @@ function ResetPasswordFormContent() {
               <div className="space-y-2">
                 <label
                   htmlFor="manualToken"
-                  className="block body-sm-regular text-primary-500 font-semibold tracking-tight"
+                  className="block body-sm-medium text-primary-500 tracking-tight"
                 >
                   6-Digit Verification Code
                 </label>
@@ -237,7 +237,7 @@ function ResetPasswordFormContent() {
               <div className="space-y-2">
                 <label
                   htmlFor="manualEmail"
-                  className="block body-sm-regular text-primary-500 font-semibold tracking-tight"
+                  className="block body-sm-medium text-primary-500 tracking-tight"
                 >
                   Account Email
                 </label>
@@ -259,7 +259,7 @@ function ResetPasswordFormContent() {
             <div className="space-y-2">
               <label
                 htmlFor="password"
-                className="block body-sm-regular text-primary-500 font-semibold tracking-tight"
+                className="block body-sm-medium text-primary-500 tracking-tight"
               >
                 New Password
               </label>
@@ -306,7 +306,7 @@ function ResetPasswordFormContent() {
             <div className="space-y-2 pt-1">
               <label
                 htmlFor="confirmPassword"
-                className="block body-sm-regular text-primary-500 font-semibold tracking-tight"
+                className="block body-sm-medium text-primary-500 tracking-tight"
               >
                 Confirm New Password
               </label>

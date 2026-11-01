@@ -37,7 +37,7 @@ export function TrendStatCard({ icon, iconClassName, label, value, trend, classN
       <div className="min-w-0 flex-1">
         <p className="body-sm-regular text-primary-400 truncate">{label}</p>
         <div className="flex items-end justify-between gap-2 mt-0.5">
-          <p className="heading-h4 font-bold text-primary-500 leading-tight truncate">{value}</p>
+          <p className="heading-h4 text-primary-500 truncate">{value}</p>
           {trend && (
             <div className="text-right shrink-0">
               <span
