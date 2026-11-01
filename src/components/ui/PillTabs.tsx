@@ -10,6 +10,9 @@ export interface PillTabItem<K extends string = string> {
   label: string;
   icon?: React.ReactNode;
   count?: number;
+  /** Shows a red dot (e.g. the section has validation errors). */
+  hasError?: boolean;
+  disabled?: boolean;
 }
 
 export interface PillTabsProps<K extends string = string> {
@@ -19,11 +22,23 @@ export interface PillTabsProps<K extends string = string> {
   activeTab?: K;
   onChange: (id: K) => void;
   className?: string;
+  /** Stretch the track and split it evenly between tabs (e.g. source pickers). */
+  fullWidth?: boolean;
+  /** Accessible name of the tab list. */
+  ariaLabel?: string;
+  /** When set, tabs get id `${idPrefix}-tab-${id}` and aria-controls `${idPrefix}-panel-${id}`. */
+  idPrefix?: string;
+}
+
+/** Sizes a lucide icon (or any element accepting className) to 16px without arbitrary selectors. */
+function sizedIcon(icon: React.ReactNode) {
+  if (!React.isValidElement<{ className?: string }>(icon)) return icon;
+  return React.cloneElement(icon, { className: cn("h-4 w-4", icon.props.className) });
 }
 
 /**
- * The app-wide tab bar: grey track with a sliding white pill on the active tab,
- * optional leading icons and count badges. Used on every details page and filter tab row.
+ * THE app-wide tab bar (use it for every tabbed UI — never build a custom one): grey capsule
+ * track with a sliding white pill on the active tab, optional icon, count badge and error dot.
  */
 export function PillTabs<K extends string = string>({
   tabs,
@@ -31,6 +46,9 @@ export function PillTabs<K extends string = string>({
   activeTab,
   onChange,
   className,
+  fullWidth = false,
+  ariaLabel,
+  idPrefix,
 }: PillTabsProps<K>) {
   // Unique per instance so two tab bars on one page don't animate into each other
   const layoutId = useId();
@@ -38,22 +56,30 @@ export function PillTabs<K extends string = string>({
 
   return (
     <div className={cn("overflow-x-auto scrollbar-none max-w-full", className)}>
-      <div role="tablist" className="bg-gray-bg p-1.5 rounded-2xl flex items-center gap-1.5 w-fit">
+      <div
+        role="tablist"
+        aria-label={ariaLabel}
+        className={cn("bg-gray-bg p-1.5 rounded-2xl flex items-center gap-1.5", fullWidth ? "w-full min-w-max" : "w-fit")}
+      >
         {tabs.map((tab) => {
           const isActive = tab.id === currentActive;
 
           return (
-            <button
+            <motion.button
               key={tab.id}
               type="button"
               role="tab"
+              id={idPrefix ? `${idPrefix}-tab-${tab.id}` : undefined}
+              aria-controls={idPrefix ? `${idPrefix}-panel-${tab.id}` : undefined}
               aria-selected={isActive}
-              onClick={() => onChange(tab.id)}
+              disabled={tab.disabled}
+              whileTap={tab.disabled ? undefined : { scale: 0.97 }}
+              onClick={() => !isActive && onChange(tab.id)}
               className={cn(
-                "relative whitespace-nowrap px-4 py-2 rounded-xl body-sm-medium transition-colors duration-150 cursor-pointer flex items-center gap-2 shrink-0 z-10 select-none",
-                isActive
-                  ? "text-primary-500 font-semibold"
-                  : "text-primary-400 hover:text-primary-500 hover:bg-white/60"
+                "relative whitespace-nowrap px-4 py-2 rounded-xl body-sm-medium transition-colors duration-150 cursor-pointer flex items-center justify-center gap-2 shrink-0 z-10 select-none",
+                "disabled:cursor-not-allowed disabled:opacity-50",
+                fullWidth && "flex-1",
+                isActive ? "text-primary-500 font-semibold" : "text-primary-400 hover:text-primary-500 hover:bg-white/60"
               )}
             >
               {isActive && (
@@ -65,13 +91,8 @@ export function PillTabs<K extends string = string>({
               )}
 
               {tab.icon && (
-                <span
-                  className={cn(
-                    "shrink-0 flex [&>svg]:w-4 [&>svg]:h-4",
-                    isActive ? "text-primary-500" : "text-primary-400"
-                  )}
-                >
-                  {tab.icon}
+                <span className={cn("shrink-0 flex", isActive ? "text-primary-500" : "text-primary-400")}>
+                  {sizedIcon(tab.icon)}
                 </span>
               )}
 
@@ -87,7 +108,9 @@ export function PillTabs<K extends string = string>({
                   {tab.count.toLocaleString()}
                 </ToneBadge>
               )}
-            </button>
+
+              {tab.hasError && <span className="h-2 w-2 shrink-0 rounded-full bg-red" aria-label="Has errors" />}
+            </motion.button>
           );
         })}
       </div>

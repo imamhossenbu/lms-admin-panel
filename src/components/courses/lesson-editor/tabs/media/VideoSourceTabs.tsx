@@ -1,9 +1,8 @@
 "use client";
 
 import React from "react";
-import { motion } from "framer-motion";
 import { FolderOpen, Link2, SquarePlay, Upload, type LucideIcon } from "lucide-react";
-import { cn } from "@/lib/cn";
+import { PillTabs } from "@/components/ui/PillTabs";
 import { EDITOR_VIDEO_SOURCES } from "@/validations/lessonEditorSchema";
 import type { VideoSource } from "./videoUtils";
 
@@ -29,40 +28,19 @@ export interface VideoSourceTabsProps {
   onChange: (source: VideoSource) => void;
 }
 
-/** Segmented source picker of the Lesson Video card with an animated orange underline. */
+/** Source picker of the Lesson Video card — the shared capsule PillTabs, full width. */
 export function VideoSourceTabs({ value, onChange }: VideoSourceTabsProps) {
   return (
-    <div role="tablist" aria-label="Video source" className="flex overflow-x-auto rounded-xl border border-dash bg-white">
-      {EDITOR_VIDEO_SOURCES.map((source, i) => {
-        const { label, icon: Icon } = SOURCE_META[source];
-        const isActive = source === value;
-        return (
-          <motion.button
-            key={source}
-            type="button"
-            role="tab"
-            aria-selected={isActive}
-            whileTap={{ scale: 0.96 }}
-            onClick={() => onChange(source)}
-            className={cn(
-              "relative flex flex-1 cursor-pointer items-center justify-center gap-2 whitespace-nowrap px-4 py-3 body-sm-regular transition-colors",
-              i > 0 && "border-l border-dash",
-              isActive ? "bg-brand-orange-light text-brand-orange" : "text-primary-400"
-            )}
-          >
-            <Icon className="h-4 w-4 shrink-0" />
-            {label}
-            {isActive && (
-              <motion.span
-                layoutId="lesson-video-source-underline"
-                className="absolute inset-x-0 bottom-0 h-0.5 bg-brand-orange"
-                transition={{ type: "spring", stiffness: 500, damping: 38 }}
-              />
-            )}
-          </motion.button>
-        );
+    <PillTabs
+      fullWidth
+      ariaLabel="Video source"
+      activeId={value}
+      onChange={onChange}
+      tabs={EDITOR_VIDEO_SOURCES.map((id) => {
+        const { label, icon: Icon } = SOURCE_META[id];
+        return { id, label, icon: <Icon /> };
       })}
-    </div>
+    />
   );
 }
 
