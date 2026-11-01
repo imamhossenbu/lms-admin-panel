@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { useViewportFit } from "@/lib/useViewportFit";
 import Image from "next/image";
 import {
   Search,
@@ -24,6 +25,8 @@ export function AdminNavbar() {
   const user = useAppSelector((state) => state.auth.user);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const fitRef = useRef<HTMLDivElement>(null);
+  useViewportFit(dropdownOpen, fitRef);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -124,7 +127,7 @@ export function AdminNavbar() {
           </button>
 
           {dropdownOpen && (
-            <div className="absolute right-0 mt-2 w-60 bg-white rounded-xl shadow-xl border border-dash py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
+            <div ref={fitRef} className="absolute right-0 mt-2 w-60 bg-white rounded-xl shadow-xl border border-dash py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
               <div className="px-4 py-2.5 border-b border-dash">
                 <p className="body-sm-medium text-primary-500 truncate">
                   {user?.name || "Admin"}

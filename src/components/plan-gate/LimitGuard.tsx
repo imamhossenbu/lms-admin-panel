@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
+import { useViewportFit } from "@/lib/useViewportFit";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUpRight, Lock } from "lucide-react";
@@ -42,6 +43,8 @@ export interface LimitGuardProps {
 export function LimitGuard({ limitKey, children, className }: LimitGuardProps) {
   const { atLimit, message } = useLimit(limitKey);
   const [open, setOpen] = useState(false);
+  const fitRef = useRef<HTMLSpanElement>(null);
+  useViewportFit(open, fitRef);
 
   if (!atLimit) return <>{children({ disabled: false })}</>;
 
@@ -60,6 +63,7 @@ export function LimitGuard({ limitKey, children, className }: LimitGuardProps) {
       <AnimatePresence>
         {open && (
           <motion.span
+            ref={fitRef}
             role="tooltip"
             initial={{ opacity: 0, y: -4, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}

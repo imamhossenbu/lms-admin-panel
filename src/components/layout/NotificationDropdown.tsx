@@ -11,6 +11,7 @@ import { markRead } from "@/lib/notificationStorage";
 import { timeAgo } from "@/lib/notificationStats";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 import { cn } from "@/lib/cn";
+import { useViewportFit } from "@/lib/useViewportFit";
 import { CategoryIcon } from "@/components/notifications/shared/CategoryIcon";
 import { useNotificationsStore } from "@/components/notifications/shared/useNotificationsStore";
 
@@ -21,6 +22,8 @@ export function NotificationDropdown() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const fitRef = useRef<HTMLDivElement>(null);
+  useViewportFit(isOpen, fitRef);
   const { inbox } = useNotificationsStore();
 
   const live = useMemo(() => inbox.filter((n) => !n.isArchived), [inbox]);
@@ -93,6 +96,7 @@ export function NotificationDropdown() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
+            ref={fitRef}
             initial={{ opacity: 0, scale: 0.96, y: -6 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: -6 }}
