@@ -178,32 +178,10 @@ export const lessonPayloadForApi = (lesson: AiOutlineLesson, order: number) => {
   };
 };
 
-const formatSize = (bytes: number) =>
-  bytes >= 1024 * 1024 ? `${(bytes / 1024 / 1024).toFixed(2)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`;
-
-/** Saves a lesson's uploaded files and external links as LessonResource rows. */
-export async function saveLessonResources(lessonId: string, details: LessonDetails | undefined): Promise<void> {
-  if (!details) return;
-  for (const file of details.resourceFiles) {
-    await coursesApi.createLessonResource(lessonId, {
-      title: file.name,
-      fileUrl: file.url,
-      fileType: file.fileType || "FILE",
-      size: formatSize(file.size),
-      isDownloadable: true,
-    });
-  }
-  for (const link of details.resourceLinks) {
-    await coursesApi.createLessonResource(lessonId, {
-      title: link.title,
-      fileUrl: link.url,
-      fileType: "LINK",
-      isDownloadable: false,
-    });
-  }
-}
-
-/** Creates every module, lesson and lesson resource of the outline under an existing course (sequential to keep order). */
+/**
+ * Creates every module and lesson of the outline under an existing course (sequential to keep order).
+ * Lesson resources (files/links) are not sent: the current backend only accepts a multipart file upload.
+ */
 export async function saveOutlineToCourse(courseId: string, outline: AiOutline): Promise<void> {
   for (let mi = 0; mi < outline.modules.length; mi++) {
     const outlineModule = outline.modules[mi];
@@ -215,8 +193,7 @@ export async function saveOutlineToCourse(courseId: string, outline: AiOutline):
     if (!created?.id) continue;
     for (let li = 0; li < outlineModule.lessons.length; li++) {
       const lesson = outlineModule.lessons[li];
-      const createdLesson = await coursesApi.createLesson(courseId, created.id, lessonPayloadForApi(lesson, li + 1));
-      if (createdLesson?.id) await saveLessonResources(createdLesson.id, lesson.details);
+      await coursesApi.createLesson(courseId, created.id, lessonPayloadForApi(lesson, li + 1));
     }
   }
 }

@@ -205,14 +205,6 @@ export const coursesApi = {
     );
     return res.data;
   },
-  /** Attach an already-hosted file (Cloudinary URL) or an external link (fileType "LINK") to a lesson. */
-  createLessonResource: async (
-    lessonId: string,
-    data: { title: string; fileUrl: string; fileType: string; size?: string; isDownloadable?: boolean }
-  ) => {
-    const res = await apiClient.post(`/lessons/${lessonId}/resources`, data);
-    return res.data;
-  },
 };
 
 export const categoriesApi = {
