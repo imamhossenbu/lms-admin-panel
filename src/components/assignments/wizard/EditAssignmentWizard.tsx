@@ -3,11 +3,9 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { fetchAssignment } from "@/lib/assignmentStorage";
-import { getLessonEditorContext } from "@/lib/lessonEditorStorage";
 import { assignmentToWizard } from "@/lib/assignmentWizardMapping";
 import type { AssignmentItem } from "@/types/assignment";
 import type { AssignmentWizardValues } from "@/validations/assignmentWizardSchema";
-import type { LessonEditorContext } from "@/types/lessonEditor";
 import { AssignmentNotFound } from "@/components/assignments/details/AssignmentNotFound";
 import { AssignmentWizardView } from "./AssignmentWizardView";
 import { WizardSkeleton } from "./shell/WizardSkeleton";
@@ -16,7 +14,7 @@ import { readWizardDraft, wizardDraftKey, type WizardDraft } from "./shell/wizar
 type State =
   | { status: "loading" }
   | { status: "missing" }
-  | { status: "ready"; existing: AssignmentItem; context: LessonEditorContext; baseValues: AssignmentWizardValues; draft: WizardDraft | null };
+  | { status: "ready"; existing: AssignmentItem; baseValues: AssignmentWizardValues; draft: WizardDraft | null };
 
 /** /assignments/[id]/edit — loads the assignment, maps it to wizard values and restores any draft. */
 export function EditAssignmentWizard({ assignmentId }: { assignmentId: string }) {
@@ -32,7 +30,6 @@ export function EditAssignmentWizard({ assignmentId }: { assignmentId: string })
         setState({
           status: "ready",
           existing,
-          context: getLessonEditorContext(existing.courseId),
           baseValues: assignmentToWizard(existing),
           draft: readWizardDraft(draftKey),
         });
@@ -53,7 +50,6 @@ export function EditAssignmentWizard({ assignmentId }: { assignmentId: string })
     <AssignmentWizardView
       mode="edit"
       draftKey={draftKey}
-      context={state.context}
       baseValues={state.baseValues}
       draft={state.draft}
       existing={state.existing}

@@ -7,7 +7,7 @@ import { Trash2 } from "lucide-react";
 import type { AssignmentItem } from "@/types/assignment";
 import { useUrlParams } from "@/lib/useUrlParams";
 import { getLessonEditorContext } from "@/lib/lessonEditorStorage";
-import { MOCK_LESSON_COURSE_ID } from "@/data/mockLessonEditorData";
+import { isKnownCourse } from "@/data/mockCourseCatalog";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { TablePagination } from "@/components/ui/TablePagination";
 import { AssignmentsLoadError } from "./AssignmentsLoadError";
@@ -38,15 +38,27 @@ import type { AssignmentRowHandlers } from "./AssignmentRowActions";
 
 const TABLE_PAGE_SIZES = [10, 20, 50];
 const GRID_PAGE_SIZES = [6, 12, 24];
-const FILTER_KEYS = { q: null, module: null, status: null, type: null, page: null } as const;
+const FILTER_KEYS = { q: null, course: null, module: null, status: null, type: null, page: null } as const;
 
-/** Assignments list page: stats, tabs, filters, table / grid, bulk actions. All state lives in the URL. */
-export function AssignmentsListView({ courseId = MOCK_LESSON_COURSE_ID }: { courseId?: string }) {
+/**
+ * Assignments list page: stats, tabs, filters, table / grid, bulk actions. All state lives in the URL.
+ * `?course=<id>` scopes everything to one course; without it (or with an unknown id) all courses are listed.
+ */
+export function AssignmentsListView() {
   const router = useRouter();
   const { get, getPage, set } = useUrlParams();
-  const context = useMemo(() => getLessonEditorContext(courseId), [courseId]);
-  const { assignments, submissions, isLoading, loadError, retry } = useAssignmentsData(courseId);
+  const courseParam = get("course");
+  const courseId = isKnownCourse(courseParam) ? courseParam : null;
+  const { assignments, submissions, isLoading, loadError, retry } = useAssignmentsData(courseId ?? undefined);
   const actions = useAssignmentListActions();
+
+  /** Module / lesson labels come from each assignment's OWN course — one context per course id. */
+  const contexts = useMemo(() => {
+    const ids = new Set(assignments.map((a) => a.courseId));
+    if (courseId) ids.add(courseId);
+    return new Map(Array.from(ids, (id) => [id, getLessonEditorContext(id)] as const));
+  }, [assignments, courseId]);
+  const courseContext = courseId ? (contexts.get(courseId) ?? null) : null;
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [deleting, setDeleting] = useState<AssignmentItem | null>(null);
@@ -54,7 +66,7 @@ export function AssignmentsListView({ courseId = MOCK_LESSON_COURSE_ID }: { cour
 
   const tab = parseListTab(get("tab"));
   const query = get("q");
-  const moduleId = get("module", "All");
+  const moduleId = courseId ? get("module", "All") : "All";
   const status = get("status", "All");
   const type = get("type", "All");
   const dueSort = parseDueSort(get("sort"));
@@ -63,7 +75,7 @@ export function AssignmentsListView({ courseId = MOCK_LESSON_COURSE_ID }: { cour
   const perPageParam = Number(get("perPage"));
   const perPage = pageSizes.includes(perPageParam) ? perPageParam : pageSizes[0];
   const page = getPage();
-  const isFiltered = !!query || moduleId !== "All" || status !== "All" || type !== "All";
+  const isFiltered = !!courseId || !!query || moduleId !== "All" || status !== "All" || type !== "All";
 
   const counts = useMemo(() => countSubmissions(submissions), [submissions]);
 
@@ -75,24 +87,29 @@ export function AssignmentsListView({ courseId = MOCK_LESSON_COURSE_ID }: { cour
       if (status !== "All" && a.status !== status) return false;
       if (type !== "All" && a.type !== type) return false;
       if (!q) return true;
-      const labels = moduleLessonLabels(a, context);
-      return [a.title, labels.module, labels.lesson ?? ""].some((s) => s.toLowerCase().includes(q));
+      const ctx = contexts.get(a.courseId) ?? getLessonEditorContext(a.courseId);
+      const labels = moduleLessonLabels(a, ctx);
+      return [a.title, ctx.course.title, labels.module, labels.lesson ?? ""].some((s) => s.toLowerCase().includes(q));
     });
     return sortByDue(list, dueSort).map((a, i) => {
-      const labels = moduleLessonLabels(a, context);
+      const ctx = contexts.get(a.courseId) ?? getLessonEditorContext(a.courseId);
+      const labels = moduleLessonLabels(a, ctx);
+      // All-courses view: prefix the course so rows from different courses are distinguishable.
+      const courseLabel = courseId ? null : ctx.course.title;
       return {
         id: a.id,
         number: i + 1,
         assignment: a,
+        courseLabel,
         moduleLabel: labels.module,
         lessonLabel: labels.lesson,
-        metaLabel: labels.short,
+        metaLabel: courseLabel ? `${courseLabel} · ${labels.short}` : labels.short,
         submitted: countsFor(counts, a.id).submitted,
       };
     });
-  }, [assignments, counts, context, tab, query, moduleId, status, type, dueSort]);
+  }, [assignments, counts, contexts, courseId, tab, query, moduleId, status, type, dueSort]);
 
-  if (isLoading) return <AssignmentsListSkeleton view={view} />;
+  if (isLoading) return <AssignmentsListSkeleton view={view} withBanner={!!courseId} />;
   if (loadError) return <AssignmentsLoadError message={loadError} onRetry={retry} />;
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
@@ -107,7 +124,7 @@ export function AssignmentsListView({ courseId = MOCK_LESSON_COURSE_ID }: { cour
     set(updates);
   };
   const resetFilters = () => updateParams({ ...FILTER_KEYS });
-  const goCreate = () => router.push("/assignments/create");
+  const goCreate = () => router.push(courseId ? `/assignments/create?course=${encodeURIComponent(courseId)}` : "/assignments/create");
 
   const handlers: AssignmentRowHandlers = {
     busyId: actions.busyId,
@@ -146,7 +163,7 @@ export function AssignmentsListView({ courseId = MOCK_LESSON_COURSE_ID }: { cour
       transition={{ duration: 0.25, ease: "easeOut" }}
       className="space-y-5 text-left pb-8"
     >
-      <AssignmentsHeader course={context.course} />
+      <AssignmentsHeader course={courseContext?.course ?? null} />
       <AssignmentStatsRow assignments={assignments} submissions={submissions} />
       <AssignmentTabsBar
         active={tab}
@@ -157,13 +174,15 @@ export function AssignmentsListView({ courseId = MOCK_LESSON_COURSE_ID }: { cour
       <div className="dashboard-card shadow-2xs p-5 space-y-4">
         <AssignmentFiltersBar
           query={query}
+          courseId={courseId ?? "All"}
           moduleId={moduleId}
           status={status}
           type={type}
           view={view}
-          moduleOptions={moduleFilterOptions(context)}
+          moduleOptions={courseContext ? moduleFilterOptions(courseContext) : []}
           isFiltered={isFiltered}
           onChange={(updates) => updateParams({ ...updates, page: null })}
+          onCourseChange={(next) => updateParams({ course: next, module: null, page: null })}
           onReset={resetFilters}
           onViewChange={(next) => updateParams({ view: next === "table" ? null : next, perPage: null, page: null })}
         />

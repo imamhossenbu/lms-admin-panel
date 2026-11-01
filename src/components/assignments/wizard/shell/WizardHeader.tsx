@@ -2,34 +2,37 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { Breadcrumb } from "@/components/ui/Breadcrumb";
+import { Breadcrumb, type BreadcrumbItem } from "@/components/ui/Breadcrumb";
 
 export interface WizardHeaderProps {
   mode: "create" | "edit";
-  courseId: string;
+  /** Selected course title ("" before one is chosen). */
   courseTitle: string;
   /** "Module 1: Getting Started" (live from the form). */
   moduleLabel: string;
+  /** Edit mode: the saved assignment. */
+  assignmentId?: string;
   assignmentTitle?: string;
 }
 
-/** Breadcrumb + title / subtitle. */
-export function WizardHeader({ mode, courseId, courseTitle, moduleLabel, assignmentTitle }: WizardHeaderProps) {
+/** Breadcrumb (🏠 › Assignments › Create Assignment | {title} › Edit) + title / subtitle. */
+export function WizardHeader({ mode, courseTitle, moduleLabel, assignmentId, assignmentTitle }: WizardHeaderProps) {
   const isEdit = mode === "edit";
+  const location = [courseTitle, moduleLabel].filter(Boolean).join(" • ");
   const subtitle = isEdit
-    ? `Update ${assignmentTitle ? `"${assignmentTitle}"` : "this assignment"}${moduleLabel ? ` in ${moduleLabel}` : ""}`
-    : `Create a new assignment${moduleLabel ? ` for ${moduleLabel}` : ""}`;
+    ? `Update ${assignmentTitle ? `"${assignmentTitle}"` : "this assignment"}${location ? ` in ${location}` : ""}`
+    : `Create a new assignment${location ? ` for ${location}` : ""}`;
+  const items: BreadcrumbItem[] = isEdit
+    ? [
+        { label: "Assignments", href: "/assignments" },
+        { label: assignmentTitle || "Assignment", href: assignmentId ? `/assignments/${assignmentId}` : undefined },
+        { label: "Edit" },
+      ]
+    : [{ label: "Assignments", href: "/assignments" }, { label: "Create Assignment" }];
 
   return (
     <div className="space-y-4">
-      <Breadcrumb
-        items={[
-          { label: "Courses", href: "/courses" },
-          { label: courseTitle, href: `/courses/${courseId}` },
-          { label: "Assignments", href: "/assignments" },
-          { label: isEdit ? "Edit Assignment" : "Create Assignment" },
-        ]}
-      />
+      <Breadcrumb items={items} />
       <motion.div
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}

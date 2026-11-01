@@ -8,6 +8,7 @@ import type {
   RubricCriterion,
 } from "@/types/assignment";
 import { MOCK_LESSON_COURSE_ID, MOCK_LESSON_REFS } from "@/data/mockLessonEditorData";
+import { getCourseContext } from "@/data/mockCourseCatalog";
 
 /**
  * Deterministic mock data for Assignments (mock-first phase).
@@ -162,6 +163,10 @@ interface Spec {
   pending: number;
   late: number;
   criteria?: string[];
+  /** Other courses: course id + 0-based module/lesson index (HTML Fundamentals uses `lesson` titles). */
+  courseId?: string;
+  moduleIndex?: number;
+  lessonIndex?: number;
 }
 
 const SPECS: Spec[] = [
@@ -177,7 +182,29 @@ const SPECS: Spec[] = [
   { title: "Link Navigation Menu", description: "Create a navigation menu that links to sections on the same page and to external sites.", lesson: "Creating Links", type: "TEXT", dueInDays: -3, published: true, submitted: 32, pending: 2, late: 2, criteria: ["Navigation", "Anchors", "External Links", "Code Quality"] },
   { title: "Responsive Images Practice", description: "Use srcset and sizes to serve the right image for each screen size.", lesson: "Responsive Images", type: "FILE_UPLOAD", dueInDays: -1, published: true, submitted: 18, pending: 1, late: 1, criteria: ["srcset Usage", "Alt Text", "Performance", "Code Quality"] },
   { title: "Accessibility Audit", description: "Audit a sample page and fix its accessibility issues using semantic HTML and ARIA.", lesson: "Accessibility Basics", type: "TEXT", dueInDays: 1, published: true, submitted: 16, pending: 1, late: 0, criteria: ["Issues Found", "Fixes Applied", "Semantics", "Explanation"] },
+  // ---- JavaScript Essentials
+  { title: "Variables and Types Worksheet", description: "Answer short exercises on let, const and the JavaScript data types.", lesson: "", courseId: "course-javascript-essentials", moduleIndex: 1, lessonIndex: 2, type: "TEXT", dueInDays: -4, published: true, submitted: 30, pending: 3, late: 2, criteria: ["Correctness", "Explanations", "Examples", "Code Quality"] },
+  { title: "DOM To-Do List", description: "Build a to-do list that adds, completes and removes items using the DOM API.", lesson: "", courseId: "course-javascript-essentials", moduleIndex: 2, lessonIndex: 2, type: "LINK", dueInDays: 4, published: true, submitted: 21, pending: 7, late: 0, criteria: ["Functionality", "DOM Usage", "Events", "Code Quality"] },
+  { title: "Fetch API Weather App", description: "Fetch weather data from a public API and render it with loading and error states.", lesson: "", courseId: "course-javascript-essentials", moduleIndex: 4, lessonIndex: 2, type: "LINK", dueInDays: 12, published: false, submitted: 0, pending: 0, late: 0, criteria: ["Async Handling", "Error States", "UI", "Code Quality"] },
+  // ---- Advanced CSS
+  { title: "Flexbox Navigation Bar", description: "Build a responsive navigation bar using flexbox only.", lesson: "", courseId: "course-advanced-css", moduleIndex: 1, lessonIndex: 2, type: "FILE_UPLOAD", dueInDays: -2, published: true, submitted: 26, pending: 2, late: 1, criteria: ["Layout", "Responsiveness", "Alignment", "Code Quality"] },
+  { title: "CSS Grid Photo Gallery", description: "Create a photo gallery layout with CSS Grid and named areas.", lesson: "", courseId: "course-advanced-css", moduleIndex: 2, lessonIndex: 2, type: "FILE_UPLOAD", dueInDays: 6, published: true, submitted: 14, pending: 5, late: 0, criteria: ["Grid Usage", "Responsiveness", "Visual Design", "Code Quality"] },
+  // ---- CSS Frameworks
+  { title: "Bootstrap Landing Page", description: "Recreate a landing page using Bootstrap's grid and components.", lesson: "", courseId: "course-css-frameworks", moduleIndex: 0, lessonIndex: 2, type: "LINK", dueInDays: -8, published: true, submitted: 32, pending: 0, late: 4, criteria: ["Components", "Grid", "Responsiveness", "Code Quality"] },
+  { title: "Tailwind Pricing Table", description: "Design a three-tier pricing table with Tailwind utility classes.", lesson: "", courseId: "course-css-frameworks", moduleIndex: 1, lessonIndex: 2, type: "FILE_UPLOAD", dueInDays: 9, published: false, submitted: 0, pending: 0, late: 0, criteria: ["Utility Usage", "Layout", "Visual Design", "Code Quality"] },
 ];
+
+/** Course / module / lesson a spec belongs to. */
+const specRef = (spec: Spec) => {
+  if (!spec.courseId) {
+    const ref = lessonByTitle(spec.lesson);
+    return { courseId: MOCK_LESSON_COURSE_ID, moduleId: ref.moduleId, lessonId: ref.id };
+  }
+  const ctx = getCourseContext(spec.courseId);
+  const mod = ctx.modules[spec.moduleIndex ?? 0];
+  const lesson = ctx.lessons.filter((l) => l.moduleId === mod.id)[spec.lessonIndex ?? 0];
+  return { courseId: spec.courseId, moduleId: mod.id, lessonId: lesson?.id ?? "" };
+};
 
 export interface AssignmentSeed {
   assignments: AssignmentItem[];
@@ -192,7 +219,7 @@ export function buildAssignmentSeed(now: Date = new Date()): AssignmentSeed {
 
   SPECS.forEach((spec, index) => {
     const id = `assignment-${index + 1}`;
-    const ref = lessonByTitle(spec.lesson);
+    const ref = specRef(spec);
     const due = new Date(now.getFullYear(), now.getMonth(), now.getDate() + spec.dueInDays, 23, 59);
     const created = new Date(now.getTime() - (40 - index) * 86400000);
     const isIntro = index === 0;
@@ -209,11 +236,11 @@ export function buildAssignmentSeed(now: Date = new Date()): AssignmentSeed {
 
     assignments.push({
       id,
-      courseId: MOCK_LESSON_COURSE_ID,
+      courseId: ref.courseId,
       title: spec.title,
       descriptionHtml: `<p>${spec.description}</p>`,
       moduleId: ref.moduleId,
-      lessonId: ref.id,
+      lessonId: ref.lessonId,
       type: spec.type,
       dueDate: toDate(due),
       dueTime: "23:59",

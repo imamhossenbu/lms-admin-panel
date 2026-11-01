@@ -45,7 +45,7 @@ export function buildReviewSections(v: AssignmentWizardValues, context: LessonEd
       subtitle: "Title, description and assignment type",
       rows: [
         ["Title", v.title.trim() || "—"],
-        ["Course", context.course.title],
+        ["Course", context.course.title || "—"],
         ["Module", wizardModuleLabel(context, v.moduleId) || "—"],
         ["Type", WIZARD_TYPE_LABEL[v.type]],
       ],

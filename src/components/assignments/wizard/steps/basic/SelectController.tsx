@@ -18,10 +18,25 @@ export interface SelectControllerProps {
   /** Map form value → select value (and back) e.g. "" ⇄ "__none". */
   toSelect?: (value: string) => string;
   fromSelect?: (value: string) => string;
+  /** Side effect after the field changed (e.g. reset dependent fields). */
+  onValueChange?: (value: string) => void;
+  disabled?: boolean;
 }
 
 /** Labelled AppSelect bound to a wizard field, with the field error below. */
-export function SelectController({ name, label, options, placeholder, required, optional, icon, toSelect, fromSelect }: SelectControllerProps) {
+export function SelectController({
+  name,
+  label,
+  options,
+  placeholder,
+  required,
+  optional,
+  icon,
+  toSelect,
+  fromSelect,
+  onValueChange,
+  disabled,
+}: SelectControllerProps) {
   const { control } = useFormContext<AssignmentWizardValues>();
   return (
     <Controller
@@ -34,9 +49,12 @@ export function SelectController({ name, label, options, placeholder, required, 
             <AppSelect
               value={toSelect ? toSelect(raw) : raw}
               onValueChange={(v) => {
-                field.onChange(fromSelect ? fromSelect(v) : v);
+                const next = fromSelect ? fromSelect(v) : v;
+                field.onChange(next);
                 field.onBlur();
+                onValueChange?.(next);
               }}
+              disabled={disabled}
               options={options}
               placeholder={placeholder}
               icon={icon}

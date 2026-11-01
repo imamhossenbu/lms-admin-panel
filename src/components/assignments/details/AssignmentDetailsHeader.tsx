@@ -22,10 +22,12 @@ export interface AssignmentDetailsHeaderProps {
   onAssignmentChange: (next: AssignmentItem) => void;
 }
 
-/** Breadcrumb, title + status badge, module/lesson subtitle and the page actions. */
+/** Breadcrumb (🏠 › Assignments › {title}), title + status badge, course/module/lesson subtitle and the page actions. */
 export function AssignmentDetailsHeader({ assignment, submissions, context, onPreview, onEdit, onAssignmentChange }: AssignmentDetailsHeaderProps) {
   const act = useAssignmentActions(assignment, submissions);
   const { moduleLabel, lessonLabel } = assignmentLocation(assignment, context);
+  /** "HTML Fundamentals • Module 1: Getting Started • Lesson 4: …" */
+  const location = [context.course.title, moduleLabel, lessonLabel].filter((part): part is string => !!part);
   const isPublished = assignment.status === "PUBLISHED";
 
   const togglePublish = async () => {
@@ -36,12 +38,7 @@ export function AssignmentDetailsHeader({ assignment, submissions, context, onPr
   return (
     <div className="space-y-4">
       <Breadcrumb
-        items={[
-          { label: "Courses", href: "/courses" },
-          { label: context.course.title, href: `/courses/${assignment.courseId}` },
-          { label: "Assignments", href: "/assignments" },
-          { label: "Assignment Details" },
-        ]}
+        items={[{ label: "Assignments", href: "/assignments" }, { label: assignment.title }]}
       />
       <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
         <div className="min-w-0">
@@ -51,11 +48,14 @@ export function AssignmentDetailsHeader({ assignment, submissions, context, onPr
               {isPublished ? "Published" : "Draft"}
             </ToneBadge>
           </div>
-          {(moduleLabel || lessonLabel) && (
+          {location.length > 0 && (
             <p className="mt-1.5 flex flex-wrap items-center gap-2 body-regular text-primary-300">
-              {moduleLabel && <span>{moduleLabel}</span>}
-              {moduleLabel && lessonLabel && <span aria-hidden>•</span>}
-              {lessonLabel && <span>{lessonLabel}</span>}
+              {location.map((part, i) => (
+                <React.Fragment key={part}>
+                  {i > 0 && <span aria-hidden>•</span>}
+                  <span>{part}</span>
+                </React.Fragment>
+              ))}
             </p>
           )}
         </div>

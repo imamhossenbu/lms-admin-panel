@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { CalendarClock } from "lucide-react";
+import { BookOpen, CalendarClock } from "lucide-react";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 import { dueLabel } from "@/lib/assignmentStats";
 import { cn } from "@/lib/cn";
@@ -52,6 +52,12 @@ export function AssignmentCard({ row, handlers, selected, onSelect }: Assignment
         <h3 className="body-medium font-semibold! text-primary-500 truncate" title={a.title}>
           {row.number}. {a.title}
         </h3>
+        {row.courseLabel && (
+          <p className="mt-1 flex items-center gap-1.5 body-sm-medium text-primary-500 min-w-0" title={row.courseLabel}>
+            <BookOpen className="w-4 h-4 text-primary-300 shrink-0" />
+            <span className="truncate">{row.courseLabel}</span>
+          </p>
+        )}
         <p className="mt-1 body-sm-regular text-primary-400 truncate">{row.moduleLabel}</p>
         <p className="body-sm-regular text-primary-300 truncate">{row.lessonLabel ?? "No lesson linked"}</p>
       </div>

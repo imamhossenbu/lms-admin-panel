@@ -5,10 +5,10 @@ import type { AssignmentItem, AssignmentSubmission } from "@/types/assignment";
 import { ASSIGNMENTS_UPDATED_EVENT, fetchAssignments, getSubmissionsSnapshot } from "@/lib/assignmentStorage";
 
 /**
- * Loads the course's assignments + all submissions (mock storage) and re-reads them whenever
+ * Loads the course's assignments (every course when `courseId` is omitted) + all submissions (mock storage) and re-reads them whenever
  * the storage emits ASSIGNMENTS_UPDATED_EVENT (create, duplicate, publish, delete …).
  */
-export function useAssignmentsData(courseId: string) {
+export function useAssignmentsData(courseId?: string) {
   const [assignments, setAssignments] = useState<AssignmentItem[]>([]);
   const [submissions, setSubmissions] = useState<AssignmentSubmission[]>([]);
   const [isLoading, setIsLoading] = useState(true);

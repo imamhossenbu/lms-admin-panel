@@ -5,26 +5,32 @@ import { LayoutGrid, List } from "lucide-react";
 import { ListFilters } from "@/components/ui/ListFilters";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import type { AppSelectOption } from "@/components/ui/AppSelect";
-import { STATUS_FILTER_OPTIONS, TYPE_FILTER_OPTIONS } from "./assignmentListUtils";
+import { COURSE_FILTER_OPTIONS, STATUS_FILTER_OPTIONS, TYPE_FILTER_OPTIONS } from "./assignmentListUtils";
 
 export type AssignmentListView = "table" | "grid";
 
 export interface AssignmentFiltersBarProps {
   query: string;
+  /** Selected course id, or "All". */
+  courseId: string;
   moduleId: string;
   status: string;
   type: string;
   view: AssignmentListView;
+  /** Modules of the selected course (empty while "All Courses" is selected → module filter disabled). */
   moduleOptions: AppSelectOption[];
   isFiltered: boolean;
   onChange: (updates: Record<string, string | null>) => void;
+  /** Course change (the view also resets module + page). */
+  onCourseChange: (courseId: string) => void;
   onReset: () => void;
   onViewChange: (view: AssignmentListView) => void;
 }
 
-/** Search + All Modules / All Status / All Types + Reset, and the list/grid toggle. */
+/** Search + All Courses / All Modules / All Status / All Types + Reset, and the list/grid toggle. */
 export function AssignmentFiltersBar({
   query,
+  courseId,
   moduleId,
   status,
   type,
@@ -32,9 +38,11 @@ export function AssignmentFiltersBar({
   moduleOptions,
   isFiltered,
   onChange,
+  onCourseChange,
   onReset,
   onViewChange,
 }: AssignmentFiltersBarProps) {
+  const hasCourse = courseId !== "All";
   return (
     <div className="flex flex-col xl:flex-row gap-3">
       <div className="flex-1 min-w-0">
@@ -43,7 +51,16 @@ export function AssignmentFiltersBar({
           searchPlaceholder="Search assignments..."
           onQueryChange={(q) => onChange({ q })}
           selects={[
-            { key: "module", value: moduleId, options: moduleOptions, onChange: (v) => onChange({ module: v }), className: "xl:w-52" },
+            { key: "course", value: courseId, options: COURSE_FILTER_OPTIONS, onChange: onCourseChange, className: "xl:w-48" },
+            {
+              key: "module",
+              value: hasCourse ? moduleId : "",
+              options: moduleOptions,
+              onChange: (v) => onChange({ module: v }),
+              placeholder: "Select a course first",
+              disabled: !hasCourse,
+              className: "xl:w-52",
+            },
             { key: "status", value: status, options: STATUS_FILTER_OPTIONS, onChange: (v) => onChange({ status: v }), className: "xl:w-40" },
             { key: "type", value: type, options: TYPE_FILTER_OPTIONS, onChange: (v) => onChange({ type: v }), className: "xl:w-44" },
           ]}

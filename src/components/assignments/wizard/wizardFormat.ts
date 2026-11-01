@@ -2,6 +2,8 @@ import { FileUp, Link2, Type, type LucideIcon } from "lucide-react";
 import type { AssignmentDifficulty, AssignmentType } from "@/types/assignment";
 import type { LessonEditorContext } from "@/types/lessonEditor";
 import { htmlToText } from "@/lib/sanitizeHtml";
+import { getLessonEditorContext } from "@/lib/lessonEditorStorage";
+import { COURSE_CONTEXTS } from "@/data/mockCourseCatalog";
 
 /** Labels + small formatters shared by the Create/Edit Assignment wizard. */
 
@@ -29,6 +31,21 @@ export function estimatedTimeLabel(time: number, unit: "MINUTES" | "HOURS") {
   if (unit === "MINUTES") return `~${time} min`;
   return `~${time} hour${time === 1 ? "" : "s"}`;
 }
+
+/** Placeholder context before a course is chosen: empty title (UI shows "Select a course"), no modules / lessons. */
+const NO_COURSE_CONTEXT: LessonEditorContext = {
+  ...COURSE_CONTEXTS[0],
+  course: { ...COURSE_CONTEXTS[0].course, id: "", title: "", moduleCount: 0, lessonCount: 0, totalMinutes: 0, publicUrl: "" },
+  modules: [],
+  lessons: [],
+};
+
+/** Context of the course currently selected in the wizard form (placeholder when none yet). */
+export const wizardCourseContext = (courseId: string): LessonEditorContext =>
+  courseId ? getLessonEditorContext(courseId) : NO_COURSE_CONTEXT;
+
+/** Course title, or "Select a course" before one is chosen. */
+export const wizardCourseTitle = (context: LessonEditorContext) => context.course.title || "Select a course";
 
 /** "Module 1: Getting Started" (or "" when not found). */
 export function wizardModuleLabel(context: LessonEditorContext, moduleId: string) {

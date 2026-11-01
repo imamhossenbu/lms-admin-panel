@@ -1,7 +1,7 @@
 import type { LessonEditorValues } from "@/validations/lessonEditorSchema";
 import type { LessonEditorContext, LessonEditorRecord } from "@/types/lessonEditor";
+import { getCourseContext } from "@/data/mockCourseCatalog";
 import {
-  MOCK_LESSON_CONTEXT,
   MOCK_LESSON_ID,
   MOCK_LESSON_REFS,
   defaultLessonEditorValues,
@@ -32,9 +32,9 @@ const readStore = (): Store => {
   }
 };
 
-/** Reference data (course, modules, lessons, plans …). Mock for every course for now. */
+/** Reference data for a course (catalogue mock; unknown ids fall back to HTML Fundamentals). */
 export function getLessonEditorContext(courseId: string): LessonEditorContext {
-  return { ...MOCK_LESSON_CONTEXT, course: { ...MOCK_LESSON_CONTEXT.course, id: courseId } };
+  return getCourseContext(courseId);
 }
 
 /** Saved values → seeded design lesson → defaults for a known lesson → defaults for the first lesson. */

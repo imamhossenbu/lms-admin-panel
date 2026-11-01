@@ -1,14 +1,13 @@
 import type { AssignmentItem, AssignmentSubmission } from "@/types/assignment";
 import type { WizardAssignmentFields } from "@/lib/assignmentWizardMapping";
 import { buildAssignmentSeed, ENROLLED_STUDENTS, type AssignmentSeed } from "@/data/mockAssignmentData";
-import { MOCK_LESSON_COURSE_ID } from "@/data/mockLessonEditorData";
 
 /**
  * Mock-first persistence for Assignments (localStorage). All functions are async and simulate
  * latency so loading states / toasts behave like the real API. Replace with API calls later.
  */
 
-const STORAGE_KEY = "edupro_assignments_v2";
+const STORAGE_KEY = "edupro_assignments_v3";
 export const ASSIGNMENTS_UPDATED_EVENT = "edupro_assignments_updated";
 const LATENCY = 450;
 
@@ -43,13 +42,14 @@ function write(data: AssignmentSeed) {
 
 // ---------------------------------------------------------------- reads (sync snapshot + async)
 /** Synchronous snapshot (for initial render / derived stats). */
-export const getAssignmentsSnapshot = (courseId: string = MOCK_LESSON_COURSE_ID) =>
-  read().assignments.filter((a) => a.courseId === courseId);
+/** All assignments, or only one course's when `courseId` is given. */
+export const getAssignmentsSnapshot = (courseId?: string) =>
+  read().assignments.filter((a) => !courseId || a.courseId === courseId);
 
 export const getSubmissionsSnapshot = (assignmentId?: string) =>
   read().submissions.filter((s) => !assignmentId || s.assignmentId === assignmentId);
 
-export async function fetchAssignments(courseId: string = MOCK_LESSON_COURSE_ID): Promise<AssignmentItem[]> {
+export async function fetchAssignments(courseId?: string): Promise<AssignmentItem[]> {
   await wait(300);
   return getAssignmentsSnapshot(courseId);
 }

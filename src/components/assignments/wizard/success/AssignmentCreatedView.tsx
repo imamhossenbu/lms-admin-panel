@@ -53,17 +53,16 @@ export function AssignmentCreatedView({ assignmentId }: { assignmentId: string }
 
   const createAnother = () => {
     clearWizardDraft(wizardDraftKey("create"));
-    router.push("/assignments/create");
+    router.push(`/assignments/create?course=${encodeURIComponent(assignment.courseId)}`);
   };
 
   return (
     <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25, ease: "easeOut" }} className="space-y-5">
       <Breadcrumb
         items={[
-          { label: "Courses", href: "/courses" },
-          { label: context.course.title, href: `/courses/${assignment.courseId}` },
           { label: "Assignments", href: "/assignments" },
-          { label: "Create Assignment" },
+          { label: assignment.title, href: `/assignments/${assignment.id}` },
+          { label: "Created" },
         ]}
       />
       <div>

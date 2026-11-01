@@ -5,9 +5,9 @@ import { useFormContext, useWatch } from "react-hook-form";
 import { BookOpen, FolderOpen } from "lucide-react";
 import type { LessonEditorContext } from "@/types/lessonEditor";
 import type { AssignmentWizardValues } from "@/validations/assignmentWizardSchema";
-import { wizardModuleLabel } from "../wizardFormat";
+import { wizardCourseTitle, wizardModuleLabel } from "../wizardFormat";
 
-/** Title (or placeholder) + "HTML Fundamentals • Module N: Title" line, read live from the form. */
+/** Title (or placeholder) + "{Course} • Module N: Title" line ("Select a course" before one is chosen), read live from the form. */
 export function PreviewMeta({ context }: { context: LessonEditorContext }) {
   const { control } = useFormContext<AssignmentWizardValues>();
   const [title, moduleId] = useWatch({ control, name: ["title", "moduleId"] });
@@ -21,7 +21,7 @@ export function PreviewMeta({ context }: { context: LessonEditorContext }) {
       <p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 body-xsm-regular text-primary-300">
         <span className="inline-flex items-center gap-1">
           <BookOpen className="h-3.5 w-3.5" />
-          {context.course.title}
+          {wizardCourseTitle(context)}
         </span>
         {moduleLabel && (
           <>

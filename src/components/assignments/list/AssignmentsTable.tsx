@@ -14,9 +14,11 @@ export interface AssignmentRow {
   /** 1-based position in the filtered list (grid card prefix). */
   number: number;
   assignment: AssignmentItem;
+  /** Course title — only set in the all-courses view. */
+  courseLabel: string | null;
   moduleLabel: string;
   lessonLabel: string | null;
-  /** Compact "Module 1 · Lesson 4". */
+  /** Compact "Module 1 · Lesson 4" ("HTML Fundamentals · Module 1 · Lesson 4" across all courses). */
   metaLabel: string;
   submitted: number;
 }
@@ -53,7 +55,7 @@ export function AssignmentsTable({
         <AssignmentTitleCell
           title={r.assignment.title}
           meta={r.metaLabel}
-          metaTitle={[r.moduleLabel, r.lessonLabel ?? "No lesson linked"].join(" · ")}
+          metaTitle={[r.courseLabel, r.moduleLabel, r.lessonLabel ?? "No lesson linked"].filter(Boolean).join(" · ")}
         />
       ),
     },

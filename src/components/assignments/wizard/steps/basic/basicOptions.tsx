@@ -2,6 +2,7 @@ import React from "react";
 import { BarChart3, FileText, Tag } from "lucide-react";
 import type { AppSelectOption } from "@/components/ui/AppSelect";
 import type { LessonEditorContext } from "@/types/lessonEditor";
+import { COURSE_OPTIONS } from "@/data/mockCourseCatalog";
 import { ASSIGNMENT_CATEGORIES } from "@/validations/assignmentWizardSchema";
 import { WIZARD_DIFFICULTY_LABEL, WIZARD_TYPE_ICON, WIZARD_TYPE_LABEL } from "../../wizardFormat";
 
@@ -9,17 +10,21 @@ import { WIZARD_DIFFICULTY_LABEL, WIZARD_TYPE_ICON, WIZARD_TYPE_LABEL } from "..
 
 export const NO_CATEGORY = "__none";
 
-export const courseOptions = (context: LessonEditorContext): AppSelectOption[] => [
-  {
-    value: context.course.id,
-    label: context.course.title,
-    icon: (
-      <span className="flex h-6 w-6 items-center justify-center rounded-md bg-green-bg text-green">
-        <FileText className="h-3.5 w-3.5" />
-      </span>
-    ),
-  },
-];
+const courseIcon = (
+  <span className="flex h-6 w-6 items-center justify-center rounded-md bg-green-bg text-green">
+    <FileText className="h-3.5 w-3.5" />
+  </span>
+);
+
+/**
+ * Every catalogue course. `context` is the currently selected course: if it isn't in the catalogue
+ * (e.g. a real API course id on an edited assignment) it is appended so the select still shows it.
+ */
+export const courseOptions = (context: LessonEditorContext): AppSelectOption[] => {
+  const options = COURSE_OPTIONS.map((c) => ({ ...c, icon: courseIcon }));
+  const { id, title } = context.course;
+  return id && !options.some((o) => o.value === id) ? [...options, { value: id, label: title, icon: courseIcon }] : options;
+};
 
 export const moduleOptions = (context: LessonEditorContext): AppSelectOption[] =>
   context.modules.map((m) => ({

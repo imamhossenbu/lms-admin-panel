@@ -2,6 +2,7 @@ import type { AssignmentItem, AssignmentStatus, AssignmentSubmission, Assignment
 import type { LessonEditorContext } from "@/types/lessonEditor";
 import type { Tone } from "@/components/ui/ToneBadge";
 import { dueAt } from "@/lib/assignmentStats";
+import { COURSE_OPTIONS } from "@/data/mockCourseCatalog";
 
 /** Tabs on the Assignments list (?tab=…). */
 export const ASSIGNMENT_LIST_TABS = [
@@ -85,6 +86,8 @@ export function moduleLessonLabels(a: Pick<AssignmentItem, "moduleId" | "lessonI
     short: lesson ? `${shortModule} · Lesson ${lesson.order}` : shortModule,
   };
 }
+
+export const COURSE_FILTER_OPTIONS = [{ value: "All", label: "All Courses" }, ...COURSE_OPTIONS];
 
 export const moduleFilterOptions = (context: LessonEditorContext) => [
   { value: "All", label: "All Modules" },

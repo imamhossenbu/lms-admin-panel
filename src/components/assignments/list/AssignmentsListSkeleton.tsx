@@ -115,26 +115,28 @@ function GridSkeleton() {
   );
 }
 
-/** Full-page skeleton: header + banner, 4 stat tiles, tab bar, filter row and table (or card grid). */
-export function AssignmentsListSkeleton({ view = "table" }: { view?: "table" | "grid" }) {
+/** Full-page skeleton: header (+ course banner when scoped to a course), 4 stat tiles, tab bar, filter row and table (or card grid). */
+export function AssignmentsListSkeleton({ view = "table", withBanner = false }: { view?: "table" | "grid"; withBanner?: boolean }) {
   return (
     <div className="space-y-5 pb-8 animate-pulse" aria-busy="true" aria-label="Loading assignments">
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
         <div className="space-y-3">
-          <Soft className="h-4 w-72" />
+          <Soft className={cn("h-4", withBanner ? "w-72" : "w-32")} />
           <Bar className="h-8 w-52" />
           <Soft className="h-4 w-96 max-w-full" />
         </div>
-        <div className="dashboard-card p-3 flex items-center gap-4">
-          <div className="w-40 aspect-video rounded-xl bg-slate-200" />
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Bar className="h-5 w-40" />
-              <Soft className="h-6 w-20 rounded-md" />
+        {withBanner && (
+          <div className="dashboard-card p-3 flex items-center gap-4">
+            <div className="w-40 aspect-video rounded-xl bg-slate-200" />
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Bar className="h-5 w-40" />
+                <Soft className="h-6 w-20 rounded-md" />
+              </div>
+              <Soft className="h-4 w-52" />
             </div>
-            <Soft className="h-4 w-52" />
           </div>
-        </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
@@ -161,7 +163,7 @@ export function AssignmentsListSkeleton({ view = "table" }: { view?: "table" | "
       <div className="dashboard-card p-5 space-y-4">
         <div className="flex flex-col xl:flex-row gap-3">
           <div className="h-10 flex-1 rounded-lg border border-dash" />
-          {[0, 1, 2].map((i) => (
+          {[0, 1, 2, 3].map((i) => (
             <div key={i} className="h-10 xl:w-44 rounded-lg border border-dash" />
           ))}
           <div className="h-10 w-20 rounded-lg border border-dash" />

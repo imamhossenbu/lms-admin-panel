@@ -1,14 +1,13 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import { motion } from "framer-motion";
 import { FormProvider, useFormState, useWatch } from "react-hook-form";
 import { LogOut } from "lucide-react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import type { AssignmentItem } from "@/types/assignment";
-import type { LessonEditorContext } from "@/types/lessonEditor";
 import { stepOfField, type AssignmentWizardValues, type WizardStep } from "@/validations/assignmentWizardSchema";
-import { wizardModuleLabel } from "./wizardFormat";
+import { wizardCourseContext, wizardCourseTitle, wizardModuleLabel } from "./wizardFormat";
 import { WizardHeader } from "./shell/WizardHeader";
 import { WizardStepper } from "./shell/WizardStepper";
 import { WizardFooter } from "./shell/WizardFooter";
@@ -18,7 +17,6 @@ import type { WizardDraft } from "./shell/wizardDraft";
 
 export interface AssignmentWizardViewProps {
   mode: "create" | "edit";
-  context: LessonEditorContext;
   baseValues: AssignmentWizardValues;
   draft: WizardDraft | null;
   draftKey: string;
@@ -26,11 +24,15 @@ export interface AssignmentWizardViewProps {
   existing?: AssignmentItem;
 }
 
-/** Create / Edit Assignment wizard shell: header, 7-step stepper, active step and footer actions. */
-export function AssignmentWizardView({ mode, context, baseValues, draft, draftKey, existing }: AssignmentWizardViewProps) {
+/**
+ * Create / Edit Assignment wizard shell: header, 7-step stepper, active step and footer actions.
+ * The course context (modules, lessons, title) always follows the form's CURRENT `courseId`.
+ */
+export function AssignmentWizardView({ mode, baseValues, draft, draftKey, existing }: AssignmentWizardViewProps) {
   const wizard = useAssignmentWizard({ mode, assignmentId: existing?.id, existing, baseValues, draft, draftKey });
   const { form, step } = wizard;
-  const moduleId = useWatch({ control: form.control, name: "moduleId" });
+  const [courseId, moduleId] = useWatch({ control: form.control, name: ["courseId", "moduleId"] });
+  const context = useMemo(() => wizardCourseContext(courseId ?? ""), [courseId]);
   const { errors } = useFormState({ control: form.control });
   const errorSteps = Array.from(new Set(Object.keys(errors).map((k) => stepOfField(k)))) as WizardStep[];
 
@@ -59,9 +61,9 @@ export function AssignmentWizardView({ mode, context, baseValues, draft, draftKe
       >
         <WizardHeader
           mode={mode}
-          courseId={context.course.id}
-          courseTitle={context.course.title}
+          courseTitle={context.course.id ? wizardCourseTitle(context) : ""}
           moduleLabel={wizardModuleLabel(context, moduleId)}
+          assignmentId={existing?.id}
           assignmentTitle={existing?.title}
         />
         <WizardStepper

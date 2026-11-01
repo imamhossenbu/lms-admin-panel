@@ -12,6 +12,9 @@ export interface ListSelectFilter {
   options: (string | AppSelectOption)[];
   onChange: (value: string) => void;
   className?: string;
+  /** Shown when `value` matches no option (e.g. a dependent filter that is not ready yet). */
+  placeholder?: string;
+  disabled?: boolean;
 }
 
 interface ListFiltersProps {
@@ -58,6 +61,8 @@ export function ListFilters({
             value={select.value}
             onValueChange={select.onChange}
             options={select.options}
+            placeholder={select.placeholder}
+            disabled={select.disabled}
             className={cn("w-full", select.className ?? "xl:w-44")}
             triggerClassName="w-full bg-white"
           />
