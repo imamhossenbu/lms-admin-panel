@@ -23,6 +23,8 @@ export interface QuizQuestionModalProps {
   number: number;
   /** Changes every time the modal is opened, so the form starts fresh. */
   sessionKey: number;
+  /** Question type a NEW question starts with (default "MCQ"). Ignored when editing. */
+  defaultType?: QuizQuestionType;
   onClose: () => void;
   onSave: (question: LessonQuizQuestion) => void;
 }
@@ -50,7 +52,7 @@ let rowSeq = 0;
 const toRows = (options: string[]): QuizOptionRow[] => options.map((value) => ({ key: `opt-${++rowSeq}`, value }));
 
 /** Add / edit a quiz question (own react-hook-form + `lessonQuizQuestionSchema`). */
-export function QuizQuestionModal({ isOpen, question, number, sessionKey, onClose, onSave }: QuizQuestionModalProps) {
+export function QuizQuestionModal({ isOpen, question, number, sessionKey, defaultType, onClose, onSave }: QuizQuestionModalProps) {
   return (
     <ModalShell
       isOpen={isOpen}
@@ -67,19 +69,23 @@ export function QuizQuestionModal({ isOpen, question, number, sessionKey, onClos
         </>
       }
     >
-      <QuizQuestionForm key={sessionKey} question={question} onSave={onSave} />
+      <QuizQuestionForm key={sessionKey} question={question} defaultType={defaultType} onSave={onSave} />
     </ModalShell>
   );
 }
 
 interface QuizQuestionFormProps {
   question: LessonQuizQuestion | null;
+  defaultType?: QuizQuestionType;
   onSave: (question: LessonQuizQuestion) => void;
 }
 
+const blankQuestion = (type: QuizQuestionType = "MCQ"): LessonQuizQuestion =>
+  type === "TRUE_FALSE" ? { ...emptyQuizQuestion(), questionType: "TRUE_FALSE", options: [...TRUE_FALSE_OPTIONS] } : emptyQuizQuestion();
+
 /** Form body; remounted per modal session (via `key`) so its state starts from `question`. */
-function QuizQuestionForm({ question, onSave }: QuizQuestionFormProps) {
-  const initial = question ?? emptyQuizQuestion();
+function QuizQuestionForm({ question, defaultType, onSave }: QuizQuestionFormProps) {
+  const initial = question ?? blankQuestion(defaultType);
   const {
     register,
     control,

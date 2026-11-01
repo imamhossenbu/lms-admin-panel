@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { CourseModuleItem } from "@/lib/types";
 import { ToneBadge } from "@/components/ui/ToneBadge";
+import { OutlineButton } from "@/components/ui/outline-button";
 import {
   ChevronDown,
   ChevronUp,
@@ -13,6 +15,7 @@ import {
   Eye,
   ExternalLink,
   BookOpen,
+  Pencil,
 } from "lucide-react";
 
 interface CourseDetailsSyllabusProps {
@@ -26,6 +29,10 @@ export function CourseDetailsSyllabus({
   totalLessons,
   formattedHours,
 }: CourseDetailsSyllabusProps) {
+  const router = useRouter();
+  const params = useParams<{ id: string }>();
+  const courseId = params?.id ?? "";
+
   // Expand first module by default
   const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>(() => {
     const initial: Record<string, boolean> = {};
@@ -206,6 +213,17 @@ export function CourseDetailsSyllabus({
                                 >
                                   {selectedLessonContent === lesson.id ? "Hide Notes" : "View Notes"}
                                 </button>
+                              )}
+
+                              {courseId && (
+                                <OutlineButton
+                                  size="sm"
+                                  leftIcon={<Pencil />}
+                                  aria-label={`Edit lesson ${lesson.title}`}
+                                  onClick={() => router.push(`/courses/${courseId}/lessons/${lesson.id}/edit`)}
+                                >
+                                  Edit
+                                </OutlineButton>
                               )}
                             </div>
                           </div>
