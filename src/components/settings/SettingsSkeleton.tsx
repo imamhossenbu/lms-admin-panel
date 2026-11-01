@@ -4,7 +4,7 @@ import { cn } from "@/lib/cn";
 const Bar = ({ className }: { className?: string }) => <div className={cn("rounded-md bg-slate-200", className)} />;
 const Soft = ({ className }: { className?: string }) => <div className={cn("rounded-md bg-slate-100", className)} />;
 
-const TAB_WIDTHS = ["w-20", "w-24", "w-24", "w-24", "w-16", "w-24", "w-28", "w-28"];
+const TAB_WIDTHS = ["w-20", "w-24", "w-24", "w-20", "w-24", "w-16", "w-24", "w-28", "w-28"];
 
 /** One settings card: icon tile + title/description, then label-left / control-right rows with dividers. */
 function CardSkeleton({ rows, controls }: { rows: number; controls?: ("input" | "textarea" | "cards")[] }) {

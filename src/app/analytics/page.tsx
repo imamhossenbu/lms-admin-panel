@@ -16,6 +16,8 @@ import {
 import { useUrlParams } from "@/lib/useUrlParams";
 import { formatDateRange } from "@/components/ui/date-range/dateRangeUtils";
 import { PillTabs } from "@/components/ui/PillTabs";
+import { PlanGate } from "@/components/plan-gate/PlanGate";
+import { UpgradeLockCard } from "@/components/plan-gate/UpgradeLockCard";
 import { AnalyticsHeader } from "@/components/analytics/AnalyticsHeader";
 import { AnalyticsSkeleton } from "@/components/analytics/AnalyticsSkeleton";
 import { ANALYTICS_TAB_ITEMS, parseAnalyticsTab } from "@/components/analytics/report/analyticsTabs";
@@ -113,31 +115,35 @@ function AnalyticsContent() {
             transition={{ duration: 0.2, ease: "easeOut" }}
           >
             {report.tab === "overview" && <OverviewTab data={report.data} currency={currency} caption={caption} />}
-            {report.tab === "revenue" && (
-              <RevenueTab
-                data={report.data}
-                currency={currency}
-                caption={caption}
-                onGranularityChange={(g: Granularity) => set({ granularity: g })}
-              />
+            {report.tab !== "overview" && (
+              <PlanGate feature="advancedAnalytics" loading={<AnalyticsSkeleton tab={tab} withHeader={false} />} fallback={<UpgradeLockCard feature="advancedAnalytics" />}>
+                {report.tab === "revenue" && (
+                  <RevenueTab
+                    data={report.data}
+                    currency={currency}
+                    caption={caption}
+                    onGranularityChange={(g: Granularity) => set({ granularity: g })}
+                  />
+                )}
+                {report.tab === "students" && (
+                  <StudentsTab
+                    data={report.data}
+                    currency={currency}
+                    caption={caption}
+                    onStudentRankChange={(by: StudentRankBy) => set({ studentRank: by === "completion" ? null : by })}
+                  />
+                )}
+                {report.tab === "courses" && (
+                  <CoursesTab
+                    data={report.data}
+                    currency={currency}
+                    caption={caption}
+                    onInstructorRankChange={(by: InstructorRankBy) => set({ instructorRank: by === "revenue" ? null : by })}
+                  />
+                )}
+                {report.tab === "engagement" && <EngagementTab data={report.data} />}
+              </PlanGate>
             )}
-            {report.tab === "students" && (
-              <StudentsTab
-                data={report.data}
-                currency={currency}
-                caption={caption}
-                onStudentRankChange={(by: StudentRankBy) => set({ studentRank: by === "completion" ? null : by })}
-              />
-            )}
-            {report.tab === "courses" && (
-              <CoursesTab
-                data={report.data}
-                currency={currency}
-                caption={caption}
-                onInstructorRankChange={(by: InstructorRankBy) => set({ instructorRank: by === "revenue" ? null : by })}
-              />
-            )}
-            {report.tab === "engagement" && <EngagementTab data={report.data} />}
           </motion.div>
         </AnimatePresence>
       )}

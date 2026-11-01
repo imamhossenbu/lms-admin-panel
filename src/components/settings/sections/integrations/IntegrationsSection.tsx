@@ -12,6 +12,7 @@ import { SettingsSaveBar } from "@/components/settings/shared/SettingsSaveBar";
 import { RecentChangesCard } from "@/components/settings/shared/RecentChangesCard";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { ProTipCard } from "@/components/ui/ProTipCard";
+import { PlanGate } from "@/components/plan-gate/PlanGate";
 import { INTEGRATIONS, INTEGRATION_BY_KEY, INTEGRATION_LABELS } from "./integrationsMeta";
 import { IntegrationCard } from "./IntegrationCard";
 import { IntegrationConnectModal, type ConnectFormValues } from "./IntegrationConnectModal";
@@ -77,13 +78,16 @@ export function IntegrationsSection() {
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {INTEGRATIONS.map((meta, i) => (
               <motion.div key={meta.key} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25, ease: "easeOut", delay: i * 0.04 }} className="h-full">
-                <IntegrationCard
-                  meta={meta}
-                  secretHint={hint(meta.key)}
-                  onConnect={() => setModal({ key: meta.key, mode: "connect" })}
-                  onManage={() => setModal({ key: meta.key, mode: "manage" })}
-                  onDisconnect={() => setDisconnectKey(meta.key)}
-                />
+                {/* The AI card needs the plan's aiAssistant feature; other integrations are always available. */}
+                <PlanGate feature={meta.key === "ai" ? "aiAssistant" : null} compact>
+                  <IntegrationCard
+                    meta={meta}
+                    secretHint={hint(meta.key)}
+                    onConnect={() => setModal({ key: meta.key, mode: "connect" })}
+                    onManage={() => setModal({ key: meta.key, mode: "manage" })}
+                    onDisconnect={() => setDisconnectKey(meta.key)}
+                  />
+                </PlanGate>
               </motion.div>
             ))}
           </div>

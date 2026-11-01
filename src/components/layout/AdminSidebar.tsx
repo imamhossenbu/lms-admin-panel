@@ -22,7 +22,12 @@ import {
   UserCog,
   ChevronLeft,
   ChevronRight,
+  Receipt,
 } from "lucide-react";
+import type { FeatureKey } from "@/types/saas";
+import { hasFeature, minPlanFor, useCurrentInstitution, useSaasStore } from "@/lib/planAccess";
+import { UpgradeBadge } from "@/components/plan-gate/UpgradeBadge";
+import { ToneBadge } from "@/components/ui/ToneBadge";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { toggleSidebar } from "@/store/slices/uiSlice";
 import { cn } from "@/lib/cn";
@@ -36,6 +41,8 @@ interface NavCategory {
     href: string;
     label: string;
     icon: React.ComponentType<{ className?: string }>;
+    /** Plan feature the page needs — shows a lock/plan badge when missing (the page itself shows the upsell). */
+    feature?: FeatureKey;
   }[];
 }
 
@@ -71,18 +78,19 @@ const SIDEBAR_SECTIONS: NavCategory[] = [
   {
     category: "Engagement",
     items: [
-      { href: "/live-classes", label: "Live Classes", icon: Video },
+      { href: "/live-classes", label: "Live Classes", icon: Video, feature: "liveClasses" },
       { href: "/assignments", label: "Assignments", icon: FileSpreadsheet },
       { href: "/quizzes", label: "Quizzes", icon: CheckSquare },
-      { href: "/community", label: "Community", icon: MessageSquare },
+      { href: "/community", label: "Community", icon: MessageSquare, feature: "community" },
     ],
   },
   {
     category: "System",
     items: [
-      { href: "/certificates", label: "Certificates", icon: Award },
+      { href: "/certificates", label: "Certificates", icon: Award, feature: "certificates" },
       { href: "/notifications", label: "Notifications", icon: Bell },
       { href: "/users", label: "Team & Roles", icon: UserCog },
+      { href: "/billing", label: "Billing & Plan", icon: Receipt },
       { href: "/settings", label: "Settings", icon: Settings },
     ],
   },
@@ -94,6 +102,12 @@ export function AdminSidebar() {
   const collapsed = useAppSelector((state) => state.ui.sidebarCollapsed);
   // Live unread inbox count (same store as /notifications and the navbar bell).
   const unreadNotifications = useSyncExternalStore(subscribeNotifications, getUnreadCount, () => 0);
+  // Plan gating: lock badges on features outside the current plan, "Trial" on Billing while trialing.
+  const saas = useSaasStore();
+  const institution = useCurrentInstitution();
+  const isTrialing = institution?.subscription.status === "TRIALING";
+  const lockedPlanName = (feature?: FeatureKey) =>
+    feature && institution && !hasFeature(institution, feature, saas.plans) ? minPlanFor(feature, saas.plans)?.name ?? "Pro" : null;
 
   return (
     <aside
@@ -165,6 +179,7 @@ export function AdminSidebar() {
               <div className="space-y-0.5">
                 {section.items.map((item) => {
                   const Icon = item.icon;
+                  const lockedPlan = lockedPlanName(item.feature);
                   const isActive =
                     item.href === "/"
                       ? pathname === "/"
@@ -181,7 +196,7 @@ export function AdminSidebar() {
                           : "text-primary-400 hover:bg-slate-50 hover:text-primary-500",
                         collapsed && "justify-center px-0 w-11 h-10 mx-auto"
                       )}
-                      title={collapsed ? item.label : undefined}
+                      title={collapsed ? (lockedPlan ? `${item.label} (${lockedPlan} plan)` : item.label) : undefined}
                     >
                       <Icon
                         className={cn(
@@ -203,6 +218,12 @@ export function AdminSidebar() {
                             >
                               {unreadNotifications > 99 ? "99+" : unreadNotifications}
                             </span>
+                          )}
+                          {lockedPlan && <UpgradeBadge planName={lockedPlan} className="ml-auto" />}
+                          {item.href === "/billing" && isTrialing && (
+                            <ToneBadge tone="blue" size="sm" variant="pill" className="ml-auto">
+                              Trial
+                            </ToneBadge>
                           )}
                         </>
                       )}

@@ -53,6 +53,8 @@ export interface DataTableProps<T> {
   expandedRowKeys?: (string | number)[];
   isLoading?: boolean;
   verticalBorders?: boolean;
+  /** Extra classes per body row (e.g. highlight failing rows). */
+  rowClassName?: (row: T, rowIndex: number) => string | undefined;
 }
 
 export function DataTable<T extends Record<string, any>>({
@@ -76,6 +78,7 @@ export function DataTable<T extends Record<string, any>>({
   expandedRowKeys = [],
   isLoading = false,
   verticalBorders = true,
+  rowClassName,
 }: DataTableProps<T>) {
   const allSelected = data.length > 0 && selectedRowKeys.length === data.length;
 
@@ -268,7 +271,8 @@ export function DataTable<T extends Record<string, any>>({
                     className={cn(
                       "border-b border-dash transition-colors hover:bg-slate-50/50",
                       onRowClick && "cursor-pointer",
-                      isSelected && "bg-brand-orange-light/30"
+                      isSelected && "bg-brand-orange-light/30",
+                      rowClassName?.(row, rowIndex)
                     )}
                     onClick={() => onRowClick?.(row)}
                   >

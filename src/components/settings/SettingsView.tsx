@@ -3,11 +3,10 @@
 import React, { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Undo2 } from "lucide-react";
-import type { SettingsSection } from "@/validations/platformSettingsSchema";
 import { useUrlParams } from "@/lib/useUrlParams";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { SettingsHeader } from "./SettingsHeader";
-import { SettingsTabs, parseSettingsSection } from "./SettingsTabs";
+import { SettingsTabs, parseSettingsSection, type SettingsTabId } from "./SettingsTabs";
 import { SettingsSkeleton } from "./SettingsSkeleton";
 import { SettingsDirtyContext } from "./shared/SettingsDirtyContext";
 import { useSettingsStore } from "./shared/useSettingsStore";
@@ -19,10 +18,12 @@ import { EmailSection } from "./sections/email/EmailSection";
 import { SecuritySection } from "./sections/security/SecuritySection";
 import { IntegrationsSection } from "./sections/integrations/IntegrationsSection";
 import { MaintenanceSection } from "./sections/maintenance/MaintenanceSection";
+import { DomainSection } from "./sections/domain/DomainSection";
 
-const SECTION_COMPONENT: Record<SettingsSection, React.ComponentType> = {
+const SECTION_COMPONENT: Record<SettingsTabId, React.ComponentType> = {
   general: GeneralSection,
   branding: BrandingSection,
+  domain: DomainSection,
   learning: LearningSection,
   payments: PaymentsSection,
   email: EmailSection,
@@ -40,15 +41,15 @@ export function SettingsView() {
   const { store, ready } = useSettingsStore();
   const section = parseSettingsSection(get("section"));
   const [isDirty, setIsDirty] = useState(false);
-  const [pending, setPending] = useState<SettingsSection | null>(null);
+  const [pending, setPending] = useState<SettingsTabId | null>(null);
 
   if (!ready || !store) return <SettingsSkeleton />;
 
-  const go = (next: SettingsSection) => {
+  const go = (next: SettingsTabId) => {
     setIsDirty(false);
     set({ section: next === "general" ? null : next }, { replaceAll: true });
   };
-  const requestSection = (next: SettingsSection) => {
+  const requestSection = (next: SettingsTabId) => {
     if (next === section) return;
     if (isDirty) setPending(next);
     else go(next);

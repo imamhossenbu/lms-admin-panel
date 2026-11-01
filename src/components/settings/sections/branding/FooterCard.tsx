@@ -1,12 +1,15 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 import { PanelBottom } from "lucide-react";
 import type { BrandingSettings } from "@/validations/platformSettingsSchema";
 import { InputField } from "@/components/ui/InputField";
 import { CharCounter } from "@/components/ui/CharCounter";
 import { SettingToggleRow } from "@/components/ui/SettingToggleRow";
+import { useFeatureAccess } from "@/lib/planAccess";
+import { UpgradeBadge } from "@/components/plan-gate/UpgradeBadge";
 import { SettingsCard } from "../../shared/SettingsCard";
 import { SettingsBlockRow, SettingsRow } from "../../shared/SettingsRow";
 import { FOOTER_MAX } from "./brandingUtils";
@@ -19,6 +22,7 @@ export function FooterCard() {
     formState: { errors },
   } = useFormContext<BrandingSettings>();
   const footer = useWatch({ control, name: "footerText" }) ?? "";
+  const whiteLabel = useFeatureAccess("whiteLabel");
 
   return (
     <SettingsCard icon={<PanelBottom className="h-5 w-5" />} title="Footer" description="Bottom of the student app, emails and invoices." tone="green">
@@ -39,13 +43,25 @@ export function FooterCard() {
           control={control}
           name="showPoweredBy"
           render={({ field }) => (
-            <SettingToggleRow
-              id="branding-powered-by"
-              title='Show "Powered by EduPro"'
-              description="A small credit link in the footer. Turn it off for a fully white-labelled experience."
-              checked={field.value}
-              onChange={field.onChange}
-            />
+            <div className="flex items-start justify-between gap-3">
+              <SettingToggleRow
+                id="branding-powered-by"
+                title='Show "Powered by EduPro"'
+                description={
+                  whiteLabel.allowed
+                    ? "A small credit link in the footer. Turn it off for a fully white-labelled experience."
+                    : `Removing the EduPro credit needs white-label branding (${whiteLabel.requiredPlan?.name ?? "Pro"} plan and above).`
+                }
+                checked={whiteLabel.allowed ? field.value : true}
+                onChange={field.onChange}
+                disabled={!whiteLabel.allowed}
+              />
+              {whiteLabel.ready && !whiteLabel.allowed && (
+                <Link href="/billing?tab=plans" aria-label="Upgrade to remove EduPro branding" className="shrink-0">
+                  <UpgradeBadge planName={whiteLabel.requiredPlan?.name ?? "Pro"} />
+                </Link>
+              )}
+            </div>
           )}
         />
       </SettingsBlockRow>

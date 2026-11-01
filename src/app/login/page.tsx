@@ -316,6 +316,14 @@ export default function LoginPage() {
               Sign In
             </AuthSubmitButton>
           </div>
+
+          {/* Self-signup entry point (14-day free trial) */}
+          <p className="text-center body-sm-regular text-primary-400">
+            New to EduPro?{" "}
+            <Link href="/signup" className="body-sm-medium text-brand-orange hover:text-brand-orange-hover hover:underline transition-colors">
+              Create an account — start your free trial
+            </Link>
+          </p>
         </form>
       </AuthRightPanel>
     </AuthCardContainer>

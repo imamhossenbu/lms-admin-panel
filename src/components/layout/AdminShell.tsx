@@ -5,11 +5,18 @@ import { usePathname } from "next/navigation";
 import { AdminSidebar } from "./AdminSidebar";
 import { AdminNavbar } from "./AdminNavbar";
 import { AuthGuard, isPublicAuthRoute } from "@/components/auth/AuthGuard";
+import { BillingStatusBanner } from "@/components/billing/banner/BillingStatusBanner";
+import { SuspendedAccountGate } from "@/components/billing/banner/SuspendedAccountGate";
+
+/** Owner Console routes bring their own layout (src/app/console/layout.tsx). */
+const isConsoleRoute = (pathname: string | null) => !!pathname && (pathname === "/console" || pathname.startsWith("/console/"));
 
 function AdminShellContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAuthPage = isPublicAuthRoute(pathname);
 
+  // Owner Console has its own session + guard (src/app/console/layout.tsx).
+  if (isConsoleRoute(pathname)) return <>{children}</>;
   if (isAuthPage) {
     return <AuthGuard>{children}</AuthGuard>;
   }
@@ -19,9 +26,10 @@ function AdminShellContent({ children }: { children: React.ReactNode }) {
       <div className="flex min-h-screen bg-gray-bg">
         <AdminSidebar />
         <div className="flex-1 flex flex-col min-w-0 bg-gray-bg">
+          <BillingStatusBanner />
           <AdminNavbar />
           <main className="p-3 flex-1 max-w-400 w-full mx-auto">
-            {children}
+            <SuspendedAccountGate>{children}</SuspendedAccountGate>
           </main>
         </div>
       </div>

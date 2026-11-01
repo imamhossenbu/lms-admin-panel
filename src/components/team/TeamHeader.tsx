@@ -4,6 +4,7 @@ import React from "react";
 import { UserPlus } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { PrimaryButton } from "@/components/ui/primary-button";
+import { LimitGuard } from "@/components/plan-gate/LimitGuard";
 
 /** 🏠 › Team & Roles, title + subtitle, orange "Invite member". */
 export function TeamHeader({ onInvite }: { onInvite: () => void }) {
@@ -14,9 +15,13 @@ export function TeamHeader({ onInvite }: { onInvite: () => void }) {
       title={<span className="heading-h3 font-bold! tracking-tight text-primary-500">Team &amp; Roles</span>}
       subtitle="Invite admin-panel staff, assign roles and control exactly what each person can access."
     >
-      <PrimaryButton leftIcon={<UserPlus className="h-4 w-4" />} onClick={onInvite}>
-        Invite member
-      </PrimaryButton>
+      <LimitGuard limitKey="teamMembers">
+        {({ disabled }) => (
+          <PrimaryButton leftIcon={<UserPlus className="h-4 w-4" />} onClick={onInvite} disabled={disabled}>
+            Invite member
+          </PrimaryButton>
+        )}
+      </LimitGuard>
     </PageHeader>
   );
 }

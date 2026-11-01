@@ -11,6 +11,7 @@ const PUBLIC_AUTH_ROUTES = [
   "/forgot-password",
   "/reset-password",
   "/verify-email",
+  "/signup",
 ];
 
 export function isPublicAuthRoute(pathname: string | null): boolean {
