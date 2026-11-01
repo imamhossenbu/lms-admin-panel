@@ -7,9 +7,9 @@ import { IconSectionCard } from "@/components/ui/IconSectionCard";
 import { AppSelect } from "@/components/ui/AppSelect";
 import { scoreHistogram } from "@/lib/assignmentStats";
 import type { AssignmentSubmission } from "@/types/assignment";
-import { AXIS_TICK, CHART, HISTOGRAM_COLORS } from "./chartTheme";
-import { ChartTooltip } from "./ChartTooltip";
-import { ChartEmpty } from "./ChartEmpty";
+import { AXIS_TICK, CHART, HISTOGRAM_COLORS } from "@/components/ui/charts/chartTheme";
+import { ChartTooltip } from "@/components/ui/charts/ChartTooltip";
+import { ChartEmpty } from "@/components/ui/charts/ChartEmpty";
 import type { ScoreScope } from "./useAnalyticsFilters";
 
 const SCOPE_OPTIONS = [

@@ -8,9 +8,9 @@ import { IconSectionCard } from "@/components/ui/IconSectionCard";
 import { submissionStats } from "@/lib/assignmentStats";
 import type { AssignmentSubmission } from "@/types/assignment";
 import { cn } from "@/lib/cn";
-import { CHART } from "./chartTheme";
-import { ChartTooltip } from "./ChartTooltip";
-import { ChartEmpty } from "./ChartEmpty";
+import { CHART } from "@/components/ui/charts/chartTheme";
+import { ChartTooltip } from "@/components/ui/charts/ChartTooltip";
+import { ChartEmpty } from "@/components/ui/charts/ChartEmpty";
 
 /** Donut of Graded vs Pending Review (late shown in the legend — it overlaps both). */
 export function SubmissionStatusCard({ submissions }: { submissions: AssignmentSubmission[] }) {

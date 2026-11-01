@@ -7,8 +7,8 @@ import { IconSectionCard } from "@/components/ui/IconSectionCard";
 import { AppSelect } from "@/components/ui/AppSelect";
 import { criteriaPerformance } from "@/lib/assignmentStats";
 import type { AssignmentRubric, AssignmentSubmission } from "@/types/assignment";
-import { CRITERIA_COLORS } from "./chartTheme";
-import { ChartEmpty } from "./ChartEmpty";
+import { CRITERIA_COLORS } from "@/components/ui/charts/chartTheme";
+import { ChartEmpty } from "@/components/ui/charts/ChartEmpty";
 import type { CriteriaFilter } from "./useAnalyticsFilters";
 
 /** Criteria at or above this % count as "strong". */
