@@ -26,13 +26,13 @@ export function CoursesTable({ courses, onView, getMenuItems, footer }: CoursesT
       key: "course",
       header: "Course",
       render: (row) => (
-        <div className="flex items-center gap-3 min-w-64">
-          <span className="relative w-16 h-11 rounded-lg overflow-hidden bg-slate-100 shrink-0">
+        <div className="flex items-center gap-3 min-w-0">
+          <span className="relative w-14 h-10 rounded-lg overflow-hidden bg-slate-100 shrink-0">
             <Image src={row.thumbnail || DEFAULT_FALLBACK_BANNER} alt="" fill unoptimized className="object-cover" />
           </span>
           <div className="min-w-0">
-            <p className="body-sm-medium text-primary-500 truncate">{row.title}</p>
-            <p className="body-xsm-regular text-primary-300 truncate">/{row.slug}</p>
+            <p className="body-sm-medium text-primary-500 truncate" title={row.title}>{row.title}</p>
+            <p className="body-xsm-regular text-primary-300 truncate" title={`/${row.slug}`}>/{row.slug}</p>
           </div>
         </div>
       ),
@@ -40,9 +40,10 @@ export function CoursesTable({ courses, onView, getMenuItems, footer }: CoursesT
     {
       key: "instructor",
       header: "Instructor",
+      width: "160px",
       render: (row) =>
         row.instructorName ? (
-          <div className="flex items-center gap-2 min-w-36">
+          <div className="flex items-center gap-2 min-w-0">
             <Avatar src={row.instructorAvatar} name={row.instructorName} size={28} />
             <span className="body-sm-regular text-primary-500 truncate">{row.instructorName}</span>
           </div>
@@ -53,11 +54,19 @@ export function CoursesTable({ courses, onView, getMenuItems, footer }: CoursesT
     {
       key: "category",
       header: "Category",
-      render: (row) => <ToneBadge tone="blue">{row.category?.name ?? "Uncategorized"}</ToneBadge>,
+      width: "150px",
+      render: (row) => (
+        <span className="block min-w-0 overflow-hidden" title={row.category?.name ?? "Uncategorized"}>
+          <ToneBadge tone="blue" className="max-w-full">
+            <span className="truncate">{row.category?.name ?? "Uncategorized"}</span>
+          </ToneBadge>
+        </span>
+      ),
     },
     {
       key: "level",
       header: "Level",
+      width: "112px",
       render: (row) => (
         <span className="body-sm-regular text-primary-400 whitespace-nowrap">{row.level ? COURSE_LEVEL_LABEL[row.level] : "—"}</span>
       ),
@@ -65,6 +74,7 @@ export function CoursesTable({ courses, onView, getMenuItems, footer }: CoursesT
     {
       key: "price",
       header: "Price",
+      width: "92px",
       render: (row) =>
         coursePriceLabel(row) === "Free" ? (
           <ToneBadge tone="green">Free</ToneBadge>
@@ -76,11 +86,13 @@ export function CoursesTable({ courses, onView, getMenuItems, footer }: CoursesT
       key: "students",
       header: "Students",
       align: "center",
+      width: "92px",
       render: (row) => <span className="body-sm-regular text-primary-500">{(Number(row.totalStudents) || 0).toLocaleString()}</span>,
     },
     {
       key: "rating",
       header: "Rating",
+      width: "104px",
       render: (row) =>
         Number(row.ratingAverage) > 0 ? (
           <span className="inline-flex items-center gap-1 body-sm-medium text-primary-500">
@@ -88,12 +100,13 @@ export function CoursesTable({ courses, onView, getMenuItems, footer }: CoursesT
             {Number(row.ratingAverage).toFixed(1)}
           </span>
         ) : (
-          <span className="body-sm-regular text-primary-300">No ratings</span>
+          <span className="body-sm-regular text-primary-300 whitespace-nowrap">—</span>
         ),
     },
     {
       key: "status",
       header: "Status",
+      width: "112px",
       render: (row) => <ToneBadge tone={COURSE_STATUS_VIEW[row.status]?.tone ?? "gray"}>{COURSE_STATUS_VIEW[row.status]?.label ?? row.status}</ToneBadge>,
     },
     {
@@ -114,6 +127,8 @@ export function CoursesTable({ courses, onView, getMenuItems, footer }: CoursesT
           rowKey={(row) => row.id}
           onRowClick={onView}
           verticalBorders
+          tableClassName="table-fixed"
+          minWidth="min-w-240"
           containerClassName="border-0 rounded-none"
           headerClassName="bg-slate-50 border-b border-dash"
           thClassName="px-3.5 py-3 body-xsm-medium text-primary-400 font-semibold normal-case"
