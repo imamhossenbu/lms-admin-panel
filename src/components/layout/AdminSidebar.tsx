@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -25,6 +25,8 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { toggleSidebar } from "@/store/slices/uiSlice";
 import { cn } from "@/lib/cn";
 import { EduProCapIcon } from "@/components/ui/EduProLogo";
+import { getUnreadCount } from "@/lib/notificationStorage";
+import { subscribeNotifications } from "@/components/notifications/shared/useNotificationsStore";
 
 interface NavCategory {
   category: string;
@@ -86,6 +88,8 @@ export function AdminSidebar() {
   const pathname = usePathname();
   const dispatch = useAppDispatch();
   const collapsed = useAppSelector((state) => state.ui.sidebarCollapsed);
+  // Live unread inbox count (same store as /notifications and the navbar bell).
+  const unreadNotifications = useSyncExternalStore(subscribeNotifications, getUnreadCount, () => 0);
 
   return (
     <aside
@@ -188,9 +192,12 @@ export function AdminSidebar() {
                           <span className="body-sm-medium truncate">
                             {item.label}
                           </span>
-                          {item.label === "Notifications" && (
-                            <span className="ml-auto w-5 h-5 rounded-md bg-brand-orange text-white body-2xsm-regular font-bold! flex items-center justify-center shadow-2xs">
-                              3
+                          {item.label === "Notifications" && unreadNotifications > 0 && (
+                            <span
+                              aria-label={`${unreadNotifications} unread notifications`}
+                              className="ml-auto min-w-5 h-5 px-1 rounded-md bg-brand-orange text-white body-2xsm-regular font-bold! flex items-center justify-center shadow-2xs whitespace-nowrap shrink-0"
+                            >
+                              {unreadNotifications > 99 ? "99+" : unreadNotifications}
                             </span>
                           )}
                         </>
