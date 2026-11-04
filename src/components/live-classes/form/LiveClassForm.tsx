@@ -32,6 +32,7 @@ import {
   writeDraft,
   type LiveFormMode,
 } from "./liveFormUtils";
+import { apiErrorMessage } from "@/lib/apiError";
 
 export interface LiveClassFormProps {
   mode: LiveFormMode;
@@ -50,7 +51,7 @@ const FIELD_DOM_ID: Partial<Record<keyof LiveClassFormValues, string>> = {
   passcode: "live-passcode", reminder: "live-reminder",
 };
 
-const errorText = (err: unknown) => (err instanceof Error && err.message ? err.message : "Something went wrong. Please try again.");
+const errorText = (err: unknown) => apiErrorMessage(err);
 
 /** Schedule / Edit Live Class form (single page). Unsaved values persist in sessionStorage until saved or discarded. */
 export function LiveClassForm({ mode, original }: LiveClassFormProps) {

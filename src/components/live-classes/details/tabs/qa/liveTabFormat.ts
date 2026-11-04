@@ -1,5 +1,6 @@
 import { formatClock } from "@/lib/liveClassStats";
 import { downloadFile, toCsv, todayStamp } from "@/components/commerce/exportFile";
+import { apiErrorMessage } from "@/lib/apiError";
 
 /** Shared formatting helpers for the Live Class details tabs (Q&A, Resources, Activity, Settings). */
 
@@ -31,8 +32,7 @@ export function formatBytes(bytes: number) {
 }
 
 /** Friendly message from an unknown error (never a stack trace). */
-export const errorText = (e: unknown, fallback = "Something went wrong. Please try again.") =>
-  e instanceof Error && e.message ? e.message : fallback;
+export const errorText = (e: unknown, fallback = "Something went wrong. Please try again.") => apiErrorMessage(e, fallback);
 
 /** Downloads a CSV named "<slug>-<suffix>-<date>.csv". */
 export function downloadCsv(title: string, suffix: string, header: string[], rows: (string | number)[][]) {

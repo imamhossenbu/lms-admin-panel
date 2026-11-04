@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Users } from "lucide-react";
 import type { Broadcast, BroadcastDelivery } from "@/types/notification";
-import { deliveryByChannel, deliveryStats, opensTimeline } from "@/lib/notificationStats";
-import { estimateRecipients } from "@/lib/notificationStorage";
+import type { BroadcastDetail } from "@/lib/notificationStorage";
 import { BroadcastDetailHeader } from "./BroadcastDetailHeader";
 import { BroadcastStatCards } from "./BroadcastStatCards";
 import { BroadcastStatTile } from "./BroadcastStatTile";
@@ -28,10 +27,8 @@ export interface BroadcastDetailViewProps {
 }
 
 /** Sent: stat cards, funnel, by-channel, opens chart, recipients. */
-function SentAnalytics({ broadcast, deliveries, retrying, onRetry }: { broadcast: Broadcast; deliveries: BroadcastDelivery[]; retrying: boolean; onRetry: () => void }) {
-  const stats = useMemo(() => deliveryStats(deliveries), [deliveries]);
-  const channels = useMemo(() => deliveryByChannel(deliveries), [deliveries]);
-  const timeline = useMemo(() => opensTimeline(broadcast, deliveries), [broadcast, deliveries]);
+function SentAnalytics({ broadcast, detail, deliveries, retrying, onRetry }: { broadcast: Broadcast; detail: BroadcastDetail; deliveries: BroadcastDelivery[]; retrying: boolean; onRetry: () => void }) {
+  const { stats, byChannel: channels, opensTimeline: timeline } = detail;
   return (
     <>
       <BroadcastStatCards stats={stats} channelCount={channels.length} />
@@ -51,12 +48,12 @@ function SentAnalytics({ broadcast, deliveries, retrying, onRetry }: { broadcast
   );
 }
 
-function BroadcastDetailLoaded({ broadcast: b, deliveries }: { broadcast: Broadcast; deliveries: BroadcastDelivery[] }) {
+function BroadcastDetailLoaded({ broadcast: b, detail, deliveries }: { broadcast: Broadcast; detail: BroadcastDetail; deliveries: BroadcastDelivery[] }) {
   const router = useRouter();
   const actions = useBroadcastActions({ onDeleted: () => router.push(BROADCASTS_LIST_HREF) });
   const busy = actions.busyId === b.id;
   const edit = () => router.push(`/notifications/broadcasts/${b.id}/edit`);
-  const estimate = estimateRecipients(b.audience, b.courseIds);
+  const estimate = detail.recipients;
 
   return (
     <>
@@ -71,7 +68,7 @@ function BroadcastDetailLoaded({ broadcast: b, deliveries }: { broadcast: Broadc
         />
 
         {b.status === "SENT" ? (
-          <SentAnalytics broadcast={b} deliveries={deliveries} retrying={busy} onRetry={() => void actions.retryFailed(b)} />
+          <SentAnalytics broadcast={b} detail={detail} deliveries={deliveries} retrying={busy} onRetry={() => void actions.retryFailed(b)} />
         ) : (
           <>
             <BroadcastStatusCallout broadcast={b} busy={busy} onCancel={() => actions.openCancel(b)} onEdit={edit} onDuplicate={() => void actions.duplicate(b)} />
@@ -103,7 +100,7 @@ export function BroadcastDetailView({ broadcastId }: BroadcastDetailViewProps) {
   const state = useBroadcastDetail(broadcastId);
   if (state.status === "loading") return <BroadcastDetailSkeleton />;
   if (state.status === "notFound") return <BroadcastNotFound />;
-  return <BroadcastDetailLoaded broadcast={state.broadcast} deliveries={state.deliveries} />;
+  return <BroadcastDetailLoaded broadcast={state.broadcast} detail={state.detail} deliveries={state.deliveries} />;
 }
 
 export default BroadcastDetailView;

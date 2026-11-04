@@ -5,7 +5,8 @@ import { useFormContext, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { ClipboardList, FlaskConical } from "lucide-react";
 import type { BroadcastFormValues } from "@/validations/notificationSchema";
-import { estimateRecipients, sendTestNotification } from "@/lib/notificationStorage";
+import { sendTestNotification, useRecipientEstimate } from "@/lib/notificationStorage";
+import { useCourseCatalog } from "@/lib/courseCatalog";
 import { IconSectionCard } from "@/components/ui/IconSectionCard";
 import { SecondaryButton } from "@/components/ui/secondary-button";
 import { ToneBadge } from "@/components/ui/ToneBadge";
@@ -20,10 +21,12 @@ export function SendSummaryCard() {
   });
   const [testing, setTesting] = useState(false);
   const v = { audience: audience ?? "ALL_STUDENTS", courseIds: courseIds ?? [], channels: channels ?? [], timing: timing ?? "NOW", scheduledAt: scheduledAt ?? "" };
-  const s = sendSummary(v, estimateRecipients(v.audience, v.courseIds));
+  useCourseCatalog(); // course titles in the summary
+  const estimate = useRecipientEstimate(v.audience, v.courseIds);
+  const s = sendSummary(v, estimate ?? 0);
 
   const sendTest = async () => {
-    const { title, messageHtml } = getValues();
+    const { title, messageHtml, ctaLabel, ctaUrl } = getValues();
     if (!title.trim() || !messageHtml.replace(/<[^>]*>/g, "").trim()) {
       toast.error("Nothing to test yet", { description: "Add a title and a message first." });
       return;
@@ -31,7 +34,7 @@ export function SendSummaryCard() {
     setTesting(true);
     const toastId = toast.loading("Sending test...", { description: "Only you will receive it." });
     try {
-      const to = await sendTestNotification();
+      const to = await sendTestNotification({ kind: "broadcast", values: { title, messageHtml, ctaLabel, ctaUrl } });
       toast.success("Test sent", { id: toastId, description: `Check ${to} and your notification bell.` });
     } catch (err) {
       toast.error("Couldn't send the test", { id: toastId, description: errorText(err) });
@@ -56,7 +59,7 @@ export function SendSummaryCard() {
             <>
               <span className="body-sm-medium font-semibold! text-primary-500">{s.when}</span> to{" "}
               <span className="body-sm-medium font-semibold! text-primary-500">
-                ≈ {s.count.toLocaleString()} {s.noun}
+                ≈ {estimate === null ? "…" : s.count.toLocaleString()} {s.noun}
               </span>{" "}
               via <span className="body-sm-medium font-semibold! text-primary-500">{s.via}</span>.
             </>

@@ -4,8 +4,9 @@ import { useState } from "react";
 import { toast } from "sonner";
 import type { LiveClassItem } from "@/types/liveClass";
 import { cancelLiveClass, deleteLiveClass, duplicateLiveClass, restoreLiveClass } from "@/lib/liveClassStorage";
+import { apiErrorMessage } from "@/lib/apiError";
 
-const errorText = (err: unknown, fallback: string) => (err instanceof Error && err.message ? err.message : fallback);
+const errorText = (err: unknown, fallback: string) => apiErrorMessage(err, fallback);
 
 /** Row + bulk mutations with the loading → success / error toast lifecycle. Storage events refresh the list. */
 export function useLiveClassListActions() {

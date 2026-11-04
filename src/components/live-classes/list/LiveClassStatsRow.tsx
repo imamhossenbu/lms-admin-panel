@@ -2,13 +2,12 @@
 
 import React, { useMemo } from "react";
 import { CircleX, Clock, PlayCircle, Users, Video } from "lucide-react";
-import type { LiveClassItem, LiveEnrollment } from "@/types/liveClass";
+import type { LiveClassListItem } from "@/lib/liveClassStorage";
 import { liveListStats } from "@/lib/liveClassStats";
 import { TrendStatCard, type TrendStatCardProps } from "@/components/ui/TrendStatCard";
 
 export interface LiveClassStatsRowProps {
-  classes: LiveClassItem[];
-  enrollments: LiveEnrollment[];
+  classes: LiveClassListItem[];
   now: Date;
 }
 
@@ -16,8 +15,8 @@ const trendOf = (change: number | null): TrendStatCardProps["trend"] =>
   change === null ? undefined : { direction: change >= 0 ? "up" : "down", value: `${Math.abs(change)}%`, caption: "vs previous 30 days" };
 
 /** Total Classes / Total Attendees / Completed / Upcoming / Cancelled — all derived via liveListStats. */
-export function LiveClassStatsRow({ classes, enrollments, now }: LiveClassStatsRowProps) {
-  const stats = useMemo(() => liveListStats(classes, enrollments, now), [classes, enrollments, now]);
+export function LiveClassStatsRow({ classes, now }: LiveClassStatsRowProps) {
+  const stats = useMemo(() => liveListStats(classes, now), [classes, now]);
   const cards: TrendStatCardProps[] = [
     { label: "Total Classes", value: stats.total.toLocaleString(), icon: <Video />, iconClassName: "bg-blue-14 text-blue", trend: trendOf(stats.change.total) },
     { label: "Total Attendees", value: stats.attendees.toLocaleString(), icon: <Users />, iconClassName: "bg-green-bg text-green", trend: trendOf(stats.change.attendees) },

@@ -1,8 +1,7 @@
-import type { AdminNotification, Broadcast, BroadcastDelivery, NotificationCategory, NotificationChannel } from "@/types/notification";
+import type { AdminNotification, NotificationCategory, NotificationChannel } from "@/types/notification";
 
-/** Pure helpers — every Notifications number is derived here (never hard-coded). */
+/** Pure helpers for the inbox (counts, grouping) and shared Notifications copy. Delivery analytics come from the API. */
 
-const pct = (a: number, b: number) => (b ? Math.round((a / b) * 1000) / 10 : 0);
 
 export function inboxStats(inbox: AdminNotification[]) {
   const live = inbox.filter((n) => !n.isArchived);
@@ -33,58 +32,6 @@ export function groupByDay(items: AdminNotification[], now: Date = new Date()) {
     groups[g].items.push(n);
   });
   return groups.filter((g) => g.items.length);
-}
-
-/** Delivery funnel for one broadcast or many. OPENED/CLICKED rows also count as delivered/opened. */
-export function deliveryStats(rows: BroadcastDelivery[]) {
-  const total = rows.length;
-  const failed = rows.filter((r) => r.status === "FAILED").length;
-  const delivered = total - failed;
-  const opened = rows.filter((r) => r.status === "OPENED" || r.status === "CLICKED").length;
-  const clicked = rows.filter((r) => r.status === "CLICKED").length;
-  return {
-    total,
-    delivered,
-    failed,
-    opened,
-    clicked,
-    deliveryRate: pct(delivered, total),
-    openRate: pct(opened, delivered),
-    clickRate: pct(clicked, opened),
-    recipients: new Set(rows.map((r) => r.recipient.id)).size,
-  };
-}
-
-export function deliveryByChannel(rows: BroadcastDelivery[]) {
-  const channels: NotificationChannel[] = ["IN_APP", "EMAIL", "PUSH"];
-  return channels
-    .map((channel) => ({ channel, ...deliveryStats(rows.filter((r) => r.channel === channel)) }))
-    .filter((c) => c.total > 0);
-}
-
-/** Opens per hour after sending (first 24 h) for a broadcast. */
-export function opensTimeline(broadcast: Broadcast, rows: BroadcastDelivery[], hours = 24) {
-  if (!broadcast.sendAt) return [];
-  const start = new Date(broadcast.sendAt).getTime();
-  return Array.from({ length: hours }, (_, h) => ({
-    label: `${h + 1}h`,
-    opens: rows.filter((r) => r.openedAt && new Date(r.openedAt).getTime() >= start + h * 3600000 && new Date(r.openedAt).getTime() < start + (h + 1) * 3600000).length,
-  }));
-}
-
-export function broadcastOverview(broadcasts: Broadcast[], deliveries: BroadcastDelivery[], now: Date = new Date()) {
-  const sent = broadcasts.filter((b) => b.status === "SENT");
-  const last30 = sent.filter((b) => b.sendAt && new Date(b.sendAt).getTime() > now.getTime() - 30 * 86400000);
-  const ids = new Set(last30.map((b) => b.id));
-  const s = deliveryStats(deliveries.filter((d) => ids.has(d.broadcastId)));
-  return {
-    sentLast30: last30.length,
-    scheduled: broadcasts.filter((b) => b.status === "SCHEDULED").length,
-    drafts: broadcasts.filter((b) => b.status === "DRAFT").length,
-    avgOpenRate: s.openRate,
-    avgClickRate: s.clickRate,
-    reached: s.recipients,
-  };
 }
 
 export const CHANNEL_LABEL: Record<NotificationChannel, string> = { IN_APP: "In-app", EMAIL: "Email", PUSH: "Push" };

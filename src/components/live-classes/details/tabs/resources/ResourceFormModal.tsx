@@ -55,7 +55,7 @@ export function ResourceFormModal({ classId, resource, presetType, onClose }: Re
     const payload = { ...values, size: values.type === "LINK" ? 0 : values.size };
     const toastId = toast.loading(editing ? "Saving resource..." : "Adding resource...", { description: values.title });
     try {
-      if (resource) await updateLiveResource(resource.id, payload);
+      if (resource) await updateLiveResource(classId, resource.id, payload);
       else await addLiveResource(classId, payload);
       toast.success(editing ? "Resource updated" : "Resource added", {
         id: toastId,

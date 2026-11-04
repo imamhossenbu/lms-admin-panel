@@ -1,7 +1,6 @@
 import type { LiveClassItem, LiveClassType, LivePlatform, ReminderOffset } from "@/types/liveClass";
 import type { LiveClassFormValues } from "@/validations/liveClassSchema";
 import type { LiveClassFields } from "@/lib/liveClassStorage";
-import { LIVE_COURSES, LIVE_INSTRUCTORS } from "@/lib/liveClassStorage";
 import type { AppSelectOption } from "@/components/ui/AppSelect";
 import { REMINDER_LABEL } from "../shared/liveClassView";
 
@@ -66,8 +65,6 @@ export const snapshotValues = (v: LiveClassFormValues) =>
   JSON.stringify(v, (_k, val) => (typeof val === "string" && isEmptyHtml(val) ? "" : typeof val === "number" && Number.isNaN(val) ? null : val));
 
 // ---------------------------------------------------------------- options
-export const COURSE_OPTIONS: AppSelectOption[] = LIVE_COURSES.map((c) => ({ value: c.id, label: c.title }));
-export const INSTRUCTOR_OPTIONS: AppSelectOption[] = LIVE_INSTRUCTORS.map((i) => ({ value: i.id, label: i.name }));
 export const TYPE_OPTIONS: { value: LiveClassType; label: string }[] = [
   { value: "INTERACTIVE", label: "Live Class (Interactive)" },
   { value: "WEBINAR", label: "Webinar" },

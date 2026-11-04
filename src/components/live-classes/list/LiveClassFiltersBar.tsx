@@ -1,8 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import { ListFilters } from "@/components/ui/ListFilters";
-import { COURSE_FILTER_OPTIONS, INSTRUCTOR_FILTER_OPTIONS, STATUS_FILTER_OPTIONS } from "./liveListUtils";
+import { useCourseCatalog } from "@/lib/courseCatalog";
+import { useLiveInstructors } from "@/lib/liveClassStorage";
+import { STATUS_FILTER_OPTIONS, withAllOption } from "./liveListUtils";
 import { UPCOMING_PRESETS } from "@/components/ui/date-range/dateRangeUtils";
 
 export interface LiveClassFiltersBarProps {
@@ -19,6 +21,10 @@ export interface LiveClassFiltersBarProps {
 
 /** Search + All Status / All Instructors / All Courses + Date Range + Reset. */
 export function LiveClassFiltersBar({ query, status, instructor, course, from, to, isFiltered, onChange, onReset }: LiveClassFiltersBarProps) {
+  const catalog = useCourseCatalog();
+  const instructors = useLiveInstructors();
+  const courseOptions = useMemo(() => withAllOption("All Courses", catalog ?? []), [catalog]);
+  const instructorOptions = useMemo(() => withAllOption("All Instructors", (instructors ?? []).map((i) => ({ value: i.id, label: i.name }))), [instructors]);
   return (
     <ListFilters
       query={query}
@@ -26,8 +32,8 @@ export function LiveClassFiltersBar({ query, status, instructor, course, from, t
       onQueryChange={(q) => onChange({ q })}
       selects={[
         { key: "status", value: status, options: STATUS_FILTER_OPTIONS, onChange: (v) => onChange({ status: v }), className: "xl:w-36" },
-        { key: "instructor", value: instructor, options: INSTRUCTOR_FILTER_OPTIONS, onChange: (v) => onChange({ instructor: v }), className: "xl:w-40" },
-        { key: "course", value: course, options: COURSE_FILTER_OPTIONS, onChange: (v) => onChange({ course: v }), className: "xl:w-44" },
+        { key: "instructor", value: instructor, options: instructorOptions, onChange: (v) => onChange({ instructor: v }), className: "xl:w-40" },
+        { key: "course", value: course, options: courseOptions, onChange: (v) => onChange({ course: v }), className: "xl:w-44" },
       ]}
       dateRange={{ from: from || undefined, to: to || undefined }}
       dateRangePresets={UPCOMING_PRESETS}

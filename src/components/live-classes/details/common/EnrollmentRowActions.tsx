@@ -19,7 +19,7 @@ export function EnrollmentRowActions({ row, canMark }: EnrollmentRowActionsProps
   const mark = async (status: AttendanceStatus) => {
     const toastId = toast.loading("Updating attendance...", { description: row.student.name });
     try {
-      await setAttendance(row.id, status);
+      await setAttendance(row.classId, row.id, status);
       toast.success(`Marked as ${ATTENDANCE_LABEL[status]}`, { id: toastId, description: `${row.student.name}'s attendance was updated.` });
     } catch (error) {
       toast.error("Couldn't update attendance", { id: toastId, description: errorMessage(error) });

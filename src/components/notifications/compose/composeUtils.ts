@@ -1,7 +1,8 @@
 import type { Broadcast, BroadcastAudience, NotificationChannel } from "@/types/notification";
 import { broadcastFormSchema, type BroadcastFormValues } from "@/validations/notificationSchema";
 import { CHANNEL_LABEL } from "@/lib/notificationStats";
-import { COURSE_OPTIONS } from "@/data/mockCourseCatalog";
+import { courseTitleOf as catalogTitleOf } from "@/lib/courseCatalog";
+import { apiErrorMessage } from "@/lib/apiError";
 
 /** Compose / Edit Broadcast: defaults, mapping, summary copy and sessionStorage drafts. */
 
@@ -78,7 +79,8 @@ export const AUDIENCE_LABEL: Record<BroadcastAudience, string> = {
   INACTIVE_STUDENTS: "Inactive students (30+ days)",
 };
 
-export const courseTitleOf = (id: string) => COURSE_OPTIONS.find((c) => c.value === id)?.label ?? id;
+/** Course title from the course catalogue (call useCourseCatalog() in the component so it re-renders once loaded). */
+export const courseTitleOf = (id: string) => catalogTitleOf(id) || "a course";
 
 /** "In-app", "In-app and Email", "In-app, Email and Push". */
 export function joinList(items: string[]) {
@@ -115,7 +117,7 @@ export function localTimeZone() {
   }
 }
 
-export const errorText = (err: unknown) => (err instanceof Error && err.message ? err.message : "Something went wrong. Please try again.");
+export const errorText = (err: unknown) => apiErrorMessage(err);
 
 // ---------------------------------------------------------------- draft validation
 /**

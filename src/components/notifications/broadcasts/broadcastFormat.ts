@@ -1,8 +1,9 @@
-import type { Broadcast, BroadcastAudience, BroadcastDelivery, BroadcastStatus, DeliveryStatus, NotificationChannel } from "@/types/notification";
+import type { Broadcast, BroadcastAudience, BroadcastStatus, DeliveryStatus, NotificationChannel } from "@/types/notification";
 import type { Tone } from "@/components/ui/ToneBadge";
-import { getCourseContext } from "@/data/mockCourseCatalog";
-import { deliveryStats, timeAgo } from "@/lib/notificationStats";
-import { estimateRecipients } from "@/lib/notificationStorage";
+import { courseTitleOf } from "@/lib/courseCatalog";
+import { timeAgo } from "@/lib/notificationStats";
+import { apiErrorMessage } from "@/lib/apiError";
+import type { BroadcastListItem } from "@/lib/notificationStorage";
 
 /** Formatting + filtering helpers shared by the Broadcasts tab and the broadcast detail page. */
 
@@ -27,10 +28,12 @@ export const AUDIENCE_LABEL: Record<BroadcastAudience, string> = {
   INACTIVE_STUDENTS: "Inactive students",
 };
 
-export const courseTitles = (b: Pick<Broadcast, "courseIds">) => b.courseIds.map((id) => getCourseContext(id).course.title);
+/** Titles of the broadcast's courses (API refs first, then the course catalogue). */
+export const courseTitles = (b: Pick<Broadcast, "courseIds" | "courses">) =>
+  b.courseIds.map((id) => b.courses?.find((c) => c.id === id)?.title || courseTitleOf(id) || "Unknown course");
 
 /** "All students" / "HTML Fundamentals" / "HTML Fundamentals +1 more" / "Instructors" … */
-export function audienceLabel(b: Pick<Broadcast, "audience" | "courseIds">, opts: { short?: boolean } = {}) {
+export function audienceLabel(b: Pick<Broadcast, "audience" | "courseIds" | "courses">, opts: { short?: boolean } = {}) {
   if (b.audience !== "COURSE") return AUDIENCE_LABEL[b.audience];
   const titles = courseTitles(b);
   if (!titles.length) return "No course selected";
@@ -60,7 +63,7 @@ export function relativeTime(iso: string, now: Date = new Date()) {
   return `in ${d} ${d === 1 ? "day" : "days"}`;
 }
 
-export const errorMessage = (err: unknown) => (err instanceof Error && err.message ? err.message : "Something went wrong. Please try again.");
+export const errorMessage = (err: unknown) => apiErrorMessage(err);
 
 // ---------------------------------------------------------------- table rows
 export interface BroadcastRow {
@@ -74,22 +77,16 @@ export interface BroadcastRow {
   sortAt: number;
 }
 
-export function toBroadcastRows(broadcasts: Broadcast[], deliveries: BroadcastDelivery[]): BroadcastRow[] {
-  const byBroadcast = new Map<string, BroadcastDelivery[]>();
-  deliveries.forEach((d) => byBroadcast.set(d.broadcastId, [...(byBroadcast.get(d.broadcastId) ?? []), d]));
+export function toBroadcastRows(broadcasts: BroadcastListItem[]): BroadcastRow[] {
   return broadcasts
-    .map((b) => {
-      const sent = b.status === "SENT";
-      const stats = sent ? deliveryStats(byBroadcast.get(b.id) ?? []) : null;
-      return {
-        id: b.id,
-        broadcast: b,
-        audienceText: audienceLabel(b, { short: true }),
-        recipients: stats ? stats.recipients : estimateRecipients(b.audience, b.courseIds),
-        openRate: stats ? stats.openRate : null,
-        sortAt: new Date(b.sendAt ?? b.updatedAt).getTime(),
-      };
-    })
+    .map((b) => ({
+      id: b.id,
+      broadcast: b,
+      audienceText: audienceLabel(b, { short: true }),
+      recipients: b.recipients,
+      openRate: b.openRate,
+      sortAt: new Date(b.sendAt ?? b.updatedAt).getTime(),
+    }))
     .sort((a, b) => b.sortAt - a.sortAt);
 }
 

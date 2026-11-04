@@ -1,16 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import type { LiveClassItem, LiveEnrollment } from "@/types/liveClass";
-import { LIVE_CLASSES_UPDATED_EVENT, fetchLiveClasses, getLiveEnrollmentsSnapshot } from "@/lib/liveClassStorage";
+import { LIVE_CLASSES_UPDATED_EVENT, fetchLiveClasses, type LiveClassListItem } from "@/lib/liveClassStorage";
+import { apiErrorMessage } from "@/lib/apiError";
 
 /**
- * Loads all live classes + enrollments (mock storage), re-reads on LIVE_CLASSES_UPDATED_EVENT and
+ * Loads every live class (with attendee totals) from the API, re-reads on LIVE_CLASSES_UPDATED_EVENT and
  * ticks `now` every 30s so derived statuses (Upcoming → Live Now → Completed) stay current.
  */
 export function useLiveClassesData() {
-  const [classes, setClasses] = useState<LiveClassItem[]>([]);
-  const [enrollments, setEnrollments] = useState<LiveEnrollment[]>([]);
+  const [classes, setClasses] = useState<LiveClassListItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [now, setNow] = useState(() => new Date());
@@ -28,14 +27,13 @@ export function useLiveClassesData() {
         (list) => {
           if (!alive) return;
           setClasses(list);
-          setEnrollments(getLiveEnrollmentsSnapshot());
           setNow(new Date());
           setLoadError(null);
           setIsLoading(false);
         },
-        () => {
+        (err) => {
           if (!alive) return;
-          setLoadError("We couldn't read the live classes. Please try again.");
+          setLoadError(apiErrorMessage(err, "We couldn't load the live classes. Please try again."));
           setIsLoading(false);
         }
       );
@@ -50,7 +48,7 @@ export function useLiveClassesData() {
     };
   }, [attempt]);
 
-  return { classes, enrollments, now, isLoading, loadError, retry };
+  return { classes, now, isLoading, loadError, retry };
 }
 
 export default useLiveClassesData;

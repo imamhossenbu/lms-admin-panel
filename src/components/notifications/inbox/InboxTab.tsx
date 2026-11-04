@@ -61,7 +61,7 @@ export function InboxTab() {
   const reset = () => update({ ...INBOX_FILTER_KEYS });
 
   const open = (n: AdminNotification) => {
-    if (!n.isRead) markRead([n.id]);
+    if (!n.isRead) void markRead([n.id]).catch(() => {});
     router.push(n.href);
   };
 

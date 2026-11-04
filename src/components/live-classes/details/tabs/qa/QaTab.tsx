@@ -63,7 +63,7 @@ function QaTabBody({ bundle, status }: LiveTabProps) {
   const setStatusOf = async (q: LiveQuestion, next: LiveQuestion["status"]) => {
     const toastId = toast.loading(next === "PENDING" ? "Marking as pending..." : "Marking as answered...", { description: q.question });
     try {
-      await answerLiveQuestion(q.id, q.answerHtml, next);
+      await answerLiveQuestion(q.classId, q.id, q.answerHtml, next);
       toast.success(next === "PENDING" ? "Marked as pending" : "Marked as answered", { id: toastId, description: `${q.student.name}'s question was updated.` });
     } catch (e) {
       toast.error("Couldn't update the question", { id: toastId, description: errorText(e) });

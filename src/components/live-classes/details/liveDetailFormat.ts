@@ -1,5 +1,6 @@
 import type { AttendanceStatus, LiveClassItem, LiveClassType, LiveDisplayStatus, LiveEnrollment } from "@/types/liveClass";
 import { durationMinutes, endOf, formatClock, formatMinutes } from "@/lib/liveClassStats";
+import { apiErrorMessage } from "@/lib/apiError";
 
 /** Display labels + small formatters shared by the Live Class details page. */
 
@@ -67,7 +68,7 @@ export const STATUS_LABEL: Record<LiveDisplayStatus, string> = {
   CANCELLED: "Cancelled",
 };
 
-export const errorMessage = (error: unknown, fallback = "Please try again.") => (error instanceof Error && error.message ? error.message : fallback);
+export const errorMessage = (error: unknown, fallback = "Please try again.") => apiErrorMessage(error, fallback);
 
 const escapeCsv = (value: string | number) => {
   const str = String(value);

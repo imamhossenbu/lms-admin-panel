@@ -6,7 +6,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { BookOpen, GraduationCap, Moon, UserCheck, Users } from "lucide-react";
 import type { BroadcastAudience } from "@/types/notification";
 import type { BroadcastFormValues } from "@/validations/notificationSchema";
-import { estimateRecipients } from "@/lib/notificationStorage";
+import { useRecipientEstimate } from "@/lib/notificationStorage";
+import { useCourseCatalog } from "@/lib/courseCatalog";
 import { IconSectionCard } from "@/components/ui/IconSectionCard";
 import { ChoiceCardGroup, type ChoiceOption } from "@/components/ui/ChoiceCardGroup";
 import { FieldError, FieldLabel } from "@/components/courses/create/basic/FieldLabel";
@@ -30,7 +31,9 @@ export function AudienceCard() {
     formState: { errors },
   } = useFormContext<BroadcastFormValues>();
   const [audience, courseIds] = useWatch({ control, name: ["audience", "courseIds"] });
-  const count = estimateRecipients(audience ?? "ALL_STUDENTS", courseIds ?? []);
+  useCourseCatalog(); // course titles in the recipient line
+  const estimate = useRecipientEstimate(audience ?? "ALL_STUDENTS", courseIds ?? []);
+  const count = estimate ?? 0;
   const needsCourses = audience === "COURSE" && !(courseIds ?? []).length;
 
   return (
@@ -74,7 +77,7 @@ export function AudienceCard() {
               "Select at least one course to estimate recipients."
             ) : (
               <>
-                <span className="body-sm-medium font-semibold! text-primary-500">≈ {count.toLocaleString()} recipients</span> ·{" "}
+                <span className="body-sm-medium font-semibold! text-primary-500">≈ {estimate === null ? "…" : count.toLocaleString()} recipients</span> ·{" "}
                 {audienceNoun(audience ?? "ALL_STUDENTS", courseIds ?? [], count)}
               </>
             )}

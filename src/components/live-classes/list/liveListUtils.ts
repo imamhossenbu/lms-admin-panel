@@ -1,7 +1,7 @@
-import type { LiveClassItem, LiveDisplayStatus, LiveEnrollment } from "@/types/liveClass";
+import type { LiveClassItem, LiveDisplayStatus } from "@/types/liveClass";
 import type { AppSelectOption } from "@/components/ui/AppSelect";
-import { attendeesOf, courseOf, formatClock, instructorOf, liveStatus, startOf } from "@/lib/liveClassStats";
-import { LIVE_COURSES, LIVE_INSTRUCTORS } from "@/lib/liveClassStorage";
+import { formatClock, liveStatus, startOf } from "@/lib/liveClassStats";
+import type { LiveClassListItem } from "@/lib/liveClassStorage";
 import { toCsv } from "@/components/commerce/exportFile";
 import { LIVE_PLATFORM_LABEL, LIVE_STATUS_VIEW, LIVE_TYPE_LABEL, formatLiveDate } from "../shared/liveClassView";
 
@@ -31,24 +31,17 @@ export const STATUS_FILTER_OPTIONS: AppSelectOption[] = [
   ...Object.entries(STATUS_PARAM).map(([value, s]) => ({ value, label: LIVE_STATUS_VIEW[s].label })),
 ];
 
-export const INSTRUCTOR_FILTER_OPTIONS: AppSelectOption[] = [
-  { value: "All", label: "All Instructors" },
-  ...LIVE_INSTRUCTORS.map((i) => ({ value: i.id, label: i.name })),
-];
+/** "All …" + the given options (instructors / courses of the workspace). */
+export const withAllOption = (label: string, options: AppSelectOption[]): AppSelectOption[] => [{ value: "All", label }, ...options];
 
-export const COURSE_FILTER_OPTIONS: AppSelectOption[] = [
-  { value: "All", label: "All Courses" },
-  ...LIVE_COURSES.map((c) => ({ value: c.id, label: c.title })),
-];
-
-export const toRows = (classes: LiveClassItem[], enrollments: LiveEnrollment[], now: Date): LiveClassRow[] =>
+export const toRows = (classes: LiveClassListItem[], now: Date): LiveClassRow[] =>
   classes.map((item) => ({
     id: item.id,
     item,
     status: liveStatus(item, now),
-    attendees: attendeesOf(item.id, enrollments),
-    courseTitle: courseOf(item.courseId)?.title ?? "Unknown course",
-    instructorName: instructorOf(item.instructorId)?.name ?? "Unassigned",
+    attendees: item.attendees,
+    courseTitle: item.course.title || "Unknown course",
+    instructorName: item.instructor.name || "Unassigned",
   }));
 
 export interface LiveListFilters {

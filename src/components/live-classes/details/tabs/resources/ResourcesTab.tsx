@@ -51,7 +51,7 @@ function ResourcesTabBody({ bundle, status }: LiveTabProps) {
     if (!deleting) return;
     const toastId = toast.loading("Deleting resource...", { description: deleting.title });
     try {
-      await deleteLiveResource(deleting.id);
+      await deleteLiveResource(deleting.classId, deleting.id);
       setSelected((s) => s.filter((id) => id !== deleting.id));
       toast.success("Resource deleted", { id: toastId, description: `${deleting.title} was removed from this class.` });
     } catch (e) {

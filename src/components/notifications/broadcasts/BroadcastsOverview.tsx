@@ -1,19 +1,16 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React from "react";
 import { CalendarClock, FilePen, MailOpen, MousePointerClick, Send, Users } from "lucide-react";
-import type { Broadcast, BroadcastDelivery } from "@/types/notification";
-import { broadcastOverview } from "@/lib/notificationStats";
+import type { BroadcastOverview } from "@/lib/notificationStorage";
 import { BroadcastStatTile } from "./BroadcastStatTile";
 
 export interface BroadcastsOverviewProps {
-  broadcasts: Broadcast[];
-  deliveries: BroadcastDelivery[];
+  overview: BroadcastOverview;
 }
 
 /** Sent (30 days) · Scheduled · Drafts · Avg. open rate · Avg. click rate · People reached. */
-export function BroadcastsOverview({ broadcasts, deliveries }: BroadcastsOverviewProps) {
-  const o = useMemo(() => broadcastOverview(broadcasts, deliveries), [broadcasts, deliveries]);
+export function BroadcastsOverview({ overview: o }: BroadcastsOverviewProps) {
   const tiles = [
     { label: "Sent (30 days)", value: o.sentLast30, caption: "Broadcasts delivered", icon: <Send className="h-5 w-5" />, iconClassName: "bg-green-bg text-green" },
     { label: "Scheduled", value: o.scheduled, caption: "Waiting to send", icon: <CalendarClock className="h-5 w-5" />, iconClassName: "bg-blue-14 text-blue" },

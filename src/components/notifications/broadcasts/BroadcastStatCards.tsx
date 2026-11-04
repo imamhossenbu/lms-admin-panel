@@ -2,10 +2,10 @@
 
 import React from "react";
 import { AlertTriangle, CheckCircle2, MailOpen, MousePointerClick, Users } from "lucide-react";
-import type { deliveryStats } from "@/lib/notificationStats";
+import type { DeliveryStats as ApiDeliveryStats } from "@/lib/notificationStorage";
 import { BroadcastStatTile } from "./BroadcastStatTile";
 
-export type DeliveryStats = ReturnType<typeof deliveryStats>;
+export type DeliveryStats = ApiDeliveryStats;
 
 /** Recipients · Delivered + rate · Opened + rate · Clicked + rate · Failed (sent broadcasts). */
 export function BroadcastStatCards({ stats, channelCount }: { stats: DeliveryStats; channelCount: number }) {

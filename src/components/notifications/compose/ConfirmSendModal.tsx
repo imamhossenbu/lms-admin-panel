@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { CalendarClock, Send } from "lucide-react";
 import type { BroadcastFormValues } from "@/validations/notificationSchema";
-import { estimateRecipients } from "@/lib/notificationStorage";
+import { useRecipientEstimate } from "@/lib/notificationStorage";
 import { ModalShell } from "@/components/ui/ModalShell";
 import { PrimaryButton } from "@/components/ui/primary-button";
 import { SecondaryButton } from "@/components/ui/secondary-button";
@@ -31,9 +31,10 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 /** Final check before sending / scheduling: audience, recipients, channels, timing. */
 export function ConfirmSendModal({ values, onClose, onConfirm }: ConfirmSendModalProps) {
   const [pending, setPending] = useState(false);
+  const estimate = useRecipientEstimate(values?.audience ?? "ALL_STUDENTS", values?.courseIds ?? []);
   if (!values) return null;
 
-  const count = estimateRecipients(values.audience, values.courseIds);
+  const count = estimate ?? 0;
   const scheduled = values.timing === "SCHEDULE";
   const who = values.audience === "INSTRUCTORS" ? "instructors" : values.audience === "INACTIVE_STUDENTS" ? "inactive students" : "students";
   const title = scheduled ? `Schedule for ≈ ${count.toLocaleString()} ${who}?` : `Send to ≈ ${count.toLocaleString()} ${who}?`;

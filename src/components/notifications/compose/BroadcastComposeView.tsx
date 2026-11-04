@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import type { Broadcast } from "@/types/notification";
 import { fetchBroadcast } from "@/lib/notificationStorage";
-import { isKnownCourse } from "@/data/mockCourseCatalog";
+import { useCourseCatalog } from "@/lib/courseCatalog";
 import { BroadcastComposeForm } from "./BroadcastComposeForm";
 import { BroadcastComposeSkeleton } from "./BroadcastComposeSkeleton";
 import { BroadcastNotFound } from "./BroadcastNotFound";
@@ -18,7 +18,8 @@ export function BroadcastComposeView(props: BroadcastComposeViewProps) {
   const broadcastId = props.mode === "edit" ? props.broadcastId : null;
   const searchParams = useSearchParams();
   const courseParam = searchParams.get("course") ?? "";
-  const initialCourseId = courseParam && isKnownCourse(courseParam) ? courseParam : "";
+  const catalog = useCourseCatalog();
+  const initialCourseId = courseParam && catalog?.some((c) => c.value === courseParam) ? courseParam : "";
   const [state, setState] = useState<{ id: string | null; broadcast: Broadcast | null; loaded: boolean }>({ id: null, broadcast: null, loaded: false });
 
   useEffect(() => {
@@ -33,6 +34,8 @@ export function BroadcastComposeView(props: BroadcastComposeViewProps) {
     };
   }, [broadcastId]);
 
+  // ?course= preselects that course once the catalogue confirms it belongs to this workspace.
+  if (!broadcastId && courseParam && catalog === null) return <BroadcastComposeSkeleton />;
   if (!broadcastId) return <BroadcastComposeForm key={`new:${initialCourseId}`} mode="create" initialCourseId={initialCourseId} />;
   if (!state.loaded || state.id !== broadcastId) return <BroadcastComposeSkeleton />;
   if (!state.broadcast) return <BroadcastNotFound />;
