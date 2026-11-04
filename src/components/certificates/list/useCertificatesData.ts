@@ -1,12 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import type { CertificateSeed } from "@/data/mockCertificateData";
-import { CERTIFICATES_UPDATED_EVENT, fetchCertificates } from "@/lib/certificateStorage";
+import { CERTIFICATES_UPDATED_EVENT, fetchCertificates, type CertificateData } from "@/lib/certificateStorage";
+import { apiErrorMessage } from "@/lib/apiError";
 
-/** Loads templates, certificates, events and the eligible queue; re-reads on every CERTIFICATES_UPDATED_EVENT. */
+/** Loads templates, certificates, recent activity and the eligible queue from the API; re-reads on every CERTIFICATES_UPDATED_EVENT. */
 export function useCertificatesData() {
-  const [data, setData] = useState<CertificateSeed | null>(null);
+  const [data, setData] = useState<CertificateData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
@@ -26,9 +26,9 @@ export function useCertificatesData() {
           setLoadError(null);
           setIsLoading(false);
         },
-        () => {
+        (err) => {
           if (!alive) return;
-          setLoadError("We couldn't read the certificates. Please try again.");
+          setLoadError(apiErrorMessage(err, "We couldn't load the certificates. Please try again."));
           setIsLoading(false);
         }
       );

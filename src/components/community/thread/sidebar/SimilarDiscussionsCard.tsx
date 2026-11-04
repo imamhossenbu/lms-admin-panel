@@ -1,30 +1,22 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ChevronRight, Sparkles } from "lucide-react";
-import type { CommunityThread, ThreadReply, ThreadReport } from "@/types/community";
-import { threadViews, timeAgo } from "@/lib/communityStats";
+import { timeAgo } from "@/lib/communityStats";
+import type { RelatedThread } from "@/lib/communityStorage";
 import { IconSectionCard } from "@/components/ui/IconSectionCard";
 import { CategoryBadge } from "../../shared/CategoryBadge";
 import { plural } from "../threadFormat";
 
 export interface SimilarDiscussionsCardProps {
-  thread: CommunityThread;
-  all: { threads: CommunityThread[]; replies: ThreadReply[]; reports: ThreadReport[] };
+  related: RelatedThread[];
 }
 
-/** Top 4 discussions from the same course, ranked by shared tags then recent activity. */
-export function SimilarDiscussionsCard({ thread, all }: SimilarDiscussionsCardProps) {
-  const items = useMemo(() => {
-    const candidates = all.threads.filter((t) => t.id !== thread.id && t.courseId === thread.courseId);
-    const tags = new Set(thread.tags);
-    return threadViews(candidates, all.replies, all.reports)
-      .map((v) => ({ v, shared: v.thread.tags.filter((t) => tags.has(t)).length }))
-      .sort((a, b) => b.shared - a.shared || b.v.lastActivityAt.localeCompare(a.v.lastActivityAt))
-      .slice(0, 4);
-  }, [thread.id, thread.courseId, thread.tags, all]);
+/** Top 4 discussions from the same course, ranked by shared tags then recent activity (ranked by the API). */
+export function SimilarDiscussionsCard({ related }: SimilarDiscussionsCardProps) {
+  const items = related.map((v) => ({ v, shared: v.sharedTags }));
 
   return (
     <IconSectionCard icon={<Sparkles className="h-5 w-5" />} title="Similar Discussions" description="Same course, related tags." tone="green" bodyClassName="mt-3">

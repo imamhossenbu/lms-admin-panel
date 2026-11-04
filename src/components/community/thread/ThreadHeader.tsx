@@ -11,7 +11,7 @@ import { SecondaryButton } from "@/components/ui/secondary-button";
 import { CategoryBadge } from "../shared/CategoryBadge";
 import { ThreadStatusBadges } from "../shared/ThreadStatusBadges";
 import type { ThreadActions } from "./hooks/useThreadActions";
-import { courseLabels, exactDate } from "./threadFormat";
+import { useCourseLabels, exactDate } from "./threadFormat";
 import { ThreadMoreMenu } from "./ThreadMoreMenu";
 
 export interface ThreadHeaderProps {
@@ -23,7 +23,7 @@ export interface ThreadHeaderProps {
 export function ThreadHeader({ view, actions }: ThreadHeaderProps) {
   const router = useRouter();
   const { thread } = view;
-  const labels = courseLabels(thread.courseId, thread.moduleId);
+  const labels = useCourseLabels(thread.courseId, thread.moduleId);
 
   return (
     <div className="space-y-4">

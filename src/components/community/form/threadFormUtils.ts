@@ -1,7 +1,7 @@
 import type { CommunityThread, ThreadCategory } from "@/types/community";
 import type { ThreadFormValues } from "@/validations/communitySchema";
 import type { AppSelectOption } from "@/components/ui/AppSelect";
-import { getCourseContext, isKnownCourse } from "@/data/mockCourseCatalog";
+import { cachedCourseContext, courseTitleOf } from "@/lib/courseCatalog";
 
 /** New / Edit Discussion form: defaults, mapping, text helpers, module options and sessionStorage drafts. */
 
@@ -66,47 +66,17 @@ export const snapshotThreadValues = (v: ThreadFormValues) => JSON.stringify(v, (
 // ---------------------------------------------------------------- course / module
 export const COURSE_WIDE_VALUE = "__course_wide__";
 
-/** "Course-wide" + the course's modules. AppSelect needs a non-empty value, so "" maps to COURSE_WIDE_VALUE. */
+/** "Course-wide" + the course's modules (from the cached curriculum — load it with useCourseContext). AppSelect needs a non-empty value, so "" maps to COURSE_WIDE_VALUE. */
 export function moduleOptions(courseId: string): AppSelectOption[] {
   if (!courseId) return [];
-  const modules = isKnownCourse(courseId) ? getCourseContext(courseId).modules : [];
+  const modules = cachedCourseContext(courseId)?.modules ?? [];
   return [{ value: COURSE_WIDE_VALUE, label: "Course-wide" }, ...[...modules].sort((a, b) => a.order - b.order).map((m) => ({ value: m.id, label: m.title }))];
 }
 
-export const courseTitle = (courseId: string) => (courseId && isKnownCourse(courseId) ? getCourseContext(courseId).course.title : "");
+export const courseTitle = (courseId: string) => (courseId ? courseTitleOf(courseId) : "");
 
 export const moduleTitle = (courseId: string, moduleId: string) =>
-  courseId && moduleId && isKnownCourse(courseId) ? getCourseContext(courseId).modules.find((m) => m.id === moduleId)?.title ?? "" : "";
-
-// ---------------------------------------------------------------- similar discussions
-const STOP_WORDS = new Set(
-  "a an and are as at be but by can do does for from how i in is it my of on or the this to was what when where which why with you your vs not no get use using".split(" ")
-);
-
-export const titleTokens = (title: string) =>
-  new Set(
-    title
-      .toLowerCase()
-      .split(/[^a-z0-9]+/)
-      .filter((w) => w.length > 2 && !STOP_WORDS.has(w))
-  );
-
-/** Up to `limit` threads in the same course whose titles share the most words with `title`. */
-export function findSimilarThreads(threads: CommunityThread[], title: string, courseId: string, excludeId?: string, limit = 3): CommunityThread[] {
-  const tokens = titleTokens(title);
-  if (!courseId || tokens.size === 0) return [];
-  return threads
-    .filter((t) => t.courseId === courseId && t.id !== excludeId)
-    .map((t) => {
-      let score = 0;
-      titleTokens(t.title).forEach((w) => tokens.has(w) && score++);
-      return { t, score };
-    })
-    .filter((x) => x.score > 0)
-    .sort((a, b) => b.score - a.score || b.t.createdAt.localeCompare(a.t.createdAt))
-    .slice(0, limit)
-    .map((x) => x.t);
-}
+  courseId && moduleId ? cachedCourseContext(courseId)?.modules.find((m) => m.id === moduleId)?.title ?? "" : "";
 
 // ---------------------------------------------------------------- type tips
 export const TYPE_TIPS: Record<ThreadCategory, string[]> = {

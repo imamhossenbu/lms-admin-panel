@@ -4,7 +4,7 @@ import React, { useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertTriangle, Check, Info } from "lucide-react";
 import type { CertificateTemplate } from "@/types/certificate";
-import { COURSE_OPTIONS } from "@/data/mockCourseCatalog";
+import { useCourseCatalog } from "@/lib/courseCatalog";
 import { activeTemplateFor } from "@/lib/certificateStats";
 import { cn } from "@/lib/cn";
 import { courseTitleOf } from "./designerUtils";
@@ -23,6 +23,7 @@ export interface CourseChipSelectProps {
 
 /** Toggleable course chips + a warning per selected course already assigned to another active template. */
 export function CourseChipSelect({ value, onChange, templates, selfId, willBeActive, hasError }: CourseChipSelectProps) {
+  const courses = useCourseCatalog();
   const others = useMemo(() => templates.filter((t) => t.id !== selfId), [templates, selfId]);
   const conflicts = value
     .map((courseId) => ({ courseId, owner: activeTemplateFor(others, courseId) }))
@@ -33,7 +34,15 @@ export function CourseChipSelect({ value, onChange, templates, selfId, willBeAct
   return (
     <div>
       <div role="group" aria-label="Courses" className={cn("flex flex-wrap gap-2 rounded-xl", hasError && "border border-red bg-red-14 p-2")}>
-        {COURSE_OPTIONS.map((course) => {
+        {courses === null && (
+          <div className="flex flex-wrap gap-2" aria-hidden>
+            {["w-24", "w-32", "w-28", "w-36"].map((w) => (
+              <span key={w} className={cn("h-8 animate-pulse rounded-full bg-slate-100", w)} />
+            ))}
+          </div>
+        )}
+        {courses?.length === 0 && <p className="body-xsm-regular text-primary-300">No courses in this workspace yet. Create a course first.</p>}
+        {(courses ?? []).map((course) => {
           const selected = value.includes(course.value);
           return (
             <motion.button

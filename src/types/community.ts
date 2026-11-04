@@ -1,4 +1,4 @@
-/** Community (course discussions) — mock-first, API-ready shapes. Swap src/lib/communityStorage.ts for real calls later. */
+/** Community (course discussions) — the shapes the Community API (`/admin/community*`) returns. */
 
 export type CommunityRole = "STUDENT" | "INSTRUCTOR" | "ADMIN";
 export type ThreadCategory = "QUESTION" | "DISCUSSION" | "ANNOUNCEMENT" | "SHOWCASE" | "FEEDBACK";

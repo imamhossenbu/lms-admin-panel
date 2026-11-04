@@ -4,7 +4,7 @@ import React, { useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { CircleCheck, Flag, Save, ShieldOff } from "lucide-react";
 import type { CommunityThread, ThreadReply } from "@/types/community";
-import { CURRENT_MEMBER } from "@/lib/communityStorage";
+import { useCurrentMember } from "@/lib/communityStorage";
 import { RichTextContent } from "@/components/ui/RichTextContent";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 import { cn } from "@/lib/cn";
@@ -51,6 +51,7 @@ export function ReplyItem({
   children,
 }: ReplyItemProps) {
   const ref = useRef<HTMLDivElement>(null);
+  const me = useCurrentMember();
   const isStaff = reply.author.role !== "STUDENT";
   const edited = reply.updatedAt !== reply.createdAt;
   const canAccept = thread.category === "QUESTION" && !isNested && !reply.isRemoved;
@@ -139,7 +140,7 @@ export function ReplyItem({
             <ReplyActionBar
               reply={reply}
               canAccept={canAccept}
-              canEdit={reply.author.id === CURRENT_MEMBER.id}
+              canEdit={reply.author.id === me.id}
               isLocked={thread.isLocked}
               replyActive={mode === "reply"}
               onReply={() => onModeChange(mode === "reply" ? null : "reply")}

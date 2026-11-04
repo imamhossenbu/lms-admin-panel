@@ -11,7 +11,7 @@ import { TextAreaField } from "@/components/ui/TextAreaField";
 import { SettingToggleRow } from "@/components/ui/SettingToggleRow";
 import { PrimaryButton } from "@/components/ui/primary-button";
 import { SecondaryButton } from "@/components/ui/secondary-button";
-import { REVOKE_REASON_OPTIONS, revokeReasonText, type IssuedRow } from "./certificateListUtils";
+import { REVOKE_REASON_OPTIONS, type IssuedRow } from "./certificateListUtils";
 
 export interface RevokeCertificateModalProps {
   isOpen: boolean;
@@ -19,7 +19,7 @@ export interface RevokeCertificateModalProps {
   rows: IssuedRow[];
   onClose: () => void;
   /** Throw to keep the modal open (the caller shows the toast). */
-  onConfirm: (reason: string, notifyLearner: boolean) => Promise<unknown>;
+  onConfirm: (values: RevokeCertificateValues) => Promise<unknown>;
 }
 
 const DEFAULTS: RevokeCertificateValues = { reason: "ISSUED_IN_ERROR", details: "", notifyLearner: true };
@@ -42,7 +42,7 @@ export function RevokeCertificateModal({ isOpen, rows, onClose, onConfirm }: Rev
 
   const submit = async (v: RevokeCertificateValues) => {
     try {
-      await onConfirm(revokeReasonText(v.reason, v.details), v.notifyLearner);
+      await onConfirm(v);
       onClose();
     } catch {
       /* toast shown by caller */

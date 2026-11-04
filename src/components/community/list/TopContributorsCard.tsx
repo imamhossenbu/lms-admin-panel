@@ -2,12 +2,12 @@
 
 import React from "react";
 import { Trophy } from "lucide-react";
-import type { topContributors } from "@/lib/communityStats";
+import type { TopContributor } from "@/lib/communityStorage";
 import { MemberAvatar } from "../shared/MemberAvatar";
 import { RoleBadge } from "../shared/RoleBadge";
 import { SidebarCard } from "./SidebarCard";
 
-export type Contributor = ReturnType<typeof topContributors>[number];
+export type Contributor = TopContributor;
 
 /** Ranked list of the most helpful members: avatar, name + role, "N replies · N accepted". */
 export function TopContributorsCard({ contributors, index }: { contributors: Contributor[]; index?: number }) {

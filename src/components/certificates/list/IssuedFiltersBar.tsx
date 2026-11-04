@@ -1,5 +1,6 @@
 "use client";
 
+import { useCourseCatalog } from "@/lib/courseCatalog";
 import React from "react";
 import { motion } from "framer-motion";
 import { Search } from "lucide-react";
@@ -21,6 +22,7 @@ export interface IssuedFiltersBarProps {
  * Container queries keep it on two tidy rows inside the card at any width.
  */
 export function IssuedFiltersBar({ filters, templates, onChange, onRangeChange, onReset }: IssuedFiltersBarProps) {
+  const courseOptions = courseFilterOptions(useCourseCatalog());
   const filtered = isIssuedFiltered(filters);
   return (
     <div className="@container">
@@ -37,7 +39,7 @@ export function IssuedFiltersBar({ filters, templates, onChange, onRangeChange, 
           />
         </div>
         <div className="grid min-w-0 flex-1 grid-cols-1 gap-3 @md:grid-cols-2 @3xl:grid-cols-3 @7xl:flex @7xl:items-center">
-          <AppSelect value={filters.courseId} onValueChange={(v) => onChange({ course: v })} options={courseFilterOptions()} className="w-full @7xl:w-auto @7xl:min-w-0 @7xl:flex-1" triggerClassName="w-full bg-white" />
+          <AppSelect value={filters.courseId} onValueChange={(v) => onChange({ course: v })} options={courseOptions} className="w-full @7xl:w-auto @7xl:min-w-0 @7xl:flex-1" triggerClassName="w-full bg-white" />
           <AppSelect value={filters.templateId} onValueChange={(v) => onChange({ template: v })} options={templateFilterOptions(templates)} className="w-full @7xl:w-auto @7xl:min-w-0 @7xl:flex-1" triggerClassName="w-full bg-white" />
           <AppSelect value={filters.status} onValueChange={(v) => onChange({ status: v })} options={STATUS_FILTER_OPTIONS} className="w-full @7xl:w-32 @7xl:shrink-0" triggerClassName="w-full bg-white" />
           <AppSelect value={filters.method} onValueChange={(v) => onChange({ method: v })} options={METHOD_FILTER_OPTIONS} className="w-full @7xl:w-36 @7xl:shrink-0" triggerClassName="w-full bg-white" />

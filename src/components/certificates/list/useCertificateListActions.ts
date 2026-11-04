@@ -3,7 +3,11 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import type { CertificateTemplate, TemplateStatus } from "@/types/certificate";
+import type { RevokeCertificateValues } from "@/validations/certificateSchema";
+import { apiErrorMessage } from "@/lib/apiError";
 import {
+  bulkEmailCertificates,
+  bulkRevokeCertificates,
   deleteTemplate,
   duplicateTemplate,
   emailCertificate,
@@ -16,7 +20,7 @@ import { verifyUrl } from "@/lib/certificateStats";
 import { downloadCertificatePdf } from "../shared/downloadCertificate";
 import { downloadCertificatesCsv, type IssuedRow } from "./certificateListUtils";
 
-const errorText = (err: unknown) => (err instanceof Error && err.message ? err.message : "Something went wrong. Please try again.");
+const errorText = (err: unknown) => apiErrorMessage(err, "Something went wrong. Please try again.");
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
 
 /** Every list mutation with the loading → success / error toast lifecycle. Mutations re-throw so modals stay open. */
@@ -64,13 +68,16 @@ export function useCertificateListActions() {
       run(null, "Copying verification link...", () => navigator.clipboard.writeText(verifyUrl(row.cert.code)), () => ({ title: "Verification link copied", description: verifyUrl(row.cert.code) }), "Couldn't copy the link")
     );
 
-  const revoke = (rows: IssuedRow[], reason: string, notify: boolean) =>
+  const revoke = (rows: IssuedRow[], values: RevokeCertificateValues, notify = values.notifyLearner) =>
     run(
       rows.length === 1 ? rows[0].id : null,
       rows.length === 1 ? "Revoking certificate..." : `Revoking ${plural(rows.length, "certificate")}...`,
       async () => {
-        for (const r of rows) await revokeCertificate(r.id, reason, notify);
-        return rows.length;
+        if (rows.length === 1) {
+          await revokeCertificate(rows[0].id, values);
+          return 1;
+        }
+        return bulkRevokeCertificates(rows.map((r) => r.id), values);
       },
       (n) => ({
         title: n === 1 ? "Certificate revoked" : `${plural(n, "certificate")} revoked`,
@@ -88,11 +95,11 @@ export function useCertificateListActions() {
       await run(
         null,
         `Emailing ${plural(rows.length, "certificate")}...`,
-        async () => {
-          for (const r of rows) await emailCertificate(r.id);
-          return rows.length;
-        },
-        (n) => ({ title: `${plural(n, "certificate")} emailed`, description: "Each learner received a download link." }),
+        () => bulkEmailCertificates(rows.map((r) => r.id)),
+        ({ emailed, skipped }) => ({
+          title: `${plural(emailed, "certificate")} emailed`,
+          description: skipped ? `${plural(skipped, "revoked certificate")} skipped.` : "Each learner received a download link.",
+        }),
         "Couldn't send the emails"
       );
     } catch {

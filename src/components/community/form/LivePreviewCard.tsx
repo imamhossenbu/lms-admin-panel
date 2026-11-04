@@ -9,6 +9,7 @@ import { IconSectionCard } from "@/components/ui/IconSectionCard";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 import { CategoryBadge } from "@/components/community/shared/CategoryBadge";
 import { cn } from "@/lib/cn";
+import { useCourseCatalog, useCourseContext } from "@/lib/courseCatalog";
 import { courseTitle, excerpt, moduleTitle } from "./threadFormUtils";
 
 export interface LivePreviewCardProps {
@@ -24,6 +25,8 @@ export function LivePreviewCard({ authorName = "Admin" }: LivePreviewCardProps) 
     name: ["title", "category", "courseId", "moduleId", "bodyHtml", "tags", "isPinned", "isLocked"],
   });
   const text = excerpt(bodyHtml ?? "");
+  useCourseCatalog();
+  useCourseContext(courseId || null);
   const course = courseTitle(courseId ?? "");
   const where = course ? [course, moduleTitle(courseId, moduleId) || "Course-wide"].join(" · ") : "No course selected";
 

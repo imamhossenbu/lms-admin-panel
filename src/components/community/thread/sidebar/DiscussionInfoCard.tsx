@@ -4,7 +4,7 @@ import type { ThreadView as ThreadStats } from "@/lib/communityStats";
 import { timeAgo } from "@/lib/communityStats";
 import { IconSectionCard } from "@/components/ui/IconSectionCard";
 import { CategoryBadge } from "../../shared/CategoryBadge";
-import { courseLabels, exactDate, shortDate } from "../threadFormat";
+import { useCourseLabels, exactDate, shortDate } from "../threadFormat";
 import { InfoRow } from "./InfoRow";
 
 export interface DiscussionInfoCardProps {
@@ -14,7 +14,7 @@ export interface DiscussionInfoCardProps {
 /** Category, course, module, created, last activity, views, replies and participants. */
 export function DiscussionInfoCard({ view }: DiscussionInfoCardProps) {
   const { thread } = view;
-  const labels = courseLabels(thread.courseId, thread.moduleId);
+  const labels = useCourseLabels(thread.courseId, thread.moduleId);
   return (
     <IconSectionCard icon={<Info className="h-5 w-5" />} title="Discussion Info" tone="blue" bodyClassName="mt-3">
       <dl className="divide-y divide-dash">

@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import type { CommunityThread } from "@/types/community";
 import { fetchThread } from "@/lib/communityStorage";
-import { isKnownCourse } from "@/data/mockCourseCatalog";
+import { useCourseCatalog } from "@/lib/courseCatalog";
 import { DiscussionForm } from "./DiscussionForm";
 import { DiscussionFormSkeleton } from "./DiscussionFormSkeleton";
 import { DiscussionNotFound } from "./DiscussionNotFound";
@@ -16,7 +16,8 @@ export function DiscussionFormView(props: DiscussionFormViewProps) {
   const threadId = props.mode === "edit" ? props.threadId : null;
   const searchParams = useSearchParams();
   const courseParam = searchParams.get("course") ?? "";
-  const initialCourseId = courseParam && isKnownCourse(courseParam) ? courseParam : "";
+  const courses = useCourseCatalog();
+  const initialCourseId = courseParam && courses?.some((c) => c.value === courseParam) ? courseParam : "";
   const [state, setState] = useState<{ id: string | null; thread: CommunityThread | null; loaded: boolean }>({ id: null, thread: null, loaded: false });
 
   useEffect(() => {
@@ -31,6 +32,7 @@ export function DiscussionFormView(props: DiscussionFormViewProps) {
     };
   }, [threadId]);
 
+  if (!threadId && courseParam && !courses) return <DiscussionFormSkeleton />;
   if (!threadId) return <DiscussionForm key={`new:${initialCourseId}`} mode="create" initialCourseId={initialCourseId} />;
   if (!state.loaded || state.id !== threadId) return <DiscussionFormSkeleton />;
   if (!state.thread) return <DiscussionNotFound />;

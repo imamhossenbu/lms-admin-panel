@@ -1,4 +1,4 @@
-/** Certificates (mock-first). API-ready shapes — swap src/lib/certificateStorage.ts for real calls later. */
+/** Certificates — the shapes the Certificates API (`/admin/certificates*`) returns. */
 
 export type CertificateLayout = "CLASSIC" | "MODERN" | "MINIMAL";
 export type CertificateOrientation = "LANDSCAPE" | "PORTRAIT";
@@ -66,6 +66,8 @@ export interface IssuedCertificate {
   code: string;
   templateId: string;
   courseId: string;
+  /** Course title at read time (sent by the API). */
+  courseTitle: string;
   recipient: CertificateRecipient;
   /** Final grade % when the template shows grades (null otherwise). */
   grade: number | null;

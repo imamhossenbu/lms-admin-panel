@@ -1,7 +1,7 @@
 import type { CertificateAccent, CertificateLayout, CertificateTemplate, IssueRules } from "@/types/certificate";
 import type { CertificateRenderData, CertificateRenderTemplate } from "@/components/certificates/shared/certificateRenderTypes";
 import { CERT_PLACEHOLDERS, type TemplateFormValues } from "@/validations/certificateSchema";
-import { COURSE_OPTIONS } from "@/data/mockCourseCatalog";
+import { courseTitleOf as catalogTitleOf } from "@/lib/courseCatalog";
 import { formatCertDate } from "@/lib/certificateStats";
 
 /** Template designer: defaults, mapping, preview data, plain-language rules and the sessionStorage draft. */
@@ -116,7 +116,8 @@ export const SAMPLE_LEARNERS: SampleLearner[] = [
 
 export const SAMPLE_CERTIFICATE_ID = "EDU-HTML-2026-00042";
 
-export const courseTitleOf = (id: string) => COURSE_OPTIONS.find((c) => c.value === id)?.label ?? "Unknown course";
+/** Course title from the cached catalogue (the designer loads it with useCourseCatalog()). */
+export const courseTitleOf = (id: string) => catalogTitleOf(id) || "Unknown course";
 
 /** Renderer template built from the (possibly partial) live form values; local blob previews override hosted signature URLs. */
 export function previewTemplate(v: Partial<TemplateFormValues>, signatureOverrides: Record<string, string> = {}): CertificateRenderTemplate {

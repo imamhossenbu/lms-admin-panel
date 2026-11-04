@@ -6,7 +6,7 @@ import type { IssuedCertificate } from "@/types/certificate";
 import type { RevokeCertificateValues } from "@/validations/certificateSchema";
 import { emailCertificate, restoreCertificate, revokeCertificate } from "@/lib/certificateStorage";
 import { verifyUrl } from "@/lib/certificateStats";
-import { errorText, readableRevokeReason } from "./certificateDetailFormat";
+import { errorText } from "./certificateDetailFormat";
 
 export type CertificateBusy = "download" | "email" | null;
 export type CertificateDialog = "revoke" | "restore" | "reissue" | null;
@@ -63,7 +63,7 @@ export function useCertificateActions(certificate: IssuedCertificate, download: 
   const revoke = async (values: RevokeCertificateValues) => {
     const toastId = toast.loading("Revoking certificate...", { description: `${name} · ${certificate.code}` });
     try {
-      await revokeCertificate(certificate.id, readableRevokeReason(values), values.notifyLearner);
+      await revokeCertificate(certificate.id, values);
       toast.success("Certificate revoked", {
         id: toastId,
         description: values.notifyLearner ? `${name} has been notified by email.` : "The verification page now shows it as revoked.",

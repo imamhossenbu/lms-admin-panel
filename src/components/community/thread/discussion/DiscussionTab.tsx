@@ -80,7 +80,7 @@ export function DiscussionTab({ data, view, tabState, threadActions }: Discussio
         <DiscussionInfoCard view={view} />
         <ParticipantsCard thread={thread} replies={replies} />
         <ModerationCard thread={thread} actions={threadActions} />
-        <SimilarDiscussionsCard thread={thread} all={data.all} />
+        <SimilarDiscussionsCard related={data.related} />
       </aside>
     </div>
   );

@@ -2,7 +2,6 @@ import React from "react";
 import Link from "next/link";
 import { Award, BookOpen, CalendarCheck, CalendarClock, CalendarPlus, Download, FileBadge, Info, Mail, Wand2 } from "lucide-react";
 import type { CertificateTemplate, IssuedCertificate } from "@/types/certificate";
-import { getCourseContext } from "@/data/mockCourseCatalog";
 import { IconSectionCard } from "@/components/ui/IconSectionCard";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 import { exactDate, shortDate, timeAgo } from "./certificateDetailFormat";
@@ -16,7 +15,7 @@ export interface CertificateInfoCardProps {
 
 /** Recipient, course, template, grade, dates, method, downloads and last email. */
 export function CertificateInfoCard({ certificate: c, template }: CertificateInfoCardProps) {
-  const course = getCourseContext(c.courseId).course;
+  const course = { title: c.courseTitle || "Unknown course" };
   return (
     <IconSectionCard icon={<Info className="h-5 w-5" />} title="Certificate Details" tone="blue" bodyClassName="mt-4">
       <CertificateRecipientBlock recipient={c.recipient} />

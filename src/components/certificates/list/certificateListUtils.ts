@@ -1,7 +1,7 @@
 import type { CertificateTemplate, IssueMethod, IssuedCertificate, IssuedStatus } from "@/types/certificate";
 import type { AppSelectOption } from "@/components/ui/AppSelect";
 import { certificateStatus } from "@/lib/certificateStats";
-import { COURSE_OPTIONS, getCourseContext } from "@/data/mockCourseCatalog";
+import { courseTitleOf as catalogTitleOf, type CourseOption } from "@/lib/courseCatalog";
 import { isInDateRange, type DateRange } from "@/components/ui/DateRangeFilter";
 
 /** Pure helpers for the Certificates list (filters, rows, CSV, captions). */
@@ -12,7 +12,8 @@ export const parseTab = (v: string): CertificatesTab => (CERT_TABS.includes(v as
 
 const DAY = 86400000;
 
-export const courseTitleOf = (courseId: string) => getCourseContext(courseId).course.title;
+/** Course title from the cached catalogue (call useCourseCatalog() in the page so it loads). */
+export const courseTitleOf = (courseId: string) => catalogTitleOf(courseId) || "Unknown course";
 
 export const formatShortDate = (iso: string) => new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 
@@ -52,7 +53,7 @@ export function toIssuedRows(certs: IssuedCertificate[], templates: CertificateT
         id: cert.id,
         cert,
         status,
-        courseTitle: courseTitleOf(cert.courseId),
+        courseTitle: cert.courseTitle || courseTitleOf(cert.courseId),
         template,
         templateName: template?.name ?? "Deleted template",
         expiresSoon: status === "VALID" && !!cert.expiresAt && new Date(cert.expiresAt).getTime() - now.getTime() < 30 * DAY,
@@ -100,7 +101,8 @@ export const METHOD_FILTER_OPTIONS: AppSelectOption[] = [
 
 export const METHOD_LABEL: Record<IssueMethod, string> = { AUTO: "Auto", MANUAL: "Manual" };
 
-export const courseFilterOptions = (): AppSelectOption[] => [{ value: "All", label: "All Courses" }, ...COURSE_OPTIONS];
+/** "All Courses" + the workspace courses (pass the loaded catalogue). */
+export const courseFilterOptions = (courses: CourseOption[] | null): AppSelectOption[] => [{ value: "All", label: "All Courses" }, ...(courses ?? [])];
 export const templateFilterOptions = (templates: CertificateTemplate[]): AppSelectOption[] => [
   { value: "All", label: "All Templates" },
   ...templates.map((t) => ({ value: t.id, label: t.name })),
@@ -160,8 +162,3 @@ export const REVOKE_REASON_OPTIONS: AppSelectOption[] = [
   { value: "REFUND", label: "Course refunded" },
   { value: "OTHER", label: "Other" },
 ];
-
-export const revokeReasonText = (reason: string, details: string) => {
-  const label = REVOKE_REASON_OPTIONS.find((o) => o.value === reason)?.label ?? "Other";
-  return details.trim() ? `${label} — ${details.trim()}` : label;
-};

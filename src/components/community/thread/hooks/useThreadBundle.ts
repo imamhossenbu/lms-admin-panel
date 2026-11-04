@@ -1,13 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { COMMUNITY_UPDATED_EVENT, fetchThread, getCommunitySnapshot, recordThreadView, type ThreadBundle } from "@/lib/communityStorage";
-import type { CommunityThread, ThreadReply, ThreadReport } from "@/types/community";
+import { COMMUNITY_UPDATED_EVENT, fetchRelatedThreads, fetchThread, recordThreadView, type RelatedThread, type ThreadBundle } from "@/lib/communityStorage";
 
 export interface ThreadPageData {
   bundle: ThreadBundle;
-  /** Whole community (for "Similar Discussions"). */
-  all: { threads: CommunityThread[]; replies: ThreadReply[]; reports: ThreadReport[] };
+  /** "Similar Discussions" sidebar (same course, shared tags first). */
+  related: RelatedThread[];
 }
 
 export type ThreadState = { kind: "loading" } | { kind: "notFound" } | { kind: "ready"; data: ThreadPageData };
@@ -20,14 +19,14 @@ export function useThreadBundle(threadId: string) {
   useEffect(() => {
     let alive = true;
     const run = () => {
-      fetchThread(threadId)
-        .then((bundle) => {
+      Promise.all([fetchThread(threadId), fetchRelatedThreads(threadId).catch(() => [] as RelatedThread[])])
+        .then(([bundle, related]) => {
           if (!alive) return;
           if (!bundle) {
             setState({ kind: "notFound" });
             return;
           }
-          setState({ kind: "ready", data: { bundle, all: getCommunitySnapshot() } });
+          setState({ kind: "ready", data: { bundle, related } });
           if (!viewed.current) {
             viewed.current = true;
             recordThreadView(threadId);

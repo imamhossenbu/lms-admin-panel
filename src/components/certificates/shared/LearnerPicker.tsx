@@ -18,10 +18,14 @@ export interface LearnerPickerProps {
   blocked?: Map<string, string>;
   error?: string;
   id?: string;
+  /** Search text changed (the caller re-queries the API with it). */
+  onQueryChange?: (query: string) => void;
+  /** Learners are loading (shows skeleton rows). */
+  loading?: boolean;
 }
 
 /** Searchable learner list (name or email) with the current pick shown as a removable chip. */
-export function LearnerPicker({ learners, value, onChange, blocked, error, id }: LearnerPickerProps) {
+export function LearnerPicker({ learners, value, onChange, blocked, error, id, onQueryChange, loading }: LearnerPickerProps) {
   const [query, setQuery] = useState("");
   const selected = learners.find((l) => l.id === value) ?? null;
 
@@ -65,13 +69,29 @@ export function LearnerPicker({ learners, value, onChange, blocked, error, id }:
           id={id}
           type="search"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            onQueryChange?.(e.target.value);
+          }}
           placeholder="Search learners by name or email..."
           className="h-10 w-full bg-white pl-9 pr-3 body-sm-regular text-primary-500 outline-none placeholder:text-primary-300"
         />
       </div>
       <ul className="max-h-48 overflow-y-auto py-1" role="listbox" aria-label="Learners">
-        {results.items.length === 0 && <li className="px-3 py-4 text-center body-sm-regular text-primary-300">No learners match “{query}”.</li>}
+        {loading &&
+          results.items.length === 0 &&
+          [0, 1, 2].map((i) => (
+            <li key={i} className="flex animate-pulse items-center gap-2.5 px-3 py-1.5" aria-hidden>
+              <span className="h-7 w-7 shrink-0 rounded-full bg-slate-100" />
+              <span className="flex-1 space-y-1.5">
+                <span className="block h-3 w-32 rounded bg-slate-200" />
+                <span className="block h-2.5 w-44 rounded bg-slate-100" />
+              </span>
+            </li>
+          ))}
+        {!loading && results.items.length === 0 && (
+          <li className="px-3 py-4 text-center body-sm-regular text-primary-300">{query.trim() ? `No learners match “${query}”.` : "No learners enrolled in this course yet."}</li>
+        )}
         {results.items.map((l) => {
           const reason = blocked?.get(l.id);
           return (

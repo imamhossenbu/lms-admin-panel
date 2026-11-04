@@ -3,7 +3,8 @@
 import React from "react";
 import Link from "next/link";
 import { DataTable, type ColumnDef } from "@/components/ui/Datatable";
-import { timeAgo, type ThreadView } from "@/lib/communityStats";
+import { timeAgo } from "@/lib/communityStats";
+import type { ThreadListItem } from "@/lib/communityStorage";
 import { CATEGORY_VIEW } from "../shared/CategoryBadge";
 import { MemberAvatar } from "../shared/MemberAvatar";
 import { RoleBadge } from "../shared/RoleBadge";
@@ -12,7 +13,7 @@ import { ThreadRowActions, type ThreadRowHandlers } from "./ThreadRowActions";
 import { courseTitleOf } from "./communityListUtils";
 
 export interface CommunityTableProps {
-  views: ThreadView[];
+  views: ThreadListItem[];
   handlers: ThreadRowHandlers;
   selectedIds: string[];
   onSelectRow: (id: string, checked: boolean) => void;
@@ -22,7 +23,7 @@ export interface CommunityTableProps {
   footer?: React.ReactNode;
 }
 
-type Row = ThreadView & { id: string };
+type Row = ThreadListItem & { id: string };
 
 const num = (v: number) => <span className="body-sm-regular text-primary-500 tabular-nums">{v.toLocaleString()}</span>;
 
@@ -34,7 +35,7 @@ export function CommunityTable({ views, handlers, selectedIds, onSelectRow, onSe
       key: "discussion",
       header: "Discussion",
       render: (r) => {
-        const course = courseTitleOf(r.thread.courseId);
+        const course = courseTitleOf(r.thread.courseId, r.courseTitle);
         const sub = `${course} · ${CATEGORY_VIEW[r.thread.category].label}`;
         return (
           <div className="min-w-0">

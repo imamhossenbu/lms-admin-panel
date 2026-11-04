@@ -2,12 +2,12 @@
 
 import React from "react";
 import { Activity, CircleHelp, Flag, MessageSquareText, MessagesSquare } from "lucide-react";
-import type { communityStats } from "@/lib/communityStats";
+import type { CommunityStats } from "@/lib/communityStorage";
 import { CommunityStatCard } from "./CommunityStatCard";
 
-export type CommunityStats = ReturnType<typeof communityStats>;
+export type { CommunityStats };
 
-/** Total / Active This Week / Replies This Week / Unanswered / Needs Moderation — all derived via communityStats. */
+/** Total / Active This Week / Replies This Week / Unanswered / Needs Moderation — computed by the API (GET /admin/community/stats). */
 export function CommunityStatsRow({ stats }: { stats: CommunityStats }) {
   const tiles = [
     { label: "Total Discussions", value: stats.total, icon: <MessagesSquare className="h-5 w-5" />, iconClassName: "bg-blue-14 text-blue", caption: "Across all courses" },

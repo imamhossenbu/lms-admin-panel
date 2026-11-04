@@ -9,7 +9,9 @@ import { toast } from "sonner";
 import { Undo2 } from "lucide-react";
 import type { CertificateTemplate } from "@/types/certificate";
 import { templateFormSchema, type TemplateFormValues } from "@/validations/certificateSchema";
-import { createTemplate, getCertificatesSnapshot, updateTemplate } from "@/lib/certificateStorage";
+import { createTemplate, updateTemplate, useCertificateTemplates } from "@/lib/certificateStorage";
+import { apiErrorMessage } from "@/lib/apiError";
+import { useCourseCatalog } from "@/lib/courseCatalog";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { TemplateDesignerHeader, TEMPLATE_FORM_ID } from "./TemplateDesignerHeader";
 import { TemplateDetailsCard } from "./TemplateDetailsCard";
@@ -39,7 +41,7 @@ export interface TemplateDesignerFormProps {
 }
 
 const LIST_HREF = "/certificates?tab=templates";
-const errorText = (err: unknown) => (err instanceof Error && err.message ? err.message : "Something went wrong. Please try again.");
+const errorText = (err: unknown) => apiErrorMessage(err, "Something went wrong. Please try again.");
 
 /** DOM ids in page order, used to scroll to the first invalid field. */
 const ERROR_TARGETS: { test: (e: FieldErrors<TemplateFormValues>) => unknown; id: (e: FieldErrors<TemplateFormValues>) => string }[] = [
@@ -80,7 +82,10 @@ export function TemplateDesignerForm({ mode, original }: TemplateDesignerFormPro
   const key = draftKey(mode, original?.id);
   const baseline = useMemo(() => (original ? toFormValues(original) : DESIGNER_DEFAULTS), [original]);
   const baselineSnap = useMemo(() => snapshotValues(baseline), [baseline]);
-  const [templates] = useState(() => getCertificatesSnapshot().templates);
+  // Every template (for the "course already used by another active template" warning).
+  const templates = useCertificateTemplates() ?? [];
+  // Course titles for the chips + live preview (re-renders once the catalogue loads).
+  useCourseCatalog();
 
   const form = useForm<TemplateFormValues>({
     resolver: zodResolver(templateFormSchema),
