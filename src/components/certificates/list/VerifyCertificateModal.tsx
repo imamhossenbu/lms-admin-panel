@@ -123,7 +123,7 @@ export function VerifyCertificateModal({ isOpen, onClose, templates }: { isOpen:
                 <Avatar name={cert.recipient.name} size={36} />
                 <div className="min-w-0 flex-1">
                   <p className="truncate body-sm-medium font-semibold! text-primary-500">{cert.recipient.name}</p>
-                  <p className="truncate body-xsm-regular text-primary-300">{courseTitleOf(cert.courseId)}</p>
+                  <p className="truncate body-xsm-regular text-primary-300">{cert.courseTitle || courseTitleOf(cert.courseId)}</p>
                 </div>
               </div>
               <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2">

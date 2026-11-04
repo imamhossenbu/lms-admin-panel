@@ -1,9 +1,10 @@
+import { apiErrorMessage } from "@/lib/apiError";
 import { BadgeCheck, Download, Mail, RotateCcw, ShieldCheck, ShieldOff, Award, type LucideIcon } from "lucide-react";
 import type { CertificateEventKind } from "@/types/certificate";
 import type { RevokeCertificateValues } from "@/validations/certificateSchema";
 
 /** Friendly message for a thrown error (never a raw stack / status code). */
-export const errorText = (e: unknown) => (e instanceof Error && e.message ? e.message : "Something went wrong. Please try again.");
+export const errorText = (e: unknown) => apiErrorMessage(e, "Something went wrong. Please try again.");
 
 /** "Oct 20, 2026, 9:41 AM". */
 export const exactDate = (iso: string) =>
@@ -35,14 +36,6 @@ export const REVOKE_REASONS: { value: RevokeReason; title: string; description: 
   { value: "REFUND", title: "Refund", description: "The learner's enrollment was refunded." },
   { value: "OTHER", title: "Other", description: "Explain the reason in the details below." },
 ];
-
-export const REVOKE_REASON_LABEL: Record<RevokeReason, string> = Object.fromEntries(REVOKE_REASONS.map((r) => [r.value, r.title])) as Record<RevokeReason, string>;
-
-/** Human-readable reason stored on the certificate: "Refund — details". */
-export function readableRevokeReason(v: Pick<RevokeCertificateValues, "reason" | "details">) {
-  const details = v.details.trim();
-  return details ? `${REVOKE_REASON_LABEL[v.reason]} — ${details}` : REVOKE_REASON_LABEL[v.reason];
-}
 
 export const EVENT_META: Record<CertificateEventKind, { icon: LucideIcon; tile: string; label: string }> = {
   ISSUED: { icon: Award, tile: "bg-brand-orange-light text-brand-orange", label: "Issued" },

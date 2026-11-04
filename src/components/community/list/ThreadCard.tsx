@@ -4,7 +4,9 @@ import React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Eye, MessageSquare } from "lucide-react";
-import { timeAgo, type ThreadView } from "@/lib/communityStats";
+import { timeAgo } from "@/lib/communityStats";
+import type { ThreadListItem } from "@/lib/communityStorage";
+import { useCourseContext } from "@/lib/courseCatalog";
 import { cn } from "@/lib/cn";
 import { CategoryBadge } from "../shared/CategoryBadge";
 import { MemberAvatar } from "../shared/MemberAvatar";
@@ -15,7 +17,7 @@ import { ThreadRowActions, type ThreadRowHandlers } from "./ThreadRowActions";
 import { courseTitleOf, moduleLabelOf, plainText } from "./communityListUtils";
 
 export interface ThreadCardProps {
-  view: ThreadView;
+  view: ThreadListItem;
   handlers: ThreadRowHandlers;
 }
 
@@ -26,7 +28,9 @@ export function ThreadCard({ view, handlers }: ThreadCardProps) {
   const t = view.thread;
   const href = `/community/${t.id}`;
   const excerpt = plainText(t.bodyHtml);
-  const course = courseTitleOf(t.courseId);
+  const course = courseTitleOf(t.courseId, view.courseTitle);
+  // Loads (once, cached) the course curriculum so the module label can show.
+  useCourseContext(t.moduleId ? t.courseId : null);
   const moduleLabel = moduleLabelOf(t.courseId, t.moduleId);
   const lastBy = view.lastReplier ?? t.author;
   return (

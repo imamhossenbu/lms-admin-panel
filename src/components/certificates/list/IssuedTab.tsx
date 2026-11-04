@@ -3,7 +3,7 @@
 import React, { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Award } from "lucide-react";
-import type { CertificateSeed } from "@/data/mockCertificateData";
+import type { CertificateData } from "@/lib/certificateStorage";
 import { useUrlParams } from "@/lib/useUrlParams";
 import { TablePagination } from "@/components/ui/TablePagination";
 import { CertificatesEmptyState } from "./CertificatesEmptyState";
@@ -22,7 +22,7 @@ const PAGE_SIZES = [10, 20, 50];
 const FILTER_KEYS = { q: null, course: null, template: null, status: null, method: null, from: null, to: null, page: null } as const;
 
 export interface IssuedTabProps {
-  data: CertificateSeed;
+  data: CertificateData;
   actions: CertificateListActions;
   onIssue: () => void;
 }
@@ -133,8 +133,8 @@ export function IssuedTab({ data, actions, onIssue }: IssuedTabProps) {
         isOpen={revoking.length > 0}
         rows={revoking}
         onClose={() => setRevoking([])}
-        onConfirm={async (reason, notify) => {
-          await actions.revoke(revoking, reason, notify);
+        onConfirm={async (values) => {
+          await actions.revoke(revoking, values);
           setSelectedIds([]);
         }}
       />

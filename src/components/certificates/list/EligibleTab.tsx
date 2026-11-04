@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import { PartyPopper, SearchX } from "lucide-react";
-import type { CertificateSeed } from "@/data/mockCertificateData";
+import type { CertificateData } from "@/lib/certificateStorage";
 import { activeTemplateFor } from "@/lib/certificateStats";
 import { useUrlParams } from "@/lib/useUrlParams";
 import { TablePagination } from "@/components/ui/TablePagination";
@@ -11,6 +11,7 @@ import { EligibleCourseCard } from "./EligibleCourseCard";
 import { EligibleTable, type EligibleRow } from "./EligibleTable";
 import { IssueAllModal } from "./IssueAllModal";
 import { courseTitleOf } from "./certificateListUtils";
+import { useCourseCatalog } from "@/lib/courseCatalog";
 import type { CertificateListActions } from "./useCertificateListActions";
 
 const PAGE_SIZES = [10, 20, 50];
@@ -23,7 +24,7 @@ export interface IssuePrefill {
 }
 
 export interface EligibleTabProps {
-  data: CertificateSeed;
+  data: CertificateData;
   actions: CertificateListActions;
   onIssue: (prefill: IssuePrefill) => void;
 }
@@ -41,12 +42,13 @@ export function EligibleTab({ data, actions, onIssue }: EligibleTabProps) {
     () => [...data.eligible].sort((a, b) => b.completedAt.localeCompare(a.completedAt)).map((e) => ({ ...e, id: `${e.courseId}:${e.recipient.id}` })),
     [data.eligible]
   );
+  const catalog = useCourseCatalog();
   const courses = useMemo(() => {
     const ids = Array.from(new Set(allRows.map((r) => r.courseId)));
     return ids
-      .map((id) => ({ id, title: courseTitleOf(id), count: allRows.filter((r) => r.courseId === id).length, template: activeTemplateFor(data.templates, id) ?? null }))
+      .map((id) => ({ id, title: catalog?.find((c) => c.value === id)?.label ?? courseTitleOf(id), count: allRows.filter((r) => r.courseId === id).length, template: activeTemplateFor(data.templates, id) ?? null }))
       .sort((a, b) => b.count - a.count);
-  }, [allRows, data.templates]);
+  }, [allRows, data.templates, catalog]);
   const blockedCourseIds = useMemo(() => new Set(courses.filter((c) => !c.template).map((c) => c.id)), [courses]);
 
   const filtered = courseFilter === "All" ? allRows : allRows.filter((r) => r.courseId === courseFilter);

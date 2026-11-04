@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Award, LayoutTemplate, UserCheck } from "lucide-react";
 import { useUrlParams } from "@/lib/useUrlParams";
+import { useCourseCatalog } from "@/lib/courseCatalog";
 import { PillTabs } from "@/components/ui/PillTabs";
 import { IssueCertificateModal } from "../shared/IssueCertificateModal";
 import { CertificatesHeader } from "./CertificatesHeader";
@@ -23,6 +24,8 @@ import { useCertificateListActions } from "./useCertificateListActions";
 export function CertificatesListView() {
   const { get, set } = useUrlParams();
   const { data, isLoading, loadError, retry } = useCertificatesData();
+  // Loads the workspace courses (titles for templates / eligible rows) and re-renders once they arrive.
+  useCourseCatalog();
   const actions = useCertificateListActions();
   const [issue, setIssue] = useState<{ open: boolean; prefill?: IssuePrefill }>({ open: false });
   const [verifyOpen, setVerifyOpen] = useState(false);

@@ -1,16 +1,17 @@
 "use client";
 
-import React, { useEffect, useId, useMemo } from "react";
+import React, { useEffect, useId, useMemo, useState } from "react";
 import Link from "next/link";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { AlertTriangle, Award, Eye } from "lucide-react";
-import type { IssuedCertificate } from "@/types/certificate";
+import type { CertificateRecipient, IssuedCertificate } from "@/types/certificate";
 import { issueCertificateSchema, type IssueCertificateValues } from "@/validations/certificateSchema";
-import { CERT_LEARNERS, issueCertificate } from "@/lib/certificateStorage";
+import { fetchCertificateLearners, issueCertificate, useCertificateTemplates, type CertificateLearner } from "@/lib/certificateStorage";
+import { apiErrorMessage } from "@/lib/apiError";
 import { activeTemplateFor, formatCertDate } from "@/lib/certificateStats";
-import { COURSE_OPTIONS, getCourseContext } from "@/data/mockCourseCatalog";
+import { courseTitleOf, useCourseCatalog } from "@/lib/courseCatalog";
 import { toKey } from "@/components/ui/date-range/dateRangeUtils";
 import { ModalShell } from "@/components/ui/ModalShell";
 import { AppSelect } from "@/components/ui/AppSelect";
@@ -21,7 +22,6 @@ import { PrimaryButton } from "@/components/ui/primary-button";
 import { SecondaryButton } from "@/components/ui/secondary-button";
 import { CertificateRender } from "./CertificateRender";
 import { LearnerPicker } from "./LearnerPicker";
-import { useCertificateSnapshot } from "./useCertificateSnapshot";
 
 export interface IssueCertificateModalProps {
   isOpen: boolean;
@@ -49,10 +49,42 @@ const Label = ({ htmlFor, children, required }: { htmlFor?: string; children: Re
 
 const FieldError = ({ message }: { message?: string }) => (message ? <p className="mt-1.5 body-xsm-regular text-red">{message}</p> : null);
 
+/** Learners of `courseId` (or the workspace) from the API, re-queried (300 ms debounce) as the picker's search changes. */
+function useLearnerSearch(enabled: boolean, courseId: string) {
+  const [query, setQuery] = useState("");
+  const [state, setState] = useState<{ key: string; rows: CertificateLearner[] } | null>(null);
+  const [known] = useState(() => new Map<string, CertificateRecipient>());
+  const key = `${courseId}|${query.trim().toLowerCase()}`;
+
+  useEffect(() => {
+    if (!enabled) return;
+    let alive = true;
+    const timer = window.setTimeout(
+      () =>
+        void fetchCertificateLearners(courseId || undefined, query).then(
+          (rows) => {
+            rows.forEach((r) => known.set(r.id, r));
+            if (alive) setState({ key, rows });
+          },
+          () => alive && setState({ key, rows: [] })
+        ),
+      query ? 300 : 0
+    );
+    return () => {
+      alive = false;
+      window.clearTimeout(timer);
+    };
+  }, [enabled, courseId, query, key, known]);
+
+  const fresh = state?.key === key;
+  return { learners: fresh ? state.rows : state?.rows ?? [], loading: !fresh, setQuery, known };
+}
+
 /** Manual issue: course (needs an active template) → learner → grade/date/email/note, with a live certificate preview. */
 export function IssueCertificateModal({ isOpen, onClose, defaultCourseId, defaultRecipientId, defaultGrade = null, defaultCompletedAt, onIssued }: IssueCertificateModalProps) {
   const formId = useId();
-  const snapshot = useCertificateSnapshot(isOpen);
+  const templates = useCertificateTemplates(isOpen);
+  const courses = useCourseCatalog();
   const today = toKey(new Date());
 
   const {
@@ -81,18 +113,13 @@ export function IssueCertificateModal({ isOpen, onClose, defaultCourseId, defaul
   }, [isOpen, defaultCourseId, defaultRecipientId, defaultGrade, defaultCompletedAt, reset]);
 
   const [courseId, recipientId, grade, completedAt] = useWatch({ control, name: ["courseId", "recipientId", "grade", "completedAt"] });
-  const template = snapshot && courseId ? activeTemplateFor(snapshot.templates, courseId) : undefined;
-  const noTemplate = !!courseId && !!snapshot && !template;
-  const learner = CERT_LEARNERS.find((l) => l.id === recipientId);
+  const template = templates && courseId ? activeTemplateFor(templates, courseId) : undefined;
+  const noTemplate = !!courseId && !!templates && !template;
+  const { learners, loading: learnersLoading, setQuery: setLearnerQuery, known } = useLearnerSearch(isOpen, courseId);
+  const learner = known.get(recipientId);
 
   /** Learners who already hold a valid certificate for the chosen course. */
-  const blocked = useMemo(() => {
-    const map = new Map<string, string>();
-    snapshot?.certificates.forEach((c) => {
-      if (c.courseId === courseId && c.status === "VALID") map.set(c.recipient.id, "Has certificate");
-    });
-    return map;
-  }, [snapshot, courseId]);
+  const blocked = useMemo(() => new Map(learners.filter((l) => l.hasCertificate && courseId).map((l) => [l.id, "Has certificate"])), [learners, courseId]);
 
   const close = () => {
     if (!isSubmitting) onClose();
@@ -113,11 +140,11 @@ export function IssueCertificateModal({ isOpen, onClose, defaultCourseId, defaul
       onIssued?.(cert);
       onClose();
     } catch (err) {
-      toast.error("Couldn't issue the certificate", { id: toastId, description: err instanceof Error ? err.message : "Please try again." });
+      toast.error("Couldn't issue the certificate", { id: toastId, description: apiErrorMessage(err, "Please try again.") });
     }
   };
 
-  const courseTitle = courseId ? getCourseContext(courseId).course.title : "Course Title";
+  const courseTitle = (courseId && courseTitleOf(courseId)) || "Course Title";
   const previewDate = /^\d{4}-\d{2}-\d{2}$/.test(completedAt ?? "") ? formatCertDate(`${completedAt}T12:00`) : formatCertDate(new Date().toISOString());
 
   return (
@@ -152,8 +179,8 @@ export function IssueCertificateModal({ isOpen, onClose, defaultCourseId, defaul
                     field.onChange(v);
                     field.onBlur();
                   }}
-                  options={COURSE_OPTIONS}
-                  placeholder="Select a course"
+                  options={courses ?? []}
+                  placeholder={courses ? "Select a course" : "Loading courses..."}
                   className="w-full"
                   triggerClassName={`w-full h-10 bg-white ${errors.courseId ? "border-red" : ""}`}
                 />
@@ -183,7 +210,16 @@ export function IssueCertificateModal({ isOpen, onClose, defaultCourseId, defaul
               control={control}
               name="recipientId"
               render={({ field }) => (
-                <LearnerPicker id={`${formId}-learner`} learners={CERT_LEARNERS} value={field.value} onChange={field.onChange} blocked={blocked} error={errors.recipientId?.message} />
+                <LearnerPicker
+                  id={`${formId}-learner`}
+                  learners={learners}
+                  loading={learnersLoading}
+                  onQueryChange={setLearnerQuery}
+                  value={field.value}
+                  onChange={field.onChange}
+                  blocked={blocked}
+                  error={errors.recipientId?.message}
+                />
               )}
             />
             <FieldError message={errors.recipientId?.message} />

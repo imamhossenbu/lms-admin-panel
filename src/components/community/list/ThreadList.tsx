@@ -2,12 +2,12 @@
 
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import type { ThreadView } from "@/lib/communityStats";
+import type { ThreadListItem } from "@/lib/communityStorage";
 import { ThreadCard } from "./ThreadCard";
 import type { ThreadRowHandlers } from "./ThreadRowActions";
 
 export interface ThreadListProps {
-  views: ThreadView[];
+  views: ThreadListItem[];
   handlers: ThreadRowHandlers;
 }
 

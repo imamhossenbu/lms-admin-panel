@@ -1,14 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import type { CommunitySeed } from "@/data/mockCommunityData";
-import { COMMUNITY_UPDATED_EVENT, fetchCommunity } from "@/lib/communityStorage";
+import { COMMUNITY_UPDATED_EVENT, fetchCommunity, getCommunitySnapshot, type CommunityData } from "@/lib/communityStorage";
+import { apiErrorMessage } from "@/lib/apiError";
 
-const EMPTY: CommunitySeed = { threads: [], replies: [], reports: [] };
-
-/** Loads threads + replies + reports (mock storage) and re-reads them on every COMMUNITY_UPDATED_EVENT. */
+/** Loads every discussion + stats + moderation queue from the API and re-reads them on every COMMUNITY_UPDATED_EVENT. */
 export function useCommunityData() {
-  const [data, setData] = useState<CommunitySeed>(EMPTY);
+  const [data, setData] = useState<CommunityData>(getCommunitySnapshot);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
@@ -28,9 +26,9 @@ export function useCommunityData() {
           setLoadError(null);
           setIsLoading(false);
         },
-        () => {
+        (err) => {
           if (!alive) return;
-          setLoadError("We couldn't read the community discussions. Please try again.");
+          setLoadError(apiErrorMessage(err, "We couldn't load the community discussions. Please try again."));
           setIsLoading(false);
         }
       );

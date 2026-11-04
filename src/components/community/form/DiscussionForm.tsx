@@ -9,7 +9,8 @@ import { toast } from "sonner";
 import { Undo2 } from "lucide-react";
 import type { CommunityThread, ThreadCategory } from "@/types/community";
 import { threadFormSchema, type ThreadFormValues } from "@/validations/communitySchema";
-import { createThread, updateThread } from "@/lib/communityStorage";
+import { createThread, updateThread, useCurrentMember } from "@/lib/communityStorage";
+import { apiErrorMessage } from "@/lib/apiError";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { DiscussionFormHeader, DISCUSSION_FORM_ID } from "./DiscussionFormHeader";
 import { DiscussionTypeCard } from "./DiscussionTypeCard";
@@ -48,7 +49,7 @@ const FIELD_DOM_ID: Partial<Record<keyof ThreadFormValues, string>> = {
   tags: "thread-tags",
 };
 
-const errorText = (err: unknown) => (err instanceof Error && err.message ? err.message : "Something went wrong. Please try again.");
+const errorText = (err: unknown) => apiErrorMessage(err, "Something went wrong. Please try again.");
 const firstMessage = (err: unknown): string => {
   if (!err || typeof err !== "object") return "";
   if ("message" in err && typeof err.message === "string" && err.message) return err.message;
@@ -58,6 +59,7 @@ const firstMessage = (err: unknown): string => {
 
 /** New / Edit Discussion form (single page). Unsaved values persist in sessionStorage until saved or discarded. */
 export function DiscussionForm({ mode, original, initialCourseId }: DiscussionFormProps) {
+  const me = useCurrentMember();
   const router = useRouter();
   const key = threadDraftKey(mode, original?.id);
   const baseline = useMemo<ThreadFormValues>(
@@ -169,7 +171,7 @@ export function DiscussionForm({ mode, original, initialCourseId }: DiscussionFo
           </div>
           <div className="space-y-5 min-w-0">
             <VisibilityModerationCard />
-            <LivePreviewCard authorName={original?.author.name ?? "Admin"} />
+            <LivePreviewCard authorName={original?.author.name ?? me.name} />
             <WritingTipsCard />
           </div>
         </form>

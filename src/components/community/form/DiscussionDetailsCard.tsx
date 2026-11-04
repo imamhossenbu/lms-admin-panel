@@ -10,7 +10,7 @@ import { CharCounter } from "@/components/ui/CharCounter";
 import { TagsInput } from "@/components/ui/TagsInput";
 import { FieldError, FieldLabel } from "@/components/courses/create/basic/FieldLabel";
 import { FormSelectField } from "@/components/live-classes/form/FormSelectField";
-import { COURSE_OPTIONS } from "@/data/mockCourseCatalog";
+import { useCourseCatalog, useCourseContext } from "@/lib/courseCatalog";
 import { THREAD_BODY_MAX, THREAD_TAGS_MAX, THREAD_TITLE_MAX, type ThreadFormValues } from "@/validations/communitySchema";
 import { SimilarDiscussionsHint } from "./SimilarDiscussionsHint";
 import { COURSE_WIDE_VALUE, moduleOptions, plainLength } from "./threadFormUtils";
@@ -32,6 +32,9 @@ export function DiscussionDetailsCard({ excludeThreadId }: DiscussionDetailsCard
   const courseId = useWatch({ control, name: "courseId" }) ?? "";
   const body = useWatch({ control, name: "bodyHtml" }) ?? "";
   const tags = useWatch({ control, name: "tags" }) ?? [];
+  const courses = useCourseCatalog();
+  // Loads the picked course's modules (cached); moduleOptions reads them once loaded.
+  useCourseContext(courseId || null);
   const modules = moduleOptions(courseId);
   const tagsError = Array.isArray(errors.tags) ? errors.tags.find((e) => e?.message)?.message : errors.tags?.message;
 
@@ -65,8 +68,8 @@ export function DiscussionDetailsCard({ excludeThreadId }: DiscussionDetailsCard
                   if (next !== field.value) setValue("moduleId", "", { shouldDirty: true });
                   field.onChange(next);
                 }}
-                options={COURSE_OPTIONS}
-                placeholder="Select a course"
+                options={courses ?? []}
+                placeholder={courses ? "Select a course" : "Loading courses..."}
                 error={fieldState.error?.message}
               />
             )}

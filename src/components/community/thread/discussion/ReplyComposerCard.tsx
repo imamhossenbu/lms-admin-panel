@@ -4,7 +4,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Lock, Unlock } from "lucide-react";
 import type { CommunityThread, ThreadReply } from "@/types/community";
-import { CURRENT_MEMBER } from "@/lib/communityStorage";
+import { useCurrentMember } from "@/lib/communityStorage";
 import { CardActionButton } from "@/components/ui/CardActionButton";
 import { MemberAvatar } from "../../shared/MemberAvatar";
 import { RoleBadge } from "../../shared/RoleBadge";
@@ -22,6 +22,7 @@ export interface ReplyComposerCardProps {
 
 /** Bottom "Reply as Admin" composer, or a locked notice with an Unlock action. */
 export function ReplyComposerCard({ thread, actions, onPosted, onUnlock, unlocking }: ReplyComposerCardProps) {
+  const me = useCurrentMember();
   return (
     <motion.section
       initial={{ opacity: 0, y: 6 }}
@@ -31,10 +32,10 @@ export function ReplyComposerCard({ thread, actions, onPosted, onUnlock, unlocki
       aria-label="Write a reply"
     >
       <header className="flex items-center gap-3">
-        <MemberAvatar member={CURRENT_MEMBER} size={36} />
+        <MemberAvatar member={me} size={36} />
         <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-          <h3 className="body-md-medium font-semibold! text-primary-500">Reply as {CURRENT_MEMBER.name}</h3>
-          <RoleBadge role={CURRENT_MEMBER.role} />
+          <h3 className="body-md-medium font-semibold! text-primary-500">Reply as {me.name}</h3>
+          <RoleBadge role={me.role} />
         </div>
       </header>
 

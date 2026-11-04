@@ -4,7 +4,7 @@ import React, { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence } from "framer-motion";
 import { Trash2 } from "lucide-react";
-import type { CertificateSeed } from "@/data/mockCertificateData";
+import type { CertificateData } from "@/lib/certificateStorage";
 import type { CertificateTemplate, TemplateStatus } from "@/types/certificate";
 import { templateUsage } from "@/lib/certificateStats";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
@@ -16,7 +16,7 @@ import type { CertificateListActions } from "./useCertificateListActions";
 const STATUS_ORDER: Record<TemplateStatus, number> = { ACTIVE: 0, DRAFT: 1, ARCHIVED: 2 };
 
 /** Templates tab: responsive grid of template cards + a dashed "New Template" tile. */
-export function TemplatesTab({ data, actions }: { data: CertificateSeed; actions: CertificateListActions }) {
+export function TemplatesTab({ data, actions }: { data: CertificateData; actions: CertificateListActions }) {
   const router = useRouter();
   const [deleting, setDeleting] = useState<CertificateTemplate | null>(null);
 

@@ -1,8 +1,9 @@
 import type { AppSelectOption } from "@/components/ui/AppSelect";
 import { toCsv } from "@/components/commerce/exportFile";
 import { isInDateRange } from "@/components/ui/date-range/dateRangeUtils";
-import { COURSE_OPTIONS, getCourseContext, isKnownCourse } from "@/data/mockCourseCatalog";
+import { cachedCourseContext, courseTitleOf as catalogTitleOf } from "@/lib/courseCatalog";
 import type { ThreadView } from "@/lib/communityStats";
+import type { ThreadListItem } from "@/lib/communityStorage";
 import type { ReportReason, ThreadCategory } from "@/types/community";
 import type { Tone } from "@/components/ui/ToneBadge";
 import { CATEGORY_VIEW, THREAD_CATEGORIES } from "../shared/CategoryBadge";
@@ -42,7 +43,8 @@ export type CommunityListView = "list" | "table";
 
 // ---------------------------------------------------------------- filter options
 
-export const COURSE_FILTER_OPTIONS: AppSelectOption[] = [{ value: "All", label: "All Courses" }, ...COURSE_OPTIONS];
+/** "All Courses" + the workspace courses (pass the loaded catalogue). */
+export const courseFilterOptions = (courses: AppSelectOption[] | null): AppSelectOption[] => [{ value: "All", label: "All Courses" }, ...(courses ?? [])];
 export const CATEGORY_FILTER_OPTIONS: AppSelectOption[] = [
   { value: "All", label: "All Categories" },
   ...THREAD_CATEGORIES.map((c) => ({ value: c, label: CATEGORY_VIEW[c].label })),
@@ -50,12 +52,13 @@ export const CATEGORY_FILTER_OPTIONS: AppSelectOption[] = [
 
 // ---------------------------------------------------------------- display helpers
 
-export const courseTitleOf = (courseId: string) => COURSE_OPTIONS.find((c) => c.value === courseId)?.label ?? "Unknown course";
+/** The row's course title (sent by the API), else the cached catalogue. */
+export const courseTitleOf = (courseId: string, known = "") => known || catalogTitleOf(courseId) || "Unknown course";
 
 /** "Module 2: Forms" or "" for course-wide threads. */
 export function moduleLabelOf(courseId: string, moduleId: string) {
-  if (!moduleId || !isKnownCourse(courseId)) return "";
-  const m = getCourseContext(courseId).modules.find((x) => x.id === moduleId);
+  if (!moduleId) return "";
+  const m = cachedCourseContext(courseId)?.modules.find((x) => x.id === moduleId);
   return m ? `Module ${m.order}: ${m.title}` : "";
 }
 
@@ -97,7 +100,7 @@ export interface CommunityFilters {
 export const isFilteredBy = (f: CommunityFilters) => !!f.q || f.course !== "All" || f.category !== "All" || !!f.from || !!f.to;
 
 /** Search (title / body / author / tags / course), course, category and last-activity range — tab not applied. */
-export function applyFilters(views: ThreadView[], f: CommunityFilters) {
+export function applyFilters<T extends ThreadListItem>(views: T[], f: CommunityFilters): T[] {
   const q = f.q.toLowerCase().trim().replace(/^#/, "");
   const range = { from: f.from || undefined, to: f.to || undefined };
   return views.filter((v) => {
@@ -106,7 +109,7 @@ export function applyFilters(views: ThreadView[], f: CommunityFilters) {
     if (f.category !== "All" && t.category !== f.category) return false;
     if ((range.from || range.to) && !isInDateRange(v.lastActivityAt, range)) return false;
     if (!q) return true;
-    return [t.title, plainText(t.bodyHtml), t.author.name, courseTitleOf(t.courseId), ...t.tags].some((s) => s.toLowerCase().includes(q));
+    return [t.title, plainText(t.bodyHtml), t.author.name, courseTitleOf(t.courseId, v.courseTitle), ...t.tags].some((s) => s.toLowerCase().includes(q));
   });
 }
 
@@ -128,7 +131,7 @@ const SORTERS: Record<CommunitySort, (a: ThreadView, b: ThreadView) => number> =
 };
 
 /** Tab filter + sort; pinned threads float to the top within the chosen sort. */
-export const tabAndSort = (views: ThreadView[], tab: CommunityTab, sort: CommunitySort) =>
+export const tabAndSort = <T extends ThreadView>(views: T[], tab: CommunityTab, sort: CommunitySort): T[] =>
   views.filter(TAB_MATCH[tab]).sort((a, b) => Number(b.thread.isPinned) - Number(a.thread.isPinned) || SORTERS[sort](a, b));
 
 // ---------------------------------------------------------------- export
@@ -146,13 +149,13 @@ const statusText = (v: ThreadView) =>
 
 const csvDate = (iso: string) => new Date(iso).toLocaleString("en-US", { month: "short", day: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
 
-export function communityCsv(views: ThreadView[]) {
+export function communityCsv(views: ThreadListItem[]) {
   return toCsv(
     ["Title", "Category", "Course", "Module", "Author", "Role", "Tags", "Replies", "Views", "Status", "Open Reports", "Created", "Last Activity"],
     views.map((v) => [
       v.thread.title,
       CATEGORY_VIEW[v.thread.category].label,
-      courseTitleOf(v.thread.courseId),
+      courseTitleOf(v.thread.courseId, v.courseTitle),
       moduleLabelOf(v.thread.courseId, v.thread.moduleId) || "Course-wide",
       v.thread.author.name,
       v.thread.author.role === "STUDENT" ? "Student" : v.thread.author.role === "ADMIN" ? "Admin" : "Instructor",

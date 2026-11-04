@@ -3,11 +3,12 @@
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import type { CommunityThread } from "@/types/community";
-import { deleteThread, updateThread } from "@/lib/communityStorage";
+import { bulkDeleteThreads, bulkSetThreadFlag, deleteThread, updateThread, type ThreadFlag } from "@/lib/communityStorage";
+import { apiErrorMessage } from "@/lib/apiError";
 
-export type ThreadFlag = "isPinned" | "isLocked" | "isHidden";
+export type { ThreadFlag };
 
-const friendly = (error: unknown, fallback: string) => (error instanceof Error && error.message ? error.message : fallback);
+const friendly = (error: unknown, fallback: string) => apiErrorMessage(error, fallback);
 const plural = (n: number) => `${n} discussion${n === 1 ? "" : "s"}`;
 
 /** Toast copy per flag + target value. */
@@ -67,8 +68,7 @@ export function useCommunityListActions() {
     setIsBulkBusy(true);
     const toastId = toast.loading(copy.loading.replace("discussion", "discussions"), { description: plural(targets.length) });
     try {
-      // Sequential: each mock write reads the latest stored data.
-      for (const t of targets) await updateThread(t.id, { [flag]: value });
+      await bulkSetThreadFlag(targets.map((t) => t.id), flag, value);
       toast.success(copy.done.replace("Discussion", "Discussions"), { id: toastId, description: `${plural(targets.length)} updated.` });
     } catch (error) {
       toast.error("Could not update discussions", { id: toastId, description: friendly(error, "Some discussions were not updated. Please try again.") });
@@ -81,7 +81,7 @@ export function useCommunityListActions() {
     setIsBulkBusy(true);
     const toastId = toast.loading("Deleting discussions...", { description: plural(items.length) });
     try {
-      for (const t of items) await deleteThread(t.id);
+      await bulkDeleteThreads(items.map((t) => t.id));
       toast.success("Discussions deleted", { id: toastId, description: `${plural(items.length)} and their replies were removed.` });
     } catch (error) {
       toast.error("Could not delete discussions", { id: toastId, description: friendly(error, "Some discussions were not deleted. Please try again.") });

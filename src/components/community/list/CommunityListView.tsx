@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
 import type { CommunityThread } from "@/types/community";
-import { categoryCounts, communityStats, medianResponseHours, threadViews, topContributors, trendingTags } from "@/lib/communityStats";
 import { useUrlParams } from "@/lib/useUrlParams";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { PillTabs } from "@/components/ui/PillTabs";
@@ -48,7 +47,7 @@ const FILTER_KEYS = { q: null, course: null, category: null, from: null, to: nul
 export function CommunityListView() {
   const router = useRouter();
   const { get, getPage, set } = useUrlParams();
-  const { threads, replies, reports, isLoading, loadError, retry } = useCommunityData();
+  const { views, overview, queue, isLoading, loadError, retry } = useCommunityData();
   const actions = useCommunityListActions();
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -64,17 +63,6 @@ export function CommunityListView() {
   const perPage = PAGE_SIZES.includes(perPageParam) ? perPageParam : PAGE_SIZES[0];
   const page = getPage();
 
-  const views = useMemo(() => threadViews(threads, replies, reports), [threads, replies, reports]);
-  const derived = useMemo(
-    () => ({
-      stats: communityStats(views, replies),
-      median: medianResponseHours(views, replies),
-      contributors: topContributors(replies, 5),
-      tags: trendingTags(views, 10),
-      categories: categoryCounts(views),
-    }),
-    [views, replies]
-  );
 
   const { q, course, category, from, to } = filters;
   const filtered = useMemo(() => applyFilters(views, { q, course, category, from, to }), [views, q, course, category, from, to]);
@@ -89,7 +77,7 @@ export function CommunityListView() {
   const rows = listed.slice((currentPage - 1) * perPage, currentPage * perPage);
   const pageIds = new Set(rows.map((r) => r.thread.id));
   const visibleSelected = view === "table" ? selectedIds.filter((id) => pageIds.has(id)) : [];
-  const selectedThreads = threads.filter((t) => visibleSelected.includes(t.id));
+  const selectedThreads = views.map((v) => v.thread).filter((t) => visibleSelected.includes(t.id));
 
   const updateParams = (updates: Record<string, string | number | null>) => {
     setSelectedIds([]);
@@ -141,8 +129,8 @@ export function CommunityListView() {
   return (
     <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25, ease: "easeOut" }} className="space-y-5 pb-8 text-left">
       <CommunityHeader exportCount={listed.length} onExport={exportCsv} onCreate={goCreate} />
-      <CommunityStatsRow stats={derived.stats} />
-      <CommunityHealthStrip answerRate={derived.stats.answerRate} medianHours={derived.median} openReports={derived.stats.openReports} />
+      <CommunityStatsRow stats={overview.stats} />
+      <CommunityHealthStrip answerRate={overview.stats.answerRate} medianHours={overview.medianResponseHours} openReports={overview.stats.openReports} />
 
       <div className={cn(isTable ? "space-y-5" : "grid grid-cols-1 items-start gap-5 xl:grid-cols-12")}>
         <section className={cn("dashboard-card shadow-2xs min-w-0 space-y-4 p-5", !isTable && "xl:col-span-8")}>
@@ -200,11 +188,10 @@ export function CommunityListView() {
         <div className={cn("min-w-0", !isTable && "xl:col-span-4 xl:self-stretch")}>
           <CommunitySidebar
             layout={isTable ? "grid" : "column"}
-            views={views}
-            reports={reports}
-            contributors={derived.contributors}
-            tags={derived.tags}
-            categoryCounts={derived.categories}
+            queue={queue}
+            contributors={overview.topContributors}
+            tags={overview.trendingTags}
+            categoryCounts={overview.categoryCounts}
             query={q}
             category={category}
             onReview={(id) => router.push(`/community/${id}?tab=reports`)}

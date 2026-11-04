@@ -6,7 +6,8 @@ import { motion } from "framer-motion";
 import { AppSelect } from "@/components/ui/AppSelect";
 import { DateRangeFilter } from "@/components/ui/DateRangeFilter";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
-import { CATEGORY_FILTER_OPTIONS, COURSE_FILTER_OPTIONS, SORT_OPTIONS, type CommunityFilters, type CommunityListView, type CommunitySort } from "./communityListUtils";
+import { useCourseCatalog } from "@/lib/courseCatalog";
+import { CATEGORY_FILTER_OPTIONS, SORT_OPTIONS, courseFilterOptions, type CommunityFilters, type CommunityListView, type CommunitySort } from "./communityListUtils";
 
 export interface CommunityFiltersBarProps {
   filters: CommunityFilters;
@@ -23,6 +24,7 @@ export interface CommunityFiltersBarProps {
  * Laid out with container queries because it lives in the 8/12 main column.
  */
 export function CommunityFiltersBar({ filters, sort, view, isFiltered, onChange, onReset, onViewChange }: CommunityFiltersBarProps) {
+  const courseOptions = courseFilterOptions(useCourseCatalog());
   return (
     <div className="@container">
       <div className="flex flex-col gap-3">
@@ -49,7 +51,7 @@ export function CommunityFiltersBar({ filters, sort, view, isFiltered, onChange,
           />
         </div>
         <div className="grid grid-cols-1 gap-3 @md:grid-cols-2 @4xl:flex @4xl:items-center">
-          <AppSelect value={filters.course} onValueChange={(v) => onChange({ course: v })} options={COURSE_FILTER_OPTIONS} className="w-full @4xl:w-48" triggerClassName="w-full bg-white" />
+          <AppSelect value={filters.course} onValueChange={(v) => onChange({ course: v })} options={courseOptions} className="w-full @4xl:w-48" triggerClassName="w-full bg-white" />
           <AppSelect value={filters.category} onValueChange={(v) => onChange({ category: v })} options={CATEGORY_FILTER_OPTIONS} className="w-full @4xl:w-40" triggerClassName="w-full bg-white" />
           <DateRangeFilter
             value={{ from: filters.from || undefined, to: filters.to || undefined }}
