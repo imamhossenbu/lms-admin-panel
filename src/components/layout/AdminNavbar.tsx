@@ -12,6 +12,7 @@ import {
   Menu,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { ToneBadge } from "@/components/ui/ToneBadge";
 import { logout } from "@/store/slices/authSlice";
 import { toggleSidebar } from "@/store/slices/uiSlice";
 import { useRouter } from "next/navigation";
@@ -23,6 +24,9 @@ export function AdminNavbar() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.auth.user);
+  const access = useAppSelector((state) => state.auth.access);
+  /** Team role from GET /team/me (e.g. "Support"); falls back to the account role while it loads. */
+  const roleLabel = access?.roleName ?? (user?.role === "SUPER_ADMIN" ? "Platform owner" : "Admin");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const fitRef = useRef<HTMLDivElement>(null);
@@ -120,7 +124,7 @@ export function AdminNavbar() {
                 {user?.name || "Admin"}
               </span>
               <span className="body-2xsm-regular text-primary-300">
-                Super Admin
+                {roleLabel}
               </span>
             </div>
             <ChevronDown className="w-3.5 h-3.5 text-primary-300 ml-0.5" />
@@ -135,10 +139,9 @@ export function AdminNavbar() {
                 <p className="body-2xsm-regular text-primary-300 truncate">
                   {user?.email || "admin@edupro.com"}
                 </p>
-                <div className="mt-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-green-bg text-green body-2xsm-regular">
-                  <Shield className="w-3 h-3 text-green" />
-                  <span>Super Admin Verified</span>
-                </div>
+                <ToneBadge tone="green" size="sm" className="mt-2" icon={<Shield className="w-3 h-3" />}>
+                  {access?.isOwner ? `${roleLabel} · Owner` : roleLabel}
+                </ToneBadge>
               </div>
 
               <div className="py-1">

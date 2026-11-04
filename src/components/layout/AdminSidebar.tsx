@@ -1,5 +1,7 @@
 "use client";
 
+import { canWith } from "@/lib/usePermission";
+import type { TeamModule } from "@/types/team";
 import React, { useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -40,6 +42,8 @@ interface NavCategory {
   items: {
     href: string;
     label: string;
+    /** Team permission module needed to see this item (View). */
+    module?: TeamModule;
     icon: React.ComponentType<{ className?: string }>;
     /** Plan feature the page needs — shows a lock/plan badge when missing (the page itself shows the upsell). */
     feature?: FeatureKey;
@@ -50,53 +54,54 @@ const SIDEBAR_SECTIONS: NavCategory[] = [
   {
     category: "Overview",
     items: [
-      { href: "/", label: "Dashboard", icon: LayoutDashboard },
-      { href: "/analytics", label: "Analytics", icon: BarChart3 },
+      { href: "/", module: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+      { href: "/analytics", module: "analytics", label: "Analytics", icon: BarChart3 },
     ],
   },
   {
     category: "Learning",
     items: [
-      { href: "/courses", label: "Courses", icon: BookOpen },
-      { href: "/categories", label: "Categories", icon: FolderTree },
+      { href: "/courses", module: "courses", label: "Courses", icon: BookOpen },
+      { href: "/categories", module: "categories", label: "Categories", icon: FolderTree },
     ],
   },
   {
     category: "People",
     items: [
-      { href: "/students", label: "Students", icon: Users },
-      { href: "/instructors", label: "Instructors", icon: UserCheck },
+      { href: "/students", module: "students", label: "Students", icon: Users },
+      { href: "/instructors", module: "instructors", label: "Instructors", icon: UserCheck },
     ],
   },
   {
     category: "Commerce",
     items: [
-      { href: "/orders", label: "Orders", icon: ShoppingBag },
-      { href: "/payments", label: "Payments", icon: CreditCard },
+      { href: "/orders", module: "orders", label: "Orders", icon: ShoppingBag },
+      { href: "/payments", module: "payments", label: "Payments", icon: CreditCard },
     ],
   },
   {
     category: "Engagement",
     items: [
-      { href: "/live-classes", label: "Live Classes", icon: Video, feature: "liveClasses" },
-      { href: "/assignments", label: "Assignments", icon: FileSpreadsheet },
-      { href: "/quizzes", label: "Quizzes", icon: CheckSquare },
-      { href: "/community", label: "Community", icon: MessageSquare, feature: "community" },
+      { href: "/live-classes", module: "liveClasses", label: "Live Classes", icon: Video, feature: "liveClasses" },
+      { href: "/assignments", module: "assignments", label: "Assignments", icon: FileSpreadsheet },
+      { href: "/quizzes", module: "quizzes", label: "Quizzes", icon: CheckSquare },
+      { href: "/community", module: "community", label: "Community", icon: MessageSquare, feature: "community" },
     ],
   },
   {
     category: "System",
     items: [
-      { href: "/certificates", label: "Certificates", icon: Award, feature: "certificates" },
-      { href: "/notifications", label: "Notifications", icon: Bell },
-      { href: "/users", label: "Team & Roles", icon: UserCog },
+      { href: "/certificates", module: "certificates", label: "Certificates", icon: Award, feature: "certificates" },
+      { href: "/notifications", module: "notifications", label: "Notifications", icon: Bell },
+      { href: "/users", module: "team", label: "Team & Roles", icon: UserCog },
       { href: "/billing", label: "Billing & Plan", icon: Receipt },
-      { href: "/settings", label: "Settings", icon: Settings },
+      { href: "/settings", module: "settings", label: "Settings", icon: Settings },
     ],
   },
 ];
 
 export function AdminSidebar() {
+  const access = useAppSelector((state) => state.auth.access);
   const pathname = usePathname();
   const dispatch = useAppDispatch();
   const collapsed = useAppSelector((state) => state.ui.sidebarCollapsed);
@@ -168,7 +173,9 @@ export function AdminSidebar() {
 
         {/* Scrollable Navigation Categories */}
         <nav className="flex-1 overflow-y-auto px-2.5 py-3 space-y-3.5 text-left custom-scrollbar">
-          {SIDEBAR_SECTIONS.map((section) => (
+          {SIDEBAR_SECTIONS.map((section) => ({ ...section, items: section.items.filter((item) => !item.module || canWith(access, item.module)) }))
+            .filter((section) => section.items.length > 0)
+            .map((section) => (
             <div key={section.category} className="space-y-1">
               {!collapsed && (
                 <div className="px-3 pt-1 pb-0.5 body-xs-medium font-bold! text-primary-400 tracking-wider uppercase select-none">

@@ -4,7 +4,8 @@ import React, { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setCredentials, logout, setInitialized } from "@/store/slices/authSlice";
-import { authApi } from "@/lib/api";
+import { loadSession } from "@/lib/session";
+import { TWO_FACTOR_REQUIRED_EVENT } from "@/lib/api";
 
 const PUBLIC_AUTH_ROUTES = [
   "/login",
@@ -12,6 +13,7 @@ const PUBLIC_AUTH_ROUTES = [
   "/reset-password",
   "/verify-email",
   "/signup",
+  "/accept-invite",
 ];
 
 export function isPublicAuthRoute(pathname: string | null): boolean {
@@ -54,17 +56,8 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
           })
         );
 
-        // Silent background session check with backend
-        authApi
-          .getProfile()
-          .then((freshProfile) => {
-            dispatch(
-              setCredentials({
-                user: freshProfile,
-                token: storedToken,
-              })
-            );
-          })
+        // Silent background session check: fresh profile + team role / permissions (GET /team/me)
+        loadSession(dispatch, storedToken)
           .catch((err) => {
             if (err.response?.status === 401) {
               dispatch(logout());
@@ -85,6 +78,15 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
       setIsClientReady(true);
     }
   }, [dispatch, pathname, router, isAuthRoute]);
+
+  // Required 2FA not set up yet → the API answers 403 on admin endpoints; open the setup screen.
+  useEffect(() => {
+    const toSetup = () => {
+      if (!window.location.pathname.startsWith("/settings")) router.push("/settings?section=security");
+    };
+    window.addEventListener(TWO_FACTOR_REQUIRED_EVENT, toSetup);
+    return () => window.removeEventListener(TWO_FACTOR_REQUIRED_EVENT, toSetup);
+  }, [router]);
 
   // If on public auth route, render immediately without guard check
   if (isAuthRoute) {

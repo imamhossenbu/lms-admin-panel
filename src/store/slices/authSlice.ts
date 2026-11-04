@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import type { MyTeamAccess } from "@/lib/api/team";
 
 export interface AdminUser {
   id: string;
@@ -16,6 +17,10 @@ export interface AuthState {
   token: string | null;
   isAuthenticated: boolean;
   isInitialized: boolean;
+  /** Team role + effective permissions from GET /team/me (null = not loaded / not a team member). */
+  access: MyTeamAccess | null;
+  /** True once /team/me has answered (successfully or not). */
+  accessLoaded: boolean;
 }
 
 const initialState: AuthState = {
@@ -23,6 +28,8 @@ const initialState: AuthState = {
   token: null,
   isAuthenticated: false,
   isInitialized: false,
+  access: null,
+  accessLoaded: false,
 };
 
 export const authSlice = createSlice({
@@ -67,12 +74,18 @@ export const authSlice = createSlice({
         }
       }
     },
+    setAccess: (state, action: PayloadAction<MyTeamAccess | null>) => {
+      state.access = action.payload;
+      state.accessLoaded = true;
+    },
     setInitialized: (state, action: PayloadAction<boolean>) => {
       state.isInitialized = action.payload;
     },
     logout: (state) => {
       state.user = null;
       state.token = null;
+      state.access = null;
+      state.accessLoaded = false;
       state.isAuthenticated = false;
       state.isInitialized = true;
       if (typeof window !== "undefined") {
@@ -83,6 +96,6 @@ export const authSlice = createSlice({
   },
 });
 
-export const { setCredentials, setUser, setToken, setInitialized, logout } =
+export const { setCredentials, setUser, setToken, setAccess, setInitialized, logout } =
   authSlice.actions;
 export default authSlice.reducer;

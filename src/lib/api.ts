@@ -4,6 +4,9 @@ import axios from "axios";
 const RAW_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const API_BASE_URL = RAW_URL.replace(/\/api\/?$/, "");
 
+/** Fired when the API answers 403 TWO_FACTOR_SETUP_REQUIRED (handled by AuthGuard). */
+export const TWO_FACTOR_REQUIRED_EVENT = "edupro:two-factor-setup-required";
+
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -34,6 +37,10 @@ apiClient.interceptors.response.use(
       localStorage.removeItem("admin_token");
       localStorage.removeItem("admin_user");
     }
+    // Workspace requires admin 2FA and this account hasn't set it up: AuthGuard sends the user to setup.
+    if (typeof window !== "undefined" && error.response?.status === 403 && error.response?.data?.code === "TWO_FACTOR_SETUP_REQUIRED") {
+      window.dispatchEvent(new Event(TWO_FACTOR_REQUIRED_EVENT));
+    }
     return Promise.reject(error);
   }
 );
@@ -43,9 +50,10 @@ export interface LoginPayload {
   password: string;
 }
 
-export interface LoginResponse {
-  token: string;
-}
+/** Password step: either a session token, or a 2FA challenge to finish with POST /auth/2fa/login. */
+export type LoginResponse =
+  | { token: string; twoFactorSetupRequired?: boolean; twoFactorRequired?: undefined }
+  | { twoFactorRequired: true; challengeToken: string; token?: undefined };
 
 export interface AdminProfileResponse {
   id: string;
@@ -64,22 +72,13 @@ export const authApi = {
     const res = await apiClient.post<LoginResponse>("/auth/login", payload);
     return res.data;
   },
+  /** Second sign-in step for accounts with 2FA. */
+  twoFactorLogin: async (challengeToken: string, code: string): Promise<{ token: string; twoFactorSetupRequired?: boolean }> => {
+    const res = await apiClient.post("/auth/2fa/login", { challengeToken, code });
+    return res.data;
+  },
   getProfile: async (): Promise<AdminProfileResponse> => {
     const res = await apiClient.get<AdminProfileResponse>("/user/me");
-    return res.data;
-  },
-};
-
-export const analyticsApi = {
-  getAdminOverview: async () => {
-    const res = await apiClient.get("/analytics/admin");
-    return res.data;
-  },
-};
-
-export const ordersApi = {
-  getAll: async () => {
-    const res = await apiClient.get("/orders/all");
     return res.data;
   },
 };

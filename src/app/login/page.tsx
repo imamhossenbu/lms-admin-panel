@@ -6,7 +6,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, LoginFormData } from "@/validations/authSchema";
 import { authApi } from "@/lib/api";
 import { useAppDispatch } from "@/store/hooks";
-import { setCredentials } from "@/store/slices/authSlice";
+import { loadSession } from "@/lib/session";
+import { apiErrorMessage } from "@/lib/apiError";
+import { logout } from "@/store/slices/authSlice";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -28,6 +30,7 @@ import { AuthRightPanel } from "@/components/auth/AuthRightPanel";
 import { AuthFeature } from "@/components/auth/AuthFeatureList";
 import { AuthAlertBanner } from "@/components/auth/AuthAlertBanner";
 import { AuthSubmitButton } from "@/components/auth/AuthSubmitButton";
+import { TwoFactorStep } from "@/components/auth/login/TwoFactorStep";
 
 const LOGIN_FEATURES: AuthFeature[] = [
   {
@@ -59,6 +62,8 @@ export default function LoginPage() {
   const [capsLockActive, setCapsLockActive] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  /** Set while the account needs its 6-digit authenticator code (second sign-in step). */
+  const [challenge, setChallenge] = useState<{ token: string; email: string } | null>(null);
 
   const {
     register,
@@ -74,6 +79,15 @@ export default function LoginPage() {
     },
   });
 
+  // Coming from an accepted invitation (/login?email=…): prefill the address.
+  React.useEffect(() => {
+    const email = new URLSearchParams(window.location.search).get("email");
+    if (email) {
+      setValue("email", email, { shouldValidate: false });
+      setValue("password", "", { shouldValidate: false });
+    }
+  }, [setValue]);
+
   const handleFillDemo = () => {
     setValue("email", "imam.adsfixter@gmail.com", { shouldValidate: true });
     setValue("password", "admin123", { shouldValidate: true });
@@ -86,68 +100,62 @@ export default function LoginPage() {
     }
   };
 
+  /** Stores the session, loads profile + team access, then routes to the dashboard (or to 2FA setup). */
+  const finishSignIn = async (token: string, twoFactorSetupRequired: boolean | undefined, toastId: string | number) => {
+    localStorage.setItem("admin_token", token);
+    const profile = await loadSession(dispatch, token);
+    const roleUpper = (profile.role || "").toUpperCase();
+    if (roleUpper !== "ADMIN" && roleUpper !== "SUPER_ADMIN") {
+      dispatch(logout());
+      throw new Error("This portal is only for administrators. Students and instructors sign in from the learning app.");
+    }
+    if (twoFactorSetupRequired) {
+      toast.warning("Set up two-factor authentication", {
+        id: toastId,
+        description: "Your workspace requires 2FA for admins. Connect an authenticator app to continue.",
+      });
+      router.push("/settings?section=security");
+      return;
+    }
+    toast.success(`Welcome back, ${profile.name || "Administrator"}!`, { id: toastId, description: "Redirecting to your EduPro dashboard..." });
+    router.push("/");
+  };
+
   const onSubmit = async (data: LoginFormData) => {
     setServerError(null);
     setIsSubmitting(true);
-
-    const toastId = toast.loading("Signing in to EduPro...", {
-      description: "Verifying your administrator credentials",
-    });
-
+    const toastId = toast.loading("Signing in to EduPro...", { description: "Verifying your administrator credentials" });
     try {
-      const loginRes = await authApi.login({
-        email: data.email.trim(),
-        password: data.password,
-      });
-
-      if (!loginRes.token) {
-        throw new Error("No authorization token received from gateway.");
+      const res = await authApi.login({ email: data.email.trim(), password: data.password });
+      if (res.twoFactorRequired) {
+        setChallenge({ token: res.challengeToken, email: data.email.trim() });
+        toast.info("Enter your authentication code", { id: toastId, description: "Open your authenticator app to finish signing in." });
+        return;
       }
-
-      localStorage.setItem("admin_token", loginRes.token);
-
-      const profile = await authApi.getProfile();
-
-      const roleUpper = (profile.role || "").toUpperCase();
-      const isAdmin = roleUpper === "ADMIN" || roleUpper === "SUPER_ADMIN";
-
-      if (!isAdmin) {
-        localStorage.removeItem("admin_token");
-        throw new Error(
-          `Unauthorized role: [${profile.role}]. This portal is restricted to system administrators.`
-        );
-      }
-
-      dispatch(
-        setCredentials({
-          token: loginRes.token,
-          user: profile,
-        })
-      );
-
-      toast.success(`Welcome back, ${profile.name || "Administrator"}!`, {
-        id: toastId,
-        description: "Redirecting to your EduPro dashboard...",
-      });
-
-      router.push("/");
-    } catch (err: any) {
-      console.error("Login attempt failed:", err);
-      let message = "Authentication failed. Please verify your credentials.";
-
-      if (err.response?.data?.message) {
-        const backendMsg = err.response.data.message;
-        message = Array.isArray(backendMsg) ? backendMsg.join(", ") : backendMsg;
-      } else if (err.message) {
-        message = err.message;
-      }
-
+      await finishSignIn(res.token, res.twoFactorSetupRequired, toastId);
+    } catch (err) {
+      const message = apiErrorMessage(err, "Authentication failed. Please verify your credentials.");
       setServerError(message);
+      toast.error("Authentication Error", { id: toastId, description: message });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
-      toast.error("Authentication Error", {
-        id: toastId,
-        description: message,
-      });
+  const onSubmitCode = async (code: string) => {
+    if (!challenge) return;
+    setServerError(null);
+    setIsSubmitting(true);
+    const toastId = toast.loading("Verifying your code...", { description: "Checking it with your authenticator" });
+    try {
+      const res = await authApi.twoFactorLogin(challenge.token, code);
+      await finishSignIn(res.token, res.twoFactorSetupRequired, toastId);
+    } catch (err) {
+      const message = apiErrorMessage(err, "That code didn't work. Try the newest code from your app.");
+      // An expired 5-minute session means starting over with the password.
+      if (/expired|session/i.test(message)) setChallenge(null);
+      setServerError(message);
+      toast.error("Verification failed", { id: toastId, description: message });
     } finally {
       setIsSubmitting(false);
     }
@@ -188,9 +196,23 @@ export default function LoginPage() {
 
       {/* Right White Form Panel */}
       <AuthRightPanel
-        title="Welcome back 👋"
-        subtitle="Sign in to continue to your LMS dashboard."
+        title={challenge ? "Verify it's you 🔐" : "Welcome back 👋"}
+        subtitle={challenge ? "One more step to keep your account safe." : "Sign in to continue to your LMS dashboard."}
       >
+        {challenge ? (
+          <TwoFactorStep
+            email={challenge.email}
+            isSubmitting={isSubmitting}
+            serverError={serverError}
+            onClearError={() => setServerError(null)}
+            onSubmit={onSubmitCode}
+            onBack={() => {
+              setChallenge(null);
+              setServerError(null);
+            }}
+          />
+        ) : (
+        <>
         {/* Server Error Alert Banner */}
         <AuthAlertBanner
           message={serverError}
@@ -325,6 +347,8 @@ export default function LoginPage() {
             </Link>
           </p>
         </form>
+        </>
+        )}
       </AuthRightPanel>
     </AuthCardContainer>
   );

@@ -9,6 +9,7 @@ import { SettingsSectionLayout } from "@/components/settings/shared/SettingsSect
 import { SettingsSaveBar } from "@/components/settings/shared/SettingsSaveBar";
 import { RecentChangesCard } from "@/components/settings/shared/RecentChangesCard";
 import { AdminSignInCard } from "./AdminSignInCard";
+import { MyTwoFactorCard } from "./two-factor/MyTwoFactorCard";
 import { PasswordPolicyCard } from "./PasswordPolicyCard";
 import { SessionsCard } from "./SessionsCard";
 import { LoginProtectionCard } from "./LoginProtectionCard";
@@ -54,6 +55,7 @@ export function SecuritySection() {
             </>
           }
         >
+          <MyTwoFactorCard />
           <AdminSignInCard />
           <PasswordPolicyCard />
           <SessionsCard />
