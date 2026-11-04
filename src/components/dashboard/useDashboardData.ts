@@ -1,45 +1,25 @@
 "use client";
 
 import { useMemo } from "react";
-import {
-  comparisonLabel,
-  completionBreakdown,
-  courseSummary,
-  enrollmentsByCourse,
-  formatCurrency,
-  formatNumber,
-  instructorSummary,
-  recentEnrollments,
-  recentOrders,
-  revenueSeries,
-  revenueSummary,
-  studentGrowthSeries,
-  studentSummary,
-  topCourses,
-  type AnalyticsSources,
-  type ResolvedRange,
-} from "@/lib/analytics";
+import { comparisonLabel, formatCurrency, formatNumber, type DashboardReport, type ResolvedRange } from "@/lib/analytics";
 import type { DashboardStat } from "./StatCard";
 
-/** Every Dashboard widget's data, derived from the analytics core for one range. */
-export function useDashboardData(sources: AnalyticsSources | null, range: ResolvedRange | null) {
+/** Every Dashboard widget's data from GET /admin/analytics/dashboard for one period. */
+export function useDashboardData(report: DashboardReport | null, range: ResolvedRange | null) {
   return useMemo(() => {
-    if (!sources || !range) return null;
+    if (!report || !range) return null;
     const caption = comparisonLabel(range);
-    const students = studentSummary(sources, range);
-    const instructors = instructorSummary(sources, range);
-    const courses = courseSummary(sources, range);
-    const revenue = revenueSummary(sources, range);
+    const { kpis } = report;
 
     const stats: DashboardStat[] = [
-      { id: "total-students", label: "Total Students", value: formatNumber(students.total.value), kpi: students.total, caption, icon: "users", colorScheme: "orange" },
-      { id: "active-instructors", label: "Active Instructors", value: formatNumber(instructors.active.value), kpi: instructors.active, caption, icon: "user", colorScheme: "blue" },
-      { id: "published-courses", label: "Published Courses", value: formatNumber(courses.published.value), kpi: courses.published, caption, icon: "book-open", colorScheme: "green" },
+      { id: "total-students", label: "Total Students", value: formatNumber(kpis.totalStudents.value), kpi: kpis.totalStudents, caption, icon: "users", colorScheme: "orange" },
+      { id: "active-instructors", label: "Active Instructors", value: formatNumber(kpis.activeInstructors.value), kpi: kpis.activeInstructors, caption, icon: "user", colorScheme: "blue" },
+      { id: "published-courses", label: "Published Courses", value: formatNumber(kpis.publishedCourses.value), kpi: kpis.publishedCourses, caption, icon: "book-open", colorScheme: "green" },
       {
         id: "total-revenue",
         label: "Total Revenue",
-        value: formatCurrency(revenue.net.value, sources.currency, { decimals: 0 }),
-        kpi: revenue.net,
+        value: formatCurrency(kpis.totalRevenue.value, report.currency, { decimals: 0 }),
+        kpi: kpis.totalRevenue,
         caption,
         icon: "wallet",
         colorScheme: "purple",
@@ -47,17 +27,17 @@ export function useDashboardData(sources: AnalyticsSources | null, range: Resolv
     ];
 
     return {
-      currency: sources.currency,
+      currency: report.currency,
       stats,
-      revenue: revenueSeries(sources, range),
-      growth: studentGrowthSeries(sources, range),
-      enrollmentsByCourse: enrollmentsByCourse(sources, range).slice(0, 5),
-      completion: completionBreakdown(sources, range),
-      recentOrders: recentOrders(sources, range, 5),
-      recentEnrollments: recentEnrollments(sources, range, 5),
-      topCourses: topCourses(sources, range, "revenue", 5),
+      revenue: report.revenue,
+      growth: report.growth,
+      enrollmentsByCourse: report.enrollmentsByCourse,
+      completion: report.completion,
+      recentOrders: report.recentOrders,
+      recentEnrollments: report.recentEnrollments,
+      topCourses: report.topCourses,
     };
-  }, [sources, range]);
+  }, [report, range]);
 }
 
 export type DashboardData = NonNullable<ReturnType<typeof useDashboardData>>;

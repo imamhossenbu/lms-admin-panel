@@ -1,27 +1,27 @@
 "use client";
 
-import React, { Suspense, useEffect, useMemo, useState } from "react";
+import React, { Suspense, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "sonner";
 import {
   comparisonLabel,
   rangeLabel,
-  resolveAnalyticsRange,
   useAnalyticsRange,
-  useAnalyticsSources,
+  useAnalyticsReport,
   type Granularity,
   type PickerRange,
   type StudentRankBy,
 } from "@/lib/analytics";
+import { useFeatureAccess } from "@/lib/planAccess";
+import { DashboardError } from "@/components/dashboard/DashboardError";
 import { useUrlParams } from "@/lib/useUrlParams";
 import { formatDateRange } from "@/components/ui/date-range/dateRangeUtils";
 import { PillTabs } from "@/components/ui/PillTabs";
-import { PlanGate } from "@/components/plan-gate/PlanGate";
 import { UpgradeLockCard } from "@/components/plan-gate/UpgradeLockCard";
 import { AnalyticsHeader } from "@/components/analytics/AnalyticsHeader";
 import { AnalyticsSkeleton } from "@/components/analytics/AnalyticsSkeleton";
 import { ANALYTICS_TAB_ITEMS, parseAnalyticsTab } from "@/components/analytics/report/analyticsTabs";
-import { buildAnalyticsReport, resolveReportOptions, type AnalyticsTab, type InstructorRankBy } from "@/components/analytics/report/analyticsReport";
+import type { AnalyticsReport, AnalyticsTab, InstructorRankBy } from "@/components/analytics/report/analyticsReport";
 import { buildReportCsv, downloadCsv, reportFileName } from "@/components/analytics/report/analyticsExport";
 import { OverviewTab } from "@/components/analytics/overview/OverviewTab";
 import { RevenueTab } from "@/components/analytics/revenue/RevenueTab";
@@ -29,46 +29,32 @@ import { StudentsTab } from "@/components/analytics/students/StudentsTab";
 import { CoursesTab } from "@/components/analytics/courses/CoursesTab";
 import { EngagementTab } from "@/components/analytics/engagement/EngagementTab";
 
-/** Brief skeleton shown when the reporting period changes. */
-const RANGE_SWITCH_MS = 350;
-
 function AnalyticsContent() {
   const { get, set } = useUrlParams();
-  const { keys, setKeys, rangeKey } = useAnalyticsRange();
-  const sources = useAnalyticsSources();
+  const { keys, setKeys } = useAnalyticsRange();
   const tab = parseAnalyticsTab(get("tab"));
 
-  const range = useMemo(() => (sources ? resolveAnalyticsRange(sources, keys) : null), [sources, keys]);
-  const granularityParam = get("granularity");
-  const instructorParam = get("instructorRank");
-  const studentParam = get("studentRank");
-  const options = useMemo(
-    () => (range ? resolveReportOptions(range, { granularity: granularityParam, instructorRank: instructorParam, studentRank: studentParam }) : null),
-    [range, granularityParam, instructorParam, studentParam]
+  // Overview is on every plan; the other tabs need "Advanced analytics" (the API answers 403 otherwise).
+  const access = useFeatureAccess("advancedAnalytics");
+  const gated = tab !== "overview";
+  const enabled = !gated || (access.ready && access.allowed);
+
+  const params = useMemo(
+    () => ({
+      from: keys.from,
+      to: keys.to,
+      ...(tab === "revenue" ? { granularity: get("granularity") || undefined } : {}),
+      ...(tab === "students" ? { studentRank: get("studentRank") || undefined } : {}),
+      ...(tab === "courses" ? { instructorRank: get("instructorRank") || undefined } : {}),
+    }),
+    [keys.from, keys.to, tab, get]
   );
-  const report = useMemo(
-    () => (sources && range && options ? buildAnalyticsReport(tab, sources, range, options) : null),
-    [tab, sources, range, options]
-  );
+  const { report: data, range, error } = useAnalyticsReport(tab, params, enabled);
+  const report = useMemo(() => (data ? ({ tab, data } as AnalyticsReport) : null), [tab, data]);
 
-  // Skeleton flash whenever the range changes (navbar or in-page picker).
-  const [shownKey, setShownKey] = useState(rangeKey);
-  const [switching, setSwitching] = useState(false);
-  if (shownKey !== rangeKey) {
-    setShownKey(rangeKey);
-    setSwitching(true);
-  }
-  useEffect(() => {
-    if (!switching) return;
-    const timer = setTimeout(() => setSwitching(false), RANGE_SWITCH_MS);
-    return () => clearTimeout(timer);
-  }, [switching, rangeKey]);
-
-  if (!sources || !range || !report) return <AnalyticsSkeleton tab={tab} />;
-
-  const label = rangeLabel(range, sources.now);
-  const caption = comparisonLabel(range);
-  const currency = sources.currency;
+  const label = range ? rangeLabel(range) : "";
+  const caption = range ? comparisonLabel(range) : "";
+  const currency = data?.currency ?? "BDT";
 
   const handleRangeChange = (next: PickerRange) => {
     setKeys(next);
@@ -78,6 +64,7 @@ function AnalyticsContent() {
   const handleTabChange = (next: AnalyticsTab) => set({ tab: next === "overview" ? null : next });
 
   const handleExport = () => {
+    if (!report || !range) return;
     const tabLabel = ANALYTICS_TAB_ITEMS.find((t) => t.id === tab)?.label ?? "Report";
     const toastId = toast.loading("Preparing export…", { description: `${tabLabel} report · ${label}` });
     try {
@@ -100,7 +87,11 @@ function AnalyticsContent() {
 
       <PillTabs tabs={ANALYTICS_TAB_ITEMS} activeId={tab} onChange={handleTabChange} ariaLabel="Analytics reports" idPrefix="analytics" />
 
-      {switching ? (
+      {gated && access.ready && !access.allowed ? (
+        <UpgradeLockCard feature="advancedAnalytics" />
+      ) : error ? (
+        <DashboardError title="Couldn't load this report" message={error.message} />
+      ) : !report || !range ? (
         <AnalyticsSkeleton tab={tab} withHeader={false} />
       ) : (
         <AnimatePresence mode="wait">
@@ -115,35 +106,26 @@ function AnalyticsContent() {
             transition={{ duration: 0.2, ease: "easeOut" }}
           >
             {report.tab === "overview" && <OverviewTab data={report.data} currency={currency} caption={caption} />}
-            {report.tab !== "overview" && (
-              <PlanGate feature="advancedAnalytics" loading={<AnalyticsSkeleton tab={tab} withHeader={false} />} fallback={<UpgradeLockCard feature="advancedAnalytics" />}>
-                {report.tab === "revenue" && (
-                  <RevenueTab
-                    data={report.data}
-                    currency={currency}
-                    caption={caption}
-                    onGranularityChange={(g: Granularity) => set({ granularity: g })}
-                  />
-                )}
-                {report.tab === "students" && (
-                  <StudentsTab
-                    data={report.data}
-                    currency={currency}
-                    caption={caption}
-                    onStudentRankChange={(by: StudentRankBy) => set({ studentRank: by === "completion" ? null : by })}
-                  />
-                )}
-                {report.tab === "courses" && (
-                  <CoursesTab
-                    data={report.data}
-                    currency={currency}
-                    caption={caption}
-                    onInstructorRankChange={(by: InstructorRankBy) => set({ instructorRank: by === "revenue" ? null : by })}
-                  />
-                )}
-                {report.tab === "engagement" && <EngagementTab data={report.data} />}
-              </PlanGate>
+            {report.tab === "revenue" && (
+              <RevenueTab data={report.data} currency={currency} caption={caption} onGranularityChange={(g: Granularity) => set({ granularity: g })} />
             )}
+            {report.tab === "students" && (
+              <StudentsTab
+                data={report.data}
+                currency={currency}
+                caption={caption}
+                onStudentRankChange={(by: StudentRankBy) => set({ studentRank: by === "completion" ? null : by })}
+              />
+            )}
+            {report.tab === "courses" && (
+              <CoursesTab
+                data={report.data}
+                currency={currency}
+                caption={caption}
+                onInstructorRankChange={(by: InstructorRankBy) => set({ instructorRank: by === "revenue" ? null : by })}
+              />
+            )}
+            {report.tab === "engagement" && <EngagementTab data={report.data} />}
           </motion.div>
         </AnimatePresence>
       )}

@@ -1,16 +1,10 @@
 "use client";
 
-import React, { Suspense, useEffect, useMemo, useState } from "react";
+import React, { Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import {
-  rangeLabel,
-  resolveAnalyticsRange,
-  useAnalyticsRange,
-  useAnalyticsSources,
-  type PickerRange,
-} from "@/lib/analytics";
+import { rangeLabel, useAnalyticsRange, useAnalyticsReport, type PickerRange } from "@/lib/analytics";
 import { useUrlParams } from "@/lib/useUrlParams";
 import { formatDateRange } from "@/components/ui/date-range/dateRangeUtils";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
@@ -24,35 +18,19 @@ import { RecentEnrollmentsTable } from "@/components/dashboard/RecentEnrollments
 import { TopCoursesCard } from "@/components/dashboard/TopCoursesCard";
 import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton";
 import { useDashboardData } from "@/components/dashboard/useDashboardData";
-
-/** Brief skeleton shown when the reporting period changes. */
-const RANGE_SWITCH_MS = 350;
+import { DashboardError } from "@/components/dashboard/DashboardError";
 
 function DashboardOverviewContent() {
   const router = useRouter();
   const { get, set } = useUrlParams();
-  const { keys, setKeys, rangeKey } = useAnalyticsRange();
-  const sources = useAnalyticsSources();
+  const { keys, setKeys } = useAnalyticsRange();
+  const { report, range, error } = useAnalyticsReport("dashboard", { from: keys.from, to: keys.to });
 
   const metricParam = get("metric") as RevenueMetric;
   const metric: RevenueMetric = REVENUE_METRICS.includes(metricParam) ? metricParam : "Revenue";
 
-  const range = useMemo(() => (sources ? resolveAnalyticsRange(sources, keys) : null), [sources, keys]);
-  const data = useDashboardData(sources, range);
-  const label = range ? rangeLabel(range, sources?.now) : "";
-
-  // Skeleton flash whenever the range changes (navbar or in-page picker).
-  const [shownKey, setShownKey] = useState(rangeKey);
-  const [switching, setSwitching] = useState(false);
-  if (shownKey !== rangeKey) {
-    setShownKey(rangeKey);
-    setSwitching(true);
-  }
-  useEffect(() => {
-    if (!switching) return;
-    const timer = setTimeout(() => setSwitching(false), RANGE_SWITCH_MS);
-    return () => clearTimeout(timer);
-  }, [switching, rangeKey]);
+  const data = useDashboardData(report, range);
+  const label = range ? rangeLabel(range) : "";
 
   const handleRangeChange = (next: PickerRange) => {
     setKeys(next);
@@ -61,9 +39,8 @@ function DashboardOverviewContent() {
     });
   };
 
-  if (!data || !range || switching) {
-    return <DashboardSkeleton />;
-  }
+  if (error) return <DashboardError message={error.message} />;
+  if (!data || !range) return <DashboardSkeleton />;
 
   return (
     <motion.div

@@ -1,8 +1,8 @@
 /**
  * Analytics core: formatters (English, en-US).
  *
- *   formatCurrency(1234.5, "USD")           → "$1,234.50"   (`{ decimals: 0 }` → "$1,235")
- *   formatCompactCurrency(24580, "USD")     → "$24.6K"      (axis ticks)
+ *   formatCurrency(1234.5)                  → "৳1,234.50"   (`{ decimals: 0 }` → "৳1,235")
+ *   formatCompactCurrency(24580)            → "৳24.6K"      (axis ticks)
  *   formatNumber(2580)                      → "2,580"
  *   formatCompact(15300)                    → "15.3K"
  *   formatPercent(42.37)                    → "42.4%"       (`decimals` default 1, trailing ".0" dropped)
@@ -12,36 +12,23 @@
  *   comparisonLabel(resolvedRange)          → "vs previous 30 days" | "all time"
  *   formatShortDate(iso)                    → "Oct 20, 2026"
  *
- * Currency defaults to the Settings → General currency (`sources.currency`); orders are stored in USD,
- * so values are formatted, never converted.
+ * Currency is the report's `currency` (the workspace currency, BDT by default); values are formatted, never converted.
  */
 
 import { DEFAULT_PRESETS, formatDateRange, sameRange, type DateRange as PickerDateRange } from "@/components/ui/date-range/dateRangeUtils";
 import type { ResolvedRange } from "./analyticsTypes";
+import { currencySymbol, formatMoney, WORKSPACE_CURRENCY } from "@/lib/money";
 
 const trimZero = (s: string) => s.replace(/\.0+(?=\D*$)/, "");
 
-export function formatCurrency(value: number, currency = "USD", opts: { decimals?: number } = {}): string {
+export function formatCurrency(value: number, currency: string = WORKSPACE_CURRENCY, opts: { decimals?: number } = {}): string {
   const decimals = opts.decimals ?? 2;
-  try {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency,
-      minimumFractionDigits: decimals,
-      maximumFractionDigits: decimals,
-    }).format(Number.isFinite(value) ? value : 0);
-  } catch {
-    return `$${(Number.isFinite(value) ? value : 0).toFixed(decimals)}`;
-  }
+  return formatMoney(value, { currency, fixed: decimals > 0, maxDecimals: decimals });
 }
 
-export function formatCompactCurrency(value: number, currency = "USD"): string {
+export function formatCompactCurrency(value: number, currency: string = WORKSPACE_CURRENCY): string {
   if (Math.abs(value) < 1000) return formatCurrency(value, currency, { decimals: 0 });
-  try {
-    return new Intl.NumberFormat("en-US", { style: "currency", currency, notation: "compact", maximumFractionDigits: 1 }).format(value);
-  } catch {
-    return `$${formatCompact(value)}`;
-  }
+  return `${currencySymbol(currency)}${formatCompact(value)}`;
 }
 
 export const formatNumber = (value: number) => (Number.isFinite(value) ? Math.round(value).toLocaleString("en-US") : "0");

@@ -55,7 +55,7 @@ const daysBetween = (from: Date, to: Date) => Math.max(1, Math.round((startOfDay
 
 /**
  * Picker keys → absolute window. Missing `from` = earliest data day, missing `to` = today.
- * `earliest` should be the first data point (see `dataStart(sources)` in analyticsMetrics).
+ * `earliest` should be the first data point.
  */
 export function resolveRange(keys: PickerRange, opts: { now: Date; earliest?: Date }): ResolvedRange {
   const fromKey = isDateKey(keys.from) ? keys.from : undefined;
@@ -133,7 +133,7 @@ export function bucketIndex(value: string | Date | number, buckets: TimeBucket[]
   const t = typeof value === "number" ? value : typeof value === "string" ? Date.parse(value) : value.getTime();
   if (Number.isNaN(t)) return -1;
   for (let i = 0; i < buckets.length; i++) {
-    if (t >= buckets[i].start.getTime() && t < buckets[i].end.getTime()) return i;
+    if (t >= new Date(buckets[i].start).getTime() && t < new Date(buckets[i].end).getTime()) return i;
   }
   return -1;
 }

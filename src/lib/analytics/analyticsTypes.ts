@@ -1,31 +1,24 @@
 /**
- * Analytics core: shared types.
- *
- * Every number on the Dashboard (and the upcoming /analytics reports page) is derived by the pure
- * functions in `analyticsMetrics.ts` from an `AnalyticsSources` snapshot (`analyticsSources.ts`),
- * filtered by a resolved `DateRange`. Nothing here is hard-coded.
- *
- * - `DateRange`      Absolute, inclusive window (`from` = 00:00 of the first day, `to` = 23:59:59.999 of the last).
- * - `Granularity`    Bucket size of a time series. `autoGranularity(range)` picks one for you.
- * - `Kpi`            A value for the range + the same metric for the equally long window right before it.
- *                    `changePct` is null when the previous value is 0 (no meaningful % change).
- * - `TimeBucket`     One x-axis slot of a series (`label` is ready for chart ticks).
- * - `BreakdownRow`   Generic "label / value / share" row for donut legends, bar lists and tables.
+ * Analytics types — the response shapes of GET /admin/analytics/* (copied from lms-ai-backend
+ * src/analytics/analytics.types.ts) plus the panel's own reporting-period types.
+ * Money is a number in `currency` (BDT by default); dates are ISO strings. Formatting stays client-side.
  */
 
 import type { OrderStatus } from "@/types/order";
+
+// ---------------------------------------------------------------- reporting period (panel)
 
 export interface DateRange {
   from: Date;
   to: Date;
 }
 
-/** A DateRange plus how it was chosen (from the shared picker). */
+/** A DateRange plus how it was chosen (from the shared picker). Built from the API's `RangeMeta`. */
 export interface ResolvedRange extends DateRange {
   /** Picker keys ("YYYY-MM-DD") that produced this range; empty = All time. */
   fromKey?: string;
   toKey?: string;
-  /** True when the picker is on "All time" (from = first data day, no previous-period comparison). */
+  /** True when the picker is on "All time" (no previous-period comparison). */
   isAllTime: boolean;
   /** Whole days in the window. */
   days: number;
@@ -33,48 +26,60 @@ export interface ResolvedRange extends DateRange {
 
 export type Granularity = "day" | "week" | "month";
 
+/** One x-axis slot of a series (`label` is ready for chart ticks). `start` / `end` (exclusive) are ISO strings from the API or Dates when built client-side. */
+export interface TimeBucket {
+  key: string;
+  label: string;
+  fullLabel: string;
+  start: string | Date;
+  end: string | Date;
+}
+
+// ---------------------------------------------------------------- API shapes
+export interface RangeMeta {
+  from: string;
+  to: string;
+  /** Picker keys that produced the range; null = open end (both null = All time). */
+  fromKey: string | null;
+  toKey: string | null;
+  isAllTime: boolean;
+  days: number;
+  /** Bucket size of this response's time series. */
+  granularity: Granularity;
+}
+
 export interface Kpi {
   value: number;
-  /** Same metric for the window of equal length immediately before the range. */
+  /** Same metric for the equally long window right before the range (0 for All time). */
   previous: number;
-  /** (value − previous) / previous × 100, rounded to 1 dp; null when previous is 0 or the range is All time. */
+  /** null when previous is 0 or the range is All time. */
   changePct: number | null;
-  /** Ten evenly spaced points across the range (per-segment totals, or end-of-segment levels for stock metrics). */
+  /** Ten evenly spaced points (segment totals, or end-of-segment levels for stock metrics). */
   spark: number[];
 }
 
-export interface TimeBucket {
-  /** Stable key, e.g. "2026-10-05". */
+export interface BucketPoint {
   key: string;
-  /** Tick label, e.g. "Oct 05" (day/week) or "Oct 2026" (month). */
   label: string;
-  /** Tooltip label, e.g. "Oct 05, 2026" or "Oct 05 – Oct 11, 2026". */
   fullLabel: string;
-  start: Date;
-  /** Exclusive end. */
-  end: Date;
+  start: string;
+  end: string;
 }
 
-export interface RevenuePoint extends TimeBucket {
-  /** Paid + later-refunded order amounts by payment date. */
+export interface RevenuePoint extends BucketPoint {
   gross: number;
-  /** Amounts of orders that are still Paid (gross − refunds); matches Orders/Payments "Total Revenue". */
   net: number;
   refunds: number;
-  /** Orders placed (any status) by created date. */
   orders: number;
-  /** Orders paid (still Paid) by payment date. */
   paidOrders: number;
 }
 
-export interface CountPoint extends TimeBucket {
+export interface CountPoint extends BucketPoint {
   value: number;
 }
 
-export interface StudentGrowthPoint extends TimeBucket {
-  /** Students whose join date falls in the bucket. */
+export interface StudentGrowthPoint extends BucketPoint {
   newStudents: number;
-  /** Distinct learners with any activity (purchase, quiz, assignment, live class, community) in the bucket. */
   activeStudents: number;
 }
 
@@ -82,10 +87,12 @@ export interface BreakdownRow {
   key: string;
   label: string;
   value: number;
-  /** Supporting count (e.g. orders behind a revenue value). */
   count: number;
-  /** value / Σ value × 100 (0–100, 1 dp). */
   share: number;
+}
+
+export interface RevenueCourseRow extends BreakdownRow {
+  changePct: number | null;
 }
 
 export interface CourseRow {
@@ -95,18 +102,13 @@ export interface CourseRow {
   category: string;
   thumbnailUrl: string;
   price: number;
-  /** New enrollments (paid orders containing the course) in the range. */
   enrollments: number;
-  /** Net revenue attributed to the course in the range (bundles split by list price). */
   revenue: number;
-  /** Avg progress of students' matching enrollment records; null when no record exists. */
   completionPct: number | null;
-  /** Rating from the instructor's course record with the same title; null when unknown. */
   rating: number | null;
 }
 
 export interface InstructorRow {
-  /** Instructor store id, or the name when the instructor isn't in the store. */
   id: string;
   name: string;
   avatarUrl?: string;
@@ -125,22 +127,19 @@ export interface RecentOrderRow {
   course: string;
   amount: number;
   status: OrderStatus;
-  /** ISO created date. */
   date: string;
 }
 
 export interface RecentEnrollmentRow {
-  /** `${orderId}:${courseId}` */
   id: string;
-  orderId: string;
+  /** Latest Paid order for the same student + course; null for admin-assigned enrollments. */
+  orderId: string | null;
   studentId: string;
   studentName: string;
   avatarUrl?: string;
   courseId: string;
   course: string;
-  /** 0–100: the student's record for this course, else the student's overall completion rate. */
   progress: number;
-  /** ISO enrollment (payment) date. */
   enrolledAt: string;
 }
 
@@ -148,13 +147,205 @@ export interface CompletionSegment {
   key: "completed" | "inProgress" | "stalled";
   label: string;
   count: number;
-  /** Share of all course enrollments (0–100, integer). */
   pct: number;
 }
 
 export interface CompletionBreakdown {
-  /** completed / enrolled course seats × 100 (integer). */
   completionRate: number;
   enrolled: number;
   segments: CompletionSegment[];
+}
+
+export interface QuizPerformanceRow {
+  quizId: string;
+  title: string;
+  courseId: string;
+  attempts: number;
+  finished: number;
+  avgScore: number;
+  passRate: number;
+}
+
+export interface QuizActivityPoint extends BucketPoint {
+  attempts: number;
+  passed: number;
+  failed: number;
+  unfinished: number;
+}
+
+export interface AssignmentPerformanceRow {
+  assignmentId: string;
+  title: string;
+  courseId: string;
+  submissions: number;
+  late: number;
+  onTimeRate: number;
+  graded: number;
+  avgScore: number | null;
+}
+
+export interface SubmissionPoint extends BucketPoint {
+  total: number;
+  onTime: number;
+  late: number;
+}
+
+export interface LiveAttendancePoint extends BucketPoint {
+  sessions: number;
+  seats: number;
+  attended: number;
+  absent: number;
+  attendanceRate: number;
+}
+
+export interface CommunityActivityPoint extends BucketPoint {
+  threads: number;
+  replies: number;
+  reports: number;
+}
+
+export interface RetentionPoint extends BucketPoint {
+  active: number;
+  returning: number;
+  newActive: number;
+  retentionRate: number;
+}
+
+export type StudentRankBy = "completion" | "score" | "spent";
+export type InstructorRankBy = "revenue" | "enrollments";
+
+export interface StudentPerformanceRow {
+  studentId: string;
+  name: string;
+  email: string;
+  avatarUrl?: string;
+  status: string;
+  enrolled: number;
+  completed: number;
+  avgScore: number;
+  completionRate: number;
+  spent: number;
+  lastActiveAt: string | null;
+}
+
+interface ReportBase {
+  range: RangeMeta;
+  currency: string;
+}
+
+export interface RevenueSummary {
+  gross: Kpi;
+  net: Kpi;
+  refunds: Kpi;
+  paidOrders: Kpi;
+  avgOrderValue: Kpi;
+}
+
+export interface OrderSummary {
+  placed: Kpi;
+  conversion: Kpi;
+  byStatus: Record<OrderStatus, number>;
+}
+
+export interface StudentSummary {
+  total: Kpi;
+  newStudents: Kpi;
+  activeLearners: Kpi;
+  active: number;
+  inactive: number;
+  avgCompletion: number;
+}
+
+export interface LearningSummary {
+  quizAttempts: Kpi;
+  avgQuizScore: Kpi;
+  quizPassRate: Kpi;
+  submissions: Kpi;
+  onTimeRate: Kpi;
+  liveSessions: Kpi;
+  attendanceRate: Kpi;
+  certificatesIssued: Kpi;
+}
+
+export interface CommunitySummary {
+  threads: Kpi;
+  replies: Kpi;
+  reports: Kpi;
+  openReports: number;
+}
+
+/** GET /admin/analytics/dashboard — Dashboard home (app/page.tsx via useDashboardData). */
+export interface DashboardReport extends ReportBase {
+  kpis: { totalStudents: Kpi; activeInstructors: Kpi; publishedCourses: Kpi; totalRevenue: Kpi };
+  revenue: RevenuePoint[];
+  growth: StudentGrowthPoint[];
+  enrollmentsByCourse: BreakdownRow[];
+  completion: CompletionBreakdown;
+  recentOrders: RecentOrderRow[];
+  recentEnrollments: RecentEnrollmentRow[];
+  topCourses: CourseRow[];
+}
+
+export type OverviewKpiKey = "netRevenue" | "orders" | "conversion" | "newEnrollments" | "activeLearners" | "avgCompletion" | "certificates" | "quizPassRate";
+
+/** GET /admin/analytics/overview — OverviewTab (KpiGrid, SeriesComboChart, HighlightsCard). */
+export interface OverviewReport extends ReportBase {
+  kpis: Record<OverviewKpiKey, Kpi>;
+  combo: (RevenuePoint & { enrollments: number })[];
+  highlights: {
+    bestCourse: CourseRow | null;
+    bestDay: RevenuePoint | null;
+    biggestChange: { key: OverviewKpiKey; label: string; kpi: Kpi } | null;
+    topMethod: BreakdownRow | null;
+    topCategory: BreakdownRow | null;
+  };
+}
+
+/** GET /admin/analytics/revenue — RevenueTab. */
+export interface RevenueReport extends ReportBase {
+  summary: RevenueSummary;
+  series: RevenuePoint[];
+  granularity: Granularity;
+  granularityOptions: Granularity[];
+  byMethod: BreakdownRow[];
+  byCategory: BreakdownRow[];
+  byCourse: RevenueCourseRow[];
+  orders: OrderSummary;
+}
+
+/** GET /admin/analytics/students — StudentsTab. */
+export interface StudentsReport extends ReportBase {
+  summary: StudentSummary;
+  avgCompletion: Kpi;
+  growth: StudentGrowthPoint[];
+  retention: RetentionPoint[];
+  completion: CompletionBreakdown;
+  byCategory: BreakdownRow[];
+  topStudents: StudentPerformanceRow[];
+  studentRank: StudentRankBy;
+}
+
+/** GET /admin/analytics/courses — CoursesTab. */
+export interface CoursesReport extends ReportBase {
+  courses: { published: Kpi; total: number };
+  enrollments: Kpi;
+  revenue: Kpi;
+  instructors: { active: Kpi; total: number; inactive: number };
+  topCourses: CourseRow[];
+  byCourse: BreakdownRow[];
+  leaderboard: InstructorRow[];
+  instructorRank: InstructorRankBy;
+}
+
+/** GET /admin/analytics/engagement — EngagementTab. */
+export interface EngagementReport extends ReportBase {
+  learning: LearningSummary;
+  community: CommunitySummary;
+  quizSeries: QuizActivityPoint[];
+  quizzes: QuizPerformanceRow[];
+  submissionSeries: SubmissionPoint[];
+  assignments: AssignmentPerformanceRow[];
+  liveSeries: LiveAttendancePoint[];
+  certificateSeries: CountPoint[];
+  communitySeries: CommunityActivityPoint[];
 }
