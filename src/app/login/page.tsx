@@ -73,8 +73,8 @@ export default function LoginPage() {
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "imam.adsfixter@gmail.com",
-      password: "admin123",
+      email: "",
+      password: "",
       rememberMe: true,
     },
   });
@@ -84,15 +84,8 @@ export default function LoginPage() {
     const email = new URLSearchParams(window.location.search).get("email");
     if (email) {
       setValue("email", email, { shouldValidate: false });
-      setValue("password", "", { shouldValidate: false });
     }
   }, [setValue]);
-
-  const handleFillDemo = () => {
-    setValue("email", "imam.adsfixter@gmail.com", { shouldValidate: true });
-    setValue("password", "admin123", { shouldValidate: true });
-    setServerError(null);
-  };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.getModifierState) {
