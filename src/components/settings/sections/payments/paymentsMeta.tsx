@@ -119,9 +119,10 @@ export function invoiceSample(prefix: string) {
   return `${clean}-${new Date().getFullYear()}-00042`;
 }
 
-/** Mock gateway handshake (no real request in the mock-data phase). */
-export async function testGatewayConnection(publicKey: string): Promise<{ latencyMs: number }> {
-  await new Promise((r) => setTimeout(r, 700 + Math.random() * 400));
-  if (!publicKey.trim()) throw new Error("Add the public key first, then test again.");
-  return { latencyMs: 140 + Math.round(Math.random() * 220) };
+/** Toast text for a failed setup check, e.g. "Save the public key and secret key first." */
+export function missingGatewayText(missing: string[], secretLabel: string) {
+  const parts = [missing.includes("publicKey") && "public key", missing.includes("secretKey") && secretLabel.toLowerCase()].filter(Boolean) as string[];
+  if (parts.length) return `Save the ${parts.join(" and ")} first, then test again.`;
+  if (missing.includes("enabled")) return "Turn the gateway on and save, then test again.";
+  return "Check the keys and try again.";
 }

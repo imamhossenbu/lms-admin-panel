@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm, type FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -12,7 +12,9 @@ import {
   type LessonEditorValues,
 } from "@/validations/lessonEditorSchema";
 import type { LessonEditorContext } from "@/types/lessonEditor";
-import { getLessonEditorContext, getLessonEditorValues, saveLessonEditorValues } from "@/lib/lessonEditorStorage";
+import { fetchLessonEditor, saveLessonEditorValues } from "@/lib/lessonEditorStorage";
+import { apiErrorMessage } from "@/lib/apiError";
+import { useAppSelector } from "@/store/hooks";
 import { LESSON_EDITOR_TAB_LABEL } from "../lessonEditorTabsConfig";
 
 /** Tabs whose section currently has validation errors, in tab-bar order. */
@@ -29,35 +31,54 @@ interface UseLessonEditorFormOptions {
 }
 
 /**
- * The single react-hook-form instance of the Edit Lesson page: loads reference data + saved
- * values (client-only, from localStorage), validates the WHOLE schema on save and resets the
- * form to the saved values so it becomes clean.
+ * The single react-hook-form instance of the Edit Lesson page: loads the course curriculum + the lesson from
+ * the API (plus this browser's draft of the fields the API doesn't store yet), validates the WHOLE schema on
+ * save and resets the form to the saved values so it becomes clean.
  */
 export function useLessonEditorForm({ courseId, lessonId, onInvalidTab }: UseLessonEditorFormOptions) {
   const form = useForm<LessonEditorValues>({ resolver: zodResolver(lessonEditorSchema), mode: "onTouched" });
   const { reset } = form;
   const [context, setContext] = useState<LessonEditorContext | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState(0);
+  const userName = useAppSelector((state) => state.auth.user?.name);
 
   useEffect(() => {
-    // localStorage is only available in the browser, so load after mount.
-    const timer = window.setTimeout(() => {
-      setContext(getLessonEditorContext(courseId));
-      reset(getLessonEditorValues(courseId, lessonId));
-      setIsLoading(false);
-    }, 250);
-    return () => window.clearTimeout(timer);
-  }, [courseId, lessonId, reset]);
+    let alive = true;
+    fetchLessonEditor(courseId, lessonId).then(
+      ({ context: ctx, values }) => {
+        if (!alive) return;
+        setContext(ctx);
+        reset(values);
+        setLoadError(null);
+        setIsLoading(false);
+      },
+      (error) => {
+        if (!alive) return;
+        setLoadError(apiErrorMessage(error, "We couldn't load this lesson. Please try again."));
+        setIsLoading(false);
+      }
+    );
+    return () => {
+      alive = false;
+    };
+  }, [courseId, lessonId, reset, attempt]);
+
+  const retry = useCallback(() => {
+    setIsLoading(true);
+    setLoadError(null);
+    setAttempt((n) => n + 1);
+  }, []);
 
   const save = useCallback(async (values: LessonEditorValues) => {
     const toastId = toast.loading("Updating lesson...", { description: "Saving all lesson settings." });
     try {
-      await saveLessonEditorValues(courseId, lessonId, values);
-      reset(values);
+      const record = await saveLessonEditorValues(courseId, lessonId, values);
+      reset(record.values);
       toast.success("Lesson updated", { id: toastId, description: `"${values.content.title}" has been saved.` });
     } catch (error) {
-      const message = error instanceof Error && error.message ? error.message : "Something went wrong. Please try again.";
-      toast.error("Couldn't update lesson", { id: toastId, description: message });
+      toast.error("Couldn't update lesson", { id: toastId, description: apiErrorMessage(error, "Something went wrong. Please try again.") });
     }
   }, [courseId, lessonId, reset]);
 
@@ -76,5 +97,8 @@ export function useLessonEditorForm({ courseId, lessonId, onInvalidTab }: UseLes
 
   const submit = form.handleSubmit(save, onInvalid);
 
-  return { form, context, isLoading, submit };
+  // Notes are signed with the signed-in admin's name.
+  const liveContext = useMemo(() => (context && userName ? { ...context, currentUser: userName } : context), [context, userName]);
+
+  return { form, context: liveContext, isLoading, loadError, retry, submit };
 }

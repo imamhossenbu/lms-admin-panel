@@ -1,48 +1,30 @@
 export type CategoryStatus = "Active" | "Inactive";
 
-export interface SubCategoryItem {
-  id: string;
-  name: string;
-  slug: string;
-  description?: string;
-  courseCount: number;
-  status: CategoryStatus;
-  createdDate: string;
-  parentId: string;
-}
-
+/** One course category of the workspace (the API's Category with course counts). */
 export interface CategoryItem {
   id: string;
-  orderNumber: number;
   name: string;
   slug: string;
   description: string;
-  parentId?: string | null;
+  /** Icon id from CATEGORY_ICONS ("code", "design"…), or a legacy emoji / image URL. */
+  iconId: string;
+  status: CategoryStatus;
   totalCourses: number;
   publishedCourses: number;
-  status: CategoryStatus;
-  createdDate: string;
-  iconId: string;
-  colorScheme:
-    | "purple"
-    | "red"
-    | "orange"
-    | "green"
-    | "amber"
-    | "blue"
-    | "indigo"
-    | "emerald"
-    | "pink"
-    | "cyan";
-  subCategories?: SubCategoryItem[];
 }
 
 export interface CategoryIconOption {
   id: string;
   label: string;
-  colorBg: string;
-  colorText: string;
-  colorBorder: string;
 }
 
 export type CategoryDrawerMode = "create" | "edit" | "details";
+
+/** What the drawer form submits. */
+export interface CategoryFormValues {
+  name: string;
+  slug: string;
+  description: string;
+  status: CategoryStatus;
+  iconId: string;
+}

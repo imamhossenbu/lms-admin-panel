@@ -8,6 +8,7 @@ import { CourseSummaryBanner } from "./CourseSummaryBanner";
 import { LessonEditorTabs } from "./LessonEditorTabs";
 import { LessonEditorPanels } from "./LessonEditorPanels";
 import { LessonEditorSkeleton } from "./LessonEditorSkeleton";
+import { LoadErrorCard } from "@/components/ui/LoadErrorCard";
 import { LessonPreviewModal } from "./LessonPreviewModal";
 import { useLessonEditorTab } from "./hooks/useLessonEditorTab";
 import { tabsWithErrors, useLessonEditorForm } from "./hooks/useLessonEditorForm";
@@ -21,7 +22,7 @@ export interface LessonEditorViewProps {
 /** Full-page Edit Lesson screen: header, course card, URL-synced tab bar and all tab bodies on one form. */
 export function LessonEditorView({ courseId, lessonId }: LessonEditorViewProps) {
   const { activeTab, setActiveTab } = useLessonEditorTab();
-  const { form, context, isLoading, submit } = useLessonEditorForm({ courseId, lessonId, onInvalidTab: setActiveTab });
+  const { form, context, isLoading, loadError, retry, submit } = useLessonEditorForm({ courseId, lessonId, onInvalidTab: setActiveTab });
   const { isUploading, reporters } = useUploadTracker();
   const { isDirty, isSubmitting, errors } = form.formState;
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -34,6 +35,7 @@ export function LessonEditorView({ courseId, lessonId }: LessonEditorViewProps) 
     return () => window.removeEventListener("beforeunload", onBeforeUnload);
   }, [isDirty]);
 
+  if (loadError) return <LoadErrorCard title="Couldn't load this lesson" message={loadError} onRetry={retry} />;
   if (isLoading || !context) return <LessonEditorSkeleton />;
 
   return (

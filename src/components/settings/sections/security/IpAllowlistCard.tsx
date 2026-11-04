@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 import { AnimatePresence, motion } from "framer-motion";
 import { Network, Plus } from "lucide-react";
@@ -13,7 +13,8 @@ import { SettingsCard } from "@/components/settings/shared/SettingsCard";
 import { SettingsBlockRow } from "@/components/settings/shared/SettingsRow";
 import { FieldLabel } from "@/components/courses/create/basic/FieldLabel";
 import { SettingsCallout } from "./SettingsCallout";
-import { ipEntryError, ipIsAllowed, MOCK_CURRENT_IP } from "./securityUtils";
+import { fetchClientIp } from "@/lib/settingsStorage";
+import { ipEntryError, ipIsAllowed } from "./securityUtils";
 
 const MAX_ENTRIES = 50;
 
@@ -35,7 +36,17 @@ export function IpAllowlistCard() {
   const [enabled, list] = useWatch({ control, name: ["ipAllowlistEnabled", "ipAllowlist"] });
   const entries = list ?? [];
   const invalid = entries.map((ip) => ({ ip, error: ipEntryError(ip) })).filter((x): x is { ip: string; error: string } => !!x.error);
-  const includesMe = ipIsAllowed(MOCK_CURRENT_IP, entries);
+  const [myIp, setMyIp] = useState<string | null>(null);
+  useEffect(() => {
+    let alive = true;
+    fetchClientIp().then((ip) => alive && setMyIp(ip));
+    return () => {
+      alive = false;
+    };
+  }, []);
+  // The allowlist holds IPv4 entries only; an IPv6 / unknown address can't be checked or added.
+  const myIpv4 = myIp && !ipEntryError(myIp) ? myIp : null;
+  const includesMe = myIpv4 ? ipIsAllowed(myIpv4, entries) : false;
 
   return (
     <SettingsCard
@@ -117,12 +128,13 @@ export function IpAllowlistCard() {
                 tone={includesMe ? "success" : "warning"}
                 title={includesMe ? "Your current IP is on the list" : "Make sure your current IP is included or you may lock yourself out"}
                 action={
-                  !includesMe && (
+                  !includesMe &&
+                  myIpv4 && (
                     <Controller
                       control={control}
                       name="ipAllowlist"
                       render={({ field }) => (
-                        <CardActionButton icon={<Plus className="h-4 w-4" />} disabled={field.value.length >= MAX_ENTRIES} onClick={() => field.onChange([...field.value, MOCK_CURRENT_IP])}>
+                        <CardActionButton icon={<Plus className="h-4 w-4" />} disabled={field.value.length >= MAX_ENTRIES} onClick={() => field.onChange([...field.value, myIpv4])}>
                           Add my IP
                         </CardActionButton>
                       )}
@@ -130,7 +142,14 @@ export function IpAllowlistCard() {
                   )
                 }
               >
-                You&apos;re signed in from <span className="font-mono body-xsm-medium font-semibold! text-primary-500">{MOCK_CURRENT_IP}</span>.
+                {myIp ? (
+                  <>
+                    You&apos;re signed in from <span className="font-mono body-xsm-medium font-semibold! text-primary-500">{myIp}</span>
+                    {myIpv4 ? "." : " — only IPv4 entries are supported, so add your network's IPv4 address or range."}
+                  </>
+                ) : (
+                  "We couldn't detect your IP address. Add your office or VPN range to be safe."
+                )}
               </SettingsCallout>
             </div>
           </motion.div>

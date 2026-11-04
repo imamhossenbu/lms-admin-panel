@@ -3,12 +3,12 @@
 import React from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { motion } from "framer-motion";
-import { Activity, CalendarClock, CheckCircle2, Database, Globe, HardDrive } from "lucide-react";
-import type { BackupEntry } from "@/lib/settingsStorage";
+import { Activity, Archive, CalendarClock, History, Globe } from "lucide-react";
+import type { SettingsAuditEntry } from "@/lib/settingsStorage";
 import type { MaintenanceSettings } from "@/validations/platformSettingsSchema";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 import { settingsFullDate, settingsTimeAgo } from "@/components/settings/shared/settingsTime";
-import { formatSize, nextBackupLabel } from "./maintenanceUtils";
+import { SECTION_META, nextBackupLabel } from "./maintenanceUtils";
 
 function StatusRow({ icon, label, children, delay }: { icon: React.ReactNode; label: string; children: React.ReactNode; delay: number }) {
   return (
@@ -22,14 +22,11 @@ function StatusRow({ icon, label, children, delay }: { icon: React.ReactNode; la
   );
 }
 
-/** Aside: live system health — site status, last / next backup, storage and success rate. */
-export function MaintenanceStatusCard({ backups }: { backups: BackupEntry[] }) {
+/** Aside: live status — site status, backup schedule / retention and the last settings change. */
+export function MaintenanceStatusCard({ audit }: { audit: SettingsAuditEntry[] }) {
   const { control } = useFormContext<MaintenanceSettings>();
-  const [on, auto, frequency] = useWatch({ control, name: ["maintenanceMode", "autoBackup", "backupFrequency"] });
-  const lastOk = backups.find((b) => b.status === "COMPLETED");
-  const completed = backups.filter((b) => b.status === "COMPLETED");
-  const storage = completed.reduce((sum, b) => sum + b.sizeMb, 0);
-  const rate = backups.length ? Math.round((completed.length / backups.length) * 100) : 100;
+  const [on, auto, frequency, retention] = useWatch({ control, name: ["maintenanceMode", "autoBackup", "backupFrequency", "backupRetentionDays"] });
+  const last = audit[0];
 
   const value = "body-sm-medium font-semibold! text-primary-500 tabular-nums";
 
@@ -50,12 +47,7 @@ export function MaintenanceStatusCard({ backups }: { backups: BackupEntry[] }) {
             {on ? "Maintenance" : "Live"}
           </ToneBadge>
         </StatusRow>
-        <StatusRow icon={<CheckCircle2 className="h-3.5 w-3.5" />} label="Last backup" delay={0.04}>
-          <span className={value} title={lastOk ? settingsFullDate(lastOk.at) : undefined}>
-            {lastOk ? settingsTimeAgo(lastOk.at) : "None yet"}
-          </span>
-        </StatusRow>
-        <StatusRow icon={<CalendarClock className="h-3.5 w-3.5" />} label="Next backup" delay={0.08}>
+        <StatusRow icon={<CalendarClock className="h-3.5 w-3.5" />} label="Next backup" delay={0.04}>
           {auto ? (
             <span className={value}>{nextBackupLabel(frequency)}</span>
           ) : (
@@ -64,13 +56,22 @@ export function MaintenanceStatusCard({ backups }: { backups: BackupEntry[] }) {
             </ToneBadge>
           )}
         </StatusRow>
-        <StatusRow icon={<HardDrive className="h-3.5 w-3.5" />} label="Backup storage" delay={0.12}>
-          <span className={value}>{formatSize(storage)}</span>
+        <StatusRow icon={<Archive className="h-3.5 w-3.5" />} label="Keep backups for" delay={0.08}>
+          <span className={value}>{retention} days</span>
         </StatusRow>
-        <StatusRow icon={<Database className="h-3.5 w-3.5" />} label="Success rate" delay={0.16}>
-          <ToneBadge tone={rate >= 90 ? "green" : rate >= 70 ? "yellow" : "red"} size="sm">
-            {rate}%
-          </ToneBadge>
+        <StatusRow icon={<History className="h-3.5 w-3.5" />} label="Last change" delay={0.12}>
+          {last ? (
+            <span className="inline-flex items-center gap-2">
+              <ToneBadge tone={SECTION_META[last.section]?.tone ?? "navy"} size="sm">
+                {SECTION_META[last.section]?.label ?? last.section}
+              </ToneBadge>
+              <span className={value} title={settingsFullDate(last.at)}>
+                {settingsTimeAgo(last.at)}
+              </span>
+            </span>
+          ) : (
+            <span className={value}>None yet</span>
+          )}
         </StatusRow>
       </ul>
     </motion.section>

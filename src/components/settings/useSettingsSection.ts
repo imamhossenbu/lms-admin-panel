@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useForm, type DefaultValues, type FieldValues, type UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { apiErrorMessage } from "@/lib/apiError";
 import type { z } from "zod";
 import { SETTINGS_SCHEMAS, type PlatformSettings, type SettingsSection } from "@/validations/platformSettingsSchema";
 import { getSettingsSnapshot, saveSettingsSection, SETTINGS_UPDATED_EVENT, type SettingsStore } from "@/lib/settingsStorage";
@@ -88,7 +89,7 @@ export function useSettingsSection<K extends SettingsSection>(section: K, labels
         toast.success("Settings saved", { id, description: changed.length ? `Updated ${changed.slice(0, 3).join(", ")}${changed.length > 3 ? "…" : ""}.` : "No changes." });
         return true;
       } catch (err) {
-        toast.error("Couldn't save settings", { id, description: err instanceof Error ? err.message : "Please try again." });
+        toast.error("Couldn't save settings", { id, description: apiErrorMessage(err, "Please try again.") });
         return false;
       } finally {
         setIsSaving(false);

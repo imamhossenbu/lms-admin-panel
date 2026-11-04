@@ -167,3 +167,9 @@ export function useCourseContexts(courseIds: string[]): Map<string, LessonEditor
   useSyncExternalStore(subscribe, () => contexts.size, () => 0);
   return contexts;
 }
+
+/** Re-reads one course's curriculum (e.g. after a lesson was renamed or moved) and returns the fresh context. */
+export function refreshCourseContext(courseId: string): Promise<LessonEditorContext | null> {
+  contexts.delete(courseId);
+  return loadCourseContext(courseId);
+}

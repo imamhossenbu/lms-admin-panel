@@ -31,10 +31,10 @@ export function MaintenanceSection() {
           description="Downtime, backups, change history and data-wide actions."
           icon={<Wrench className="h-5 w-5" />}
           updatedAt={store.updatedAt.maintenance}
-          aside={<MaintenanceStatusCard backups={store.backups} />}
+          aside={<MaintenanceStatusCard audit={store.audit} />}
         >
           <MaintenanceModeCard platformName={store.settings.general.platformName} />
-          <BackupsCard backups={store.backups} />
+          <BackupsCard />
           <ActivityLogCard audit={store.audit} />
           <DangerZoneCard />
           <SettingsSaveBar isDirty={form.formState.isDirty} isSaving={isSaving} onSave={save} onDiscard={discard} />

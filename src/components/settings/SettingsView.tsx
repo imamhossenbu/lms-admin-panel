@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Undo2 } from "lucide-react";
 import { useUrlParams } from "@/lib/useUrlParams";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { LoadErrorCard } from "@/components/ui/LoadErrorCard";
 import { SettingsHeader } from "./SettingsHeader";
 import { SettingsTabs, parseSettingsSection, type SettingsTabId } from "./SettingsTabs";
 import { SettingsSkeleton } from "./SettingsSkeleton";
@@ -38,11 +39,12 @@ const SECTION_COMPONENT: Record<SettingsTabId, React.ComponentType> = {
  */
 export function SettingsView() {
   const { get, set } = useUrlParams();
-  const { store, ready } = useSettingsStore();
+  const { store, ready, loadError, retry } = useSettingsStore();
   const section = parseSettingsSection(get("section"));
   const [isDirty, setIsDirty] = useState(false);
   const [pending, setPending] = useState<SettingsTabId | null>(null);
 
+  if (loadError && !store) return <LoadErrorCard title="Couldn't load settings" message={loadError} onRetry={retry} />;
   if (!ready || !store) return <SettingsSkeleton />;
 
   const go = (next: SettingsTabId) => {

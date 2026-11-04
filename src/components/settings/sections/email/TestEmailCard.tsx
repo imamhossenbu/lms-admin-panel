@@ -7,6 +7,7 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { Mail, MailCheck, Send } from "lucide-react";
 import { sendTestEmail } from "@/lib/settingsStorage";
+import { apiErrorMessage } from "@/lib/apiError";
 import { SettingsCard } from "@/components/settings/shared/SettingsCard";
 import { SettingsRow } from "@/components/settings/shared/SettingsRow";
 import { InputField } from "@/components/ui/InputField";
@@ -36,7 +37,7 @@ export function TestEmailCard({ defaultTo, hasUnsavedChanges }: TestEmailCardPro
       await sendTestEmail(to);
       toast.success("Test email sent", { id, description: `Check ${to} — it can take a minute to arrive.` });
     } catch (err) {
-      toast.error("Couldn't send the test email", { id, description: err instanceof Error ? err.message : "Check the provider settings and try again." });
+      toast.error("Couldn't send the test email", { id, description: apiErrorMessage(err, "Check the provider settings and try again.") });
     }
   });
 

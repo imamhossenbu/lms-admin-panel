@@ -1,15 +1,15 @@
 "use client";
 
-import React, { useState, useMemo, Suspense } from "react";
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import React, { Suspense, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { MOCK_CATEGORIES } from "@/data/mockCategoryData";
-import {
-  CategoryItem,
-  SubCategoryItem,
-  CategoryDrawerMode,
-  CategoryStatus,
-} from "@/types/category";
+import { Trash2 } from "lucide-react";
+import { toast } from "sonner";
+import type { CategoryDrawerMode, CategoryItem } from "@/types/category";
+import { deleteCategory } from "@/lib/categoryStorage";
+import { apiErrorMessage } from "@/lib/apiError";
+import { useUrlParams } from "@/lib/useUrlParams";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { LoadErrorCard } from "@/components/ui/LoadErrorCard";
 import { CategoryHeader } from "@/components/categories/CategoryHeader";
 import { CategoryToolbar } from "@/components/categories/CategoryToolbar";
 import { CategoryTable } from "@/components/categories/CategoryTable";
@@ -17,296 +17,121 @@ import { CategoryGrid } from "@/components/categories/CategoryGrid";
 import { CategoryPagination } from "@/components/categories/CategoryPagination";
 import { CategoryDrawer } from "@/components/categories/CategoryDrawer";
 import { CategorySkeleton } from "@/components/categories/CategorySkeleton";
+import { useCategoriesData } from "@/components/categories/useCategoriesData";
 
+const PAGE_SIZES = [10, 20, 50];
+
+/**
+ * /categories — list (table / grid) with search, status filter and pagination, plus the create / edit /
+ * details drawer. Everything lives in the URL (`q`, `status`, `view`, `page`, `size`, `drawer`, `mode`).
+ */
 function CategoriesContent() {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const { get, getPage, set } = useUrlParams();
+  const { categories, isLoading, loadError, retry } = useCategoriesData();
+  const [deleting, setDeleting] = useState<CategoryItem | null>(null);
 
-  const urlPage = parseInt(searchParams.get("page") || "1", 10);
-  const urlStatus = searchParams.get("status") || "All";
-  const urlView = (searchParams.get("view") as "table" | "grid") || "table";
-  const urlSearch = searchParams.get("q") || "";
+  // Local copy so typing never waits on a router round-trip; mirrored to ?q=.
+  const [searchQuery, setSearchQuery] = useState(() => get("q"));
+  const statusFilter = get("status", "All");
+  const viewMode: "table" | "grid" = get("view") === "grid" ? "grid" : "table";
+  const sizeParam = Number(get("size"));
+  const pageSize = PAGE_SIZES.includes(sizeParam) ? sizeParam : 10;
 
-  const [categories, setCategories] = useState<CategoryItem[]>(MOCK_CATEGORIES);
-  const [searchQuery, setSearchQuery] = useState(urlSearch);
-  const [statusFilter, setStatusFilter] = useState(urlStatus);
-  const [viewMode, setViewMode] = useState<"table" | "grid">(urlView);
-  const [currentPage, setCurrentPage] = useState(isNaN(urlPage) ? 1 : urlPage);
-  const [isLoading, setIsLoading] = useState(false);
+  // Drawer: ?drawer=new | ?drawer=<id>&mode=edit|details
+  const drawerParam = get("drawer");
+  const drawerCategory = drawerParam && drawerParam !== "new" ? categories.find((c) => c.id === drawerParam) ?? null : null;
+  const drawerMode: CategoryDrawerMode = drawerParam === "new" ? "create" : get("mode") === "edit" ? "edit" : "details";
+  const isDrawerOpen = drawerParam === "new" || !!drawerCategory;
 
-  // URL sync helper
-  const updateUrlParams = (
-    nextPage: number,
-    nextStatus: string,
-    nextView: "table" | "grid",
-    nextQuery: string
-  ) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (nextPage > 1) params.set("page", nextPage.toString());
-    else params.delete("page");
-
-    if (nextStatus && nextStatus !== "All") params.set("status", nextStatus);
-    else params.delete("status");
-
-    if (nextView && nextView !== "table") params.set("view", nextView);
-    else params.delete("view");
-
-    if (nextQuery) params.set("q", nextQuery);
-    else params.delete("q");
-
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-  };
-
-  // Drawer state management (create, edit, details, including sub-category editing)
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [drawerMode, setDrawerMode] = useState<CategoryDrawerMode>("create");
-  const [selectedCategory, setSelectedCategory] = useState<CategoryItem | null>(null);
-  const [editingSubCategory, setEditingSubCategory] = useState<SubCategoryItem | null>(null);
-
-  const [pageSize, setPageSize] = useState(10);
-
-  // Filtered categories (also searches through subcategories!)
-  const filteredCategories = useMemo(() => {
+  const filtered = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim();
     return categories.filter((cat) => {
-      const q = searchQuery.toLowerCase().trim();
-      const matchesSearch =
-        !q ||
-        cat.name.toLowerCase().includes(q) ||
-        cat.description.toLowerCase().includes(q) ||
-        Boolean(
-          cat.subCategories?.some((sub) => sub.name.toLowerCase().includes(q))
-        );
-      const matchesStatus =
-        statusFilter === "All" || cat.status === statusFilter;
+      const matchesSearch = !q || cat.name.toLowerCase().includes(q) || cat.slug.includes(q) || cat.description.toLowerCase().includes(q);
+      const matchesStatus = statusFilter === "All" || cat.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
   }, [categories, searchQuery, statusFilter]);
 
-  // Paginated categories
-  const paginatedCategories = useMemo(() => {
-    const startIndex = (currentPage - 1) * pageSize;
-    return filteredCategories.slice(startIndex, startIndex + pageSize);
-  }, [filteredCategories, currentPage]);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const currentPage = Math.min(getPage(), totalPages);
+  const paginated = useMemo(() => filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize), [filtered, currentPage, pageSize]);
 
-  const totalPages = Math.ceil(filteredCategories.length / pageSize) || 1;
+  const openDrawer = (id: string, mode?: "edit" | "details") => set({ drawer: id, mode: mode === "edit" ? "edit" : null });
+  const closeDrawer = () => set({ drawer: null, mode: null });
 
-  // Drawer Open Handlers
-  const handleOpenAdd = () => {
-    setSelectedCategory(null);
-    setEditingSubCategory(null);
-    setDrawerMode("create");
-    setIsDrawerOpen(true);
-  };
-
-  const handleOpenEdit = (cat: CategoryItem) => {
-    setSelectedCategory(cat);
-    setEditingSubCategory(null);
-    setDrawerMode("edit");
-    setIsDrawerOpen(true);
-  };
-
-  const handleOpenEditSubCategory = (
-    sub: SubCategoryItem,
-    parentCat: CategoryItem
-  ) => {
-    setSelectedCategory(parentCat);
-    setEditingSubCategory(sub);
-    setDrawerMode("edit");
-    setIsDrawerOpen(true);
-  };
-
-  const handleOpenDetails = (cat: CategoryItem) => {
-    setSelectedCategory(cat);
-    setEditingSubCategory(null);
-    setDrawerMode("details");
-    setIsDrawerOpen(true);
-  };
-
-  const handleCloseDrawer = () => {
-    setIsDrawerOpen(false);
-    setEditingSubCategory(null);
-  };
-
-  // Add / Edit Category or Sub-category handler
-  const handleSaveCategory = (payload: {
-    id?: string;
-    name: string;
-    slug: string;
-    description: string;
-    status: CategoryStatus;
-    iconId: string;
-    isSubCategory: boolean;
-    parentId?: string;
-  }) => {
-    if (payload.isSubCategory && payload.parentId) {
-      // Adding or editing a sub-category under a parent
-      setCategories((prev) =>
-        prev.map((cat) => {
-          if (cat.id === payload.parentId) {
-            const existingSub = cat.subCategories || [];
-            if (payload.id) {
-              return {
-                ...cat,
-                subCategories: existingSub.map((sub) =>
-                  sub.id === payload.id
-                    ? {
-                        ...sub,
-                        name: payload.name,
-                        slug: payload.slug,
-                        description: payload.description,
-                        status: payload.status,
-                      }
-                    : sub
-                ),
-              };
-            } else {
-              const newSub: SubCategoryItem = {
-                id: `sub-${Date.now()}`,
-                name: payload.name,
-                slug: payload.slug,
-                description: payload.description,
-                courseCount: 0,
-                status: payload.status,
-                createdDate: new Date().toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                }),
-                parentId: payload.parentId!,
-              };
-              return {
-                ...cat,
-                subCategories: [newSub, ...existingSub],
-              };
-            }
-          }
-          return cat;
-        })
-      );
-    } else {
-      // Parent category create or edit
-      if (payload.id) {
-        setCategories((prev) =>
-          prev.map((cat) =>
-            cat.id === payload.id
-              ? {
-                  ...cat,
-                  name: payload.name,
-                  slug: payload.slug,
-                  description: payload.description,
-                  status: payload.status,
-                  iconId: payload.iconId,
-                }
-              : cat
-          )
-        );
-      } else {
-        const newCat: CategoryItem = {
-          id: `cat-${Date.now()}`,
-          orderNumber: categories.length + 1,
-          name: payload.name,
-          slug: payload.slug,
-          description: payload.description,
-          totalCourses: 0,
-          publishedCourses: 0,
-          status: payload.status,
-          createdDate: new Date().toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-          }),
-          iconId: payload.iconId,
-          colorScheme: "orange",
-          subCategories: [],
-        };
-        setCategories((prev) => [newCat, ...prev]);
-      }
+  const confirmDelete = async () => {
+    if (!deleting) return;
+    const id = toast.loading("Deleting category...", { description: deleting.name });
+    try {
+      await deleteCategory(deleting.id);
+      toast.success("Category deleted", { id, description: `"${deleting.name}" was removed.` });
+      if (drawerParam === deleting.id) closeDrawer();
+    } catch (err) {
+      toast.error("Couldn't delete the category", { id, description: apiErrorMessage(err, "Please try again.") });
+      throw err;
     }
   };
 
-  if (isLoading) {
-    return <CategorySkeleton />;
-  }
+  if (isLoading) return <CategorySkeleton />;
+  if (loadError) return <LoadErrorCard title="Couldn't load categories" message={loadError} onRetry={retry} />;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25, ease: "easeOut" }}
-      className="space-y-4 text-left pb-8"
-    >
-      {/* 1. Page Header with Prominent Breadcrumbs & Add Category CTA */}
-      <CategoryHeader onAddClick={handleOpenAdd} />
+    <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25, ease: "easeOut" }} className="space-y-4 text-left pb-8">
+      <CategoryHeader onAddClick={() => set({ drawer: "new", mode: null })} />
 
-      {/* 2. Full-Width Category Card: Toolbar + DataTable/Grid + Pagination */}
       <div className="bg-white rounded-xl border border-dash shadow-2xs overflow-hidden flex flex-col justify-between">
-        {/* Toolbar */}
         <CategoryToolbar
           searchQuery={searchQuery}
           onSearchChange={(q) => {
             setSearchQuery(q);
-            setCurrentPage(1);
-            updateUrlParams(1, statusFilter, viewMode, q);
+            set({ q, page: null });
           }}
           statusFilter={statusFilter}
-          onStatusChange={(s) => {
-            setStatusFilter(s);
-            setCurrentPage(1);
-            updateUrlParams(1, s, viewMode, searchQuery);
-          }}
+          onStatusChange={(s) => set({ status: s, page: null })}
           viewMode={viewMode}
-          onViewModeChange={(m) => {
-            setViewMode(m);
-            updateUrlParams(currentPage, statusFilter, m, searchQuery);
-          }}
+          onViewModeChange={(m) => set({ view: m === "grid" ? "grid" : null })}
         />
 
-        {/* Table or Grid View */}
         {viewMode === "table" ? (
-          <CategoryTable
-            categories={paginatedCategories}
-            onEdit={handleOpenEdit}
-            onViewDetails={handleOpenDetails}
-            onEditSubCategory={handleOpenEditSubCategory}
-          />
+          <CategoryTable categories={paginated} onEdit={(c) => openDrawer(c.id, "edit")} onViewDetails={(c) => openDrawer(c.id)} onDelete={setDeleting} />
         ) : (
-          <CategoryGrid
-            categories={paginatedCategories}
-            onEdit={handleOpenEdit}
-            onViewDetails={handleOpenDetails}
-          />
+          <CategoryGrid categories={paginated} onEdit={(c) => openDrawer(c.id, "edit")} onViewDetails={(c) => openDrawer(c.id)} />
         )}
 
-        {/* Pagination Footer */}
         <CategoryPagination
           currentPage={currentPage}
           totalPages={totalPages}
-          totalCount={filteredCategories.length}
+          totalCount={filtered.length}
           pageSize={pageSize}
-          onPageChange={(page) => {
-            setCurrentPage(page);
-            updateUrlParams(page, statusFilter, viewMode, searchQuery);
-          }}
-          onPageSizeChange={(newSize) => {
-            setPageSize(newSize);
-            setCurrentPage(1);
-            updateUrlParams(1, statusFilter, viewMode, searchQuery);
-          }}
+          onPageChange={(page) => set({ page })}
+          onPageSizeChange={(size) => set({ size: size === 10 ? null : size, page: null })}
         />
       </div>
 
-      {/* 3. Slide-Over Side Drawer for Create / Edit / Details */}
       <CategoryDrawer
         isOpen={isDrawerOpen}
         mode={drawerMode}
-        category={selectedCategory}
-        editingSubCategory={editingSubCategory}
-        parentCategories={categories}
-        onClose={handleCloseDrawer}
-        onSave={handleSaveCategory}
-        onOpenEdit={handleOpenEdit}
-        onOpenEditSubCategory={handleOpenEditSubCategory}
+        category={drawerCategory}
+        onClose={closeDrawer}
+        onSaved={closeDrawer}
+        onOpenEdit={(c) => openDrawer(c.id, "edit")}
+        onDelete={setDeleting}
+      />
+
+      <ConfirmModal
+        isOpen={deleting !== null}
+        title="Delete this category?"
+        subtitle={deleting?.name}
+        message={
+          deleting && deleting.totalCourses > 0
+            ? `${deleting.totalCourses} course${deleting.totalCourses === 1 ? " still uses" : "s still use"} this category. Move ${deleting.totalCourses === 1 ? "it" : "them"} to another category first.`
+            : "The category will be removed permanently. This can't be undone."
+        }
+        confirmLabel="Delete Category"
+        pendingLabel="Deleting..."
+        confirmIcon={<Trash2 className="h-4 w-4" />}
+        onClose={() => setDeleting(null)}
+        onConfirm={confirmDelete}
       />
     </motion.div>
   );

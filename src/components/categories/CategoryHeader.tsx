@@ -24,7 +24,7 @@ export function CategoryHeader({ onAddClick }: CategoryHeaderProps) {
           Categories Management
         </h1>
         <p className="body-sm-regular text-primary-300 mt-0.5">
-          Organize your courses into clear learning categories and sub-categories.
+          Organize your courses into clear learning categories.
         </p>
       </div>
 

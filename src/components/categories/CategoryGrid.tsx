@@ -3,7 +3,8 @@
 import React from "react";
 import { CategoryItem } from "@/types/category";
 import { CategoryIconRenderer } from "./CategoryIconRenderer";
-import { BookOpen, Layers, Edit2, Eye } from "lucide-react";
+import { BookOpen, Edit2, Eye } from "lucide-react";
+import { motion } from "framer-motion";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 
 interface CategoryGridProps {
@@ -17,14 +18,20 @@ export function CategoryGrid({
   onEdit,
   onViewDetails,
 }: CategoryGridProps) {
+  if (categories.length === 0) {
+    return <p className="p-10 border-t border-dash text-center body-sm-regular text-primary-300">No categories match your filters.</p>;
+  }
+
   return (
     <div className="p-4 border-t border-dash grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 text-left">
-      {categories.map((category) => {
-        const subCount = category.subCategories?.length || 0;
-
+      {categories.map((category, i) => {
         return (
-          <div
+          <motion.div
             key={category.id}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            whileHover={{ y: -2 }}
+            transition={{ duration: 0.2, delay: Math.min(i, 10) * 0.03 }}
             className="bg-white rounded-xl border border-dash p-4 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between"
           >
             <div>
@@ -38,20 +45,10 @@ export function CategoryGrid({
                 </ToneBadge>
               </div>
 
-              <div className="flex items-center gap-2 mb-1">
-                <h4 className="heading-h6 text-primary-500">
-                  {category.name}
-                </h4>
-                {subCount > 0 && (
-                  <span className="body-2xsm-regular px-2 py-0.5 rounded-full bg-slate-100 text-primary-400 flex items-center gap-1">
-                    <Layers className="w-3 h-3 text-brand-orange" />
-                    <span>{subCount}</span>
-                  </span>
-                )}
-              </div>
+              <h4 className="heading-h6 text-primary-500 mb-1">{category.name}</h4>
 
               <p className="body-sm-regular text-primary-400 line-clamp-2">
-                {category.description}
+                {category.description || "No description yet."}
               </p>
             </div>
 
@@ -80,7 +77,7 @@ export function CategoryGrid({
                 </button>
               </div>
             </div>
-          </div>
+          </motion.div>
         );
       })}
     </div>

@@ -46,9 +46,6 @@ export function ipEntryError(entry: string): string | null {
   return null;
 }
 
-/** Mock "your current IP" for the lock-out warning. */
-export const MOCK_CURRENT_IP = "103.94.135.22";
-
 const toInt = (ip: string) => ip.split(".").reduce((acc, o) => acc * 256 + Number(o), 0);
 
 /** True when `ip` is covered by any entry (exact or CIDR range). */

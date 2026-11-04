@@ -2,7 +2,7 @@ import { z } from "zod";
 
 /**
  * Platform Settings — one zod schema per section; each section is its own form with its own Save.
- * Stored by src/lib/settingsStorage.ts (mock-first).
+ * Stored by the Settings API (/admin/settings) via src/lib/settingsStorage.ts.
  */
 
 const optionalUrl = z.string().trim().refine((v) => v === "" || /^https?:\/\/[^\s]+\.[^\s]+/.test(v), "Enter a valid URL starting with https://");

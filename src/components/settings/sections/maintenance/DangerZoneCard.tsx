@@ -1,14 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
-import { Download, RotateCcw, TriangleAlert } from "lucide-react";
+import { Download, TriangleAlert } from "lucide-react";
 import { toast } from "sonner";
-import { getSettingsSnapshot } from "@/lib/settingsStorage";
-import { PrimaryButton } from "@/components/ui/primary-button";
+import { fetchSettings } from "@/lib/settingsStorage";
+import { apiErrorMessage } from "@/lib/apiError";
 import { SecondaryButton } from "@/components/ui/secondary-button";
 import { SettingsCard } from "@/components/settings/shared/SettingsCard";
-import { ResetDemoDataModal } from "./ResetDemoDataModal";
-import { downloadStoreJson, wait } from "./maintenanceUtils";
+import { downloadStoreJson } from "./maintenanceUtils";
 
 function DangerRow({ title, description, children }: { title: string; description: string; children: React.ReactNode }) {
   return (
@@ -22,20 +21,18 @@ function DangerRow({ title, description, children }: { title: string; descriptio
   );
 }
 
-/** "Danger zone": export everything as JSON, or wipe all demo data (type RESET to confirm). */
+/** "Danger zone": export every setting and the change log as JSON. */
 export function DangerZoneCard() {
   const [exporting, setExporting] = useState(false);
-  const [resetOpen, setResetOpen] = useState(false);
 
   const exportAll = async () => {
     setExporting(true);
-    const id = toast.loading("Preparing export...", { description: "Collecting all settings, backups and the activity log." });
+    const id = toast.loading("Preparing export...", { description: "Collecting all settings and the activity log." });
     try {
-      await wait(700);
-      downloadStoreJson(getSettingsSnapshot());
+      downloadStoreJson(await fetchSettings());
       toast.success("Export ready", { id, description: "Your JSON file is downloading. Secrets are masked." });
-    } catch {
-      toast.error("Couldn't export data", { id, description: "Please try again." });
+    } catch (err) {
+      toast.error("Couldn't export data", { id, description: apiErrorMessage(err, "Please try again.") });
     } finally {
       setExporting(false);
     }
@@ -49,17 +46,11 @@ export function DangerZoneCard() {
       description="Irreversible or data-wide actions. Proceed with care."
       className="border-red"
     >
-      <DangerRow title="Export all data" description="Download every setting, backup record and log entry as a JSON file.">
+      <DangerRow title="Export all data" description="Download every setting and log entry as a JSON file. Secrets stay masked.">
         <SecondaryButton leftIcon={<Download className="h-4 w-4" />} isLoading={exporting} onClick={exportAll}>
           {exporting ? "Exporting..." : "Export all data"}
         </SecondaryButton>
       </DangerRow>
-      <DangerRow title="Reset demo data" description="Wipe everything saved in this browser and start over with fresh sample data.">
-        <PrimaryButton variant="danger" leftIcon={<RotateCcw className="h-4 w-4" />} onClick={() => setResetOpen(true)}>
-          Reset demo data
-        </PrimaryButton>
-      </DangerRow>
-      <ResetDemoDataModal isOpen={resetOpen} onClose={() => setResetOpen(false)} />
     </SettingsCard>
   );
 }

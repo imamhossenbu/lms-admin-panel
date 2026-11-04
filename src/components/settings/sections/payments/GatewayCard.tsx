@@ -14,7 +14,9 @@ import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { ToggleSwitch } from "@/components/ui/ToggleSwitch";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 import { CardActionButton } from "@/components/ui/CardActionButton";
-import { testGatewayConnection, type GatewayMeta } from "./paymentsMeta";
+import { missingGatewayText, type GatewayMeta } from "./paymentsMeta";
+import { testGateway } from "@/lib/settingsStorage";
+import { apiErrorMessage } from "@/lib/apiError";
 import { GatewayStatusBadge, gatewayStatus } from "./GatewayStatusBadge";
 
 export interface GatewayCardProps {
@@ -30,7 +32,7 @@ const MODE_OPTIONS = [
 
 /** One payment gateway: enable toggle, Live/Test mode, keys, connection test and status. */
 export function GatewayCard({ gateway, secretHint }: GatewayCardProps) {
-  const { control, register, trigger, getValues, formState } = useFormContext<PaymentSettings>();
+  const { control, register, trigger, formState } = useFormContext<PaymentSettings>();
   const { key } = gateway;
   const [enabled, mode, publicKey, secretKey] = useWatch({ control, name: [`${key}.enabled`, `${key}.mode`, `${key}.publicKey`, `${key}.secretKey`] });
   const [isTesting, setIsTesting] = useState(false);
@@ -41,14 +43,19 @@ export function GatewayCard({ gateway, secretHint }: GatewayCardProps) {
 
   const runTest = async () => {
     setIsTesting(true);
-    const id = toast.loading(`Testing ${gateway.name}...`, { description: `Contacting the ${mode === "LIVE" ? "live" : "sandbox"} API.` });
+    const id = toast.loading(`Testing ${gateway.name}...`, { description: "Checking the saved setup." });
     try {
-      const { latencyMs } = await testGatewayConnection(getValues(`${key}.publicKey`) ?? "");
-      setLastLatency(latencyMs);
-      toast.success(`${gateway.name} is reachable`, { id, description: `Handshake completed in ${latencyMs} ms (${mode === "LIVE" ? "live" : "test"} mode).` });
+      const { ok, latencyMs, missing } = await testGateway(key);
+      if (ok) {
+        setLastLatency(latencyMs);
+        toast.success(`${gateway.name} is set up`, { id, description: `Saved keys checked in ${latencyMs} ms (${mode === "LIVE" ? "live" : "test"} mode).` });
+      } else {
+        setLastLatency(null);
+        toast.error(`${gateway.name} isn't ready`, { id, description: missingGatewayText(missing, gateway.secretLabel) });
+      }
     } catch (err) {
       setLastLatency(null);
-      toast.error(`Couldn't reach ${gateway.name}`, { id, description: err instanceof Error ? err.message : "Check the keys and try again." });
+      toast.error(`Couldn't test ${gateway.name}`, { id, description: apiErrorMessage(err, "Check the keys and try again.") });
     } finally {
       setIsTesting(false);
     }
@@ -137,10 +144,10 @@ export function GatewayCard({ gateway, secretHint }: GatewayCardProps) {
             <ShieldCheck className="h-4 w-4 shrink-0 text-green" />
             {lastLatency !== null ? (
               <span>
-                Last test passed in <span className="body-xsm-medium text-primary-500">{lastLatency} ms</span>
+                Saved setup checked in <span className="body-xsm-medium text-primary-500">{lastLatency} ms</span>
               </span>
             ) : (
-              <span>Run a quick handshake to confirm the keys work.</span>
+              <span>Save your changes, then test to confirm the gateway is fully set up.</span>
             )}
           </p>
           <CardActionButton icon={isTesting ? <Loader2 className="animate-spin" /> : <PlugZap />} onClick={runTest} disabled={isTesting}>

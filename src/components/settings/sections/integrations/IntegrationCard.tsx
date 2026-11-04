@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Activity, CircleUserRound, KeyRound, Link2, Loader2, Settings2, Unplug } from "lucide-react";
 import type { IntegrationsSettings } from "@/validations/platformSettingsSchema";
 import { testIntegration } from "@/lib/settingsStorage";
+import { apiErrorMessage } from "@/lib/apiError";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 import { AppSelect } from "@/components/ui/AppSelect";
 import { CardActionButton } from "@/components/ui/CardActionButton";
@@ -36,8 +37,8 @@ export function IntegrationCard({ meta, secretHint, onConnect, onManage, onDisco
       const { ok, latencyMs } = await testIntegration(meta.key);
       if (ok) toast.success(`${meta.name} is working`, { id, description: `Responded in ${latencyMs} ms.` });
       else toast.error(`${meta.name} didn't respond`, { id, description: "Reconnect it with a fresh API key and try again." });
-    } catch {
-      toast.error(`Couldn't test ${meta.name}`, { id, description: "Please try again in a moment." });
+    } catch (err) {
+      toast.error(`Couldn't test ${meta.name}`, { id, description: apiErrorMessage(err, "Please try again in a moment.") });
     } finally {
       setIsTesting(false);
     }
