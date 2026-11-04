@@ -1,9 +1,9 @@
-import { useMemo, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useSyncExternalStore } from "react";
 import type { FeatureKey, Institution, LimitKey, Plan, PlanId, SaasStore } from "@/types/saas";
 import { PLAN_IDS } from "@/types/saas";
 import { sortPlans } from "@/lib/saasStats";
 import { buildPlans } from "@/data/mockSaasData";
-import { getSaasSnapshot, subscribeSaas } from "@/lib/saasStorage";
+import { getWorkspaceSaasSnapshot, isWorkspaceSaasSettled, refreshWorkspaceSaas, subscribeWorkspaceSaas } from "@/lib/workspaceSaas";
 
 /**
  * Plan access & feature gating (pure helpers + React hooks). Safe to import from client components; the pure
@@ -108,20 +108,22 @@ export function minPlanFor(feature: FeatureKey, plans: Plan[] = DEFAULT_PLANS) {
 // ---------------------------------------------------------------- hooks
 
 const EMPTY_STORE: SaasStore = { plans: [], institutions: [], invoices: [], events: [], currentInstitutionId: "" };
-const noopSubscribe = () => () => {};
-
-/** Live SaaS store. Empty on the server and during hydration (pair with `useSaasReady()` for skeletons). */
+/** The workspace's subscription from GET /saas/me (pair with `useSaasReady()` for skeletons). */
 export function useSaasStore(): SaasStore {
-  return useSyncExternalStore(subscribeSaas, getSaasSnapshot, () => EMPTY_STORE);
+  return useSyncExternalStore(subscribeWorkspaceSaas, getWorkspaceSaasSnapshot, () => EMPTY_STORE);
 }
 
-/** false on the server / during hydration, true once the client store can be read. */
+/** false until GET /saas/me settled. The first mount anywhere starts the load. */
 export function useSaasReady(): boolean {
-  return useSyncExternalStore(noopSubscribe, () => true, () => false);
+  useEffect(() => {
+    if (!isWorkspaceSaasSettled()) void refreshWorkspaceSaas().catch(() => undefined);
+  }, []);
+  return useSyncExternalStore(subscribeWorkspaceSaas, isWorkspaceSaasSettled, () => false);
 }
 
 /** The institution the admin panel is showing (null until ready). */
 export function useCurrentInstitution(): Institution | null {
+  useSaasReady();
   const store = useSaasStore();
   return useMemo(() => store.institutions.find((i) => i.id === store.currentInstitutionId) ?? null, [store]);
 }

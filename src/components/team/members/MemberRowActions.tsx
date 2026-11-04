@@ -6,13 +6,15 @@ import type { TeamMember } from "@/types/team";
 import type { DropdownActionItem } from "@/components/ui/AppDropdownMenu";
 import { RowMoreMenu } from "@/components/ui/RowMoreMenu";
 import type { MemberDialogOpeners } from "../shared/useMemberDialogs";
+import { useMyMemberId } from "../shared/useTeamStore";
 
 const ICON = "h-3.5 w-3.5 text-primary-400";
 
 /** ⋮ items. Owner: view only. Invitation: change role / resend / revoke. Member: change role, suspend|reactivate, reset 2FA, remove. */
-export function memberMenuItems(m: TeamMember, open: MemberDialogOpeners & { view: (m: TeamMember) => void }, busy: boolean): DropdownActionItem[] {
+export function memberMenuItems(m: TeamMember, open: MemberDialogOpeners & { view: (m: TeamMember) => void }, busy: boolean, isSelf = false): DropdownActionItem[] {
   const view: DropdownActionItem = { key: "view", label: m.status === "INVITED" ? "View invitation" : "View profile", icon: <Eye className={ICON} />, onClick: () => open.view(m) };
   if (m.isOwner) return [view, { key: "owner", label: "Owner can't be changed", icon: <UserCog className={ICON} />, disabled: true }];
+  if (isSelf) return [view, { key: "self", label: "Ask another admin to change your access", icon: <UserCog className={ICON} />, disabled: true }];
   if (m.status === "INVITED")
     return [
       view,
@@ -38,9 +40,10 @@ export interface MemberRowActionsProps {
 }
 
 export function MemberRowActions({ member, open, busy }: MemberRowActionsProps) {
+  const isSelf = useMyMemberId() === member.id;
   return (
     <div className="flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
-      <RowMoreMenu size="sm" label={`More actions for ${member.name || member.email}`} items={memberMenuItems(member, open, busy)} />
+      <RowMoreMenu size="sm" label={`More actions for ${member.name || member.email}`} items={memberMenuItems(member, open, busy, isSelf)} />
     </div>
   );
 }

@@ -1,60 +1,56 @@
 "use client";
 
-import { useMemo, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
+import { toast } from "sonner";
 import type { TeamSeed } from "@/types/team";
-import { getTeamSnapshot, TEAM_UPDATED_EVENT } from "@/lib/teamStorage";
-import { getSettingsSnapshot, SETTINGS_UPDATED_EVENT } from "@/lib/settingsStorage";
+import { apiClient } from "@/lib/api";
+import { apiErrorMessage } from "@/lib/apiError";
+import { fetchTeam, getTeamSnapshot, isTeamSettled, TEAM_UPDATED_EVENT } from "@/lib/teamStorage";
+import { useAppSelector } from "@/store/hooks";
 
-const EMPTY_SNAPSHOT = JSON.stringify({ members: [], roles: [], events: [] } satisfies TeamSeed);
+const EMPTY: TeamSeed = { members: [], roles: [], events: [] };
 
-/** Serialized store, recomputed only after a TEAM_UPDATED_EVENT (avoids re-reading localStorage every render). */
-let cached: string | null = null;
-let listening = false;
-const invalidate = () => {
-  cached = null;
-};
-
-function getSnapshot(): string {
-  if (typeof window !== "undefined" && !listening) {
-    window.addEventListener(TEAM_UPDATED_EVENT, invalidate);
-    listening = true;
-  }
-  if (cached === null) cached = JSON.stringify(getTeamSnapshot());
-  return cached;
-}
-
-/** Deferred a microtask so first-visit seeding during another render never warns. */
 function subscribeTeam(onChange: () => void) {
-  const handler = () => {
-    invalidate();
-    queueMicrotask(onChange);
-  };
+  const handler = () => queueMicrotask(onChange);
   window.addEventListener(TEAM_UPDATED_EVENT, handler);
   return () => window.removeEventListener(TEAM_UPDATED_EVENT, handler);
 }
 
-/** Live TeamSeed (members incl. invitations, roles, events). Empty on the server / during hydration. */
+/** Live TeamSeed (members incl. invitations, roles, events). Empty until the first load. */
 export function useTeamStore(): TeamSeed {
-  const snapshot = useSyncExternalStore(subscribeTeam, getSnapshot, () => EMPTY_SNAPSHOT);
-  return useMemo(() => JSON.parse(snapshot) as TeamSeed, [snapshot]);
+  return useSyncExternalStore(subscribeTeam, getTeamSnapshot, () => EMPTY);
 }
 
-const noopSubscribe = () => () => {};
-
-/** false on the server and during hydration, true once the client store can be read (show skeletons until then). */
+/**
+ * false until the team snapshot request settled (show skeletons until then). Every mount also refreshes
+ * the snapshot in the background, so opening a page shows current data.
+ */
 export function useTeamReady(): boolean {
-  return useSyncExternalStore(noopSubscribe, () => true, () => false);
+  useEffect(() => {
+    fetchTeam().catch((err) => toast.error("Couldn't load your team", { id: "team-load", description: apiErrorMessage(err) }));
+  }, []);
+  return useSyncExternalStore(subscribeTeam, isTeamSettled, () => false);
 }
 
-function subscribeSettings(onChange: () => void) {
-  const handler = () => queueMicrotask(onChange);
-  window.addEventListener(SETTINGS_UPDATED_EVENT, handler);
-  return () => window.removeEventListener(SETTINGS_UPDATED_EVENT, handler);
-}
-
-/** Settings › Security › "Require 2FA for admins" (live). */
+/** Settings › Security › "Require 2FA for admins" (from the API; false when settings can't be read). */
 export function useRequireAdmin2fa(): boolean {
-  return useSyncExternalStore(subscribeSettings, () => !!getSettingsSnapshot().settings.security.requireAdmin2fa, () => false);
+  const [required, setRequired] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    apiClient
+      .get<{ settings: { security: { requireAdmin2fa: boolean } } }>("/admin/settings")
+      .then((res) => alive && setRequired(!!res.data.settings?.security?.requireAdmin2fa))
+      .catch(() => undefined);
+    return () => {
+      alive = false;
+    };
+  }, []);
+  return required;
+}
+
+/** The signed-in admin's own team member id (from GET /team/me), or null. */
+export function useMyMemberId(): string | null {
+  return useAppSelector((s) => s.auth.access?.memberId ?? null);
 }
 
 export default useTeamStore;

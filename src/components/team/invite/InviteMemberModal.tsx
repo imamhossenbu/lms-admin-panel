@@ -11,7 +11,6 @@ import { INVITE_EXPIRY_DAYS, INVITE_MAX_EMAILS, INVITE_MESSAGE_MAX, inviteFormSc
 import { inviteMembers, teamEmails } from "@/lib/teamStorage";
 import { sortRoles } from "@/lib/teamStats";
 import { countPermissions, emptyPermissions, normalizeExtras } from "@/lib/teamPermissions";
-import { SUPER_ADMIN_ROLE_ID } from "@/data/mockTeamData";
 import { ModalShell } from "@/components/ui/ModalShell";
 import { TagsInput } from "@/components/ui/TagsInput";
 import { AppSelect } from "@/components/ui/AppSelect";
@@ -40,7 +39,7 @@ const DEFAULT_ROLE = "role-support";
 const splitEmails = (tags: string[]) => Array.from(new Set(tags.flatMap((t) => t.split(/[\s,;]+/)).map((t) => t.trim().toLowerCase()).filter(Boolean)));
 
 function InviteForm({ data, onClose, onInvited }: Omit<InviteMemberModalProps, "isOpen">) {
-  const roles = useMemo(() => sortRoles(data.roles).filter((r) => r.id !== SUPER_ADMIN_ROLE_ID), [data.roles]);
+  const roles = useMemo(() => sortRoles(data.roles).filter((r) => !r.isLocked), [data.roles]);
   const taken = useMemo(() => teamEmails(data), [data]);
   const schema = useMemo(() => inviteFormSchema(taken, roles.map((r) => r.id), Object.fromEntries(roles.map((r) => [r.id, r.permissions]))), [taken, roles]);
   const { control, register, handleSubmit, formState } = useForm<InviteFormValues>({

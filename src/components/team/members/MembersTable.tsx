@@ -10,6 +10,7 @@ import { MemberIdentity } from "../shared/MemberIdentity";
 import { ExtraPermissionsBadge, MemberStatusBadge, RoleBadge, TwoFactorBadge } from "../shared/TeamBadges";
 import { expiresIn, fullDate, shortDate, timeAgo } from "../shared/teamFormat";
 import { MemberRowActions, type MemberRowActionsProps } from "./MemberRowActions";
+import { useMyMemberId } from "../shared/useTeamStore";
 
 export interface MembersTableProps {
   rows: TeamMember[];
@@ -44,8 +45,9 @@ function LastActiveCell({ m }: { m: TeamMember }) {
 
 /** Members (fixed layout + explicit widths so it fits laptop widths without horizontal scroll). */
 export function MembersTable({ rows, roles, open, busyId, emptyMessage, footer }: MembersTableProps) {
+  const myId = useMyMemberId();
   const columns: ColumnDef<TeamMember>[] = [
-    { key: "member", header: "Member", render: (m) => <MemberIdentity member={m} /> },
+    { key: "member", header: "Member", render: (m) => <MemberIdentity member={m} isYou={m.id === myId} /> },
     {
       key: "role",
       header: "Role",

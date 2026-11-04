@@ -1,3 +1,4 @@
+import { apiErrorMessage } from "@/lib/apiError";
 /** Dates for Team & Roles: "just now", "5m ago", "3h ago", "4d ago", then "Oct 12, 2026". */
 export function timeAgo(iso: string | null | undefined, now: number = Date.now()): string {
   if (!iso) return "Never";
@@ -43,4 +44,5 @@ export const clockTime = (iso: string) => new Date(iso).toLocaleTimeString("en-U
 
 export const plural = (n: number, word: string, many = `${word}s`) => `${n} ${n === 1 ? word : many}`;
 
-export const errorText = (err: unknown) => (err instanceof Error && err.message ? err.message : "Something went wrong. Please try again.");
+/** Friendly text for any thrown value (API errors carry the server's message). */
+export const errorText = (err: unknown) => apiErrorMessage(err);

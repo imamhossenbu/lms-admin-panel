@@ -1,6 +1,6 @@
 /**
  * Team & Roles (admin-panel staff only — students and instructors live on their own pages).
- * Mock-first: persisted by src/lib/teamStorage.ts, seeded by src/data/mockTeamData.ts.
+ * Served by the Team API (`/team*`) through src/lib/teamStorage.ts.
  */
 
 export const TEAM_MODULES = [

@@ -6,7 +6,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { UserCog } from "lucide-react";
 import type { TeamMember, TeamRole } from "@/types/team";
 import { changeRoleSchema, type ChangeRoleValues } from "@/validations/teamSchema";
-import { SUPER_ADMIN_ROLE_ID } from "@/data/mockTeamData";
 import { countPermissions, extraCount, listGrants, normalizeExtras, subtractPermissions } from "@/lib/teamPermissions";
 import { sortRoles } from "@/lib/teamStats";
 import { ModalShell } from "@/components/ui/ModalShell";
@@ -36,7 +35,7 @@ function ChangeRoleForm({ member, roles, onClose, onSubmit }: ChangeRoleModalPro
   const nDropped = countPermissions(dropped);
   const nKept = kept ? countPermissions(kept) : 0;
   const options = sortRoles(roles)
-    .filter((r) => r.id !== SUPER_ADMIN_ROLE_ID || member.status !== "INVITED")
+    .filter((r) => !r.isLocked || member.status !== "INVITED")
     .map((r) => ({ value: r.id, title: r.name, description: `${countPermissions(r.permissions)} permissions${r.id === member.roleId ? " · current" : ""}` }));
 
   const submit = async (v: ChangeRoleValues) => {

@@ -12,6 +12,7 @@ import { ExtraPermissionsBadge, MemberStatusBadge, OwnerBadge, RoleBadge } from 
 import { extraCount } from "@/lib/teamPermissions";
 import { fullDate, shortDate, timeAgo } from "../shared/teamFormat";
 import type { MemberDialogOpeners } from "../shared/useMemberDialogs";
+import { useMyMemberId } from "../shared/useTeamStore";
 
 export interface MemberProfileHeaderProps {
   member: TeamMember;
@@ -32,6 +33,7 @@ function Meta({ icon, children, title }: { icon: React.ReactNode; children: Reac
 /** Breadcrumb + profile banner: avatar, name, Owner/role/status badges, contact + dates, header actions. */
 export function MemberProfileHeader({ member: m, role, open, busy }: MemberProfileHeaderProps) {
   const invited = m.status === "INVITED";
+  const isSelf = useMyMemberId() === m.id;
   const title = invited ? m.email : m.name;
   return (
     <div className="space-y-4">
@@ -81,6 +83,10 @@ export function MemberProfileHeader({ member: m, role, open, busy }: MemberProfi
           {m.isOwner ? (
             <ToneBadge tone="gray" size="lg">
               The workspace owner can&apos;t be changed or removed
+            </ToneBadge>
+          ) : isSelf ? (
+            <ToneBadge tone="gray" size="lg">
+              This is you — ask another admin to change your access
             </ToneBadge>
           ) : invited ? (
             <>
