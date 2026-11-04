@@ -28,11 +28,11 @@ export default function PaymentDetailsPage({ params }: PageProps) {
   const { id } = React.use(params);
   const router = useRouter();
   const actions = useOrderActions();
-  const { order, studentOrderCount, isLoading } = useStoredOrder(id);
+  const { order, studentOrderCount, isLoading, error } = useStoredOrder(id, "payment");
   const [isEditOpen, setIsEditOpen] = useState(false);
 
   if (isLoading) return <CommerceDetailsSkeleton variant="payment" />;
-  if (!order) return <CommerceNotFound entity="Payment" backHref="/payments" backLabel="Back to Payments" />;
+  if (!order) return <CommerceNotFound entity="Payment" backHref="/payments" backLabel="Back to Payments" message={error && !error.notFound ? error.message : undefined} />;
 
   return (
     <motion.div

@@ -41,7 +41,7 @@ export function PaymentDetailsHeader({ order, actions, onEditPayment, onViewOrde
       icon: <ShieldCheck className={ICON} />,
       separatorBefore: true,
       disabled: actions.verifyingId === order.id,
-      onClick: () => actions.verifyPayment(order),
+      onClick: () => actions.verifyPayment(order, "payment"),
     });
   }
   moreItems.push({
@@ -79,7 +79,7 @@ export function PaymentDetailsHeader({ order, actions, onEditPayment, onViewOrde
           type="button"
           disabled={!canSendReceipt}
           title={canSendReceipt ? "Email the receipt to the student" : "Receipts are available once the payment is received."}
-          onClick={() => actions.sendReceipt(order)}
+          onClick={() => actions.sendReceipt(order, "payment")}
           className={BUTTON}
         >
           <Send className="w-4 h-4" />

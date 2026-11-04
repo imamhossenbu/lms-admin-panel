@@ -2,6 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
+import { BookOpen } from "lucide-react";
 import { DataTable, ColumnDef } from "@/components/ui/Datatable";
 import { DetailCard } from "@/components/ui/DetailCard";
 import { ToneBadge } from "@/components/ui/ToneBadge";
@@ -13,7 +14,11 @@ import { OutlineLinkButton } from "./StudentInfoCard";
 export function CourseThumbnail({ course, size = "md" }: { course: OrderCourse; size?: "md" | "lg" }) {
   return (
     <span className={`relative rounded-lg overflow-hidden bg-slate-100 shrink-0 ${size === "lg" ? "w-12 h-12" : "w-10 h-10"}`}>
-      <Image src={course.thumbnailUrl} alt="" fill unoptimized className="object-cover" />
+      {course.thumbnailUrl ? (
+        <Image src={course.thumbnailUrl} alt="" fill unoptimized className="object-cover" />
+      ) : (
+        <BookOpen className="absolute inset-0 m-auto h-4.5 w-4.5 text-primary-300" aria-hidden />
+      )}
     </span>
   );
 }

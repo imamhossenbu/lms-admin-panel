@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useId, useMemo } from "react";
+import React, { useEffect, useId, useMemo, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, Info } from "lucide-react";
@@ -10,11 +10,12 @@ import { InputField } from "@/components/ui/InputField";
 import { ToggleSwitch } from "@/components/ui/ToggleSwitch";
 import { PrimaryButton } from "@/components/ui/primary-button";
 import { SecondaryButton } from "@/components/ui/secondary-button";
-import { MOCK_STUDENTS } from "@/data/mockStudentData";
-import { ORDER_COURSES } from "@/data/mockOrderData";
-import { CreateOrderInput, KNOWN_COUPONS, couponDiscount } from "@/lib/orderActions";
+import { toast } from "sonner";
+import { CreateOrderInput } from "@/lib/orderActions";
+import { studentsApi } from "@/lib/api/students";
+import { apiErrorMessage } from "@/lib/apiError";
+import { useCourseOptions } from "@/lib/students/useCourseOptions";
 import { createOrderSchema, CreateOrderFormInput, PAYMENT_METHOD_OPTIONS } from "@/validations/orderSchema";
-import { formatCurrency } from "./orderFormat";
 
 interface CreateOrderModalProps {
   isOpen: boolean;
@@ -45,13 +46,23 @@ export function CreateOrderModal({ isOpen, onClose, onCreate }: CreateOrderModal
   }, [isOpen, reset]);
 
   const [courseId, couponCode, markAsPaid] = useWatch({ control, name: ["courseId", "couponCode", "markAsPaid"] });
-  const price = ORDER_COURSES.find((c) => c.id === courseId)?.price;
-  const couponValid = !!couponCode && KNOWN_COUPONS.includes(couponCode.toUpperCase());
+  const courses = useCourseOptions();
+  const price = courses?.find((c) => c.id === courseId)?.price;
 
-  const studentOptions = useMemo(
-    () => MOCK_STUDENTS.map((s) => ({ value: s.id, label: `${s.name} (${s.email})` })),
-    []
-  );
+  // Active students of this workspace (first 100 by name) for the picker.
+  const [students, setStudents] = useState<{ value: string; label: string }[] | null>(null);
+  useEffect(() => {
+    if (!isOpen || students) return;
+    studentsApi
+      .list({ limit: 100, status: "Active", sortBy: "name", sortOrder: "asc" })
+      .then((res) => setStudents(res.data.map((s) => ({ value: s.id, label: `${s.name} (${s.email})` }))))
+      .catch((err) => {
+        setStudents([]);
+        toast.error("Couldn't load students", { description: apiErrorMessage(err) });
+      });
+  }, [isOpen, students]);
+  const studentOptions = useMemo(() => students ?? [], [students]);
+  const courseOptions = useMemo(() => (courses ?? []).map((c) => ({ value: c.id, label: `${c.title} · ${c.price}` })), [courses]);
 
   const submit = async (data: CreateOrderFormInput) => {
     try {
@@ -92,7 +103,7 @@ export function CreateOrderModal({ isOpen, onClose, onCreate }: CreateOrderModal
               <AppSelect
                 value={field.value ?? ""}
                 onValueChange={field.onChange}
-                placeholder="Select a student"
+                placeholder={students === null ? "Loading students..." : students.length ? "Select a student" : "No active students yet"}
                 options={studentOptions}
                 className="w-full"
                 triggerClassName={`w-full h-10 bg-white ${errors.studentId ? "border-red" : ""}`}
@@ -114,8 +125,8 @@ export function CreateOrderModal({ isOpen, onClose, onCreate }: CreateOrderModal
                 <AppSelect
                   value={field.value ?? ""}
                   onValueChange={field.onChange}
-                  placeholder="Select a course"
-                  options={ORDER_COURSES.map((c) => ({ value: c.id, label: `${c.title} · ${formatCurrency(c.price)}` }))}
+                  placeholder={courses === null ? "Loading courses..." : courses.length ? "Select a course" : "No courses yet"}
+                  options={courseOptions}
                   className="w-full"
                   triggerClassName={`w-full h-10 bg-white ${errors.courseId ? "border-red" : ""}`}
                 />
@@ -148,14 +159,12 @@ export function CreateOrderModal({ isOpen, onClose, onCreate }: CreateOrderModal
         <InputField
           id={`${formId}-coupon`}
           label={<span className="body-sm-medium text-primary-500">Coupon Code (optional)</span>}
-          placeholder={`e.g. ${KNOWN_COUPONS.join(" or ")}`}
+          placeholder="e.g. WELCOME10"
           error={errors.couponCode?.message}
           {...register("couponCode")}
         />
         {couponCode && !errors.couponCode && (
-          <p className={`body-xsm-regular -mt-2 ${couponValid ? "text-green" : "text-yellow"}`}>
-            {couponValid ? "Coupon will be applied." : "Unknown coupon. It will be ignored."}
-          </p>
+          <p className="body-xsm-regular -mt-2 text-primary-300">The coupon is checked when the order is created (it must be active and valid for this course).</p>
         )}
 
         <Controller
@@ -199,10 +208,8 @@ export function CreateOrderModal({ isOpen, onClose, onCreate }: CreateOrderModal
 
         {price !== undefined && (
           <div className="flex items-center justify-between rounded-lg bg-slate-50 border border-dash px-4 py-3">
-            <span className="body-sm-regular text-primary-400">Order total</span>
-            <span className="body-medium text-primary-500">
-              {formatCurrency(price - couponDiscount(couponCode, price))}
-            </span>
+            <span className="body-sm-regular text-primary-400">Course price{couponCode ? " (before coupon)" : ""}</span>
+            <span className="body-medium text-primary-500">{price}</span>
           </div>
         )}
       </form>

@@ -96,14 +96,8 @@ export function ChangeStatusModal({ target, onClose, onConfirm }: ChangeStatusMo
   const submit = async (data: ChangeStatusInput) => {
     if (!target) return;
     const next = data.target as OrderStatus;
-    const reason =
-      data.reason && statusNeedsReason(next)
-        ? data.reason === "Other"
-          ? data.details
-          : data.details
-            ? `${data.reason}: ${data.details}`
-            : data.reason
-        : undefined;
+    // The API takes the reason from its fixed list and the free text separately (`details`).
+    const reason = data.reason && statusNeedsReason(next) ? data.reason : undefined;
     try {
       await onConfirm(target.order, target.scope, {
         target: next,
@@ -112,7 +106,7 @@ export function ChangeStatusModal({ target, onClose, onConfirm }: ChangeStatusMo
             ? { method: data.method as PaymentMethod, reference: data.reference ?? "", paidOn: data.paidOn ?? today }
             : undefined,
         reason,
-        note: next === "Paid" || next === "Pending" ? data.details || undefined : undefined,
+        note: data.details || undefined,
       });
       onClose();
     } catch {

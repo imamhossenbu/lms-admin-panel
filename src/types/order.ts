@@ -5,6 +5,7 @@
 export type OrderStatus = "Paid" | "Pending" | "Failed" | "Cancelled" | "Refunded";
 
 export type PaymentMethod = "Stripe" | "PayPal" | "SSLCommerz" | "bKash" | "Nagad";
+export const PAYMENT_METHODS: PaymentMethod[] = ["Stripe", "PayPal", "SSLCommerz", "bKash", "Nagad"];
 
 export interface OrderCourse {
   id: string;
@@ -25,6 +26,18 @@ export interface OrderStudent {
   avatarUrl?: string;
   joinedAt?: string;
   totalCourses?: number;
+}
+
+/** Stat cards (GET /admin/orders/stats — same filters as the list, minus status). */
+export interface OrderStats {
+  total: number;
+  revenue: number;
+  currency: string;
+  paid: number;
+  pending: number;
+  failed: number;
+  cancelled: number;
+  refunded: number;
 }
 
 export type OrderTimelineLabel =
@@ -72,7 +85,8 @@ export interface OrderItem {
   tax: number;
   /** subtotal − discount + tax */
   amount: number;
-  currency: "USD";
+  /** ISO code from the API, e.g. "BDT". */
+  currency: string;
   couponCode?: string;
   paymentMethod: PaymentMethod;
   /** Masked account, e.g. "Visa **** 4242" or "bKash 017** ***678". */

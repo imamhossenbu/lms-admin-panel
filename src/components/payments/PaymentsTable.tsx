@@ -15,12 +15,14 @@ interface PaymentsTableProps {
   orders: OrderItem[];
   onViewDetails: (order: OrderItem) => void;
   getMenuItems: (order: OrderItem) => DropdownActionItem[];
+  /** Skeleton rows while the first page loads. */
+  isLoading?: boolean;
   /** Rendered inside the table card, under the rows (pagination). */
   footer?: React.ReactNode;
 }
 
 /** One row per payment attempt (payments are derived from orders). */
-export function PaymentsTable({ orders, onViewDetails, getMenuItems, footer }: PaymentsTableProps) {
+export function PaymentsTable({ orders, onViewDetails, getMenuItems, footer, isLoading = false }: PaymentsTableProps) {
   const columns: ColumnDef<OrderItem>[] = [
     {
       key: "transaction",
@@ -113,6 +115,7 @@ export function PaymentsTable({ orders, onViewDetails, getMenuItems, footer }: P
         <DataTable
           columns={columns}
           data={orders}
+          isLoading={isLoading}
           rowKey={(row) => row.id}
           onRowClick={onViewDetails}
           verticalBorders

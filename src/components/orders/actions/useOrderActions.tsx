@@ -6,7 +6,8 @@ import { toast } from "sonner";
 import { Eye, UserRound, Copy, ShieldCheck, FileDown, Send, RefreshCw, CreditCard } from "lucide-react";
 import { DropdownActionItem } from "@/components/ui/AppDropdownMenu";
 import { OrderItem, OrderStatus } from "@/types/order";
-import { getStoredOrders, saveStoredOrder, updateStoredOrder } from "@/lib/orderStorage";
+import { announceOrderChange, ordersApi } from "@/lib/api/orders";
+import { apiErrorMessage } from "@/lib/apiError";
 import {
   AdditionalInfoInput,
   CreateOrderInput,
@@ -14,26 +15,15 @@ import {
   NoteScope,
   StatusChangeInput,
   StatusScope,
-  applyAdditionalInfo,
-  applyNoteDelete,
-  applyNoteSave,
-  applyPaymentEdit,
-  applyReceiptSent,
-  applyStatusChange,
-  applyVerifiedPayment,
-  buildManualOrder,
   canChangeStatus,
   getAllowedActions,
-  queryGatewayPayment,
 } from "@/lib/orderActions";
 import { invoiceNumber, targetLabel } from "@/lib/orderView";
 import { formatCurrency } from "../orderFormat";
 import { ChangeStatusModal, ChangeStatusTarget } from "./ChangeStatusModal";
 import { downloadInvoice } from "./orderInvoice";
 
-const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-const errorText = (error: unknown) =>
-  error instanceof Error ? error.message : "Something went wrong. Please try again.";
+const errorText = (error: unknown) => apiErrorMessage(error);
 
 const STATUS_TOAST: Record<OrderStatus, { loading: string; success: string }> = {
   Paid: { loading: "Recording payment...", success: "Marked as paid" },
@@ -43,20 +33,25 @@ const STATUS_TOAST: Record<OrderStatus, { loading: string; success: string }> = 
   Refunded: { loading: "Processing refund...", success: "Refund issued" },
 };
 
-/** Runs a simulated API mutation with the standard sonner loading → success / error lifecycle. */
+/** Drops the result (callers only await completion). */
+const done = (p: Promise<unknown>): Promise<void> => p.then(() => undefined);
+
+/** Runs an API mutation with the standard sonner loading → success / error lifecycle and announces the updated order. */
 async function runMutation(
   messages: { loading: string; success: string; error: string; description?: string; successDescription?: string },
-  mutate: () => void,
+  mutate: () => Promise<OrderItem>,
   rethrow = true
-) {
+): Promise<OrderItem | undefined> {
   const toastId = toast.loading(messages.loading, { description: messages.description });
   try {
-    await wait(600);
-    mutate();
+    const updated = await mutate();
+    announceOrderChange(updated);
     toast.success(messages.success, { id: toastId, description: messages.successDescription });
+    return updated;
   } catch (error) {
     toast.error(messages.error, { id: toastId, description: errorText(error) });
     if (rethrow) throw error;
+    return undefined;
   }
 }
 
@@ -80,23 +75,18 @@ export function useOrderActions() {
     }
   };
 
-  const verifyPayment = async (order: OrderItem) => {
+  const verifyPayment = async (order: OrderItem, scope: StatusScope = "order") => {
     setVerifyingId(order.id);
-    const toastId = toast.loading("Checking payment status...", {
-      description: `Asking ${order.paymentMethod} about ${order.orderNumber}.`,
-    });
+    const toastId = toast.loading("Checking payment status...", { description: `Asking ${order.paymentMethod} about ${order.orderNumber}.` });
     try {
-      await wait(900);
-      const result = queryGatewayPayment(order);
-      if (result.paid && result.transactionId) {
-        updateStoredOrder(order.id, applyVerifiedPayment(order, result.transactionId));
-        toast.success("Payment verified", { id: toastId, description: `${order.student.name} is now enrolled.` });
-      } else {
+      const result = await ordersApi.verify(scope, order.id);
+      announceOrderChange(result.order);
+      if (result.paid) toast.success("Payment verified", { id: toastId, description: `${order.student.name} is now enrolled.` });
+      else
         toast.warning("No payment found yet", {
           id: toastId,
           description: "The gateway has no successful payment for this order. Try again later or update the status manually.",
         });
-      }
     } catch (error) {
       toast.error("Verification failed", { id: toastId, description: errorText(error) });
     } finally {
@@ -106,7 +96,7 @@ export function useOrderActions() {
 
   const confirmStatusChange = (order: OrderItem, scope: StatusScope, input: StatusChangeInput) => {
     const copy = STATUS_TOAST[input.target];
-    return runMutation(
+    return done(runMutation(
       {
         loading: copy.loading,
         success: copy.success,
@@ -114,17 +104,23 @@ export function useOrderActions() {
         description: `${order.orderNumber} → ${targetLabel(input.target, scope)}`,
         successDescription:
           input.target === "Refunded"
-            ? `${formatCurrency(order.amount)} will be returned to ${order.student.name}. Course access was revoked.`
+            ? `${formatCurrency(order.amount, order.currency)} will be returned to ${order.student.name}. Course access was revoked.`
             : input.target === "Paid"
               ? `${order.student.name} has been enrolled and an invoice was generated.`
               : `${order.orderNumber} is now ${targetLabel(input.target, scope).toLowerCase()}.`,
       },
-      () => updateStoredOrder(order.id, applyStatusChange(order, scope, input))
-    );
+      () =>
+        ordersApi.changeStatus(scope, order.id, {
+          target: input.target,
+          ...(input.payment ? { method: input.payment.method, reference: input.payment.reference, paidOn: input.payment.paidOn } : {}),
+          ...(input.reason ? { reason: input.reason } : {}),
+          ...(input.note ? { details: input.note } : {}),
+        })
+    ));
   };
 
-  const sendReceipt = (order: OrderItem) =>
-    runMutation(
+  const sendReceipt = (order: OrderItem, scope: StatusScope = "order") =>
+    done(runMutation(
       {
         loading: "Sending receipt...",
         success: "Receipt sent",
@@ -132,41 +128,40 @@ export function useOrderActions() {
         description: order.student.email,
         successDescription: `${invoiceNumber(order)} emailed to ${order.student.email}.`,
       },
-      () => updateStoredOrder(order.id, applyReceiptSent(order)),
+      () => ordersApi.sendReceipt(scope, order.id),
       false
-    );
+    ));
 
   const saveAdditionalInfo = (order: OrderItem, input: AdditionalInfoInput) =>
-    runMutation(
+    done(runMutation(
       { loading: "Saving changes...", success: "Information updated", error: "Could not save changes", description: order.orderNumber },
-      () => updateStoredOrder(order.id, applyAdditionalInfo(order, input))
-    );
+      () => ordersApi.additionalInfo(order.id, { referralSource: input.referralSource, ...(input.couponCode ? { couponCode: input.couponCode } : {}), ...(input.notes ? { notes: input.notes } : {}) })
+    ));
 
   const saveNote = (order: OrderItem, scope: NoteScope, content: string, noteId?: string) =>
-    runMutation(
+    done(runMutation(
       { loading: noteId ? "Updating note..." : "Adding note...", success: noteId ? "Note updated" : "Note added", error: "Could not save note" },
-      () => updateStoredOrder(order.id, applyNoteSave(order, scope, content, noteId))
-    );
+      () => (noteId ? ordersApi.updateNote(scope, order.id, noteId, content) : ordersApi.addNote(scope, order.id, content))
+    ));
 
   const deleteNote = (order: OrderItem, scope: NoteScope, noteId: string) =>
-    runMutation({ loading: "Deleting note...", success: "Note deleted", error: "Could not delete note" }, () =>
-      updateStoredOrder(order.id, applyNoteDelete(order, scope, noteId))
-    );
+    done(runMutation({ loading: "Deleting note...", success: "Note deleted", error: "Could not delete note" }, () => ordersApi.deleteNote(scope, order.id, noteId)));
 
   const editPayment = (order: OrderItem, input: EditPaymentInput) =>
-    runMutation(
+    done(runMutation(
       { loading: "Saving payment...", success: "Payment updated", error: "Could not update payment", description: order.orderNumber },
-      () => updateStoredOrder(order.id, applyPaymentEdit(order, input))
-    );
+      () => ordersApi.editPayment(order.id, { method: input.method, account: input.account, ...(input.reference ? { reference: input.reference } : {}) })
+    ));
 
   const createOrder = async (input: CreateOrderInput) => {
-    let created: OrderItem | undefined;
-    await runMutation(
-      { loading: "Creating order...", success: "Order created", error: "Could not create order" },
-      () => {
-        created = buildManualOrder(input, getStoredOrders());
-        saveStoredOrder(created);
-      }
+    const created = await runMutation(
+      {
+        loading: "Creating order...",
+        success: "Order created",
+        error: "Could not create order",
+        successDescription: input.markAsPaid ? "Marked as paid — the student is enrolled." : "Waiting for payment.",
+      },
+      () => ordersApi.create(input)
     );
     return created!;
   };
@@ -215,7 +210,7 @@ export function useOrderActions() {
       items.push({ key: "invoice", label: "Download Invoice", icon: <FileDown className={ICON} />, onClick: () => handleDownloadInvoice(order) });
     }
     if (allowed.includes("resendInvoice")) {
-      items.push({ key: "resend", label: "Send Receipt", icon: <Send className={ICON} />, onClick: () => sendReceipt(order) });
+      items.push({ key: "resend", label: "Send Receipt", icon: <Send className={ICON} />, onClick: () => sendReceipt(order, scope) });
     }
     if (allowed.includes("verify")) {
       items.push({
@@ -224,7 +219,7 @@ export function useOrderActions() {
         icon: <ShieldCheck className={ICON} />,
         separatorBefore: true,
         disabled: verifyingId === order.id,
-        onClick: () => verifyPayment(order),
+        onClick: () => verifyPayment(order, scope),
       });
     }
     items.push({

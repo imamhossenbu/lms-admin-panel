@@ -15,11 +15,13 @@ interface OrdersTableProps {
   orders: OrderItem[];
   onViewDetails: (order: OrderItem) => void;
   getMenuItems: (order: OrderItem) => DropdownActionItem[];
+  /** Skeleton rows while the first page loads. */
+  isLoading?: boolean;
   /** Rendered inside the table card, under the rows (pagination). */
   footer?: React.ReactNode;
 }
 
-export function OrdersTable({ orders, onViewDetails, getMenuItems, footer }: OrdersTableProps) {
+export function OrdersTable({ orders, onViewDetails, getMenuItems, footer, isLoading = false }: OrdersTableProps) {
   const columns: ColumnDef<OrderItem>[] = [
     {
       key: "orderNumber",
@@ -97,6 +99,7 @@ export function OrdersTable({ orders, onViewDetails, getMenuItems, footer }: Ord
         <DataTable
           columns={columns}
           data={orders}
+          isLoading={isLoading}
           rowKey={(row) => row.id}
           onRowClick={onViewDetails}
           verticalBorders

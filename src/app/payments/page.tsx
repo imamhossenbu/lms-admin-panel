@@ -1,23 +1,22 @@
 "use client";
 
-import React, { Suspense, useEffect, useMemo, useState } from "react";
+import React, { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 
-import { OrderItem } from "@/types/order";
-import { getStoredOrders, ORDERS_UPDATED_EVENT } from "@/lib/orderStorage";
+import { PAYMENT_METHODS, type OrderItem, type OrderStatus, type PaymentMethod } from "@/types/order";
+import { ordersApi, type OrderListQuery } from "@/lib/api/orders";
+import { apiErrorMessage } from "@/lib/apiError";
+import { useOrderList } from "@/lib/orders/useOrderList";
 import { useUrlParams } from "@/lib/useUrlParams";
 import {
   PAYMENT_STATUS_FILTERS,
-  matchesPaymentStatus,
   paymentStatusView,
   transactionCode,
   transactionHash,
 } from "@/lib/orderView";
-import { PAYMENT_METHODS } from "@/data/mockOrderData";
 import { TablePagination } from "@/components/ui/TablePagination";
-import { isInDateRange } from "@/components/ui/DateRangeFilter";
 import { ListFilters } from "@/components/ui/ListFilters";
 import { downloadFile, toCsv, todayStamp } from "@/components/commerce/exportFile";
 import { OrdersPageSkeleton } from "@/components/orders/OrdersPageSkeleton";
@@ -34,9 +33,6 @@ function PaymentsContent() {
   const router = useRouter();
   const { get, getPage, set } = useUrlParams();
   const actions = useOrderActions();
-  const [orders, setOrders] = useState<OrderItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
   const query = get("q");
   const status = get("status", "All");
   const method = get("method", "All");
@@ -46,45 +42,44 @@ function PaymentsContent() {
   const sizeParam = Number(get("size"));
   const pageSize = PAGE_SIZES.includes(sizeParam) ? sizeParam : 10;
 
-  // Payments are derived from orders, so status changes stay in sync across both pages
+  // Debounced search box → URL.
+  const [search, setSearch] = useState(query);
+  const setRef = useRef(set);
   useEffect(() => {
-    const load = () => setOrders(getStoredOrders());
-    const timer = setTimeout(() => {
-      load();
-      setIsLoading(false);
-    }, 350);
-    window.addEventListener(ORDERS_UPDATED_EVENT, load);
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener(ORDERS_UPDATED_EVENT, load);
-    };
-  }, []);
+    setRef.current = set;
+  }, [set]);
+  useEffect(() => {
+    if (search.trim() === query) return;
+    const t = setTimeout(() => setRef.current({ q: search.trim(), page: null }), 300);
+    return () => clearTimeout(t);
+  }, [search, query]);
 
-  const filtered = useMemo(() => {
-    const q = query.toLowerCase().trim().replace(/^#/, "");
-    return orders
-      .filter(
-        (o) =>
-          matchesPaymentStatus(o, status) &&
-          (method === "All" || o.paymentMethod === method) &&
-          isInDateRange(paymentDate(o), { from, to }) &&
-          (!q ||
-            transactionCode(o).toLowerCase().includes(q) ||
-            transactionHash(o).includes(q) ||
-            o.transactionId.toLowerCase().includes(q) ||
-            o.orderNumber.toLowerCase().includes(q) ||
-            o.student.name.toLowerCase().includes(q) ||
-            o.student.email.toLowerCase().includes(q))
-      )
-      .sort((a, b) => paymentDate(b).localeCompare(paymentDate(a)));
-  }, [orders, query, status, method, from, to]);
+  const listQuery = useMemo<OrderListQuery>(
+    () => ({
+      page,
+      limit: pageSize,
+      q: query.replace(/^#/, "") || undefined,
+      status: (PAYMENT_STATUS_FILTERS as string[]).includes(status) ? (status as OrderStatus) : undefined,
+      method: (PAYMENT_METHODS as string[]).includes(method) ? (method as PaymentMethod) : undefined,
+      from,
+      to,
+    }),
+    [page, pageSize, query, status, method, from, to]
+  );
+  const { rows, total, stats, isFetching } = useOrderList("payment", listQuery);
 
-  if (isLoading) return <OrdersPageSkeleton variant="payments" />;
+  if (rows === null) return <OrdersPageSkeleton variant="payments" />;
 
-  const rows = filtered.slice((page - 1) * pageSize, page * pageSize);
   const isFiltered = !!query || status !== "All" || method !== "All" || !!from || !!to;
 
-  const handleExport = () => {
+  const handleExport = async () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { page: _p, limit: _l, ...filters } = listQuery;
+    const filtered = await ordersApi.listAll("payment", filters).catch((err) => {
+      toast.error("Couldn't export payments", { description: apiErrorMessage(err) });
+      return null;
+    });
+    if (!filtered) return;
     const csv = toCsv(
       ["Transaction ID", "Gateway Ref", "Order ID", "Student", "Email", "Course(s)", "Method", "Amount", "Status", "Payment Date"],
       filtered.map((o) => [
@@ -112,13 +107,13 @@ function PaymentsContent() {
       className="space-y-5 text-left pb-8"
     >
       <PaymentsHeader onExport={handleExport} />
-      <PaymentStatsRow orders={orders} />
+      <PaymentStatsRow stats={stats} />
 
       <div className="bg-white rounded-xl border border-dash shadow-2xs p-5 space-y-4">
         <ListFilters
-          query={query}
+          query={search}
           searchPlaceholder="Search by transaction ID, student name, order ID..."
-          onQueryChange={(q) => set({ q, page: null })}
+          onQueryChange={setSearch}
           selects={[
             {
               key: "status",
@@ -135,19 +130,23 @@ function PaymentsContent() {
           ]}
           dateRange={{ from, to }}
           onDateRangeChange={(range) => set({ from: range.from ?? null, to: range.to ?? null, page: null })}
-          onReset={() => set({ q: null, status: null, method: null, from: null, to: null, page: null })}
+          onReset={() => {
+            setSearch("");
+            set({ q: null, status: null, method: null, from: null, to: null, page: null });
+          }}
           isFiltered={isFiltered}
         />
 
         <PaymentsTable
           orders={rows}
+          isLoading={isFetching && rows.length === 0}
           onViewDetails={(order) => router.push(`/payments/${order.id}`)}
           getMenuItems={(order) => actions.getMenuItems(order, "payment")}
           footer={
             <TablePagination
               currentPage={page}
               pageSize={pageSize}
-              totalCount={filtered.length}
+              totalCount={total}
               itemLabel="payments"
               onPageChange={(next) => set({ page: next })}
               onPageSizeChange={(size) => set({ size: size === 10 ? null : size, page: null })}

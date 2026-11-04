@@ -6,6 +6,7 @@ import { BadgeInfo, CalendarDays, BookOpen, ReceiptText } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
 import { DetailCard } from "@/components/ui/DetailCard";
 import { OrderStudent } from "@/types/order";
+import { formatOrderDate } from "@/components/orders/orderFormat";
 
 interface StudentInfoCardProps {
   student: OrderStudent;
@@ -47,7 +48,7 @@ export function StudentInfoCard({ student, totalOrders }: StudentInfoCardProps) 
         </div>
         <div className="space-y-2.5 md:pl-6">
           <Fact icon={<BadgeInfo />} label="Student ID" value={student.code} />
-          <Fact icon={<CalendarDays />} label="Joined" value={student.joinedAt ?? "—"} />
+          <Fact icon={<CalendarDays />} label="Joined" value={student.joinedAt ? (/^\d{4}-\d{2}-\d{2}T/.test(student.joinedAt) ? formatOrderDate(student.joinedAt) : student.joinedAt) : "—"} />
           <Fact icon={<BookOpen />} label="Total Courses" value={student.totalCourses ?? "—"} />
           <Fact icon={<ReceiptText />} label="Total Orders" value={totalOrders} />
         </div>
