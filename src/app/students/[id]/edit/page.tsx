@@ -1,16 +1,15 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import toast from "react-hot-toast";
-
+import { toast } from "sonner";
 import { createStudentSchema, CreateStudentInput } from "@/validations/studentSchema";
-import { getStoredStudents, saveStoredStudents } from "@/lib/studentStorage";
-import { EnrolledCourseItem } from "@/types/student";
-
+import { studentsApi } from "@/lib/api/students";
+import { apiErrorMessage, parseApiError } from "@/lib/apiError";
+import { useCourseOptions } from "@/lib/students/useCourseOptions";
 import { EditStudentHeader } from "@/components/students/edit/EditStudentHeader";
 import { EditStudentActions } from "@/components/students/edit/EditStudentActions";
 import { StudentInformationCard } from "@/components/students/create/StudentInformationCard";
@@ -18,135 +17,74 @@ import { CourseEnrollmentCard } from "@/components/students/create/CourseEnrollm
 import { StudentAccountSummaryCard } from "@/components/students/create/StudentAccountSummaryCard";
 import { StudentNextStepsCard } from "@/components/students/create/StudentNextStepsCard";
 import { CreateStudentSkeleton } from "@/components/students/create/CreateStudentSkeleton";
-import { ENROLLMENT_COURSES } from "@/components/students/create/mockEnrollmentCourses";
-import { DEFAULT_STUDENT_DETAILS } from "@/components/students/details/mockStudentDetails";
+import { StudentLoadError } from "@/components/students/details/StudentLoadError";
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
+/** Edit a student: profile fields + enrollments (added courses are enrolled, removed ones unenrolled). */
 export default function EditStudentPage({ params }: PageProps) {
   const router = useRouter();
-  const unwrappedParams = React.use(params);
-  const studentId = unwrappedParams.id;
-
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedCourseIds, setSelectedCourseIds] = useState<string[]>([
-    "course-1",
-    "course-2",
-  ]);
+  const { id: studentId } = React.use(params);
+  const courses = useCourseOptions();
+  const [load, setLoad] = useState<{ kind: "loading" } | { kind: "ready"; enrolled: string[] } | { kind: "error"; notFound: boolean; message: string }>({ kind: "loading" });
+  const [selectedCourseIds, setSelectedCourseIds] = useState<string[]>([]);
 
   const {
     register,
     handleSubmit,
     control,
     reset,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<CreateStudentInput>({
     resolver: zodResolver(createStudentSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      phone: "",
-      status: "Active",
-      enrolledCourseIds: ["course-1", "course-2"],
-    },
+    defaultValues: { name: "", email: "", phone: "", status: "Active", enrolledCourseIds: [] },
   });
 
-  // Watch fields for live synchronization with Account Summary Card
   const watchedName = useWatch({ control, name: "name" });
   const watchedEmail = useWatch({ control, name: "email" });
   const watchedPhone = useWatch({ control, name: "phone" });
   const watchedStatus = useWatch({ control, name: "status" });
 
   useEffect(() => {
-    const stored = getStoredStudents();
-    const found = stored.find((s) => s.id === studentId);
-
-    if (found) {
-      reset({
-        name: found.name,
-        email: found.email,
-        phone: found.phone,
-        status: found.status === "Active" ? "Active" : "Inactive",
-        enrolledCourseIds: found.enrolledCourses?.map((c) => c.id) || ["course-1", "course-2"],
+    let alive = true;
+    Promise.all([studentsApi.get(studentId), studentsApi.courses(studentId)])
+      .then(([student, enrolled]) => {
+        if (!alive) return;
+        const ids = enrolled.map((c) => c.id);
+        reset({ name: student.name, email: student.email, phone: student.phone, status: student.status, enrolledCourseIds: ids });
+        setSelectedCourseIds(ids);
+        setLoad({ kind: "ready", enrolled: ids });
+      })
+      .catch((err) => {
+        const info = parseApiError(err, "We couldn't load this student.");
+        if (alive) setLoad({ kind: "error", notFound: info.status === 404, message: info.message });
       });
-      if (found.enrolledCourses && found.enrolledCourses.length > 0) {
-        setSelectedCourseIds(found.enrolledCourses.map((c) => c.id));
-      }
-    } else {
-      // Fallback to mock details
-      reset({
-        name: DEFAULT_STUDENT_DETAILS.name,
-        email: DEFAULT_STUDENT_DETAILS.email,
-        phone: DEFAULT_STUDENT_DETAILS.phone,
-        status: DEFAULT_STUDENT_DETAILS.status === "Active" ? "Active" : "Inactive",
-        enrolledCourseIds: ["course-1", "course-2", "course-3"],
-      });
-      setSelectedCourseIds(["course-1", "course-2", "course-3"]);
-    }
-
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 200);
-
-    return () => clearTimeout(timer);
+    return () => {
+      alive = false;
+    };
   }, [studentId, reset]);
 
   const onSubmit = async (data: CreateStudentInput) => {
-    setIsSubmitting(true);
-    const toastId = toast.loading("Saving student updates...");
-
+    if (load.kind !== "ready") return;
+    const added = selectedCourseIds.filter((id) => !load.enrolled.includes(id));
+    const removed = load.enrolled.filter((id) => !selectedCourseIds.includes(id));
+    const toastId = toast.loading("Saving student...", { description: data.name });
     try {
-      await new Promise((resolve) => setTimeout(resolve, 600));
-
-      const stored = getStoredStudents();
-      const existingIdx = stored.findIndex((s) => s.id === studentId);
-
-      const enrolledCourses: EnrolledCourseItem[] = selectedCourseIds.map((id) => {
-        const found = ENROLLMENT_COURSES.find((c) => c.id === id);
-        return {
-          id: id,
-          title: found?.title || "General Course",
-          progress: 50,
-          enrolledDate: "Active",
-          completedLessons: 10,
-          totalLessons: 20,
-          instructor: found?.instructor.name || "EduPro Faculty",
-          category: found?.category || "Development",
-        };
-      });
-
-      if (existingIdx !== -1) {
-        stored[existingIdx] = {
-          ...stored[existingIdx],
-          name: data.name,
-          email: data.email,
-          phone: data.phone?.trim() || stored[existingIdx].phone,
-          status: (data.status as any) || stored[existingIdx].status,
-          enrolledCoursesCount: selectedCourseIds.length,
-          enrolledCourses,
-        };
-        saveStoredStudents(stored);
-      }
-
-      toast.success("Student details updated successfully", {
-        id: toastId,
-      });
-
+      await studentsApi.update(studentId, { name: data.name, email: data.email, phone: data.phone ?? "", status: data.status });
+      if (added.length) await studentsApi.enroll(studentId, added);
+      for (const courseId of removed) await studentsApi.unenroll(studentId, courseId);
+      const changes = [added.length && `enrolled in ${added.length}`, removed.length && `removed from ${removed.length}`].filter(Boolean).join(", ");
+      toast.success("Student updated", { id: toastId, description: changes ? `Profile saved; ${changes} course${added.length + removed.length === 1 ? "" : "s"}.` : "Profile saved." });
       router.push(`/students/${studentId}`);
-    } catch {
-      toast.error("Failed to update student", {
-        id: toastId,
-      });
-      setIsSubmitting(false);
+    } catch (err) {
+      toast.error("Couldn't save the student", { id: toastId, description: apiErrorMessage(err) });
     }
   };
 
-  if (isLoading) {
-    return <CreateStudentSkeleton />;
-  }
+  if (load.kind === "loading") return <CreateStudentSkeleton />;
+  if (load.kind === "error") return <StudentLoadError notFound={load.notFound} message={load.message} />;
 
   return (
     <motion.div
@@ -173,6 +111,7 @@ export default function EditStudentPage({ params }: PageProps) {
             />
 
             <CourseEnrollmentCard
+              courses={courses}
               selectedCourseIds={selectedCourseIds}
               onChangeSelectedCourseIds={setSelectedCourseIds}
             />

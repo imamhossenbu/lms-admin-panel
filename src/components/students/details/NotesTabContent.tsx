@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import Image from "next/image";
 import {
   StickyNote,
   Search,
@@ -19,32 +18,35 @@ import { PrimaryButton } from "@/components/ui/primary-button";
 import { AppDropdownMenu } from "@/components/ui/AppDropdownMenu";
 import { NoteCardBlock } from "./NoteCardBlock";
 import { AddEditNoteModal } from "./AddEditNoteModal";
-import { StudentNoteItem } from "./mockStudentDetails";
-import toast from "react-hot-toast";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { Avatar } from "@/components/ui/Avatar";
+import type { StudentNoteCategory, StudentNoteItem } from "@/types/studentDetails";
+import { toast } from "sonner";
 
 interface NotesTabContentProps {
-  notes?: StudentNoteItem[];
+  notes: StudentNoteItem[];
+  /** Each resolves when the API saved the change and rejects (after its own error toast) on failure. */
+  onAdd: (note: { category: StudentNoteCategory; content: string }) => Promise<void>;
+  onUpdate: (noteId: string, note: { category: StudentNoteCategory; content: string }) => Promise<void>;
+  onDelete: (noteId: string) => Promise<void>;
 }
 
-export function NotesTabContent({
-  notes: initialNotes = [],
-}: NotesTabContentProps) {
-  const [notes, setNotes] = useState<StudentNoteItem[]>(initialNotes);
+export function NotesTabContent({ notes, onAdd, onUpdate, onDelete }: NotesTabContentProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingNote, setEditingNote] = useState<StudentNoteItem | null>(null);
+  const [deletingNote, setDeletingNote] = useState<StudentNoteItem | null>(null);
 
   const filteredNotes = useMemo(() => {
-    return notes.filter((n) => {
-      const q = searchQuery.toLowerCase().trim();
-      return (
+    const q = searchQuery.toLowerCase().trim();
+    return notes.filter(
+      (n) =>
         !q ||
         n.categoryLabel.toLowerCase().includes(q) ||
         n.content.toLowerCase().includes(q) ||
         n.author.name.toLowerCase().includes(q) ||
         n.author.role.toLowerCase().includes(q)
-      );
-    });
+    );
   }, [notes, searchQuery]);
 
   const handleOpenAddModal = () => {
@@ -57,48 +59,8 @@ export function NotesTabContent({
     setIsModalOpen(true);
   };
 
-  const handleDeleteNote = (noteId: string) => {
-    setNotes((prev) => prev.filter((n) => n.id !== noteId));
-    toast.success("Note removed successfully.");
-  };
-
-  const handleSaveNote = (noteData: {
-    category: any;
-    categoryLabel: string;
-    content: string;
-  }) => {
-    if (editingNote) {
-      setNotes((prev) =>
-        prev.map((n) =>
-          n.id === editingNote.id
-            ? {
-                ...n,
-                category: noteData.category,
-                categoryLabel: noteData.categoryLabel,
-                content: noteData.content,
-              }
-            : n
-        )
-      );
-    } else {
-      const newNote: StudentNoteItem = {
-        id: `note-${Date.now()}`,
-        orderNumber: notes.length + 1,
-        category: noteData.category,
-        categoryLabel: noteData.categoryLabel,
-        content: noteData.content,
-        author: {
-          name: "Admin",
-          role: "Super Admin",
-          avatarUrl:
-            "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80&auto=format&fit=crop&q=80",
-        },
-        date: "Oct 25, 2026",
-        time: "04:30 PM",
-      };
-      setNotes((prev) => [newNote, ...prev]);
-    }
-  };
+  const handleSaveNote = (values: { category: StudentNoteCategory; content: string }) =>
+    editingNote ? onUpdate(editingNote.id, values) : onAdd(values);
 
   const columns: ColumnDef<StudentNoteItem>[] = [
     {
@@ -123,15 +85,7 @@ export function NotesTabContent({
       width: "180px",
       render: (row) => (
         <div className="flex items-center gap-3">
-          <div className="relative w-9 h-9 rounded-full overflow-hidden shrink-0 border border-dash bg-slate-100">
-            <Image
-              src={row.author.avatarUrl}
-              alt={row.author.name}
-              fill
-              className="object-cover"
-              sizes="36px"
-            />
-          </div>
+          <Avatar src={row.author.avatarUrl || null} name={row.author.name} size={36} className="rounded-full border border-dash shrink-0" />
           <div className="space-y-0.5 whitespace-nowrap">
             <div className="body-sm-medium text-primary-500">
               {row.author.name}
@@ -188,10 +142,7 @@ export function NotesTabContent({
                 key: "view-note",
                 label: "View Full Note",
                 icon: <Eye className="w-3.5 h-3.5 text-primary-400" />,
-                onClick: () =>
-                  toast(`[${row.categoryLabel}] ${row.content}`, {
-                    icon: "📝",
-                  }),
+                onClick: () => toast(row.categoryLabel, { description: row.content }),
               },
               {
                 key: "edit-note",
@@ -204,8 +155,10 @@ export function NotesTabContent({
                 label: "Copy Text",
                 icon: <Copy className="w-3.5 h-3.5 text-primary-400" />,
                 onClick: () => {
-                  navigator.clipboard.writeText(row.content);
-                  toast.success("Note content copied to clipboard!");
+                  navigator.clipboard
+                    .writeText(row.content)
+                    .then(() => toast.success("Copied", { description: "Note text copied to the clipboard." }))
+                    .catch(() => toast.error("Couldn't copy", { description: "Your browser blocked clipboard access." }));
                 },
               },
               {
@@ -214,7 +167,7 @@ export function NotesTabContent({
                 icon: <Trash2 className="w-3.5 h-3.5" />,
                 danger: true,
                 separatorBefore: true,
-                onClick: () => handleDeleteNote(row.id),
+                onClick: () => setDeletingNote(row),
               },
             ]}
           />
@@ -314,6 +267,21 @@ export function NotesTabContent({
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveNote}
         initialNote={editingNote}
+      />
+
+      <ConfirmModal
+        isOpen={!!deletingNote}
+        title="Delete this note?"
+        subtitle={deletingNote?.categoryLabel}
+        message="The note is removed for everyone on your team. This can't be undone."
+        confirmLabel="Delete note"
+        pendingLabel="Deleting..."
+        confirmIcon={<Trash2 className="w-4 h-4" />}
+        onClose={() => setDeletingNote(null)}
+        onConfirm={async () => {
+          if (deletingNote) await onDelete(deletingNote.id);
+          setDeletingNote(null);
+        }}
       />
     </div>
   );

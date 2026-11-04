@@ -6,21 +6,15 @@ import {
   Search,
   CheckCircle2,
   MinusCircle,
-  MoreHorizontal,
-  Eye,
-  Download,
-  Share2,
-  FileCheck2,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
 import { DataTable, ColumnDef } from "@/components/ui/Datatable";
 import { AppSelect } from "@/components/ui/AppSelect";
-import { AppDropdownMenu } from "@/components/ui/AppDropdownMenu";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 import { CertificateThumbnail } from "./CertificateThumbnail";
-import { StudentCertificateItem } from "./mockStudentDetails";
-import toast from "react-hot-toast";
+import { StudentCertificateItem } from "@/types/studentDetails";
+import { useRouter } from "next/navigation";
 
 interface CertificatesTabContentProps {
   certificates: StudentCertificateItem[];
@@ -29,8 +23,8 @@ interface CertificatesTabContentProps {
 export function CertificatesTabContent({
   certificates: initialCertificates,
 }: CertificatesTabContentProps) {
-  const [certificates] =
-    useState<StudentCertificateItem[]>(initialCertificates);
+  const router = useRouter();
+  const certificates = initialCertificates;
   const [searchQuery, setSearchQuery] = useState("");
   const [courseFilter, setCourseFilter] = useState("All Courses");
 
@@ -149,82 +143,15 @@ export function CertificatesTabContent({
         const isIssued = row.status === "Issued";
 
         return (
-          <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center justify-center">
             <button
               type="button"
               disabled={!isIssued}
-              onClick={() => {
-                if (isIssued) {
-                  toast(`Viewing certificate ${row.certificateId}`, {
-                    icon: "🎓",
-                  });
-                }
-              }}
-              className={`body-sm-medium px-1.5 py-1 ${
-                isIssued
-                  ? "text-blue hover:underline cursor-pointer"
-                  : "text-primary-300 cursor-not-allowed"
-              }`}
+              onClick={() => isIssued && router.push(`/certificates/${row.id}`)}
+              className={`body-sm-medium px-1.5 py-1 ${isIssued ? "text-blue hover:underline cursor-pointer" : "text-primary-300 cursor-not-allowed"}`}
             >
               View
             </button>
-
-            <AppDropdownMenu
-              trigger={
-                <button
-                  type="button"
-                  className="w-7 h-7 rounded-lg border border-dash bg-white text-primary-400 hover:text-primary-500 hover:bg-slate-50 transition-colors flex items-center justify-center cursor-pointer shadow-2xs"
-                  title="More actions"
-                >
-                  <MoreHorizontal className="w-4 h-4" />
-                </button>
-              }
-              items={
-                isIssued
-                  ? [
-                      {
-                        key: "view-cert",
-                        label: "View Certificate",
-                        icon: <Eye className="w-3.5 h-3.5 text-primary-400" />,
-                        onClick: () =>
-                          toast(`Opening certificate ${row.certificateId}`),
-                      },
-                      {
-                        key: "download-pdf",
-                        label: "Download PDF",
-                        icon: (
-                          <Download className="w-3.5 h-3.5 text-primary-400" />
-                        ),
-                        onClick: () =>
-                          toast.success(
-                            `Downloading PDF for ${row.certificateId}`
-                          ),
-                      },
-                      {
-                        key: "share-credential",
-                        label: "Share Credential",
-                        icon: (
-                          <Share2 className="w-3.5 h-3.5 text-primary-400" />
-                        ),
-                        onClick: () =>
-                          toast.success("Credential link copied to clipboard!"),
-                      },
-                    ]
-                  : [
-                      {
-                        key: "issue-manually",
-                        label: "Issue Manually",
-                        icon: (
-                          <FileCheck2 className="w-3.5 h-3.5 text-primary-400" />
-                        ),
-                        onClick: () =>
-                          toast.success(
-                            `Certificate manually issued for ${row.title}`
-                          ),
-                      },
-                    ]
-              }
-            />
           </div>
         );
       },

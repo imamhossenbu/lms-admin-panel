@@ -1,6 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { ModalShell } from "@/components/ui/ModalShell";
 import { PrimaryButton } from "@/components/ui/primary-button";
 import { SecondaryButton } from "@/components/ui/secondary-button";
@@ -8,17 +10,14 @@ import { AppSelect, AppSelectOption } from "@/components/ui/AppSelect";
 import {
   StudentNoteCategory,
   StudentNoteItem,
-} from "./mockStudentDetails";
-import toast from "react-hot-toast";
+} from "@/types/studentDetails";
+import { studentNoteSchema, type StudentNoteInput } from "@/validations/studentSchema";
 
 interface AddEditNoteModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (noteData: {
-    category: StudentNoteCategory;
-    categoryLabel: string;
-    content: string;
-  }) => void;
+  /** Resolves when saved; a rejection keeps the modal open (the caller shows the error toast). */
+  onSave: (noteData: { category: StudentNoteCategory; content: string }) => Promise<void>;
   initialNote?: StudentNoteItem | null;
 }
 
@@ -67,133 +66,83 @@ const CATEGORY_OPTIONS: AppSelectOption[] = [
   },
 ];
 
-export function AddEditNoteModal({
-  isOpen,
-  onClose,
-  onSave,
-  initialNote,
-}: AddEditNoteModalProps) {
-  const [category, setCategory] =
-    useState<StudentNoteCategory>("good_progress");
-  const [content, setContent] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+export function AddEditNoteModal({ isOpen, onClose, onSave, initialNote }: AddEditNoteModalProps) {
+  const {
+    control,
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<StudentNoteInput>({
+    resolver: zodResolver(studentNoteSchema),
+    defaultValues: { category: "good_progress", content: "" },
+  });
 
   useEffect(() => {
-    if (initialNote) {
-      setCategory(initialNote.category);
-      setContent(initialNote.content);
-    } else {
-      setCategory("good_progress");
-      setContent("");
-    }
-    setError(null);
-  }, [initialNote, isOpen]);
+    if (isOpen) reset(initialNote ? { category: initialNote.category, content: initialNote.content } : { category: "good_progress", content: "" });
+  }, [initialNote, isOpen, reset]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!content.trim()) {
-      setError("Note description cannot be empty.");
-      return;
-    }
-
-    if (content.trim().length < 5) {
-      setError("Note description must be at least 5 characters long.");
-      return;
-    }
-
-    setIsSubmitting(true);
-    const categoryOption =
-      CATEGORY_OPTIONS.find((c) => c.value === category) || CATEGORY_OPTIONS[0];
-
-    setTimeout(() => {
-      onSave({
-        category,
-        categoryLabel: categoryOption.label,
-        content: content.trim(),
-      });
-      setIsSubmitting(false);
+  const submit = handleSubmit(async (values) => {
+    try {
+      await onSave(values);
       onClose();
-      toast.success(
-        initialNote ? "Note updated successfully!" : "New note added successfully!"
-      );
-    }, 200);
-  };
+    } catch {
+      /* the caller already showed the error toast; keep the modal open */
+    }
+  });
+
+  const length = watch("content")?.length ?? 0;
 
   return (
     <ModalShell
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={() => !isSubmitting && onClose()}
       title={initialNote ? "Edit Internal Note" : "Add Internal Note"}
-      subtitle="Visible only to platform admins and instructors."
+      subtitle="Visible only to your workspace's admins and instructors."
       maxWidth="md"
       footer={
         <div className="flex items-center justify-end gap-3 w-full">
-          <SecondaryButton
-            type="button"
-            onClick={onClose}
-            disabled={isSubmitting}
-          >
+          <SecondaryButton type="button" onClick={onClose} disabled={isSubmitting}>
             Cancel
           </SecondaryButton>
-          <PrimaryButton
-            type="button"
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-          >
-            {isSubmitting
-              ? "Saving..."
-              : initialNote
-              ? "Update Note"
-              : "Save Note"}
+          <PrimaryButton type="button" onClick={submit} disabled={isSubmitting}>
+            {isSubmitting ? "Saving..." : initialNote ? "Update Note" : "Save Note"}
           </PrimaryButton>
         </div>
       }
     >
-      <form onSubmit={handleSubmit} className="space-y-5 text-left">
-        {/* Note Category Field with full-width alignment */}
+      <form onSubmit={submit} noValidate className="space-y-5 text-left">
         <div className="space-y-2">
-          <label className="block body-sm-medium text-primary-500">
-            Note Category
-          </label>
-          <AppSelect
-            fullWidth
-            value={category}
-            onValueChange={(val) => setCategory(val as StudentNoteCategory)}
-            options={CATEGORY_OPTIONS}
-            triggerClassName="w-full justify-between"
+          <label className="block body-sm-medium text-primary-500">Note Category</label>
+          <Controller
+            name="category"
+            control={control}
+            render={({ field }) => (
+              <AppSelect fullWidth value={field.value} onValueChange={(val) => field.onChange(val as StudentNoteCategory)} options={CATEGORY_OPTIONS} triggerClassName="w-full justify-between" />
+            )}
           />
+          {errors.category && <p className="body-2xsm-regular text-red">{errors.category.message}</p>}
         </div>
 
-        {/* Note Description Field */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <label className="block body-sm-medium text-primary-500">
+            <label htmlFor="student-note-content" className="block body-sm-medium text-primary-500">
               Note Description
             </label>
-            <span className="body-2xsm-regular text-primary-300">
-              {content.length}/500
-            </span>
+            <span className="body-2xsm-regular text-primary-300">{length}/2000</span>
           </div>
           <textarea
-            value={content}
-            onChange={(e) => {
-              setContent(e.target.value);
-              if (error) setError(null);
-            }}
-            maxLength={500}
+            id="student-note-content"
+            {...register("content")}
+            maxLength={2000}
             rows={4}
             placeholder="Write specific feedback, support notes, or observation about this student..."
             className={`w-full p-3.5 rounded-xl border bg-slate-50 body-sm-regular text-primary-500 placeholder:text-primary-300 focus:outline-none focus:bg-white transition-colors resize-none ${
-              error
-                ? "border-red focus:border-red"
-                : "border-dash focus:border-brand-orange"
+              errors.content ? "border-red focus:border-red" : "border-dash focus:border-brand-orange"
             }`}
           />
-          {error && (
-            <p className="body-2xsm-regular text-red">{error}</p>
-          )}
+          {errors.content && <p className="body-2xsm-regular text-red">{errors.content.message}</p>}
         </div>
       </form>
     </ModalShell>

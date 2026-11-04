@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Clock, BookOpen, CheckCircle, FileText, Bookmark } from "lucide-react";
-import { StudentActivityTimelineItem } from "./mockStudentDetails";
+import { StudentActivityTimelineItem } from "@/types/studentDetails";
 
 interface RecentActivityTimelineCardProps {
   activities: StudentActivityTimelineItem[];

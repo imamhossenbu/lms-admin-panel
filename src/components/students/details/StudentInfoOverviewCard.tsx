@@ -1,80 +1,56 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { User, Edit2, Check, X } from "lucide-react";
-import toast from "react-hot-toast";
 import { AppSelect } from "@/components/ui/AppSelect";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 import { PrimaryButton } from "@/components/ui/primary-button";
 import { SecondaryButton } from "@/components/ui/secondary-button";
-import { StudentFullDetails } from "./mockStudentDetails";
+import { StudentFullDetails } from "@/types/studentDetails";
+import { studentInfoSchema, type StudentInfoInput } from "@/validations/studentSchema";
 
 interface StudentInfoOverviewCardProps {
   student: StudentFullDetails;
-  onEdit?: () => void;
-  onSave?: (updated: Partial<StudentFullDetails>) => void;
+  /** Saves through the API; resolves on success, rejects (after its own error toast) on failure. */
+  onSave: (values: StudentInfoInput) => Promise<void>;
+  /** Hides the Edit button for team members without the students › manage permission. */
+  canEdit?: boolean;
 }
 
-export function StudentInfoOverviewCard({
-  student,
-  onEdit,
-  onSave,
-}: StudentInfoOverviewCardProps) {
+const INPUT = "w-full h-9 px-3 rounded-lg border bg-gray-bg body-sm-regular text-primary-500 focus:outline-none transition-colors";
+const inputClass = (error?: string) => `${INPUT} ${error ? "border-red focus:border-red" : "border-dash focus:border-blue"}`;
+
+export function StudentInfoOverviewCard({ student, onSave, canEdit = true }: StudentInfoOverviewCardProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const [name, setName] = useState(student.name);
-  const [email, setEmail] = useState(student.email);
-  const [phone, setPhone] = useState(student.phone);
-  const [status, setStatus] = useState<"Active" | "Inactive" | "Suspended">(student.status);
+  const valuesOf = (s: StudentFullDetails): StudentInfoInput => ({ name: s.name, email: s.email, phone: s.phone, status: s.status });
+  const {
+    control,
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<StudentInfoInput>({ resolver: zodResolver(studentInfoSchema), defaultValues: valuesOf(student) });
 
-  // Keep in sync if parent student prop changes
+  // Keep the form in step with fresh data from the API (while not editing).
   useEffect(() => {
-    setName(student.name);
-    setEmail(student.email);
-    setPhone(student.phone);
-    setStatus(student.status);
-  }, [student]);
-
-  const handleStartEditing = () => {
-    setIsEditing(true);
-    onEdit?.();
-  };
+    if (!isEditing) reset(valuesOf(student));
+  }, [student, isEditing, reset]);
 
   const handleCancel = () => {
-    setName(student.name);
-    setEmail(student.email);
-    setPhone(student.phone);
-    setStatus(student.status);
+    reset(valuesOf(student));
     setIsEditing(false);
   };
 
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim()) {
-      toast.error("Full Name is required");
-      return;
+  const handleSave = handleSubmit(async (values) => {
+    try {
+      await onSave(values);
+      setIsEditing(false);
+    } catch {
+      /* stay in edit mode; the caller showed the error toast */
     }
-    if (!email.trim() || !email.includes("@")) {
-      toast.error("Valid email address is required");
-      return;
-    }
-
-    onSave?.({
-      name: name.trim(),
-      email: email.trim(),
-      phone: phone.trim(),
-      status,
-      initials: name
-        .trim()
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .slice(0, 2)
-        .toUpperCase(),
-    });
-
-    toast.success("Student information updated successfully");
-    setIsEditing(false);
-  };
+  });
 
   return (
     <div className="bg-white rounded-xl border border-dash p-6 shadow-2xs text-left h-full flex flex-col justify-between">
@@ -97,9 +73,9 @@ export function StudentInfoOverviewCard({
         </div>
 
         {!isEditing ? (
-          <SecondaryButton
+          canEdit && <SecondaryButton
             size="sm"
-            onClick={handleStartEditing}
+            onClick={() => setIsEditing(true)}
             leftIcon={<Edit2 className="w-3.5 h-3.5 text-primary-400" />}
           >
             Edit
@@ -109,6 +85,7 @@ export function StudentInfoOverviewCard({
             <SecondaryButton
               size="sm"
               onClick={handleCancel}
+              disabled={isSubmitting}
               leftIcon={<X className="w-3.5 h-3.5" />}
             >
               Cancel
@@ -116,9 +93,10 @@ export function StudentInfoOverviewCard({
             <PrimaryButton
               size="sm"
               onClick={handleSave}
+              disabled={isSubmitting}
               leftIcon={<Check className="w-3.5 h-3.5" strokeWidth={2.5} />}
             >
-              Save
+              {isSubmitting ? "Saving..." : "Save"}
             </PrimaryButton>
           </div>
         )}
@@ -144,7 +122,7 @@ export function StudentInfoOverviewCard({
           <div className="flex items-center justify-between py-3.5">
             <span className="body-sm-regular text-primary-400">Phone</span>
             <span className="body-sm-medium text-primary-500">
-              {student.phone} <span className="text-primary-300 ml-1">—</span>
+              {student.phone || <span className="text-primary-300">Not provided</span>}
             </span>
           </div>
 
@@ -156,8 +134,8 @@ export function StudentInfoOverviewCard({
                 student.status === "Active"
                   ? "green"
                   : student.status === "Suspended"
-                  ? "warning"
-                  : "red"
+                  ? "red"
+                  : "gray"
               }
               dot
               variant="pill"
@@ -183,57 +161,42 @@ export function StudentInfoOverviewCard({
         </div>
       ) : (
         /* Mode 2: In-place Inline Edit Form */
-        <form onSubmit={handleSave} className="space-y-4 pt-2">
+        <form onSubmit={handleSave} noValidate className="space-y-4 pt-2">
           <div className="space-y-1.5">
             <label className="block body-xsm-medium text-primary-400">
               Full Name <span className="text-red">*</span>
             </label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full h-9 px-3 rounded-lg border border-dash bg-gray-bg body-sm-regular text-primary-500 focus:outline-none focus:border-blue transition-colors"
-              placeholder="Student full name"
-              required
-            />
+            <input id="student-info-name" type="text" {...register("name")} className={inputClass(errors.name?.message)} placeholder="Student full name" />
+            {errors.name && <p className="body-2xsm-regular text-red">{errors.name.message}</p>}
           </div>
 
           <div className="space-y-1.5">
             <label className="block body-xsm-medium text-primary-400">
               Email Address <span className="text-red">*</span>
             </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full h-9 px-3 rounded-lg border border-dash bg-gray-bg body-sm-regular text-primary-500 focus:outline-none focus:border-blue transition-colors"
-              placeholder="student@example.com"
-              required
-            />
+            <input id="student-info-email" type="email" {...register("email")} className={inputClass(errors.email?.message)} placeholder="student@example.com" />
+            {errors.email && <p className="body-2xsm-regular text-red">{errors.email.message}</p>}
           </div>
 
           <div className="space-y-1.5">
             <label className="block body-xsm-medium text-primary-400">
               Phone Number
             </label>
-            <input
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className="w-full h-9 px-3 rounded-lg border border-dash bg-gray-bg body-sm-regular text-primary-500 focus:outline-none focus:border-blue transition-colors"
-              placeholder="+880 1712 345678"
-            />
+            <input id="student-info-phone" type="tel" {...register("phone")} className={inputClass(errors.phone?.message)} placeholder="+880 1712 345678" />
+            {errors.phone && <p className="body-2xsm-regular text-red">{errors.phone.message}</p>}
           </div>
 
           <div className="space-y-1.5">
             <label className="block body-xsm-medium text-primary-400">
               Status
             </label>
+            <Controller
+              name="status"
+              control={control}
+              render={({ field }) => (
             <AppSelect
-              value={status}
-              onValueChange={(val) =>
-                setStatus(val as "Active" | "Inactive" | "Suspended")
-              }
+              value={field.value}
+              onValueChange={(val) => field.onChange(val as StudentInfoInput["status"])}
               className="w-full"
               triggerClassName="w-full h-9 bg-gray-bg"
               options={[
@@ -255,10 +218,12 @@ export function StudentInfoOverviewCard({
                   value: "Suspended",
                   label: "Suspended",
                   icon: (
-                    <span className="w-2 h-2 rounded-full bg-yellow inline-block" />
+                    <span className="w-2 h-2 rounded-full bg-red inline-block" />
                   ),
                 },
               ]}
+            />
+              )}
             />
           </div>
 

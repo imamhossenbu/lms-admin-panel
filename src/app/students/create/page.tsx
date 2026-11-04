@@ -5,12 +5,11 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import toast from "react-hot-toast";
-
+import { toast } from "sonner";
 import { createStudentSchema, CreateStudentInput } from "@/validations/studentSchema";
-import { saveNewStudent, getStoredStudents } from "@/lib/studentStorage";
-import { StudentItem, StudentStatus, EnrolledCourseItem } from "@/types/student";
-
+import { studentsApi } from "@/lib/api/students";
+import { apiErrorMessage } from "@/lib/apiError";
+import { useCourseOptions } from "@/lib/students/useCourseOptions";
 import { CreateStudentHeader } from "@/components/students/create/CreateStudentHeader";
 import { StudentInformationCard } from "@/components/students/create/StudentInformationCard";
 import { CourseEnrollmentCard } from "@/components/students/create/CourseEnrollmentCard";
@@ -18,114 +17,39 @@ import { StudentAccountSummaryCard } from "@/components/students/create/StudentA
 import { StudentNextStepsCard } from "@/components/students/create/StudentNextStepsCard";
 import { CreateStudentActions } from "@/components/students/create/CreateStudentActions";
 import { CreateStudentSkeleton } from "@/components/students/create/CreateStudentSkeleton";
-import { ENROLLMENT_COURSES } from "@/components/students/create/mockEnrollmentCourses";
 
 function CreateStudentContent() {
   const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // By default, match the screenshot where Course 1 & 2 are pre-checked
-  const [selectedCourseIds, setSelectedCourseIds] = useState<string[]>([
-    "course-1",
-    "course-2",
-  ]);
+  const courses = useCourseOptions();
+  const [selectedCourseIds, setSelectedCourseIds] = useState<string[]>([]);
 
   const {
     register,
     handleSubmit,
     control,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<CreateStudentInput>({
     resolver: zodResolver(createStudentSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      phone: "",
-      status: "Active",
-      enrolledCourseIds: ["course-1", "course-2"],
-    },
+    defaultValues: { name: "", email: "", phone: "", status: "Active", enrolledCourseIds: [] },
   });
 
-  // Watch fields for live synchronization with Account Summary Card
+  // Live values for the account summary card
   const watchedName = useWatch({ control, name: "name" });
   const watchedEmail = useWatch({ control, name: "email" });
   const watchedPhone = useWatch({ control, name: "phone" });
   const watchedStatus = useWatch({ control, name: "status" });
 
   const onSubmit = async (data: CreateStudentInput) => {
-    setIsSubmitting(true);
-    const toastId = toast.loading("Creating student account...");
-
+    const toastId = toast.loading("Creating student account...", { description: data.email });
     try {
-      // Simulate network latency for authentic UX
-      await new Promise((resolve) => setTimeout(resolve, 800));
-
-      const existingStudents = getStoredStudents();
-
-      // Map selected courses to student's enrolled courses
-      const enrolledCourses: EnrolledCourseItem[] = selectedCourseIds.map((id) => {
-        const found = ENROLLMENT_COURSES.find((c) => c.id === id);
-        return {
-          id: id,
-          title: found?.title || "General Course",
-          progress: 0,
-          enrolledDate: "Today",
-          completedLessons: 0,
-          totalLessons: 20,
-          instructor: found?.instructor.name || "EduPro Faculty",
-          category: found?.category || "Development",
-        };
-      });
-
-      const tempPassword = `EduPro#${Math.floor(1000 + Math.random() * 9000)}`;
-
-      const newStudent: StudentItem = {
-        id: `std-${Date.now()}`,
-        orderNumber: existingStudents.length + 1,
-        name: data.name,
-        email: data.email,
-        phone: data.phone?.trim() || "+880 1712 345678",
-        status: (data.status as StudentStatus) || "Active",
-        enrolledCoursesCount: selectedCourseIds.length,
-        completedCoursesCount: 0,
-        completionRate: 0,
-        joinDate: new Date().toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        }),
-        totalWatchTime: "0h 0m",
-        averageScore: 0,
-        avatarUrl: `https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&auto=format&fit=crop&q=80`,
-        enrolledCourses,
-        recentActivities: [
-          {
-            id: `act-${Date.now()}-1`,
-            action: `Welcome email with temporary password (${tempPassword}) sent to ${data.email}`,
-            timestamp: "Just now",
-            iconType: "enroll",
-          },
-          {
-            id: `act-${Date.now()}-2`,
-            action: `Account registered and enrolled in ${selectedCourseIds.length} course(s)`,
-            timestamp: "Just now",
-            iconType: "enroll",
-          },
-        ],
-      };
-
-      saveNewStudent(newStudent);
-
-      toast.success(`Student account created for "${data.name}"`, {
+      const student = await studentsApi.create({ name: data.name, email: data.email, phone: data.phone || undefined, status: data.status, enrolledCourseIds: selectedCourseIds });
+      toast.success("Student created", {
         id: toastId,
+        description: `${student.name} gets an email with a temporary password${selectedCourseIds.length ? ` and access to ${selectedCourseIds.length} course${selectedCourseIds.length === 1 ? "" : "s"}` : ""}.`,
       });
-
-      router.push("/students");
-    } catch {
-      toast.error("Failed to create student account", {
-        id: toastId,
-      });
-      setIsSubmitting(false);
+      router.push(`/students/${student.id}`);
+    } catch (err) {
+      toast.error("Couldn't create the student", { id: toastId, description: apiErrorMessage(err) });
     }
   };
 
@@ -151,6 +75,7 @@ function CreateStudentContent() {
             />
 
             <CourseEnrollmentCard
+              courses={courses}
               selectedCourseIds={selectedCourseIds}
               onChangeSelectedCourseIds={setSelectedCourseIds}
             />

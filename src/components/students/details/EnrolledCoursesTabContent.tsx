@@ -1,15 +1,12 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import Image from "next/image";
 import {
   BookOpen,
   Search,
   Plus,
   MoreHorizontal,
   Eye,
-  TrendingUp,
-  RefreshCw,
   Trash2,
   ChevronLeft,
   ChevronRight,
@@ -20,19 +17,22 @@ import { AppDropdownMenu } from "@/components/ui/AppDropdownMenu";
 import { CourseBadgeIcon } from "../create/CourseBadgeIcon";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 import { PrimaryButton } from "@/components/ui/primary-button";
-import { EnrolledCourseDetail } from "./mockStudentDetails";
-import toast from "react-hot-toast";
+import { EnrolledCourseDetail } from "@/types/studentDetails";
+import { useRouter } from "next/navigation";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { Avatar } from "@/components/ui/Avatar";
 
 interface EnrolledCoursesTabContentProps {
   courses: EnrolledCourseDetail[];
   onEnrollNew?: () => void;
+  /** Removes the enrollment through the API; rejects (after its own error toast) on failure. */
+  onUnenroll: (course: EnrolledCourseDetail) => Promise<void>;
+  canManage?: boolean;
 }
 
-export function EnrolledCoursesTabContent({
-  courses: initialCourses,
-  onEnrollNew,
-}: EnrolledCoursesTabContentProps) {
-  const [courses, setCourses] = useState<EnrolledCourseDetail[]>(initialCourses);
+export function EnrolledCoursesTabContent({ courses, onEnrollNew, onUnenroll, canManage = true }: EnrolledCoursesTabContentProps) {
+  const router = useRouter();
+  const [removing, setRemoving] = useState<EnrolledCourseDetail | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All Status");
 
@@ -51,10 +51,6 @@ export function EnrolledCoursesTabContent({
     });
   }, [courses, searchQuery, statusFilter]);
 
-  const handleRemoveCourse = (course: EnrolledCourseDetail) => {
-    setCourses((prev) => prev.filter((c) => c.id !== course.id));
-    toast.success(`"${course.title}" was unenrolled.`);
-  };
 
   const columns: ColumnDef<EnrolledCourseDetail>[] = [
     {
@@ -90,15 +86,7 @@ export function EnrolledCoursesTabContent({
       header: "Instructor",
       render: (row) => (
         <div className="flex items-center gap-2">
-          <div className="relative w-6 h-6 rounded-full overflow-hidden shrink-0 border border-dash">
-            <Image
-              src={row.instructor.avatarUrl}
-              alt={row.instructor.name}
-              fill
-              className="object-cover"
-              sizes="24px"
-            />
-          </div>
+          <Avatar src={row.instructor.avatarUrl || null} name={row.instructor.name} size={24} className="rounded-full border border-dash shrink-0" />
           <span className="body-sm-regular text-primary-500 whitespace-nowrap">
             {row.instructor.name}
           </span>
@@ -173,11 +161,7 @@ export function EnrolledCoursesTabContent({
         <div className="flex items-center justify-center gap-1.5">
           <button
             type="button"
-            onClick={() =>
-              toast(`Opening "${row.title}" curriculum overview`, {
-                icon: "📖",
-              })
-            }
+            onClick={() => router.push(`/courses/${row.id}`)}
             className="px-3 py-1 rounded-md border border-dash bg-white text-primary-500 hover:bg-slate-50 body-xsm-medium transition-colors shadow-2xs cursor-pointer"
           >
             View
@@ -199,37 +183,20 @@ export function EnrolledCoursesTabContent({
                 key: "view-course",
                 label: "View Course",
                 icon: <Eye className="w-3.5 h-3.5 text-primary-400" />,
-                onClick: () =>
-                  toast(`Viewing details for ${row.title}`, {
-                    icon: "👀",
-                  }),
+                onClick: () => router.push(`/courses/${row.id}`),
               },
-              {
-                key: "view-progress",
-                label: "View Progress",
-                icon: <TrendingUp className="w-3.5 h-3.5 text-primary-400" />,
-                onClick: () =>
-                  toast(`Progress: ${row.progress}% in ${row.title}`, {
-                    icon: "📊",
-                  }),
-              },
-              {
-                key: "change-enrollment",
-                label: "Change Enrollment",
-                icon: <RefreshCw className="w-3.5 h-3.5 text-primary-400" />,
-                onClick: () =>
-                  toast(`Modifying enrollment for ${row.title}...`, {
-                    icon: "🔄",
-                  }),
-              },
-              {
-                key: "remove-course",
-                label: "Remove from Course",
-                icon: <Trash2 className="w-3.5 h-3.5" />,
-                danger: true,
-                separatorBefore: true,
-                onClick: () => handleRemoveCourse(row),
-              },
+              ...(canManage
+                ? [
+                    {
+                      key: "remove-course",
+                      label: "Remove from Course",
+                      icon: <Trash2 className="w-3.5 h-3.5" />,
+                      danger: true,
+                      separatorBefore: true,
+                      onClick: () => setRemoving(row),
+                    },
+                  ]
+                : []),
             ]}
           />
         </div>
@@ -276,14 +243,11 @@ export function EnrolledCoursesTabContent({
             />
           </div>
 
-          <PrimaryButton
-            size="md"
-            type="button"
-            onClick={onEnrollNew}
-            icon={<Plus className="w-4 h-4" strokeWidth={2.2} />}
-          >
-            Enroll in Course
-          </PrimaryButton>
+          {canManage && onEnrollNew && (
+            <PrimaryButton size="md" type="button" onClick={onEnrollNew} icon={<Plus className="w-4 h-4" strokeWidth={2.2} />}>
+              Enroll in Course
+            </PrimaryButton>
+          )}
         </div>
       </div>
 
@@ -328,6 +292,20 @@ export function EnrolledCoursesTabContent({
           </button>
         </div>
       </div>
+      <ConfirmModal
+        isOpen={!!removing}
+        title="Remove from this course?"
+        subtitle={removing?.title}
+        message="The student loses access to the course. Their progress is kept, so re-enrolling later picks up where they left off."
+        confirmLabel="Remove enrollment"
+        pendingLabel="Removing..."
+        confirmIcon={<Trash2 className="w-4 h-4" />}
+        onClose={() => setRemoving(null)}
+        onConfirm={async () => {
+          if (removing) await onUnenroll(removing);
+          setRemoving(null);
+        }}
+      />
     </div>
   );
 }

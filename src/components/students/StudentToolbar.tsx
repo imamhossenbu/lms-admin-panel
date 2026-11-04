@@ -16,27 +16,23 @@ interface StudentToolbarProps {
   dateFilter: string;
   onDateChange: (date: string) => void;
   onExport: () => void;
+  /** Workspace courses for the course filter (`value` = course id). */
+  courseOptions: { value: string; label: string }[];
+  isExporting?: boolean;
 }
 
 const STATUS_OPTIONS = [
   { value: "All", label: "All Status" },
   { value: "Active", label: "Active" },
   { value: "Inactive", label: "Inactive" },
-];
-
-const COURSE_OPTIONS = [
-  { value: "All", label: "All Courses" },
-  { value: "Web Development", label: "Web Development" },
-  { value: "UI/UX Design", label: "UI/UX Design" },
-  { value: "Digital Marketing", label: "Digital Marketing" },
-  { value: "Python AI", label: "Python & AI" },
+  { value: "Suspended", label: "Suspended" },
 ];
 
 const DATE_OPTIONS = [
   { value: "All", label: "Join Date" },
-  { value: "7days", label: "Last 7 Days" },
-  { value: "30days", label: "Last 30 Days" },
-  { value: "90days", label: "Last 3 Months" },
+  { value: "7", label: "Last 7 Days" },
+  { value: "30", label: "Last 30 Days" },
+  { value: "90", label: "Last 3 Months" },
 ];
 
 export function StudentToolbar({
@@ -49,6 +45,8 @@ export function StudentToolbar({
   dateFilter,
   onDateChange,
   onExport,
+  courseOptions,
+  isExporting = false,
 }: StudentToolbarProps) {
   return (
     <div className="p-3.5 sm:p-4 flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-dash">
@@ -76,7 +74,7 @@ export function StudentToolbar({
 
         <div className="w-37.5">
           <DropdownSelect
-            options={COURSE_OPTIONS}
+            options={[{ value: "All", label: "All Courses" }, ...courseOptions]}
             value={courseFilter}
             onChange={onCourseChange}
             className="w-full"
@@ -97,6 +95,7 @@ export function StudentToolbar({
       <div className="self-end lg:self-auto shrink-0">
         <SecondaryButton
           onClick={onExport}
+          disabled={isExporting}
           leftIcon={<Download className="w-4 h-4" />}
           size="md"
         >

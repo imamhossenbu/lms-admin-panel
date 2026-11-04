@@ -1,4 +1,4 @@
-export type StudentStatus = "Active" | "Inactive";
+export type StudentStatus = "Active" | "Inactive" | "Suspended";
 
 export interface EnrolledCourseItem {
   id: string;

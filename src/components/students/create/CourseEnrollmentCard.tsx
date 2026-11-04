@@ -3,16 +3,19 @@
 import React, { useState, useMemo } from "react";
 import { BookOpen, Search } from "lucide-react";
 import { AppSelect } from "@/components/ui/AppSelect";
-import { ENROLLMENT_COURSES } from "./mockEnrollmentCourses";
+import type { EnrollmentCourse } from "@/types/enrollmentCourse";
 import { CourseEnrollmentTable } from "./CourseEnrollmentTable";
 import { SelectedCoursesChips } from "./SelectedCoursesChips";
 
 interface CourseEnrollmentCardProps {
+  /** Workspace courses (null while loading). */
+  courses: EnrollmentCourse[] | null;
   selectedCourseIds: string[];
   onChangeSelectedCourseIds: (ids: string[]) => void;
 }
 
 export function CourseEnrollmentCard({
+  courses,
   selectedCourseIds,
   onChangeSelectedCourseIds,
 }: CourseEnrollmentCardProps) {
@@ -21,7 +24,8 @@ export function CourseEnrollmentCard({
 
   // Filter courses based on search & category
   const filteredCourses = useMemo(() => {
-    return ENROLLMENT_COURSES.filter((course) => {
+    if (!courses) return null;
+    return courses.filter((course) => {
       const matchesSearch =
         !searchQuery ||
         course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -32,12 +36,17 @@ export function CourseEnrollmentCard({
 
       return matchesSearch && matchesCategory;
     });
-  }, [searchQuery, categoryFilter]);
+  }, [courses, searchQuery, categoryFilter]);
+
+  const categoryOptions = useMemo(
+    () => [{ value: "All", label: "All Categories" }, ...Array.from(new Set((courses ?? []).map((c) => c.category))).map((c) => ({ value: c, label: c }))],
+    [courses]
+  );
 
   // Selected courses full objects for chips
   const selectedCourseObjects = useMemo(() => {
-    return ENROLLMENT_COURSES.filter((c) => selectedCourseIds.includes(c.id));
-  }, [selectedCourseIds]);
+    return (courses ?? []).filter((c) => selectedCourseIds.includes(c.id));
+  }, [courses, selectedCourseIds]);
 
   const handleToggleSelect = (courseId: string) => {
     if (selectedCourseIds.includes(courseId)) {
@@ -48,7 +57,7 @@ export function CourseEnrollmentCard({
   };
 
   const handleSelectAll = () => {
-    const allFilteredIds = filteredCourses.map((c) => c.id);
+    const allFilteredIds = (filteredCourses ?? []).map((c) => c.id);
     const areAllFilteredSelected = allFilteredIds.every((id) =>
       selectedCourseIds.includes(id)
     );
@@ -64,7 +73,7 @@ export function CourseEnrollmentCard({
   };
 
   const allSelected =
-    filteredCourses.length > 0 &&
+    !!filteredCourses?.length &&
     filteredCourses.every((c) => selectedCourseIds.includes(c.id));
 
   const handleRemoveChip = (courseId: string) => {
@@ -107,11 +116,7 @@ export function CourseEnrollmentCard({
           <AppSelect
             value={categoryFilter}
             onValueChange={setCategoryFilter}
-            options={[
-              { value: "All", label: "All Categories" },
-              { value: "Web Development", label: "Web Development" },
-              { value: "Design", label: "Design" },
-            ]}
+            options={categoryOptions}
           />
         </div>
       </div>
@@ -119,6 +124,7 @@ export function CourseEnrollmentCard({
       {/* Course Enrollment Table */}
       <CourseEnrollmentTable
         courses={filteredCourses}
+        emptyMessage={courses?.length === 0 ? "This workspace has no courses yet." : "No courses match your search."}
         selectedCourseIds={selectedCourseIds}
         onToggleSelect={handleToggleSelect}
         onSelectAll={handleSelectAll}

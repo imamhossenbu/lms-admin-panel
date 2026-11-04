@@ -10,21 +10,17 @@ import {
   FileCode,
   Database,
   Layers,
-  MoreHorizontal,
   CheckCircle,
   Clock,
   XCircle,
-  Eye,
-  Download,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
 import { DataTable, ColumnDef } from "@/components/ui/Datatable";
 import { AppSelect } from "@/components/ui/AppSelect";
-import { AppDropdownMenu } from "@/components/ui/AppDropdownMenu";
 import { ToneBadge } from "@/components/ui/ToneBadge";
-import { StudentAssignment } from "./mockStudentDetails";
-import toast from "react-hot-toast";
+import { StudentAssignment } from "@/types/studentDetails";
+import { useRouter } from "next/navigation";
 
 interface AssignmentsTabContentProps {
   assignments: StudentAssignment[];
@@ -33,6 +29,7 @@ interface AssignmentsTabContentProps {
 export function AssignmentsTabContent({
   assignments,
 }: AssignmentsTabContentProps) {
+  const router = useRouter();
   const [courseFilter, setCourseFilter] = useState("All Courses");
   const [statusFilter, setStatusFilter] = useState("All Status");
   const [searchQuery, setSearchQuery] = useState("");
@@ -220,49 +217,10 @@ export function AssignmentsTabContent({
       align: "center",
       width: "120px",
       render: (row) => (
-        <div className="flex items-center justify-center gap-1.5">
-          <button
-            type="button"
-            onClick={() =>
-              toast(`Viewing assignment details: "${row.title}"`, {
-                icon: "📝",
-              })
-            }
-            className="px-3 py-1 rounded-md border border-dash bg-white text-primary-500 hover:bg-slate-50 body-xsm-medium transition-colors shadow-2xs cursor-pointer"
-          >
+        <div className="flex items-center justify-center">
+          <button type="button" onClick={() => router.push(`/assignments/${row.id}`)} className="px-3 py-1 rounded-md border border-dash bg-white text-primary-500 hover:bg-slate-50 body-xsm-medium transition-colors shadow-2xs cursor-pointer">
             View
           </button>
-
-          {/* Radix UI Dropdown Menu */}
-          <AppDropdownMenu
-            trigger={
-              <button
-                type="button"
-                className="p-1 rounded-md border border-dash bg-white text-primary-400 hover:text-primary-500 hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer"
-                title="More options"
-              >
-                <MoreHorizontal className="w-3.5 h-3.5" />
-              </button>
-            }
-            items={[
-              {
-                key: "view-submission",
-                label: "View Submission",
-                icon: <Eye className="w-3.5 h-3.5 text-primary-400" />,
-                onClick: () =>
-                  toast(`Reviewing submission for ${row.title}`, {
-                    icon: "📄",
-                  }),
-              },
-              {
-                key: "download",
-                label: "Download File",
-                icon: <Download className="w-3.5 h-3.5 text-primary-400" />,
-                onClick: () =>
-                  toast.success(`Downloading files for ${row.title}`),
-              },
-            ]}
-          />
         </div>
       ),
     },

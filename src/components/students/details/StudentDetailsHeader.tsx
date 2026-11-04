@@ -2,22 +2,21 @@
 
 import React from "react";
 import { Mail, Calendar, Edit3, MoreHorizontal, Trash2, Download, Send } from "lucide-react";
-import toast from "react-hot-toast";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { AppDropdownMenu } from "@/components/ui/AppDropdownMenu";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 import { PrimaryButton } from "@/components/ui/primary-button";
-import { StudentFullDetails } from "./mockStudentDetails";
+import { StudentFullDetails } from "@/types/studentDetails";
 
 interface StudentDetailsHeaderProps {
   student: StudentFullDetails;
   onEdit?: () => void;
+  onExport: () => void;
+  /** Opens the delete confirmation; hidden when undefined (no students › delete permission). */
+  onDelete?: () => void;
 }
 
-export function StudentDetailsHeader({
-  student,
-  onEdit,
-}: StudentDetailsHeaderProps) {
+export function StudentDetailsHeader({ student, onEdit, onExport, onDelete }: StudentDetailsHeaderProps) {
   return (
     <div className="space-y-4 mb-6 text-left">
       {/* 1. Reusable Breadcrumbs */}
@@ -43,7 +42,7 @@ export function StudentDetailsHeader({
                 {student.name}
               </h1>
               <ToneBadge
-                tone={student.status === "Active" ? "green" : student.status === "Suspended" ? "warning" : "red"}
+                tone={student.status === "Active" ? "green" : student.status === "Suspended" ? "red" : "gray"}
                 dot
                 variant="pill"
                 size="md"
@@ -70,13 +69,11 @@ export function StudentDetailsHeader({
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2.5 self-start lg:self-auto shrink-0 relative">
-          <PrimaryButton
-            type="button"
-            onClick={onEdit}
-            icon={<Edit3 className="w-4 h-4" strokeWidth={2.2} />}
-          >
-            Edit Student
-          </PrimaryButton>
+          {onEdit && (
+            <PrimaryButton type="button" onClick={onEdit} icon={<Edit3 className="w-4 h-4" strokeWidth={2.2} />}>
+              Edit Student
+            </PrimaryButton>
+          )}
 
           {/* More options button with Radix UI dropdown menu */}
           <AppDropdownMenu
@@ -92,29 +89,28 @@ export function StudentDetailsHeader({
             items={[
               {
                 key: "send-message",
-                label: "Send Message",
+                label: "Send Email",
                 icon: <Send className="w-3.5 h-3.5 text-primary-400" />,
-                onClick: () =>
-                  toast(`Composing email to ${student.email}`, {
-                    icon: "✉️",
-                  }),
+                onClick: () => window.open(`mailto:${encodeURIComponent(student.email)}`, "_self"),
               },
               {
                 key: "export-profile",
                 label: "Export Profile",
                 icon: <Download className="w-3.5 h-3.5 text-primary-400" />,
-                onClick: () =>
-                  toast.success(`Exported ${student.name}'s profile record`),
+                onClick: onExport,
               },
-              {
-                key: "delete-student",
-                label: "Delete Student",
-                icon: <Trash2 className="w-3.5 h-3.5" />,
-                danger: true,
-                separatorBefore: true,
-                onClick: () =>
-                  toast.error("Student cannot be removed from here"),
-              },
+              ...(onDelete
+                ? [
+                    {
+                      key: "delete-student",
+                      label: "Delete Student",
+                      icon: <Trash2 className="w-3.5 h-3.5" />,
+                      danger: true,
+                      separatorBefore: true,
+                      onClick: onDelete,
+                    },
+                  ]
+                : []),
             ]}
           />
         </div>

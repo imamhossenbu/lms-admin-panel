@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { TrendingUp, CheckCircle, Clock, FileText, Award } from "lucide-react";
 import { AppSelect } from "@/components/ui/AppSelect";
-import { StudentFullDetails } from "./mockStudentDetails";
+import { StudentFullDetails } from "@/types/studentDetails";
 
 interface LearningProgressCardProps {
   student: StudentFullDetails;

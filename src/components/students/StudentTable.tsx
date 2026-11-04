@@ -11,12 +11,16 @@ interface StudentTableProps {
   students: StudentItem[];
   onViewDetails: (student: StudentItem) => void;
   onEdit: (student: StudentItem) => void;
+  isLoading?: boolean;
+  emptyMessage?: React.ReactNode;
 }
 
 export function StudentTable({
   students,
   onViewDetails,
   onEdit,
+  isLoading = false,
+  emptyMessage = "No students match these filters.",
 }: StudentTableProps) {
   const columns: ColumnDef<StudentItem>[] = [
     {
@@ -106,7 +110,7 @@ export function StudentTable({
       align: "center",
       render: (row) => (
         <ToneBadge
-          tone={row.status === "Active" ? "green" : "red"}
+          tone={row.status === "Active" ? "green" : row.status === "Suspended" ? "red" : "gray"}
           size="sm"
         >
           {row.status}
@@ -168,6 +172,8 @@ export function StudentTable({
         data={students}
         rowKey={(row) => row.id}
         selectable={false}
+        isLoading={isLoading}
+        emptyMessage={emptyMessage}
         onRowClick={(row) => onViewDetails(row)}
         verticalBorders={true}
         containerClassName="border-0 rounded-none w-full"

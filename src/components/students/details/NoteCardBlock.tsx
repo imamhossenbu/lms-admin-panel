@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { StudentNoteItem } from "./mockStudentDetails";
+import { StudentNoteItem } from "@/types/studentDetails";
 
 interface NoteCardBlockProps {
   note: StudentNoteItem;

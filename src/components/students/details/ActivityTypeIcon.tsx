@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Play, FileText, BookOpen, X, User } from "lucide-react";
-import { StudentActivityLogItem } from "./mockStudentDetails";
+import { StudentActivityLogItem } from "@/types/studentDetails";
 
 interface ActivityTypeIconProps {
   type: StudentActivityLogItem["activityType"];

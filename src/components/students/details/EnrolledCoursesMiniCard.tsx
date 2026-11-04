@@ -5,7 +5,7 @@ import { BookOpen } from "lucide-react";
 import { DataTable, ColumnDef } from "@/components/ui/Datatable";
 import { CourseBadgeIcon } from "../create/CourseBadgeIcon";
 import { ToneBadge } from "@/components/ui/ToneBadge";
-import { EnrolledCourseDetail } from "./mockStudentDetails";
+import { EnrolledCourseDetail } from "@/types/studentDetails";
 
 interface EnrolledCoursesMiniCardProps {
   courses: EnrolledCourseDetail[];

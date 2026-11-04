@@ -1,201 +1,151 @@
 "use client";
 
-import React, { useState, useMemo, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import React, { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { MOCK_STUDENTS } from "@/data/mockStudentData";
-import { StudentItem } from "@/types/student";
-import {
-  getStoredStudents,
-} from "@/lib/studentStorage";
+import { toast } from "sonner";
 import { StudentHeader } from "@/components/students/StudentHeader";
 import { StudentToolbar } from "@/components/students/StudentToolbar";
 import { StudentTable } from "@/components/students/StudentTable";
-import { TablePagination } from "@/components/ui/TablePagination";
 import { StudentSkeleton } from "@/components/students/StudentSkeleton";
-import toast from "react-hot-toast";
+import { TablePagination } from "@/components/ui/TablePagination";
+import { studentsApi } from "@/lib/api/students";
+import { apiErrorMessage } from "@/lib/apiError";
+import { useUrlParams } from "@/lib/useUrlParams";
+import { toStudentRow } from "@/lib/students/studentView";
+import { useCourseOptions } from "@/lib/students/useCourseOptions";
+import { downloadStudentsCsv } from "@/lib/students/studentCsv";
+import type { StudentItem } from "@/types/student";
+import type { StudentListItem, StudentListQuery, StudentStatusLabel } from "@/types/studentApi";
 
+const STATUSES: StudentStatusLabel[] = ["Active", "Inactive", "Suspended"];
+const JOINED = ["7", "30", "90"] as const;
+const PAGE_SIZES = [10, 20, 50];
+
+/** Students list: server-side search, filters and pagination, all kept in the URL. */
 function StudentsContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const url = useUrlParams();
+  const courseOptions = useCourseOptions();
 
-  // Read initial page and filter state from URL parameters so refreshing keeps the current page and filter
-  const initialPage = parseInt(searchParams.get("page") || "1", 10) || 1;
-  const initialStatus = searchParams.get("status") || "All";
-  const initialSearch = searchParams.get("q") || "";
+  const page = url.getPage();
+  const status = url.get("status", "All");
+  const courseId = url.get("course", "All");
+  const joined = url.get("joined", "All");
+  const limit = PAGE_SIZES.includes(Number(url.get("limit"))) ? Number(url.get("limit")) : 10;
+  const urlQuery = url.get("q");
+  // `set` changes identity with every URL change; effects read the latest one through a ref.
+  const setParams = useRef(url.set);
+  useEffect(() => {
+    setParams.current = url.set;
+  }, [url.set]);
 
-  const [students, setStudents] = useState<StudentItem[]>(MOCK_STUDENTS);
-  const [searchQuery, setSearchQuery] = useState(initialSearch);
-  const [statusFilter, setStatusFilter] = useState(initialStatus);
-  const [courseFilter, setCourseFilter] = useState("All");
-  const [dateFilter, setDateFilter] = useState("All");
-  const [currentPage, setCurrentPage] = useState(initialPage);
-  const [pageSize, setPageSize] = useState(10);
-  const [isLoading, setIsLoading] = useState(false);
+  const [search, setSearch] = useState(urlQuery);
+  const [result, setResult] = useState<{ rows: StudentListItem[]; total: number; key: string } | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
 
-  // Sync with client-side storage
-  React.useEffect(() => {
-    setStudents(getStoredStudents());
+  // Debounced search → URL (page resets to 1).
+  useEffect(() => {
+    if (search.trim() === urlQuery) return;
+    const t = setTimeout(() => setParams.current({ q: search.trim(), page: 1 }), 300);
+    return () => clearTimeout(t);
+  }, [search, urlQuery]);
 
-    const handleStorageUpdate = () => {
-      setStudents(getStoredStudents());
-    };
+  const query = useMemo<StudentListQuery>(
+    () => ({
+      page,
+      limit,
+      q: urlQuery || undefined,
+      status: STATUSES.includes(status as StudentStatusLabel) ? (status as StudentStatusLabel) : undefined,
+      courseId: courseId !== "All" ? courseId : undefined,
+      joinedWithinDays: (JOINED as readonly string[]).includes(joined) ? (Number(joined) as 7 | 30 | 90) : undefined,
+    }),
+    [page, limit, urlQuery, status, courseId, joined]
+  );
 
-    window.addEventListener("edupro_students_updated", handleStorageUpdate);
+  const queryKey = JSON.stringify(query);
+  const [failedKey, setFailedKey] = useState<string | null>(null);
+  const isFetching = result?.key !== queryKey && failedKey !== queryKey;
+
+  useEffect(() => {
+    let alive = true;
+    studentsApi
+      .list(query)
+      .then((res) => {
+        if (!alive) return;
+        setResult({ rows: res.data, total: res.meta.total, key: JSON.stringify(query) });
+        // Deleted the last row of a page → step back to the last page that exists.
+        if (res.meta.page > res.meta.totalPages) setParams.current({ page: res.meta.totalPages });
+      })
+      .catch((err) => {
+        if (!alive) return;
+        setFailedKey(JSON.stringify(query));
+        setResult((r) => r ?? { rows: [], total: 0, key: "" });
+        toast.error("Couldn't load students", { id: "students-load", description: apiErrorMessage(err) });
+      });
     return () => {
-      window.removeEventListener("edupro_students_updated", handleStorageUpdate);
+      alive = false;
     };
-  }, []);
+  }, [query]);
 
-  // Update URL helper to persist query, page, status on reload
-  const updateUrlParams = (page: number, status: string, q: string) => {
-    const params = new URLSearchParams(window.location.search);
-    if (page > 1) {
-      params.set("page", page.toString());
-    } else {
-      params.delete("page");
+  const rows: StudentItem[] = useMemo(() => (result?.rows ?? []).map((s, i) => toStudentRow(s, (page - 1) * limit + i)), [result, page, limit]);
+
+  const handleExport = async () => {
+    setIsExporting(true);
+    const toastId = toast.loading("Preparing export...", { description: "Collecting every student that matches the filters" });
+    try {
+      const all: StudentListItem[] = [];
+      for (let p = 1; ; p++) {
+        const res = await studentsApi.list({ ...query, page: p, limit: 100 });
+        all.push(...res.data);
+        if (p >= res.meta.totalPages) break;
+      }
+      downloadStudentsCsv(all);
+      toast.success("Export ready", { id: toastId, description: `${all.length} student record${all.length === 1 ? "" : "s"} downloaded as CSV.` });
+    } catch (err) {
+      toast.error("Couldn't export students", { id: toastId, description: apiErrorMessage(err) });
+    } finally {
+      setIsExporting(false);
     }
-    if (status !== "All") {
-      params.set("status", status);
-    } else {
-      params.delete("status");
-    }
-    if (q.trim()) {
-      params.set("q", q.trim());
-    } else {
-      params.delete("q");
-    }
-    router.replace(params.toString() ? `?${params.toString()}` : "/students", { scroll: false });
   };
 
-  // Filtering
-  const filteredStudents = useMemo(() => {
-    return students.filter((std) => {
-      const q = searchQuery.toLowerCase().trim();
-      const matchesSearch =
-        !q ||
-        std.name.toLowerCase().includes(q) ||
-        std.email.toLowerCase().includes(q) ||
-        std.phone.includes(q);
-
-      const matchesStatus =
-        statusFilter === "All" || std.status === statusFilter;
-
-      const matchesCourse =
-        courseFilter === "All" ||
-        std.enrolledCourses.some((c) =>
-          c.title.toLowerCase().includes(courseFilter.toLowerCase())
-        );
-
-      return matchesSearch && matchesStatus && matchesCourse;
-    });
-  }, [students, searchQuery, statusFilter, courseFilter]);
-
-  // Pagination
-  const paginatedStudents = useMemo(() => {
-    const startIndex = (currentPage - 1) * pageSize;
-    return filteredStudents.slice(startIndex, startIndex + pageSize);
-  }, [filteredStudents, currentPage, pageSize]);
-
-
-  // Navigation triggers (direct page routing, no drawer)
-  const handleViewDetails = (student: StudentItem) => {
-    router.push(`/students/${student.id}`);
-  };
-
-  const handleOpenEditFromTable = (student: StudentItem) => {
-    router.push(`/students/${student.id}/edit`);
-  };
-
-  // Export CSV Handler
-  const handleExport = () => {
-    const csvContent =
-      "data:text/csv;charset=utf-8," +
-      ["Order,Name,Email,Enrolled,Completed,Status,Join Date"]
-        .concat(
-          filteredStudents.map(
-            (s) =>
-              `${s.orderNumber},"${s.name}","${s.email}",${s.enrolledCoursesCount},"${s.completedCoursesCount} (${s.completionRate}%)",${s.status},"${s.joinDate}"`
-          )
-        )
-        .join("\n");
-
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `students_export_${new Date().toISOString().slice(0, 10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    toast.success(`Exported ${filteredStudents.length} student records to CSV.`);
-  };
-
-  if (isLoading) {
-    return <StudentSkeleton />;
-  }
+  if (!result) return <StudentSkeleton />;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25, ease: "easeOut" }}
-      className="space-y-4 text-left pb-8"
-    >
-      {/* 1. Page Header with Breadcrumbs & Add Student CTA */}
+    <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25, ease: "easeOut" }} className="space-y-4 text-left pb-8">
       <StudentHeader />
 
-      {/* 2. Full-Width Students Card: Toolbar + DataTable + Pagination */}
       <div className="bg-white rounded-xl border border-dash shadow-2xs overflow-hidden flex flex-col justify-between">
-        {/* Toolbar with Search, Status, Course, Date filters & Export */}
         <StudentToolbar
-          searchQuery={searchQuery}
-          onSearchChange={(q) => {
-            setSearchQuery(q);
-            setCurrentPage(1);
-            updateUrlParams(1, statusFilter, q);
-          }}
-          statusFilter={statusFilter}
-          onStatusChange={(s) => {
-            setStatusFilter(s);
-            setCurrentPage(1);
-            updateUrlParams(1, s, searchQuery);
-          }}
-          courseFilter={courseFilter}
-          onCourseChange={(c) => {
-            setCourseFilter(c);
-            setCurrentPage(1);
-          }}
-          dateFilter={dateFilter}
-          onDateChange={(d) => {
-            setDateFilter(d);
-            setCurrentPage(1);
-          }}
+          searchQuery={search}
+          onSearchChange={setSearch}
+          statusFilter={status}
+          onStatusChange={(s) => url.set({ status: s, page: 1 })}
+          courseFilter={courseId}
+          onCourseChange={(c) => url.set({ course: c, page: 1 })}
+          dateFilter={joined}
+          onDateChange={(d) => url.set({ joined: d, page: 1 })}
+          courseOptions={(courseOptions ?? []).map((c) => ({ value: c.id, label: c.title }))}
           onExport={handleExport}
+          isExporting={isExporting}
         />
 
-        {/* Full-width DataTable without checkboxes, with # column and column borders */}
         <StudentTable
-          students={paginatedStudents}
-          onViewDetails={handleViewDetails}
-          onEdit={handleOpenEditFromTable}
+          students={rows}
+          isLoading={isFetching && rows.length === 0}
+          emptyMessage={query.q || query.status || query.courseId || query.joinedWithinDays ? "No students match these filters." : "No students yet — add your first student."}
+          onViewDetails={(s) => router.push(`/students/${s.id}`)}
+          onEdit={(s) => router.push(`/students/${s.id}/edit`)}
         />
 
-        {/* Pagination Footer */}
         <TablePagination
-          currentPage={currentPage}
+          currentPage={page}
           itemLabel="students"
-          totalCount={filteredStudents.length}
-          pageSize={pageSize}
-          onPageChange={(page) => {
-            setCurrentPage(page);
-            updateUrlParams(page, statusFilter, searchQuery);
-          }}
-          onPageSizeChange={(newSize) => {
-            setPageSize(newSize);
-            setCurrentPage(1);
-            updateUrlParams(1, statusFilter, searchQuery);
-          }}
+          totalCount={result.total}
+          pageSize={limit}
+          pageSizeOptions={PAGE_SIZES}
+          onPageChange={(p) => url.set({ page: p })}
+          onPageSizeChange={(size) => url.set({ limit: size === 10 ? null : size, page: 1 })}
         />
       </div>
     </motion.div>

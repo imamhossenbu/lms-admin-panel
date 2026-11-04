@@ -11,7 +11,7 @@ import { DataTable, ColumnDef } from "@/components/ui/Datatable";
 import { AppSelect } from "@/components/ui/AppSelect";
 import { CourseBadgeIcon } from "../create/CourseBadgeIcon";
 import { ActivityTypeIcon } from "./ActivityTypeIcon";
-import { StudentActivityLogItem } from "./mockStudentDetails";
+import { StudentActivityLogItem } from "@/types/studentDetails";
 
 interface ActivityLogTabContentProps {
   activities: StudentActivityLogItem[];

@@ -7,22 +7,15 @@ import {
   CheckCircle2,
   XCircle,
   MinusCircle,
-  MoreHorizontal,
-  Eye,
-  FileCheck2,
-  RotateCcw,
-  Send,
-  Download,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
 import { DataTable, ColumnDef } from "@/components/ui/Datatable";
 import { AppSelect } from "@/components/ui/AppSelect";
-import { AppDropdownMenu } from "@/components/ui/AppDropdownMenu";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 import { CourseBadgeIcon } from "../create/CourseBadgeIcon";
-import { StudentQuizAttempt } from "./mockStudentDetails";
-import toast from "react-hot-toast";
+import { StudentQuizAttempt } from "@/types/studentDetails";
+import { useRouter } from "next/navigation";
 
 interface QuizzesTabContentProps {
   quizzes: StudentQuizAttempt[];
@@ -31,7 +24,8 @@ interface QuizzesTabContentProps {
 export function QuizzesTabContent({
   quizzes: initialQuizzes,
 }: QuizzesTabContentProps) {
-  const [quizzes] = useState<StudentQuizAttempt[]>(initialQuizzes);
+  const router = useRouter();
+  const quizzes = initialQuizzes;
   const [courseFilter, setCourseFilter] = useState("All Courses");
   const [statusFilter, setStatusFilter] = useState("All Status");
   const [searchQuery, setSearchQuery] = useState("");
@@ -192,97 +186,11 @@ export function QuizzesTabContent({
       align: "center",
       width: "120px",
       render: (row) => {
-        const isAttempted = row.status !== "Not Attempted";
-
         return (
-          <div className="flex items-center justify-center gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                if (isAttempted) {
-                  toast(`Viewing quiz results for ${row.title}`, {
-                    icon: "📋",
-                  });
-                } else {
-                  toast.success(`Quiz "${row.title}" assigned to student.`);
-                }
-              }}
-              className="text-blue hover:underline body-sm-medium cursor-pointer px-1.5 py-1"
-            >
-              {isAttempted ? "View" : "Assign"}
+          <div className="flex items-center justify-center">
+            <button type="button" onClick={() => router.push(`/quizzes/${row.id}`)} className="px-3 py-1 rounded-md border border-dash bg-white text-primary-500 hover:bg-slate-50 body-xsm-medium transition-colors shadow-2xs cursor-pointer">
+              View
             </button>
-
-            <AppDropdownMenu
-              trigger={
-                <button
-                  type="button"
-                  className="w-7 h-7 rounded-lg border border-dash bg-white text-primary-400 hover:text-primary-500 hover:bg-slate-50 transition-colors flex items-center justify-center cursor-pointer shadow-2xs"
-                  title="More actions"
-                >
-                  <MoreHorizontal className="w-4 h-4" />
-                </button>
-              }
-              items={
-                isAttempted
-                  ? [
-                      {
-                        key: "view-result",
-                        label: "View Results",
-                        icon: <Eye className="w-3.5 h-3.5 text-primary-400" />,
-                        onClick: () =>
-                          toast(`Viewing results for ${row.title}`, {
-                            icon: "📊",
-                          }),
-                      },
-                      {
-                        key: "review-answers",
-                        label: "Review Answers",
-                        icon: (
-                          <FileCheck2 className="w-3.5 h-3.5 text-primary-400" />
-                        ),
-                        onClick: () =>
-                          toast(`Opening answers review for ${row.title}`),
-                      },
-                      {
-                        key: "retake-quiz",
-                        label: "Allow Retake",
-                        icon: (
-                          <RotateCcw className="w-3.5 h-3.5 text-primary-400" />
-                        ),
-                        onClick: () =>
-                          toast.success(
-                            `Retake permission granted for ${row.title}`
-                          ),
-                      },
-                      {
-                        key: "download-summary",
-                        label: "Download Summary",
-                        icon: (
-                          <Download className="w-3.5 h-3.5 text-primary-400" />
-                        ),
-                        separatorBefore: true,
-                        onClick: () =>
-                          toast.success(`Downloading report for ${row.title}`),
-                      },
-                    ]
-                  : [
-                      {
-                        key: "assign-now",
-                        label: "Assign Quiz",
-                        icon: <Send className="w-3.5 h-3.5 text-primary-400" />,
-                        onClick: () =>
-                          toast.success(`Assigned ${row.title} to student`),
-                      },
-                      {
-                        key: "send-reminder",
-                        label: "Send Reminder",
-                        icon: <Eye className="w-3.5 h-3.5 text-primary-400" />,
-                        onClick: () =>
-                          toast.success(`Reminder sent for ${row.title}`),
-                      },
-                    ]
-              }
-            />
           </div>
         );
       },
