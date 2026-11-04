@@ -1,8 +1,11 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
+import { instructorsApi } from "@/lib/api/instructors";
+import { apiErrorMessage } from "@/lib/apiError";
+import { toScheduleView } from "@/lib/instructors/instructorView";
 import { AppSelect } from "@/components/ui/AppSelect";
 import { useUrlParams } from "@/lib/useUrlParams";
 import { DetailCard } from "@/components/ui/DetailCard";
@@ -10,7 +13,6 @@ import { InstructorCourseRow } from "./instructorDetailsData";
 import {
   CalendarView,
   ScheduleEvent,
-  buildScheduleEvents,
   fromDateKey,
   getRangeLabel,
   shiftAnchor,
@@ -41,38 +43,40 @@ const NavButton = ({ onClick, label, children }: { onClick: () => void; label: s
 export function InstructorScheduleTab({ instructorId, instructorEmail, courses }: InstructorScheduleTabProps) {
   const { get, set } = useUrlParams();
   const [today] = useState(() => new Date());
-  const [cancelledIds, setCancelledIds] = useState<string[]>([]);
 
   const viewParam = get("view") as CalendarView;
   const view: CalendarView = VIEWS.includes(viewParam) ? viewParam : "month";
   const anchor = fromDateKey(get("date")) ?? today;
   const course = get("course", "All");
 
-  const events = useMemo(
-    () =>
-      buildScheduleEvents(instructorId, courses, today)
-        .filter((e) => course === "All" || e.course.id === course)
-        .map((e): ScheduleEvent => (cancelledIds.includes(e.id) ? { ...e, status: "Cancelled" } : e)),
-    [instructorId, courses, today, course, cancelledIds]
-  );
+  // Live classes + assignment deadlines for the visible month (± one week so week views at the edges fill).
+  const monthKey = `${anchor.getFullYear()}-${anchor.getMonth()}`;
+  const [loaded, setLoaded] = useState<{ key: string; events: ScheduleEvent[] } | null>(null);
+  useEffect(() => {
+    let alive = true;
+    const [y, m] = monthKey.split("-").map(Number);
+    const from = new Date(y, m, 1 - 7).toISOString();
+    const to = new Date(y, m + 1, 1 + 7).toISOString();
+    instructorsApi
+      .schedule(instructorId, { from, to })
+      .then((rows) => alive && setLoaded({ key: monthKey, events: rows.map((e) => toScheduleView(e, courses)) }))
+      .catch((err) => {
+        if (!alive) return;
+        setLoaded({ key: monthKey, events: [] });
+        toast.error("Couldn't load the schedule", { id: "instructor-schedule", description: apiErrorMessage(err) });
+      });
+    return () => {
+      alive = false;
+    };
+  }, [instructorId, monthKey, courses]);
+
+  const events = useMemo(() => (loaded?.events ?? []).filter((e) => course === "All" || e.course.id === course), [loaded, course]);
+  const isLoading = loaded?.key !== monthKey;
 
   const upcoming = events.filter((e) => new Date(e.end) >= today);
 
   const goTo = (date: Date, nextView: CalendarView = view) =>
     set({ date: toDateKey(date) === toDateKey(today) ? null : toDateKey(date), view: nextView === "month" ? null : nextView });
-
-  const handleToggleCancel = (event: ScheduleEvent) => {
-    const restoring = cancelledIds.includes(event.id);
-    setCancelledIds((prev) => (restoring ? prev.filter((id) => id !== event.id) : [...prev, event.id]));
-    if (restoring) {
-      toast.success("Class restored", { description: `"${event.title}" is back on the schedule.` });
-    } else {
-      toast.success("Class cancelled", {
-        description: `Enrolled students of "${event.course.title}" will be notified.`,
-        action: { label: "Undo", onClick: () => setCancelledIds((prev) => prev.filter((id) => id !== event.id)) },
-      });
-    }
-  };
 
   return (
     <DetailCard
@@ -114,7 +118,7 @@ export function InstructorScheduleTab({ instructorId, instructorEmail, courses }
             events={upcoming}
             instructorEmail={instructorEmail}
             onViewOnCalendar={(event) => goTo(new Date(event.start), "day")}
-            onToggleCancel={handleToggleCancel}
+            isLoading={isLoading}
           />
         </div>
         <div className="2xl:col-span-7">

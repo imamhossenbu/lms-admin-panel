@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import { CalendarSearch, Mail, XCircle, RotateCcw } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { CalendarSearch, ExternalLink, Mail, Video } from "lucide-react";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 import { DropdownActionItem } from "@/components/ui/AppDropdownMenu";
 import { RowMoreMenu } from "@/components/ui/RowMoreMenu";
@@ -10,13 +11,13 @@ import { ScheduleEvent, formatTime } from "./scheduleData";
 interface UpcomingClassItemProps {
   event: ScheduleEvent;
   onViewOnCalendar: (event: ScheduleEvent) => void;
-  onToggleCancel: (event: ScheduleEvent) => void;
   instructorEmail: string;
 }
 
 const STATUS_TONE = { Upcoming: "blue", Completed: "green", Cancelled: "red" } as const;
 
-export function UpcomingClassItem({ event, onViewOnCalendar, onToggleCancel, instructorEmail }: UpcomingClassItemProps) {
+export function UpcomingClassItem({ event, onViewOnCalendar, instructorEmail }: UpcomingClassItemProps) {
+  const router = useRouter();
   const start = new Date(event.start);
   const isCancelled = event.status === "Cancelled";
 
@@ -35,22 +36,23 @@ export function UpcomingClassItem({ event, onViewOnCalendar, onToggleCancel, ins
         window.location.href = `mailto:${instructorEmail}?subject=${encodeURIComponent(event.title)}`;
       },
     },
-    isCancelled
-      ? {
-          key: "restore",
-          label: "Restore Class",
-          icon: <RotateCcw className="w-3.5 h-3.5 text-primary-400" />,
-          separatorBefore: true,
-          onClick: () => onToggleCancel(event),
-        }
-      : {
-          key: "cancel",
-          label: "Cancel Class",
-          icon: <XCircle className="w-3.5 h-3.5" />,
-          danger: true,
-          separatorBefore: true,
-          onClick: () => onToggleCancel(event),
-        },
+    {
+      key: "open",
+      label: event.type === "live" ? "Open Live Class" : "Open Assignment",
+      icon: <ExternalLink className="w-3.5 h-3.5 text-primary-400" />,
+      separatorBefore: true,
+      onClick: () => router.push(event.href),
+    },
+    ...(event.meetingUrl && !isCancelled
+      ? [
+          {
+            key: "join",
+            label: "Open Meeting Link",
+            icon: <Video className="w-3.5 h-3.5 text-primary-400" />,
+            onClick: () => window.open(event.meetingUrl!, "_blank", "noopener"),
+          },
+        ]
+      : []),
   ];
 
   return (

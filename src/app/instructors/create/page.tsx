@@ -1,106 +1,34 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { UserPlus } from "lucide-react";
 import { toast } from "sonner";
-
 import { InstructorFormInput } from "@/validations/instructorSchema";
-import { InstructorItem } from "@/types/instructor";
-import { getStoredInstructors, saveNewInstructor } from "@/lib/instructorStorage";
+import { instructorsApi } from "@/lib/api/instructors";
+import { apiErrorMessage } from "@/lib/apiError";
 import { InstructorFormHeader } from "@/components/instructors/form/InstructorFormHeader";
 import { InstructorForm } from "@/components/instructors/form/InstructorForm";
-import { InstructorFormSkeleton } from "@/components/instructors/form/InstructorFormSkeleton";
-import { applyCourseSelection } from "@/components/instructors/form/assignedCourses";
 
-const DEFAULT_AVATAR =
-  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80";
-
+/** Add instructor: the API generates a password, emails the login details and assigns the selected courses. */
 export default function CreateInstructorPage() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 200);
-    return () => clearTimeout(timer);
-  }, []);
 
   const handleCreate = async (data: InstructorFormInput, courseIds: string[]) => {
-    const toastId = toast.loading("Creating instructor...", {
-      description: "Generating a secure password and sending login details.",
-    });
-
+    const toastId = toast.loading("Creating instructor...", { description: "Generating a secure password and sending login details." });
     try {
-      await new Promise((resolve) => setTimeout(resolve, 800));
-
-      const existing = getStoredInstructors();
-      if (existing.some((i) => i.email.toLowerCase() === data.email.toLowerCase())) {
-        throw new Error("An instructor with this email address already exists.");
-      }
-
-      const courses = applyCourseSelection([], courseIds);
-      const now = Date.now();
-      const newInstructor: InstructorItem = {
-        id: `inst-${now}`,
-        orderNumber: existing.length + 1,
-        name: data.name,
-        title: "Instructor",
-        expertise: courses[0]?.category ?? "General",
-        email: data.email,
-        phone: data.phone ?? "",
-        avatarUrl: DEFAULT_AVATAR,
-        coursesCount: courses.length,
-        studentsCount: courses.reduce((sum, c) => sum + c.studentsCount, 0),
-        totalRevenue: "$0",
-        numericRevenue: 0,
-        rating: 0,
-        reviewsCount: 0,
-        status: data.status,
-        joinDate: new Date().toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        }),
-        bio: "",
-        skills: [],
-        courses,
-        recentActivities: [
-          {
-            id: `act-${now}-1`,
-            action: `Welcome email with login details sent to ${data.email}`,
-            timestamp: "Just now",
-            iconType: "message",
-          },
-          {
-            id: `act-${now}-2`,
-            action: `Account created and assigned to ${courses.length} course(s)`,
-            timestamp: "Just now",
-            iconType: "course",
-          },
-        ],
-      };
-
-      saveNewInstructor(newInstructor);
-
+      const instructor = await instructorsApi.create({ name: data.name, email: data.email, phone: data.phone || undefined, status: data.status, courseIds });
       toast.success("Instructor created", {
         id: toastId,
-        description: `Login details have been emailed to ${data.email}.`,
+        description: `Login details have been emailed to ${instructor.email}${courseIds.length ? `; ${courseIds.length} course${courseIds.length === 1 ? "" : "s"} assigned` : ""}.`,
       });
-      router.push("/instructors");
-    } catch (error) {
-      toast.error("Could not create instructor", {
-        id: toastId,
-        description:
-          error instanceof Error ? error.message : "Something went wrong. Please try again.",
-      });
-      throw error;
+      router.push(`/instructors/${instructor.id}`);
+    } catch (err) {
+      toast.error("Couldn't create the instructor", { id: toastId, description: apiErrorMessage(err) });
+      throw err;
     }
   };
-
-  if (isLoading) {
-    return <InstructorFormSkeleton />;
-  }
 
   return (
     <motion.div

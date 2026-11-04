@@ -19,7 +19,8 @@ const PAGE_SIZE = 8;
 
 interface InstructorCoursesTabProps {
   courses: InstructorCourseRow[];
-  onAssignCourse: () => void;
+  /** Hidden when undefined (no instructors › manage permission). */
+  onAssignCourse?: () => void;
   getCourseActions: (course: InstructorCourseRow) => DropdownActionItem[];
 }
 
@@ -115,11 +116,13 @@ export function InstructorCoursesTab({ courses, onAssignCourse, getCourseActions
   return (
     <DetailCard
       title={`Courses (${courses.length})`}
-      description="Courses assigned to this instructor. You can add or remove courses from here."
+      description="Courses this instructor teaches. Assign more from the edit page; to move a course, assign it to another instructor."
       action={
-        <PrimaryButton type="button" onClick={onAssignCourse} leftIcon={<Plus className="w-4 h-4" />}>
-          Assign Course
-        </PrimaryButton>
+        onAssignCourse && (
+          <PrimaryButton type="button" onClick={onAssignCourse} leftIcon={<Plus className="w-4 h-4" />}>
+            Assign Course
+          </PrimaryButton>
+        )
       }
       bodyClassName="space-y-5"
     >

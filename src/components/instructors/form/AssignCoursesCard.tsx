@@ -3,46 +3,54 @@
 import React, { useMemo, useState } from "react";
 import { BookOpen, Search } from "lucide-react";
 import { AppSelect } from "@/components/ui/AppSelect";
-import { ENROLLMENT_COURSES } from "@/components/students/create/mockEnrollmentCourses";
+import { toast } from "sonner";
+import type { EnrollmentCourse } from "@/types/enrollmentCourse";
 import { SelectedCoursesChips } from "@/components/students/create/SelectedCoursesChips";
 import { InstructorFormCardHeader } from "./InstructorFormCardHeader";
 import { AssignCoursesTable } from "./AssignCoursesTable";
 
 interface AssignCoursesCardProps {
+  /** Workspace courses (null while loading). */
+  courses: EnrollmentCourse[] | null;
   selectedCourseIds: string[];
   onChangeSelectedCourseIds: (ids: string[]) => void;
+  /**
+   * Courses the instructor already teaches. Every course always has one instructor, so these can't be
+   * deselected here: to move one, assign it to another instructor.
+   */
+  lockedCourseIds?: string[];
 }
 
-const CATEGORY_OPTIONS = [
-  { value: "All", label: "All Categories" },
-  ...Array.from(new Set(ENROLLMENT_COURSES.map((c) => c.category))).map((c) => ({
-    value: c,
-    label: c,
-  })),
-];
-
-export function AssignCoursesCard({
-  selectedCourseIds,
-  onChangeSelectedCourseIds,
-}: AssignCoursesCardProps) {
+export function AssignCoursesCard({ courses, selectedCourseIds, onChangeSelectedCourseIds, lockedCourseIds = [] }: AssignCoursesCardProps) {
+  const CATEGORY_OPTIONS = useMemo(
+    () => [{ value: "All", label: "All Categories" }, ...Array.from(new Set((courses ?? []).map((c) => c.category))).map((c) => ({ value: c, label: c }))],
+    [courses]
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All");
 
   const filteredCourses = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
-    return ENROLLMENT_COURSES.filter(
+    if (!courses) return null;
+    return courses.filter(
       (course) =>
         (!q || course.title.toLowerCase().includes(q)) &&
         (categoryFilter === "All" || course.category === categoryFilter)
     );
-  }, [searchQuery, categoryFilter]);
+  }, [courses, searchQuery, categoryFilter]);
 
   const selectedCourses = useMemo(
-    () => ENROLLMENT_COURSES.filter((c) => selectedCourseIds.includes(c.id)),
-    [selectedCourseIds]
+    () => (courses ?? []).filter((c) => selectedCourseIds.includes(c.id)),
+    [courses, selectedCourseIds]
   );
 
+  const warnLocked = (courseId: string) => {
+    const title = courses?.find((c) => c.id === courseId)?.title ?? "This course";
+    toast.info("Already taught by this instructor", { id: "locked-course", description: `To move "${title}", assign it to another instructor.` });
+  };
+
   const handleToggleSelect = (courseId: string) => {
+    if (lockedCourseIds.includes(courseId) && selectedCourseIds.includes(courseId)) return warnLocked(courseId);
     onChangeSelectedCourseIds(
       selectedCourseIds.includes(courseId)
         ? selectedCourseIds.filter((id) => id !== courseId)
@@ -51,11 +59,11 @@ export function AssignCoursesCard({
   };
 
   const handleToggleAll = (checked: boolean) => {
-    const visibleIds = filteredCourses.map((c) => c.id);
+    const visibleIds = (filteredCourses ?? []).map((c) => c.id);
     onChangeSelectedCourseIds(
       checked
         ? Array.from(new Set([...selectedCourseIds, ...visibleIds]))
-        : selectedCourseIds.filter((id) => !visibleIds.includes(id))
+        : selectedCourseIds.filter((id) => !visibleIds.includes(id) || lockedCourseIds.includes(id))
     );
   };
 
@@ -93,7 +101,9 @@ export function AssignCoursesCard({
       </div>
 
       <AssignCoursesTable
-        courses={filteredCourses}
+        courses={filteredCourses ?? []}
+        isLoading={filteredCourses === null}
+        emptyMessage={courses?.length === 0 ? "This workspace has no courses yet." : "No courses match your search."}
         selectedCourseIds={selectedCourseIds}
         onToggleSelect={handleToggleSelect}
         onToggleAll={handleToggleAll}

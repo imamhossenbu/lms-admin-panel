@@ -4,11 +4,12 @@ import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { categoriesApi } from "@/lib/api";
 import { apiErrorMessage } from "@/lib/courseView";
-import { getStoredInstructors, INSTRUCTORS_UPDATED_EVENT } from "@/lib/instructorStorage";
+import { instructorsApi } from "@/lib/api/instructors";
+import { toInstructorItem } from "@/lib/instructors/instructorView";
 import type { CategoryOption } from "@/components/courses/constants";
 import type { InstructorItem } from "@/types/instructor";
 
-/** Loads the categories (backend) and instructor list (local store) the page depends on. */
+/** Loads the categories and the workspace's instructors the page depends on. */
 export function useCreateCourseData() {
   const [categories, setCategories] = useState<CategoryOption[]>([]);
   const [instructors, setInstructors] = useState<InstructorItem[]>([]);
@@ -16,6 +17,15 @@ export function useCreateCourseData() {
 
   useEffect(() => {
     let alive = true;
+
+    const loadInstructors = async () => {
+      try {
+        const res = await instructorsApi.list({ limit: 100, sortBy: "name", sortOrder: "asc" });
+        if (alive) setInstructors(res.data.map((i, idx) => toInstructorItem(i, idx)));
+      } catch (err) {
+        if (alive) toast.error("Couldn't load instructors", { description: apiErrorMessage(err, "Please refresh the page to try again.") });
+      }
+    };
 
     const load = async () => {
       try {
@@ -30,21 +40,13 @@ export function useCreateCourseData() {
             description: apiErrorMessage(err, "Please refresh the page to try again."),
           });
         }
-      } finally {
-        if (alive) {
-          setInstructors(getStoredInstructors());
-          setIsLoading(false);
-        }
       }
     };
 
-    const syncInstructors = () => setInstructors(getStoredInstructors());
-    window.addEventListener(INSTRUCTORS_UPDATED_EVENT, syncInstructors);
-    void load();
+    void Promise.all([load(), loadInstructors()]).finally(() => alive && setIsLoading(false));
 
     return () => {
       alive = false;
-      window.removeEventListener(INSTRUCTORS_UPDATED_EVENT, syncInstructors);
     };
   }, []);
 

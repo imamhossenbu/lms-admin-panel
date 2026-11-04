@@ -1,14 +1,14 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { InstructorItem, InstructorNoteItem } from "@/types/instructor";
 import { InstructorNoteInput } from "@/validations/instructorSchema";
-import { getInstructorNotes, getStoredInstructors, saveInstructorNote } from "@/lib/instructorStorage";
+import { instructorsApi } from "@/lib/api/instructors";
+import { apiErrorMessage } from "@/lib/apiError";
 import { sanitizeHtml } from "@/lib/sanitizeHtml";
-import { buildInstructorDetails } from "../../instructorDetailsData";
+import { useInstructorProfile } from "@/lib/instructors/useInstructorProfile";
 import { InstructorDetailsHeader } from "../../InstructorDetailsHeader";
 import { InstructorNotFound } from "../../InstructorNotFound";
 import { InstructorNoteForm } from "./InstructorNoteForm";
@@ -20,67 +20,41 @@ interface InstructorNoteFormPageProps {
   noteId?: string;
 }
 
-const CURRENT_ADMIN = {
-  name: "Admin",
-  avatarUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&auto=format&fit=crop&q=80",
-};
-
-/** Shared Add Note / Edit Note page body. */
+/** Shared Add Note / Edit Note page body (saves through the Instructors API). */
 export function InstructorNoteFormPage({ instructorId, noteId }: InstructorNoteFormPageProps) {
   const router = useRouter();
-  const [instructor, setInstructor] = useState<InstructorItem | null>(null);
-  const [note, setNote] = useState<InstructorNoteItem | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { state } = useInstructorProfile(instructorId);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setInstructor(getStoredInstructors().find((i) => i.id === instructorId) ?? null);
-      if (noteId) setNote(getInstructorNotes(instructorId).find((n) => n.id === noteId) ?? null);
-      setIsLoading(false);
-    }, 200);
-    return () => clearTimeout(timer);
-  }, [instructorId, noteId]);
+  if (state.kind === "loading") return <NoteFormSkeleton />;
+  if (state.kind === "error") return <InstructorNotFound message={state.status === 404 ? undefined : state.message} />;
+  const note = noteId ? state.notes.find((n) => n.id === noteId) ?? null : null;
+  if (noteId && !note) return <InstructorNotFound />;
 
-  const details = useMemo(() => (instructor ? buildInstructorDetails(instructor) : null), [instructor]);
-
-  if (isLoading) return <NoteFormSkeleton />;
-  if (!instructor || !details || (noteId && !note)) return <InstructorNotFound />;
-
+  const { details } = state;
+  const instructor = details.instructor;
   const isEdit = !!note;
   const detailsHref = `/instructors/${instructor.id}`;
   const notesHref = `${detailsHref}?tab=notes`;
 
   const handleSubmit = async (data: InstructorNoteInput) => {
-    const toastId = toast.loading(isEdit ? "Saving note..." : "Adding note...", {
-      description: data.title,
-    });
+    const toastId = toast.loading(isEdit ? "Saving note..." : "Adding note...", { description: data.title });
+    const payload = {
+      title: data.title.trim(),
+      content: sanitizeHtml(data.content),
+      type: data.type,
+      priority: data.priority,
+      tags: data.tags,
+      hasReminder: data.hasReminder,
+      reminderDate: data.hasReminder ? data.reminderDate : undefined,
+    };
     try {
-      await new Promise((resolve) => setTimeout(resolve, 600));
-      const now = new Date().toISOString();
-      saveInstructorNote({
-        id: note?.id ?? `${instructor.id}-note-${Date.now()}`,
-        instructorId: instructor.id,
-        title: data.title,
-        content: sanitizeHtml(data.content),
-        type: data.type,
-        priority: data.priority,
-        tags: data.tags,
-        reminderDate: data.hasReminder ? data.reminderDate : undefined,
-        author: note?.author ?? CURRENT_ADMIN,
-        createdAt: note?.createdAt ?? now,
-        updatedAt: isEdit ? now : undefined,
-      });
-      toast.success(isEdit ? "Note updated" : "Note added", {
-        id: toastId,
-        description: `"${data.title}" is saved to ${instructor.name}'s notes.`,
-      });
+      if (note) await instructorsApi.updateNote(instructor.id, note.id, payload);
+      else await instructorsApi.addNote(instructor.id, payload);
+      toast.success(isEdit ? "Note updated" : "Note added", { id: toastId, description: `"${data.title}" is saved to ${instructor.name}'s notes.` });
       router.push(notesHref);
-    } catch (error) {
-      toast.error(isEdit ? "Could not update note" : "Could not add note", {
-        id: toastId,
-        description: "Something went wrong. Please try again.",
-      });
-      throw error;
+    } catch (err) {
+      toast.error(isEdit ? "Couldn't update the note" : "Couldn't add the note", { id: toastId, description: apiErrorMessage(err) });
+      throw err;
     }
   };
 

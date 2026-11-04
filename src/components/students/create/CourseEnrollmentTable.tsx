@@ -3,7 +3,7 @@
 import React from "react";
 import { Avatar } from "@/components/ui/Avatar";
 import { Check } from "lucide-react";
-import { EnrollmentCourse } from "./mockEnrollmentCourses";
+import type { EnrollmentCourse } from "@/types/enrollmentCourse";
 import { CourseBadgeIcon } from "./CourseBadgeIcon";
 
 interface CourseEnrollmentTableProps {

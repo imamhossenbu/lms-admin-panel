@@ -5,17 +5,13 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Check, Edit3 } from "lucide-react";
 import { toast } from "sonner";
-
 import { InstructorFormInput } from "@/validations/instructorSchema";
-import { InstructorItem } from "@/types/instructor";
-import { getStoredInstructors, updateStoredInstructor } from "@/lib/instructorStorage";
+import { instructorsApi } from "@/lib/api/instructors";
+import { apiErrorMessage, parseApiError } from "@/lib/apiError";
+import type { InstructorDetails } from "@/types/instructorApi";
 import { InstructorFormHeader } from "@/components/instructors/form/InstructorFormHeader";
 import { InstructorForm } from "@/components/instructors/form/InstructorForm";
 import { InstructorFormSkeleton } from "@/components/instructors/form/InstructorFormSkeleton";
-import {
-  applyCourseSelection,
-  getAssignableCourseIds,
-} from "@/components/instructors/form/assignedCourses";
 import { InstructorNotFound } from "@/components/instructors/details/InstructorNotFound";
 
 interface PageProps {
@@ -25,71 +21,50 @@ interface PageProps {
 const EDIT_STEPS = [
   "Changes are saved to the instructor's profile immediately.",
   "Email changes will be used for future login and notifications.",
-  "Course assignments update the instructor's dashboard.",
+  "Newly selected courses move to this instructor.",
   "Setting status to Inactive revokes portal access.",
 ];
+
+type LoadState = { kind: "loading" } | { kind: "error"; notFound: boolean; message: string } | { kind: "ready"; instructor: InstructorDetails; courseIds: string[] };
 
 export default function EditInstructorPage({ params }: PageProps) {
   const { id: instructorId } = React.use(params);
   const router = useRouter();
-  const [instructor, setInstructor] = useState<InstructorItem | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [state, setState] = useState<LoadState>({ kind: "loading" });
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setInstructor(getStoredInstructors().find((i) => i.id === instructorId) ?? null);
-      setIsLoading(false);
-    }, 200);
-    return () => clearTimeout(timer);
+    let alive = true;
+    Promise.all([instructorsApi.get(instructorId), instructorsApi.courses(instructorId)])
+      .then(([instructor, courses]) => alive && setState({ kind: "ready", instructor, courseIds: courses.map((c) => c.id) }))
+      .catch((err) => {
+        const info = parseApiError(err, "We couldn't load this instructor.");
+        if (alive) setState({ kind: "error", notFound: info.status === 404, message: info.message });
+      });
+    return () => {
+      alive = false;
+    };
   }, [instructorId]);
 
-  if (isLoading) {
-    return <InstructorFormSkeleton />;
-  }
+  if (state.kind === "loading") return <InstructorFormSkeleton />;
+  if (state.kind === "error") return <InstructorNotFound message={state.notFound ? undefined : state.message} />;
 
-  if (!instructor) {
-    return <InstructorNotFound />;
-  }
-
+  const { instructor, courseIds: current } = state;
   const detailsHref = `/instructors/${instructor.id}`;
 
   const handleSave = async (data: InstructorFormInput, courseIds: string[]) => {
-    const toastId = toast.loading("Saving changes...", {
-      description: `Updating ${data.name}'s profile.`,
-    });
-
+    const added = courseIds.filter((id) => !current.includes(id));
+    const toastId = toast.loading("Saving changes...", { description: `Updating ${data.name}'s profile.` });
     try {
-      await new Promise((resolve) => setTimeout(resolve, 600));
-
-      const emailTaken = getStoredInstructors().some(
-        (i) => i.id !== instructor.id && i.email.toLowerCase() === data.email.toLowerCase()
-      );
-      if (emailTaken) {
-        throw new Error("Another instructor is already using this email address.");
-      }
-
-      const courses = applyCourseSelection(instructor.courses, courseIds);
-      updateStoredInstructor(instructor.id, {
-        name: data.name,
-        email: data.email,
-        phone: data.phone ?? "",
-        status: data.status,
-        courses,
-        coursesCount: courses.length,
-      });
-
+      await instructorsApi.update(instructor.id, { name: data.name, email: data.email, phone: data.phone ?? "", status: data.status });
+      if (added.length) await instructorsApi.assignCourses(instructor.id, added);
       toast.success("Instructor updated", {
         id: toastId,
-        description: `${data.name}'s profile has been saved.`,
+        description: `${data.name}'s profile has been saved${added.length ? ` and ${added.length} course${added.length === 1 ? "" : "s"} assigned` : ""}.`,
       });
       router.push(detailsHref);
-    } catch (error) {
-      toast.error("Could not save changes", {
-        id: toastId,
-        description:
-          error instanceof Error ? error.message : "Something went wrong. Please try again.",
-      });
-      throw error;
+    } catch (err) {
+      toast.error("Couldn't save changes", { id: toastId, description: apiErrorMessage(err) });
+      throw err;
     }
   };
 
@@ -118,7 +93,7 @@ export default function EditInstructorPage({ params }: PageProps) {
           phone: instructor.phone,
           status: instructor.status,
         }}
-        defaultCourseIds={getAssignableCourseIds(instructor.courses)}
+        defaultCourseIds={current}
         mode="edit"
         infoDescription="Update the basic information for this instructor. Their password stays unchanged."
         nextSteps={EDIT_STEPS}

@@ -130,20 +130,10 @@ export function InstructorDetailsHeader({
                   </button>
                 }
                 items={[
-                  {
-                    key: "send-message",
-                    label: "Send Message",
-                    icon: <Send className="w-3.5 h-3.5 text-primary-400" />,
-                    onClick: onSendMessage,
-                  },
-                  {
-                    key: "delete-instructor",
-                    label: "Delete Instructor",
-                    icon: <Trash2 className="w-3.5 h-3.5" />,
-                    danger: true,
-                    separatorBefore: true,
-                    onClick: onDelete,
-                  },
+                  ...(onSendMessage ? [{ key: "send-message", label: "Send Message", icon: <Send className="w-3.5 h-3.5 text-primary-400" />, onClick: onSendMessage }] : []),
+                  ...(onDelete
+                    ? [{ key: "delete-instructor", label: "Delete Instructor", icon: <Trash2 className="w-3.5 h-3.5" />, danger: true, separatorBefore: true, onClick: onDelete }]
+                    : []),
                 ]}
               />
             </div>

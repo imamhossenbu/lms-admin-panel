@@ -16,6 +16,9 @@ interface InstructorToolbarProps {
   dateFilter: string;
   onDateChange: (date: string) => void;
   onExport: () => void;
+  /** Expertise values used in this workspace. */
+  expertiseOptions: string[];
+  isExporting?: boolean;
 }
 
 const STATUS_OPTIONS = [
@@ -24,25 +27,11 @@ const STATUS_OPTIONS = [
   { value: "Inactive", label: "Inactive" },
 ];
 
-const EXPERTISE_OPTIONS = [
-  { value: "All", label: "All Expertise" },
-  { value: "Web Development", label: "Web Development" },
-  { value: "UI/UX Design", label: "UI/UX Design" },
-  { value: "Digital Marketing", label: "Digital Marketing" },
-  { value: "Business Strategy", label: "Business Strategy" },
-  { value: "Photography", label: "Photography" },
-  { value: "Data Science", label: "Data Science" },
-  { value: "Mobile Development", label: "Mobile Development" },
-  { value: "Content Writing", label: "Content Writing" },
-  { value: "Graphic Design", label: "Graphic Design" },
-  { value: "English Language", label: "English Language" },
-];
-
 const DATE_OPTIONS = [
   { value: "All", label: "Join Date" },
-  { value: "7days", label: "Last 7 Days" },
-  { value: "30days", label: "Last 30 Days" },
-  { value: "90days", label: "Last 3 Months" },
+  { value: "7", label: "Last 7 Days" },
+  { value: "30", label: "Last 30 Days" },
+  { value: "90", label: "Last 3 Months" },
 ];
 
 export function InstructorToolbar({
@@ -55,6 +44,8 @@ export function InstructorToolbar({
   dateFilter,
   onDateChange,
   onExport,
+  expertiseOptions,
+  isExporting = false,
 }: InstructorToolbarProps) {
   return (
     <div className="p-3.5 sm:p-4 flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-dash">
@@ -82,7 +73,7 @@ export function InstructorToolbar({
 
         <div className="w-38.75">
           <DropdownSelect
-            options={EXPERTISE_OPTIONS}
+            options={[{ value: "All", label: "All Expertise" }, ...expertiseOptions.map((e) => ({ value: e, label: e }))]}
             value={expertiseFilter}
             onChange={onExpertiseChange}
             className="w-full"
@@ -103,6 +94,7 @@ export function InstructorToolbar({
       <div className="self-end lg:self-auto shrink-0">
         <SecondaryButton
           onClick={onExport}
+          disabled={isExporting}
           leftIcon={<Download className="w-4 h-4" />}
           size="md"
         >

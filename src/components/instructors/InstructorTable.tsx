@@ -11,12 +11,19 @@ interface InstructorTableProps {
   instructors: InstructorItem[];
   onViewDetails: (instructor: InstructorItem) => void;
   onEdit: (instructor: InstructorItem) => void;
+  isLoading?: boolean;
+  emptyMessage?: React.ReactNode;
+  /** Hides the edit button (no instructors › manage permission). */
+  canEdit?: boolean;
 }
 
 export function InstructorTable({
   instructors,
   onViewDetails,
   onEdit,
+  isLoading = false,
+  emptyMessage = "No instructors found matching your criteria.",
+  canEdit = true,
 }: InstructorTableProps) {
   const columns: ColumnDef<InstructorItem>[] = [
     {
@@ -128,14 +135,19 @@ export function InstructorTable({
           >
             <Eye className="w-3.5 h-3.5" />
           </button>
-          <button
-            type="button"
-            onClick={() => onEdit(row)}
-            className="w-7 h-7 flex items-center justify-center rounded-lg border border-dash bg-white hover:bg-brand-orange-light text-primary-400 hover:text-brand-orange hover:border-brand-orange/40 transition-colors cursor-pointer shadow-2xs"
-            title={`Edit info for ${row.name}`}
-          >
-            <Edit2 className="w-3.5 h-3.5 text-brand-orange" />
-          </button>
+          {canEdit && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit(row);
+              }}
+              className="w-7 h-7 flex items-center justify-center rounded-lg border border-dash bg-white hover:bg-brand-orange-light text-primary-400 hover:text-brand-orange hover:border-brand-orange/40 transition-colors cursor-pointer shadow-2xs"
+              title={`Edit info for ${row.name}`}
+            >
+              <Edit2 className="w-3.5 h-3.5 text-brand-orange" />
+            </button>
+          )}
         </div>
       ),
     },
@@ -155,7 +167,8 @@ export function InstructorTable({
         headerClassName="bg-gray-bg border-b border-dash body-sm-medium text-primary-500 normal-case"
         thClassName="px-3.5 py-3 text-primary-500 normal-case"
         cellClassName="px-3.5 py-3.5 cursor-pointer"
-        emptyMessage="No instructors found matching your criteria."
+        emptyMessage={emptyMessage}
+        isLoading={isLoading}
       />
     </div>
   );

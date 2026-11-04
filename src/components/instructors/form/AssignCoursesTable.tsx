@@ -3,13 +3,15 @@
 import React from "react";
 import { DataTable, ColumnDef } from "@/components/ui/Datatable";
 import { CourseBadgeIcon } from "@/components/students/create/CourseBadgeIcon";
-import { EnrollmentCourse } from "@/components/students/create/mockEnrollmentCourses";
+import type { EnrollmentCourse } from "@/types/enrollmentCourse";
 
 interface AssignCoursesTableProps {
   courses: EnrollmentCourse[];
   selectedCourseIds: string[];
   onToggleSelect: (courseId: string) => void;
   onToggleAll: (checked: boolean) => void;
+  isLoading?: boolean;
+  emptyMessage?: string;
 }
 
 export function AssignCoursesTable({
@@ -17,6 +19,8 @@ export function AssignCoursesTable({
   selectedCourseIds,
   onToggleSelect,
   onToggleAll,
+  isLoading = false,
+  emptyMessage = "No courses match your search.",
 }: AssignCoursesTableProps) {
   const columns: ColumnDef<EnrollmentCourse>[] = [
     {
@@ -100,7 +104,8 @@ export function AssignCoursesTable({
         headerClassName="bg-slate-50 border-b border-dash"
         thClassName="px-3.5 py-3 body-xsm-medium text-primary-400 normal-case"
         cellClassName="px-3.5 py-3"
-        emptyMessage="No courses match your search."
+        emptyMessage={emptyMessage}
+        isLoading={isLoading}
       />
     </div>
   );

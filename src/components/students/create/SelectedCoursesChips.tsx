@@ -3,7 +3,7 @@
 import React from "react";
 import { X } from "lucide-react";
 import { CourseBadgeIcon } from "./CourseBadgeIcon";
-import { EnrollmentCourse } from "./mockEnrollmentCourses";
+import type { EnrollmentCourse } from "@/types/enrollmentCourse";
 
 interface SelectedCoursesChipsProps {
   selectedCourses: EnrollmentCourse[];

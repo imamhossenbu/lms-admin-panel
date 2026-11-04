@@ -2,10 +2,7 @@
 
 export type StudentStatusLabel = "Active" | "Inactive" | "Suspended";
 
-export interface ApiPage<T> {
-  data: T[];
-  meta: { page: number; limit: number; total: number; totalPages: number };
-}
+export type { ApiPage } from "./api";
 
 export interface StudentListItem {
   id: string;

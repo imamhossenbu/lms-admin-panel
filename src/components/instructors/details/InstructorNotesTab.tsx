@@ -3,40 +3,27 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, StickyNote, Trash2 } from "lucide-react";
-import { toast } from "sonner";
 import { PrimaryButton } from "@/components/ui/primary-button";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { InstructorNoteItem } from "@/types/instructor";
-import { deleteInstructorNote, saveInstructorNote } from "@/lib/instructorStorage";
 import { DetailCard } from "@/components/ui/DetailCard";
 import { InstructorNoteCard } from "./notes/InstructorNoteCard";
 
 interface InstructorNotesTabProps {
   instructorId: string;
   notes: InstructorNoteItem[];
+  /** Deletes through the API (with its own toasts); rejects to keep the confirm dialog open. */
+  onDelete: (note: InstructorNoteItem) => Promise<void>;
+  canManage?: boolean;
 }
 
-export function InstructorNotesTab({ instructorId, notes }: InstructorNotesTabProps) {
+export function InstructorNotesTab({ instructorId, notes, onDelete, canManage = true }: InstructorNotesTabProps) {
   const router = useRouter();
   const [pendingDelete, setPendingDelete] = useState<InstructorNoteItem | null>(null);
   const notesHref = `/instructors/${instructorId}/notes`;
 
   const handleDelete = async () => {
-    if (!pendingDelete) return;
-    const note = pendingDelete;
-    const toastId = toast.loading("Deleting note...");
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      deleteInstructorNote(instructorId, note.id);
-      toast.success("Note deleted", {
-        id: toastId,
-        description: `"${note.title}" was removed.`,
-        action: { label: "Undo", onClick: () => saveInstructorNote(note) },
-      });
-    } catch (error) {
-      toast.error("Could not delete note", { id: toastId, description: "Something went wrong. Please try again." });
-      throw error;
-    }
+    if (pendingDelete) await onDelete(pendingDelete);
   };
 
   return (
@@ -44,9 +31,11 @@ export function InstructorNotesTab({ instructorId, notes }: InstructorNotesTabPr
       title={`Notes (${notes.length})`}
       description="Keep internal notes about this instructor. These notes are only visible to admins."
       action={
-        <PrimaryButton type="button" onClick={() => router.push(`${notesHref}/new`)} leftIcon={<Plus className="w-4 h-4" />}>
-          Add Note
-        </PrimaryButton>
+        canManage && (
+          <PrimaryButton type="button" onClick={() => router.push(`${notesHref}/new`)} leftIcon={<Plus className="w-4 h-4" />}>
+            Add Note
+          </PrimaryButton>
+        )
       }
     >
       {notes.length > 0 ? (

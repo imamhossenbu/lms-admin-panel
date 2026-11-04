@@ -1,210 +1,162 @@
 "use client";
 
-import React, { useState, useMemo, useEffect, Suspense } from "react";
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import React, { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { InstructorItem } from "@/types/instructor";
-import { MOCK_INSTRUCTORS } from "@/data/mockInstructorData";
-import { getStoredInstructors, INSTRUCTORS_UPDATED_EVENT } from "@/lib/instructorStorage";
+import { toast } from "sonner";
 import { InstructorHeader } from "@/components/instructors/InstructorHeader";
 import { InstructorToolbar } from "@/components/instructors/InstructorToolbar";
 import { InstructorTable } from "@/components/instructors/InstructorTable";
-import { TablePagination } from "@/components/ui/TablePagination";
 import { InstructorSkeleton } from "@/components/instructors/InstructorSkeleton";
-import { toast } from "sonner";
+import { TablePagination } from "@/components/ui/TablePagination";
+import { instructorsApi } from "@/lib/api/instructors";
+import { apiErrorMessage } from "@/lib/apiError";
+import { useCan } from "@/lib/usePermission";
+import { useUrlParams } from "@/lib/useUrlParams";
+import { toInstructorItem } from "@/lib/instructors/instructorView";
+import { downloadInstructorsCsv } from "@/lib/instructors/instructorCsv";
+import type { InstructorListItem, InstructorListQuery, InstructorStatusLabel } from "@/types/instructorApi";
 
+const STATUSES: InstructorStatusLabel[] = ["Active", "Inactive"];
+const JOINED = ["7", "30", "90"];
+const PAGE_SIZES = [10, 20, 50];
+
+/** Instructors list: server-side search, filters and pagination, all kept in the URL. */
 function InstructorsContent() {
   const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const url = useUrlParams();
+  const canManage = useCan("instructors", "manage");
 
-  const urlPage = parseInt(searchParams.get("page") || "1", 10);
-  const urlStatus = searchParams.get("status") || "All";
-  const urlExpertise = searchParams.get("expertise") || "All";
-  const urlSearch = searchParams.get("q") || "";
+  const page = url.getPage();
+  const status = url.get("status", "All");
+  const expertise = url.get("expertise", "All");
+  const joined = url.get("joined", "All");
+  const limit = PAGE_SIZES.includes(Number(url.get("limit"))) ? Number(url.get("limit")) : 10;
+  const urlQuery = url.get("q");
 
-  const [instructors, setInstructors] = useState<InstructorItem[]>(MOCK_INSTRUCTORS);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Filters state
-  const [searchQuery, setSearchQuery] = useState(urlSearch);
-  const [statusFilter, setStatusFilter] = useState(urlStatus);
-  const [expertiseFilter, setExpertiseFilter] = useState(urlExpertise);
-  const [dateFilter, setDateFilter] = useState("All");
-
-  // Pagination state
-  const [currentPage, setCurrentPage] = useState(isNaN(urlPage) ? 1 : urlPage);
-  const [pageSize, setPageSize] = useState(10);
-
-  // URL sync helper
-  const updateUrlParams = (
-    nextPage: number,
-    nextStatus: string,
-    nextExpertise: string,
-    nextQuery: string
-  ) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (nextPage > 1) params.set("page", nextPage.toString());
-    else params.delete("page");
-
-    if (nextStatus && nextStatus !== "All") params.set("status", nextStatus);
-    else params.delete("status");
-
-    if (nextExpertise && nextExpertise !== "All") params.set("expertise", nextExpertise);
-    else params.delete("expertise");
-
-    if (nextQuery) params.set("q", nextQuery);
-    else params.delete("q");
-
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-  };
-
-  // Sync with client-side storage so creates/edits/deletes on sub-pages show up here
+  // `set` changes identity with every URL change; effects read the latest one through a ref.
+  const setParams = useRef(url.set);
   useEffect(() => {
-    const sync = () => setInstructors(getStoredInstructors());
-    sync();
-    window.addEventListener(INSTRUCTORS_UPDATED_EVENT, sync);
-    return () => window.removeEventListener(INSTRUCTORS_UPDATED_EVENT, sync);
+    setParams.current = url.set;
+  }, [url.set]);
+
+  const [search, setSearch] = useState(urlQuery);
+  const [result, setResult] = useState<{ rows: InstructorListItem[]; total: number; key: string } | null>(null);
+  const [failedKey, setFailedKey] = useState<string | null>(null);
+  const [expertiseOptions, setExpertiseOptions] = useState<string[]>([]);
+  const [isExporting, setIsExporting] = useState(false);
+
+  useEffect(() => {
+    if (search.trim() === urlQuery) return;
+    const t = setTimeout(() => setParams.current({ q: search.trim(), page: 1 }), 300);
+    return () => clearTimeout(t);
+  }, [search, urlQuery]);
+
+  useEffect(() => {
+    instructorsApi
+      .expertiseOptions()
+      .then(setExpertiseOptions)
+      .catch(() => setExpertiseOptions([]));
   }, []);
 
-  // Simulate initial loading for polished skeleton transition
+  const query = useMemo<InstructorListQuery>(
+    () => ({
+      page,
+      limit,
+      q: urlQuery || undefined,
+      status: STATUSES.includes(status as InstructorStatusLabel) ? (status as InstructorStatusLabel) : undefined,
+      expertise: expertise !== "All" ? expertise : undefined,
+      joinedWithinDays: JOINED.includes(joined) ? (Number(joined) as 7 | 30 | 90) : undefined,
+    }),
+    [page, limit, urlQuery, status, expertise, joined]
+  );
+  const queryKey = JSON.stringify(query);
+  const isFetching = result?.key !== queryKey && failedKey !== queryKey;
+
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 450);
-    return () => clearTimeout(timer);
-  }, []);
+    let alive = true;
+    const key = JSON.stringify(query);
+    instructorsApi
+      .list(query)
+      .then((res) => {
+        if (!alive) return;
+        setResult({ rows: res.data, total: res.meta.total, key });
+        if (res.meta.page > res.meta.totalPages) setParams.current({ page: res.meta.totalPages });
+      })
+      .catch((err) => {
+        if (!alive) return;
+        setFailedKey(key);
+        setResult((r) => r ?? { rows: [], total: 0, key: "" });
+        toast.error("Couldn't load instructors", { id: "instructors-load", description: apiErrorMessage(err) });
+      });
+    return () => {
+      alive = false;
+    };
+  }, [query]);
 
-  // Filtered instructors
-  const filteredInstructors = useMemo(() => {
-    return instructors.filter((inst) => {
-      const q = searchQuery.toLowerCase().trim();
-      const matchesSearch =
-        !q ||
-        inst.name.toLowerCase().includes(q) ||
-        inst.email.toLowerCase().includes(q) ||
-        inst.title.toLowerCase().includes(q) ||
-        inst.expertise.toLowerCase().includes(q);
+  const rows = useMemo(() => (result?.rows ?? []).map((i, idx) => toInstructorItem(i, (page - 1) * limit + idx)), [result, page, limit]);
 
-      const matchesStatus =
-        statusFilter === "All" || inst.status === statusFilter;
-
-      const matchesExpertise =
-        expertiseFilter === "All" || inst.expertise === expertiseFilter;
-
-      return matchesSearch && matchesStatus && matchesExpertise;
-    });
-  }, [instructors, searchQuery, statusFilter, expertiseFilter]);
-
-  // Paginated instructors
-  const paginatedInstructors = useMemo(() => {
-    const startIndex = (currentPage - 1) * pageSize;
-    return filteredInstructors.slice(startIndex, startIndex + pageSize);
-  }, [filteredInstructors, currentPage, pageSize]);
-
-
-  // Navigation triggers (dedicated pages, no drawers)
-  const handleViewDetails = (instructor: InstructorItem) => {
-    router.push(`/instructors/${instructor.id}`);
+  const handleExport = async () => {
+    setIsExporting(true);
+    const toastId = toast.loading("Preparing export...", { description: "Collecting every instructor that matches the filters" });
+    try {
+      const all: InstructorListItem[] = [];
+      for (let p = 1; ; p++) {
+        const res = await instructorsApi.list({ ...query, page: p, limit: 100 });
+        all.push(...res.data);
+        if (p >= res.meta.totalPages) break;
+      }
+      downloadInstructorsCsv(all);
+      toast.success("Export ready", { id: toastId, description: `${all.length} instructor record${all.length === 1 ? "" : "s"} downloaded as CSV.` });
+    } catch (err) {
+      toast.error("Couldn't export instructors", { id: toastId, description: apiErrorMessage(err) });
+    } finally {
+      setIsExporting(false);
+    }
   };
 
-  const handleOpenEditFromTable = (instructor: InstructorItem) => {
-    router.push(`/instructors/${instructor.id}/edit`);
-  };
+  if (!result) return <InstructorSkeleton />;
 
-  // Export CSV Handler
-  const handleExport = () => {
-    const csvContent =
-      "data:text/csv;charset=utf-8," +
-      ["Order,Name,Expertise,Email,Courses,Students,Total Revenue,Status,Join Date"]
-        .concat(
-          filteredInstructors.map(
-            (i) =>
-              `${i.orderNumber},"${i.name}","${i.expertise}","${i.email}",${i.coursesCount},${i.studentsCount},"${i.totalRevenue}",${i.status},"${i.joinDate}"`
-          )
-        )
-        .join("\n");
-
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `instructors_export_${new Date().toISOString().slice(0, 10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    toast.success("Export Downloaded", {
-      description: "Instructors list exported to CSV.",
-    });
-  };
-
-  if (isLoading) {
-    return <InstructorSkeleton />;
-  }
+  const filtered = !!(query.q || query.status || query.expertise || query.joinedWithinDays);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25, ease: "easeOut" }}
-      className="space-y-4 text-left pb-8"
-    >
-      {/* 1. Page Header with Breadcrumbs & Add Instructor CTA */}
+    <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25, ease: "easeOut" }} className="space-y-4 text-left pb-8">
       <InstructorHeader onAddClick={() => router.push("/instructors/create")} />
 
-      {/* 2. Full-Width Instructors Card: Toolbar + DataTable + Pagination */}
       <div className="bg-white rounded-xl border border-dash shadow-2xs overflow-hidden flex flex-col justify-between">
-        {/* Toolbar with Search, Status, Expertise, Date filters & Export */}
         <InstructorToolbar
-          searchQuery={searchQuery}
-          onSearchChange={(q) => {
-            setSearchQuery(q);
-            setCurrentPage(1);
-            updateUrlParams(1, statusFilter, expertiseFilter, q);
-          }}
-          statusFilter={statusFilter}
-          onStatusChange={(s) => {
-            setStatusFilter(s);
-            setCurrentPage(1);
-            updateUrlParams(1, s, expertiseFilter, searchQuery);
-          }}
-          expertiseFilter={expertiseFilter}
-          onExpertiseChange={(e) => {
-            setExpertiseFilter(e);
-            setCurrentPage(1);
-            updateUrlParams(1, statusFilter, e, searchQuery);
-          }}
-          dateFilter={dateFilter}
-          onDateChange={(d) => {
-            setDateFilter(d);
-            setCurrentPage(1);
-          }}
+          searchQuery={search}
+          onSearchChange={setSearch}
+          statusFilter={status}
+          onStatusChange={(s) => url.set({ status: s, page: 1 })}
+          expertiseFilter={expertise}
+          onExpertiseChange={(e) => url.set({ expertise: e, page: 1 })}
+          dateFilter={joined}
+          onDateChange={(d) => url.set({ joined: d, page: 1 })}
+          expertiseOptions={expertiseOptions}
           onExport={handleExport}
+          isExporting={isExporting}
         />
 
-        {/* Full-width DataTable with column borders */}
         <InstructorTable
-          instructors={paginatedInstructors}
-          onViewDetails={handleViewDetails}
-          onEdit={handleOpenEditFromTable}
+          instructors={rows}
+          isLoading={isFetching && rows.length === 0}
+          emptyMessage={filtered ? "No instructors match these filters." : "No instructors yet — add your first instructor."}
+          canEdit={canManage}
+          onViewDetails={(i) => router.push(`/instructors/${i.id}`)}
+          onEdit={(i) => router.push(`/instructors/${i.id}/edit`)}
         />
 
-        {/* Dynamic Pagination with reusable DropdownSelect */}
         <TablePagination
-          currentPage={currentPage}
+          currentPage={page}
           itemLabel="instructors"
-          totalCount={filteredInstructors.length}
-          pageSize={pageSize}
-          onPageChange={(page) => {
-            setCurrentPage(page);
-            updateUrlParams(page, statusFilter, expertiseFilter, searchQuery);
-          }}
-          onPageSizeChange={(newSize) => {
-            setPageSize(newSize);
-            setCurrentPage(1);
-            updateUrlParams(1, statusFilter, expertiseFilter, searchQuery);
-          }}
+          totalCount={result.total}
+          pageSize={limit}
+          pageSizeOptions={PAGE_SIZES}
+          onPageChange={(p) => url.set({ page: p })}
+          onPageSizeChange={(size) => url.set({ limit: size === 10 ? null : size, page: 1 })}
         />
       </div>
-
     </motion.div>
   );
 }

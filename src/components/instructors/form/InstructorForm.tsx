@@ -10,9 +10,11 @@ import { AssignCoursesCard } from "./AssignCoursesCard";
 import { InstructorAccountSummaryCard } from "./InstructorAccountSummaryCard";
 import { InstructorNextStepsCard } from "./InstructorNextStepsCard";
 import { InstructorFormActions } from "./InstructorFormActions";
+import { useCourseOptions } from "@/lib/students/useCourseOptions";
 
 interface InstructorFormProps {
   defaultValues: InstructorFormInput;
+  /** Courses the instructor already teaches (pre-selected and locked in edit mode). */
   defaultCourseIds?: string[];
   mode?: "create" | "edit";
   infoDescription?: string;
@@ -37,6 +39,7 @@ export function InstructorForm({
   submitIcon,
   onSubmit,
 }: InstructorFormProps) {
+  const courses = useCourseOptions();
   const [selectedCourseIds, setSelectedCourseIds] = useState<string[]>(defaultCourseIds);
 
   const {
@@ -75,6 +78,8 @@ export function InstructorForm({
           />
           <InstructorPasswordCard mode={mode} />
           <AssignCoursesCard
+            courses={courses}
+            lockedCourseIds={mode === "edit" ? defaultCourseIds : []}
             selectedCourseIds={selectedCourseIds}
             onChangeSelectedCourseIds={setSelectedCourseIds}
           />

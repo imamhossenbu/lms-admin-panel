@@ -11,6 +11,8 @@ import { PrimaryButton } from "@/components/ui/primary-button";
 import { SecondaryButton } from "@/components/ui/secondary-button";
 import { instructorMessageSchema, InstructorMessageInput } from "@/validations/instructorSchema";
 import { InstructorItem } from "@/types/instructor";
+import { instructorsApi } from "@/lib/api/instructors";
+import { apiErrorMessage } from "@/lib/apiError";
 
 interface SendMessageModalProps {
   isOpen: boolean;
@@ -41,17 +43,14 @@ export function SendMessageModal({ isOpen, instructor, onClose }: SendMessageMod
       description: `Delivering to ${instructor.email}`,
     });
     try {
-      await new Promise((resolve) => setTimeout(resolve, 600));
+      await instructorsApi.sendMessage(instructor.id, { subject: data.subject.trim(), body: data.body.trim() });
       toast.success("Message sent", {
         id: toastId,
         description: `"${data.subject}" was sent to ${instructor.name}.`,
       });
       onClose();
-    } catch {
-      toast.error("Message not sent", {
-        id: toastId,
-        description: "We couldn't deliver your message. Please try again.",
-      });
+    } catch (err) {
+      toast.error("Message not sent", { id: toastId, description: apiErrorMessage(err, "We couldn't deliver your message. Please try again.") });
     }
   };
 

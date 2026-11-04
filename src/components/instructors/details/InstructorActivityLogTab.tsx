@@ -41,6 +41,7 @@ const TYPE_ICON: Record<ActivityLogType, { icon: React.ReactNode; className: str
   new_review: { icon: <MessageSquareHeart />, className: "bg-red-14 text-red" },
   earning: { icon: <CircleDollarSign />, className: "bg-green-bg text-green" },
   note_added: { icon: <StickyNote />, className: "bg-purple-14 text-purple" },
+  account_action: { icon: <UserCog />, className: "bg-slate-100 text-primary-400" },
 };
 
 const DEVICE_ICON = { Web: <Monitor />, Mobile: <Smartphone />, System: <Server /> };

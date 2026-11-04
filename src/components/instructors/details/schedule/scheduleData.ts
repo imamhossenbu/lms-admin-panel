@@ -14,6 +14,9 @@ export interface ScheduleEvent {
   start: string;
   end: string;
   status: ScheduleEventStatus;
+  /** Admin page for the source record (live class or assignment). */
+  href: string;
+  meetingUrl: string | null;
 }
 
 export const EVENT_TYPE_META: Record<ScheduleEventType, { label: string; dot: string; soft: string }> = {
@@ -24,61 +27,7 @@ export const EVENT_TYPE_META: Record<ScheduleEventType, { label: string; dot: st
   other: { label: "Other", dot: "bg-purple", soft: "bg-purple-14 text-purple" },
 };
 
-const TOPICS: Record<string, string[]> = {
-  html: ["HTML Basics", "Forms & Semantics", "Accessibility Basics"],
-  css: ["CSS Layout & Flexbox", "Grid Deep Dive", "Responsive Patterns"],
-  javascript: ["JavaScript Fundamentals", "Async & Promises", "DOM Projects"],
-  react: ["React Components", "Hooks in Practice", "State Management"],
-  node: ["Node.js Introduction", "Building REST APIs", "Auth with JWT"],
-  uiux: ["UI/UX Design Principles", "Wireframing Workshop", "Usability Testing"],
-};
-
-const TYPE_CYCLE: ScheduleEventType[] = ["live", "live", "webinar", "live", "assignment", "live", "exam", "other"];
-const TYPE_PREFIX: Record<ScheduleEventType, string> = {
-  live: "Live Class: ",
-  webinar: "Webinar: ",
-  assignment: "Assignment Due: ",
-  exam: "Exam: ",
-  other: "",
-};
-const SLOTS: [number, number][] = [[10, 0], [14, 0], [16, 0], [10, 0], [14, 0]];
-
 const startOfDay = (date: Date) => new Date(date.getFullYear(), date.getMonth(), date.getDate());
-
-/** Classes spread from two weeks ago to three weeks ahead of `today`. */
-export function buildScheduleEvents(
-  instructorId: string,
-  courses: InstructorCourseRow[],
-  today: Date = new Date()
-): ScheduleEvent[] {
-  if (courses.length === 0) return [];
-  const base = startOfDay(today);
-  const now = today.getTime();
-
-  return Array.from({ length: 16 }, (_, i) => {
-    const course = courses[i % courses.length];
-    const type = TYPE_CYCLE[i % TYPE_CYCLE.length];
-    const topics = TOPICS[course.iconType ?? ""] ?? [`${course.title} Session`];
-    const topic = topics[Math.floor(i / courses.length) % topics.length];
-    const [hour, minute] = SLOTS[i % SLOTS.length];
-
-    const start = new Date(base);
-    start.setDate(base.getDate() - 14 + Math.round(i * 2.3));
-    start.setHours(hour, minute, 0, 0);
-    const end = new Date(start.getTime() + 90 * 60 * 1000);
-
-    return {
-      id: `${instructorId}-evt-${i + 1}`,
-      title: `${TYPE_PREFIX[type]}${topic}`,
-      shortTitle: topic.length > 16 ? `${topic.slice(0, 14)}…` : topic,
-      type,
-      course,
-      start: start.toISOString(),
-      end: end.toISOString(),
-      status: end.getTime() < now ? "Completed" : "Upcoming",
-    };
-  });
-}
 
 // ---------------------------------------------------------------------------
 // Date helpers for the calendar
