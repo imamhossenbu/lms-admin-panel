@@ -44,7 +44,7 @@ export function QuestionDetailsPanel({ question, classDate, onClose }: QuestionD
   const onSubmit = async (values: LiveAnswerValues) => {
     const toastId = toast.loading("Updating answer...", { description: question.question });
     try {
-      await answerLiveQuestion(question.id, values.answerHtml, values.status);
+      await answerLiveQuestion(question.classId, question.id, values.answerHtml, values.status);
       reset(values);
       toast.success(values.status === "ANSWERED" ? "Answer saved" : "Marked as pending", {
         id: toastId,

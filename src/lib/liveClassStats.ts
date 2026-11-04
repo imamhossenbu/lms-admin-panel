@@ -1,5 +1,5 @@
 import type { LiveActivity, LiveClassItem, LiveDisplayStatus, LiveEnrollment, LiveQuestion } from "@/types/liveClass";
-import { LIVE_COURSES, LIVE_INSTRUCTORS } from "@/data/mockLiveClassData";
+import { liveCourseRef, liveInstructorRef } from "@/lib/liveClassRefs";
 
 /** Pure helpers — every number on the Live Classes pages comes from here (never hard-coded). */
 
@@ -22,8 +22,9 @@ export function liveStatus(c: Pick<LiveClassItem, "status" | "date" | "startTime
   return s - t <= 3 * DAY ? "UPCOMING" : "SCHEDULED";
 }
 
-export const courseOf = (id: string) => LIVE_COURSES.find((c) => c.id === id);
-export const instructorOf = (id: string) => LIVE_INSTRUCTORS.find((i) => i.id === id);
+/** Course / instructor of a class (registered from what the Live Classes API returned). */
+export const courseOf = (id: string) => liveCourseRef(id);
+export const instructorOf = (id: string) => liveInstructorRef(id);
 
 /** "1 hour" / "1h 30m" / "45m". */
 export function formatMinutes(min: number) {
@@ -89,10 +90,9 @@ export function qaStats(questions: LiveQuestion[]) {
 }
 
 /** List page cards: all-time totals + % change of the last 30 days vs the 30 days before (null when no baseline). */
-export function liveListStats(classes: LiveClassItem[], enrollments: LiveEnrollment[], now: Date = new Date()) {
+export function liveListStats(classes: (LiveClassItem & { attendees: number })[], now: Date = new Date()) {
   const statusOf = new Map(classes.map((c) => [c.id, liveStatus(c, now)]));
-  const attendedBy = new Map<string, number>();
-  enrollments.forEach((e) => e.status === "ATTENDED" && attendedBy.set(e.classId, (attendedBy.get(e.classId) ?? 0) + 1));
+  const attendedBy = new Map(classes.map((c) => [c.id, c.attendees]));
   const inWindow = (c: LiveClassItem, from: number, to: number) => {
     const t = startOf(c).getTime();
     return t >= from && t < to;
@@ -126,9 +126,6 @@ export function liveListStats(classes: LiveClassItem[], enrollments: LiveEnrollm
     },
   };
 }
-
-export const attendeesOf = (classId: string, enrollments: LiveEnrollment[]) =>
-  enrollments.filter((e) => e.classId === classId && e.status === "ATTENDED").length;
 
 export const activityCounts = (activity: LiveActivity[]) =>
   activity.reduce<Record<string, number>>((acc, a) => ((acc[a.kind] = (acc[a.kind] ?? 0) + 1), acc), {});

@@ -35,7 +35,7 @@ import { toggleSidebar } from "@/store/slices/uiSlice";
 import { cn } from "@/lib/cn";
 import { EduProCapIcon } from "@/components/ui/EduProLogo";
 import { getUnreadCount } from "@/lib/notificationStorage";
-import { subscribeNotifications } from "@/components/notifications/shared/useNotificationsStore";
+import { subscribeNotifications, useNotificationsLoader } from "@/components/notifications/shared/useNotificationsStore";
 
 interface NavCategory {
   category: string;
@@ -106,6 +106,7 @@ export function AdminSidebar() {
   const dispatch = useAppDispatch();
   const collapsed = useAppSelector((state) => state.ui.sidebarCollapsed);
   // Live unread inbox count (same store as /notifications and the navbar bell).
+  useNotificationsLoader(["inbox"]);
   const unreadNotifications = useSyncExternalStore(subscribeNotifications, getUnreadCount, () => 0);
   // Plan gating: lock badges on features outside the current plan, "Trial" on Billing while trialing.
   const saas = useSaasStore();

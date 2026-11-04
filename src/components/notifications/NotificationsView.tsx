@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { markRead } from "@/lib/notificationStorage";
+import { apiErrorMessage } from "@/lib/apiError";
 import { inboxStats } from "@/lib/notificationStats";
 import { useUrlParams } from "@/lib/useUrlParams";
 import { PillTabs } from "@/components/ui/PillTabs";
@@ -33,14 +34,19 @@ export function NotificationsView() {
     templates: templates.length,
   };
 
-  const markAllRead = () => {
-    markRead("all");
-    toast.success("All caught up", { description: `${unread} notification${unread === 1 ? "" : "s"} marked as read.` });
+  const markAllRead = async () => {
+    const toastId = toast.loading("Marking all as read...", { description: `${unread} unread notification${unread === 1 ? "" : "s"}.` });
+    try {
+      await markRead("all");
+      toast.success("All caught up", { id: toastId, description: `${unread} notification${unread === 1 ? "" : "s"} marked as read.` });
+    } catch (err) {
+      toast.error("Couldn't update notifications", { id: toastId, description: apiErrorMessage(err) });
+    }
   };
 
   return (
     <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25, ease: "easeOut" }} className="space-y-5 pb-8 text-left">
-      <NotificationsHeader unread={unread} onMarkAllRead={markAllRead} onNewBroadcast={() => router.push("/notifications/compose")} />
+      <NotificationsHeader unread={unread} onMarkAllRead={() => void markAllRead()} onNewBroadcast={() => router.push("/notifications/compose")} />
 
       <PillTabs<NotificationsTab>
         ariaLabel="Notifications sections"

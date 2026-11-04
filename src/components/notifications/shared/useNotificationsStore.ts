@@ -1,55 +1,57 @@
 "use client";
 
-import { useMemo, useSyncExternalStore } from "react";
-import type { NotificationSeed } from "@/data/mockNotificationData";
-import { getNotificationsSnapshot, NOTIFICATIONS_UPDATED_EVENT } from "@/lib/notificationStorage";
+import { useEffect, useSyncExternalStore } from "react";
+import {
+  EMPTY_NOTIFICATIONS,
+  ensureNotifications,
+  getNotificationsSnapshot,
+  refreshNotifications,
+  subscribeNotifications,
+  type NotificationsData,
+  type NotificationsPart,
+} from "@/lib/notificationStorage";
+import { useCan } from "@/lib/usePermission";
 
-const EMPTY_SEED: NotificationSeed = { inbox: [], broadcasts: [], deliveries: [], templates: [] };
-const EMPTY_SNAPSHOT = JSON.stringify(EMPTY_SEED);
+export { subscribeNotifications };
 
-/** Serialized store, recomputed only after a NOTIFICATIONS_UPDATED_EVENT (avoids re-reading localStorage every render). */
-let cached: string | null = null;
-let listening = false;
+const ALL_PARTS: NotificationsPart[] = ["inbox", "broadcasts", "templates"];
+/** The inbox is re-read in the background so the bell / badge pick up new notifications. */
+const INBOX_POLL_MS = 60_000;
 
-function invalidate() {
-  cached = null;
-}
-
-function getSnapshot(): string {
-  if (typeof window !== "undefined" && !listening) {
-    window.addEventListener(NOTIFICATIONS_UPDATED_EVENT, invalidate);
-    listening = true;
-  }
-  if (cached === null) cached = JSON.stringify(getNotificationsSnapshot());
-  return cached;
-}
-
-const getServerSnapshot = () => EMPTY_SNAPSHOT;
+const getServerSnapshot = () => EMPTY_NOTIFICATIONS;
 
 /**
- * Subscribes to the notifications mock store. The callback is deferred a microtask so a write that happens
- * while another component renders (first-visit seeding) never triggers "update while rendering" warnings.
+ * Loads the given parts of the notifications store on mount (once per page session) and keeps the inbox fresh.
+ * Does nothing for team members without the notifications permission.
  */
-export function subscribeNotifications(onChange: () => void) {
-  const handler = () => {
-    invalidate();
-    queueMicrotask(onChange);
-  };
-  window.addEventListener(NOTIFICATIONS_UPDATED_EVENT, handler);
-  return () => window.removeEventListener(NOTIFICATIONS_UPDATED_EVENT, handler);
+export function useNotificationsLoader(parts: NotificationsPart[] = ALL_PARTS) {
+  const allowed = useCan("notifications", "view");
+  const key = parts.join(",");
+  useEffect(() => {
+    if (!allowed) return;
+    const wanted = key.split(",") as NotificationsPart[];
+    void ensureNotifications(wanted).catch(() => {});
+    if (!wanted.includes("inbox")) return;
+    const refreshInbox = () => document.visibilityState === "visible" && void refreshNotifications(["inbox"]).catch(() => {});
+    const timer = window.setInterval(refreshInbox, INBOX_POLL_MS);
+    window.addEventListener("focus", refreshInbox);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener("focus", refreshInbox);
+    };
+  }, [allowed, key]);
 }
 
-/** Live NotificationSeed (inbox, broadcasts, deliveries, templates). Empty on the server / during hydration. */
-export function useNotificationsStore(): NotificationSeed {
-  const snapshot = useSyncExternalStore(subscribeNotifications, getSnapshot, getServerSnapshot);
-  return useMemo(() => JSON.parse(snapshot) as NotificationSeed, [snapshot]);
+/** Live notifications store (inbox, broadcasts, templates, broadcast overview). Empty on the server / until loaded. */
+export function useNotificationsStore(parts: NotificationsPart[] = ALL_PARTS): NotificationsData {
+  useNotificationsLoader(parts);
+  return useSyncExternalStore(subscribeNotifications, getNotificationsSnapshot, getServerSnapshot);
 }
 
-const noopSubscribe = () => () => {};
-
-/** false on the server and during hydration, true once the client store can be read (use it to show skeletons). */
-export function useNotificationsReady(): boolean {
-  return useSyncExternalStore(noopSubscribe, () => true, () => false);
+/** true once the given parts have loaded (use it to show skeletons). */
+export function useNotificationsReady(parts: NotificationsPart[] = ALL_PARTS): boolean {
+  const { loaded } = useSyncExternalStore(subscribeNotifications, getNotificationsSnapshot, getServerSnapshot);
+  return parts.every((p) => loaded[p]);
 }
 
 export default useNotificationsStore;

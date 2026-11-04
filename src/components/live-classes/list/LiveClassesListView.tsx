@@ -30,7 +30,7 @@ const FILTER_KEYS = { q: null, status: null, instructor: null, course: null, fro
 export function LiveClassesListView() {
   const router = useRouter();
   const { get, getPage, set } = useUrlParams();
-  const { classes, enrollments, now, isLoading, loadError, retry } = useLiveClassesData();
+  const { classes, now, isLoading, loadError, retry } = useLiveClassesData();
   const actions = useLiveClassListActions();
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -53,7 +53,7 @@ export function LiveClassesListView() {
   const isFiltered =
     !!filters.q || filters.status !== "All" || filters.instructor !== "All" || filters.course !== "All" || !!filters.from || !!filters.to;
 
-  const allRows = useMemo(() => toRows(classes, enrollments, now), [classes, enrollments, now]);
+  const allRows = useMemo(() => toRows(classes, now), [classes, now]);
   const filtered = useMemo<LiveClassRow[]>(
     () => filterRows(allRows, filters),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -113,7 +113,7 @@ export function LiveClassesListView() {
         onExportSelected={() => exportRows(filtered.filter((r) => visibleSelected.includes(r.id)), "selected")}
         onSchedule={goSchedule}
       />
-      <LiveClassStatsRow classes={classes} enrollments={enrollments} now={now} />
+      <LiveClassStatsRow classes={classes} now={now} />
 
       <div className="dashboard-card shadow-2xs p-5 space-y-4">
         <LiveClassFiltersBar

@@ -1,4 +1,4 @@
-/** Live Classes (mock-first). API-ready shapes — swap src/lib/liveClassStorage.ts for real calls later. */
+/** Live Classes shapes (same as the Live Classes API, `/admin/live-classes*`). */
 
 export type LivePlatform = "ZOOM" | "GOOGLE_MEET" | "TEAMS" | "CUSTOM";
 export type LiveClassType = "INTERACTIVE" | "WEBINAR" | "WORKSHOP" | "QA";

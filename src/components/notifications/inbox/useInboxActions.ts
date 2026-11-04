@@ -3,29 +3,31 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { archiveNotifications, deleteNotifications, markRead } from "@/lib/notificationStorage";
+import { apiErrorMessage } from "@/lib/apiError";
 
-const errorText = (err: unknown) => (err instanceof Error && err.message ? err.message : "Something went wrong. Please try again.");
+const errorText = (err: unknown) => apiErrorMessage(err);
 const plural = (n: number) => `${n} notification${n === 1 ? "" : "s"}`;
 
-/** Inbox mutations with sonner feedback. Reads are instant; delete is async (loading → success / error). */
+/** Inbox mutations with sonner feedback. Read / archive are optimistic; delete is loading → success / error. */
 export function useInboxActions() {
   const [busy, setBusy] = useState(false);
 
-  const setRead = (ids: string[], isRead: boolean, { silent = false } = {}) => {
+  /** Optimistic: the list updates at once; a failure rolls it back and shows an error. */
+  const setRead = async (ids: string[], isRead: boolean, { silent = false } = {}) => {
     try {
-      markRead(ids, isRead);
+      await markRead(ids, isRead);
       if (!silent) toast.success(isRead ? "Marked as read" : "Marked as unread", { description: `${plural(ids.length)} updated.` });
     } catch (err) {
       toast.error("Couldn't update notifications", { description: errorText(err) });
     }
   };
 
-  const setArchived = (ids: string[], isArchived: boolean) => {
+  const setArchived = async (ids: string[], isArchived: boolean) => {
     try {
-      archiveNotifications(ids, isArchived);
+      await archiveNotifications(ids, isArchived);
       toast.success(isArchived ? "Archived" : "Moved to inbox", {
         description: `${plural(ids.length)} ${isArchived ? "archived" : "restored"}.`,
-        action: { label: "Undo", onClick: () => archiveNotifications(ids, !isArchived) },
+        action: { label: "Undo", onClick: () => void setArchived(ids, !isArchived) },
       });
     } catch (err) {
       toast.error(isArchived ? "Couldn't archive" : "Couldn't restore", { description: errorText(err) });

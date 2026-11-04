@@ -73,7 +73,7 @@ export function TemplateEditorForm({ template }: { template: NotificationTemplat
     setSendingTest(true);
     const toastId = toast.loading("Sending test...", { description: template.name });
     try {
-      const to = await sendTestNotification();
+      const to = await sendTestNotification({ kind: "template", id: template.id });
       toast.success(`Test sent to ${to}`, { id: toastId, description: "Check your inbox to see how it looks." });
     } catch (err) {
       toast.error("Couldn't send the test", { id: toastId, description: errorText(err) });

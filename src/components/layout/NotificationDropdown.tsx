@@ -8,6 +8,7 @@ import { Bell, BellOff, CheckCheck } from "lucide-react";
 import { toast } from "sonner";
 import type { AdminNotification } from "@/types/notification";
 import { markRead } from "@/lib/notificationStorage";
+import { apiErrorMessage } from "@/lib/apiError";
 import { timeAgo } from "@/lib/notificationStats";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 import { cn } from "@/lib/cn";
@@ -24,7 +25,7 @@ export function NotificationDropdown() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const fitRef = useRef<HTMLDivElement>(null);
   useViewportFit(isOpen, fitRef);
-  const { inbox } = useNotificationsStore();
+  const { inbox } = useNotificationsStore(["inbox"]);
 
   const live = useMemo(() => inbox.filter((n) => !n.isArchived), [inbox]);
   const unreadCount = live.filter((n) => !n.isRead).length;
@@ -47,17 +48,18 @@ export function NotificationDropdown() {
     };
   }, [isOpen]);
 
-  const handleMarkAllAsRead = () => {
+  const handleMarkAllAsRead = async () => {
+    const toastId = toast.loading("Marking all as read...", { description: `${unreadCount} unread notification${unreadCount === 1 ? "" : "s"}.` });
     try {
-      markRead("all");
-      toast.success("All caught up", { description: "All notifications marked as read." });
-    } catch {
-      toast.error("Couldn't update notifications", { description: "Please try again." });
+      await markRead("all");
+      toast.success("All caught up", { id: toastId, description: "All notifications marked as read." });
+    } catch (err) {
+      toast.error("Couldn't update notifications", { id: toastId, description: apiErrorMessage(err) });
     }
   };
 
   const handleItemClick = (item: AdminNotification) => {
-    if (!item.isRead) markRead([item.id]);
+    if (!item.isRead) void markRead([item.id]).catch(() => {});
     setIsOpen(false);
     router.push(item.href);
   };
@@ -119,7 +121,7 @@ export function NotificationDropdown() {
                 <motion.button
                   type="button"
                   whileTap={{ scale: 0.95 }}
-                  onClick={handleMarkAllAsRead}
+                  onClick={() => void handleMarkAllAsRead()}
                   className="body-xsm-medium font-semibold! text-brand-orange hover:text-brand-orange-hover flex items-center gap-1 transition-colors cursor-pointer whitespace-nowrap"
                 >
                   <CheckCheck className="w-3.5 h-3.5" />

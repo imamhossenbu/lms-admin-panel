@@ -41,6 +41,8 @@ export interface Broadcast {
   createdBy: string;
   createdAt: string;
   updatedAt: string;
+  /** Course refs of `courseIds` (the API sends them with list rows / details). */
+  courses?: { id: string; title: string }[];
 }
 
 export type DeliveryStatus = "DELIVERED" | "OPENED" | "CLICKED" | "FAILED";

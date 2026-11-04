@@ -1,8 +1,9 @@
 import type { NotificationCategory, TemplateTrigger } from "@/types/notification";
+import { apiErrorMessage } from "@/lib/apiError";
 
 export const formatDate = (iso: string) => new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 export const LOCKED_TEMPLATE_HINT = "Security emails can't be turned off";
-export const errorText = (err: unknown) => (err instanceof Error && err.message ? err.message : "Something went wrong. Please try again.");
+export const errorText = (err: unknown) => apiErrorMessage(err);
 
 export const TEMPLATE_FORM_ID = "notification-template-form";
 

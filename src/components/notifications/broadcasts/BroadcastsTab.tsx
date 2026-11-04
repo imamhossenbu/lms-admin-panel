@@ -22,7 +22,7 @@ const FILTER_KEYS = { bq: null, bstatus: null, baudience: null, bchannel: null, 
 function BroadcastsTabContent() {
   const router = useRouter();
   const ready = useNotificationsReady();
-  const { broadcasts, deliveries } = useNotificationsStore();
+  const { broadcasts, overview } = useNotificationsStore();
   const { get, set } = useUrlParams();
   const actions = useBroadcastActions();
 
@@ -32,7 +32,7 @@ function BroadcastsTabContent() {
   const channel = get("bchannel", "All");
   const filters: BroadcastFilters = useMemo(() => ({ query, status, audience, channel }), [query, status, audience, channel]);
 
-  const allRows = useMemo(() => toBroadcastRows(broadcasts, deliveries), [broadcasts, deliveries]);
+  const allRows = useMemo(() => toBroadcastRows(broadcasts), [broadcasts]);
   const filtered = useMemo(() => filterBroadcastRows(allRows, filters), [allRows, filters]);
 
   if (!ready) return <BroadcastsTabSkeleton />;
@@ -60,7 +60,7 @@ function BroadcastsTabContent() {
 
   return (
     <div className="space-y-5">
-      <BroadcastsOverview broadcasts={broadcasts} deliveries={deliveries} />
+      <BroadcastsOverview overview={overview} />
       <section className="dashboard-card shadow-2xs space-y-4 p-5">
         <BroadcastsFiltersBar filters={filters} onChange={(u) => set({ ...u, bpage: null })} onReset={() => set({ ...FILTER_KEYS })} />
         <BroadcastsTable

@@ -1,84 +1,273 @@
-import type { AdminNotification, Broadcast, BroadcastDelivery, NotificationTemplateItem } from "@/types/notification";
+"use client";
+
+import { useEffect, useState } from "react";
+import type {
+  AdminNotification,
+  Broadcast,
+  BroadcastAudience,
+  BroadcastDelivery,
+  NotificationChannel,
+  NotificationTemplateItem,
+} from "@/types/notification";
 import type { BroadcastFormValues, TemplateEditorValues } from "@/validations/notificationSchema";
-import { buildNotificationSeed, type NotificationSeed } from "@/data/mockNotificationData";
+import { apiClient } from "@/lib/api";
 
 /**
- * Mock-first persistence for Notifications (localStorage + simulated latency).
- * The navbar dropdown, the sidebar badge and /notifications all read this store and listen to
- * NOTIFICATIONS_UPDATED_EVENT, so marking something read updates every place at once.
+ * Notifications data layer, backed by the Notifications API (`/admin/notifications*`). Function names match the
+ * earlier mock store. One in-memory store (inbox, broadcasts, templates, broadcast overview) feeds the navbar bell,
+ * the sidebar badge and /notifications, so marking something read updates every place at once. Inbox reads/archives
+ * are optimistic (rolled back on failure). Every change announces NOTIFICATIONS_UPDATED_EVENT. Errors are Axios
+ * errors (show them with apiErrorMessage).
  */
 
-const STORAGE_KEY = "edupro_notifications_v1";
 export const NOTIFICATIONS_UPDATED_EVENT = "edupro_notifications_updated";
-const wait = (ms = 350) => new Promise((r) => setTimeout(r, ms));
-const uid = (p: string) => `${p}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
 
-function read(): NotificationSeed {
-  if (typeof window === "undefined") return buildNotificationSeed();
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      const p = JSON.parse(raw) as NotificationSeed;
-      if (Array.isArray(p?.inbox) && Array.isArray(p?.broadcasts) && Array.isArray(p?.deliveries) && Array.isArray(p?.templates)) return p;
-    }
-  } catch {
-    /* re-seed */
-  }
-  const seed = buildNotificationSeed();
-  write(seed);
-  return seed;
+/** A broadcast row as the list returns it. */
+export interface BroadcastListItem extends Broadcast {
+  /** Unique recipients (sent) or the live estimate (not sent yet). */
+  recipients: number;
+  /** Open rate % for sent broadcasts, null otherwise. */
+  openRate: number | null;
+  courses: { id: string; title: string }[];
 }
 
-function write(d: NotificationSeed) {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(d));
-  } catch {
-    throw new Error("Your browser storage is full. Remove some data and try again.");
-  }
-  window.dispatchEvent(new Event(NOTIFICATIONS_UPDATED_EVENT));
+export interface DeliveryStats {
+  total: number;
+  delivered: number;
+  failed: number;
+  opened: number;
+  clicked: number;
+  deliveryRate: number;
+  openRate: number;
+  clickRate: number;
+  recipients: number;
 }
+
+export interface BroadcastDetail {
+  broadcast: Broadcast;
+  courses: { id: string; title: string }[];
+  /** Recipients estimate for unsent broadcasts; unique recipients for sent ones. */
+  recipients: number;
+  stats: DeliveryStats;
+  byChannel: (DeliveryStats & { channel: NotificationChannel })[];
+  opensTimeline: { label: string; opens: number }[];
+}
+
+export interface BroadcastOverview {
+  sentLast30: number;
+  scheduled: number;
+  drafts: number;
+  avgOpenRate: number;
+  avgClickRate: number;
+  reached: number;
+}
+
+export type NotificationsPart = "inbox" | "broadcasts" | "templates";
+
+export interface NotificationsData {
+  inbox: AdminNotification[];
+  broadcasts: BroadcastListItem[];
+  templates: NotificationTemplateItem[];
+  overview: BroadcastOverview;
+  /** Which parts have loaded at least once (or failed to). */
+  loaded: Record<NotificationsPart, boolean>;
+}
+
+interface Page<T> {
+  data: T[];
+  meta: { totalPages: number };
+}
+
+const BASE = "/admin/notifications";
+const enc = encodeURIComponent;
+const is404 = (err: unknown) => (err as { response?: { status?: number } }).response?.status === 404;
+
+const EMPTY_OVERVIEW: BroadcastOverview = { sentLast30: 0, scheduled: 0, drafts: 0, avgOpenRate: 0, avgClickRate: 0, reached: 0 };
+export const EMPTY_NOTIFICATIONS: NotificationsData = {
+  inbox: [],
+  broadcasts: [],
+  templates: [],
+  overview: EMPTY_OVERVIEW,
+  loaded: { inbox: false, broadcasts: false, templates: false },
+};
+
+// ---------------------------------------------------------------- store
+let state: NotificationsData = EMPTY_NOTIFICATIONS;
+const listeners = new Set<() => void>();
+const inFlight = new Map<NotificationsPart, Promise<void>>();
+
+function setState(next: Partial<NotificationsData>) {
+  state = { ...state, ...next };
+  // Deferred so a load that resolves while another component renders never updates "during render".
+  queueMicrotask(() => {
+    listeners.forEach((l) => l());
+    if (typeof window !== "undefined") window.dispatchEvent(new Event(NOTIFICATIONS_UPDATED_EVENT));
+  });
+}
+
+/** useSyncExternalStore subscribe. */
+export function subscribeNotifications(onChange: () => void) {
+  listeners.add(onChange);
+  return () => {
+    listeners.delete(onChange);
+  };
+}
+
+async function allPages<T>(url: string, params: Record<string, unknown> = {}, maxPages = 50): Promise<T[]> {
+  const rows: T[] = [];
+  for (let page = 1; page <= maxPages; page++) {
+    const { data } = await apiClient.get<Page<T>>(url, { params: { ...params, page, limit: 100 } });
+    rows.push(...data.data);
+    if (page >= data.meta.totalPages) break;
+  }
+  return rows;
+}
+
+const LOADERS: Record<NotificationsPart, () => Promise<Partial<NotificationsData>>> = {
+  inbox: async () => {
+    // Latest 500 live + 500 archived notifications are plenty for the bell and the inbox tab.
+    const [live, archived] = await Promise.all([
+      allPages<AdminNotification>(`${BASE}/inbox`, { status: "all" }, 5),
+      allPages<AdminNotification>(`${BASE}/inbox`, { status: "archived" }, 5),
+    ]);
+    return { inbox: [...live, ...archived] };
+  },
+  broadcasts: async () => {
+    const [broadcasts, overview] = await Promise.all([
+      allPages<BroadcastListItem>(`${BASE}/broadcasts`),
+      apiClient.get<BroadcastOverview>(`${BASE}/broadcasts/overview`).then((r) => r.data),
+    ]);
+    return { broadcasts, overview };
+  },
+  templates: async () => ({ templates: (await apiClient.get<NotificationTemplateItem[]>(`${BASE}/templates`)).data }),
+};
+
+/** (Re)loads the given parts. A failed load keeps the last data and still flips `loaded` so screens leave their skeleton. */
+export function refreshNotifications(parts: NotificationsPart[] = ["inbox", "broadcasts", "templates"]): Promise<void> {
+  return Promise.all(
+    parts.map((part) => {
+      const running = inFlight.get(part);
+      if (running) return running;
+      const job = LOADERS[part]()
+        .then(
+          (patch) => setState({ ...patch, loaded: { ...state.loaded, [part]: true } }),
+          (err) => {
+            setState({ loaded: { ...state.loaded, [part]: true } });
+            throw err;
+          }
+        )
+        .finally(() => inFlight.delete(part));
+      inFlight.set(part, job);
+      return job;
+    })
+  ).then(() => undefined);
+}
+
+/** Loads the parts that haven't been loaded yet. */
+export const ensureNotifications = (parts: NotificationsPart[]) => refreshNotifications(parts.filter((p) => !state.loaded[p]));
 
 // ---------------------------------------------------------------- reads
-export const getNotificationsSnapshot = () => read();
-/** Unread, non-archived inbox count (sidebar badge, navbar dot). Stable number for useSyncExternalStore. */
-export const getUnreadCount = () => read().inbox.filter((n) => !n.isRead && !n.isArchived).length;
-export async function fetchNotifications(): Promise<NotificationSeed> {
-  await wait(250);
-  return read();
+export const getNotificationsSnapshot = (): NotificationsData => state;
+/** Unread, non-archived inbox count (sidebar badge, navbar dot). */
+export const getUnreadCount = () => state.inbox.filter((n) => !n.isRead && !n.isArchived).length;
+
+export async function fetchNotifications(): Promise<NotificationsData> {
+  await refreshNotifications();
+  return state;
 }
-export async function fetchBroadcast(id: string) {
-  await wait(300);
-  const d = read();
-  const broadcast = d.broadcasts.find((b) => b.id === id);
-  return broadcast ? { broadcast, deliveries: d.deliveries.filter((x) => x.broadcastId === id) } : null;
+
+/** A broadcast with its delivery analytics and every delivery row, or null when it isn't in this workspace. */
+export async function fetchBroadcast(id: string): Promise<{ broadcast: Broadcast; detail: BroadcastDetail; deliveries: BroadcastDelivery[] } | null> {
+  try {
+    const [detail, deliveries] = await Promise.all([
+      apiClient.get<BroadcastDetail>(`${BASE}/broadcasts/${enc(id)}`).then((r) => r.data),
+      allPages<BroadcastDelivery>(`${BASE}/broadcasts/${enc(id)}/deliveries`),
+    ]);
+    return { broadcast: detail.broadcast, detail, deliveries };
+  } catch (err) {
+    if (is404(err)) return null;
+    throw err;
+  }
 }
-export async function fetchTemplateItem(id: string) {
-  await wait(250);
-  return read().templates.find((t) => t.id === id) ?? null;
+
+export async function fetchTemplateItem(id: string): Promise<NotificationTemplateItem | null> {
+  try {
+    return (await apiClient.get<NotificationTemplateItem>(`${BASE}/templates/${enc(id)}`)).data;
+  } catch (err) {
+    if (is404(err)) return null;
+    throw err;
+  }
 }
 
 // ---------------------------------------------------------------- inbox
-const patchInbox = (ids: string[] | "all", patch: Partial<AdminNotification>) => {
-  const d = read();
-  write({ ...d, inbox: d.inbox.map((n) => (ids === "all" || ids.includes(n.id) ? { ...n, ...patch } : n)) });
-};
-/** Instant (no latency) so clicking a notification feels immediate. */
-export const markRead = (ids: string[] | "all", isRead = true) => patchInbox(ids, { isRead });
-export const archiveNotifications = (ids: string[], isArchived = true) => patchInbox(ids, { isArchived, isRead: true });
+/** Optimistic inbox patch: applies locally, calls the API, rolls back (and rethrows) on failure. */
+async function patchInbox(ids: string[] | "all", patch: Partial<AdminNotification>, call: () => Promise<unknown>) {
+  const before = state.inbox;
+  const hit = (n: AdminNotification) => (ids === "all" ? !n.isArchived : ids.includes(n.id));
+  setState({ inbox: before.map((n) => (hit(n) ? { ...n, ...patch } : n)) });
+  try {
+    await call();
+  } catch (err) {
+    setState({ inbox: before });
+    throw err;
+  }
+}
+
+export const markRead = (ids: string[] | "all", isRead = true) =>
+  patchInbox(ids, { isRead }, () => apiClient.patch(`${BASE}/inbox/read`, { ids, isRead }));
+
+/** Archiving also marks read. */
+export const archiveNotifications = (ids: string[], isArchived = true) =>
+  patchInbox(ids, isArchived ? { isArchived, isRead: true } : { isArchived }, () => apiClient.patch(`${BASE}/inbox/archive`, { ids, isArchived }));
+
 export async function deleteNotifications(ids: string[]) {
-  await wait();
-  const d = read();
-  write({ ...d, inbox: d.inbox.filter((n) => !ids.includes(n.id)) });
+  await apiClient.post(`${BASE}/inbox/delete`, { ids });
+  setState({ inbox: state.inbox.filter((n) => !ids.includes(n.id)) });
 }
 
 // ---------------------------------------------------------------- broadcasts
-/** Recipient count for an audience (mock directory sizes; COURSE = 32 per course). */
-export function estimateRecipients(audience: Broadcast["audience"], courseIds: string[]) {
-  return audience === "ALL_STUDENTS" ? 60 : audience === "INSTRUCTORS" ? 8 : audience === "INACTIVE_STUDENTS" ? 24 : courseIds.length * 32;
+const estimateCache = new Map<string, number>();
+const estimateKey = (audience: BroadcastAudience, courseIds: string[]) => (audience === "COURSE" ? `COURSE:${[...courseIds].sort().join(",")}` : audience);
+
+/** Recipient count for an audience (live from the API). */
+export async function estimateRecipients(audience: BroadcastAudience, courseIds: string[]): Promise<number> {
+  const key = estimateKey(audience, courseIds);
+  const hit = estimateCache.get(key);
+  if (hit !== undefined) return hit;
+  if (audience === "COURSE" && !courseIds.length) return 0;
+  const params = { audience, ...(audience === "COURSE" ? { courseIds: courseIds.join(",") } : {}) };
+  const { data } = await apiClient.get<{ recipients: number }>(`${BASE}/broadcasts/estimate`, { params });
+  estimateCache.set(key, data.recipients);
+  return data.recipients;
 }
 
-const toBroadcast = (v: BroadcastFormValues): Omit<Broadcast, "id" | "createdAt" | "createdBy"> => ({
+/** Live recipient estimate for the compose screens; null while the first count loads. */
+export function useRecipientEstimate(audience: BroadcastAudience, courseIds: string[]): number | null {
+  const key = estimateKey(audience, courseIds);
+  const [result, setResult] = useState<{ key: string; count: number } | null>(null);
+  useEffect(() => {
+    let alive = true;
+    estimateRecipients(audience, courseIds).then(
+      (count) => alive && setResult({ key, count }),
+      () => alive && setResult({ key, count: 0 })
+    );
+    return () => {
+      alive = false;
+    };
+    // `key` captures audience + courseIds
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]);
+  const cached = estimateCache.get(key);
+  return cached ?? (result?.key === key ? result.count : null);
+}
+
+/** Datetime-local → ISO (the browser's time zone is the one the admin picked in); "" stays "". */
+const scheduleIso = (local: string) => {
+  const t = Date.parse(local);
+  return Number.isNaN(t) ? "" : new Date(t).toISOString();
+};
+
+const toPayload = (v: BroadcastFormValues) => ({
   title: v.title.trim(),
   messageHtml: v.messageHtml,
   audience: v.audience,
@@ -87,119 +276,78 @@ const toBroadcast = (v: BroadcastFormValues): Omit<Broadcast, "id" | "createdAt"
   priority: v.priority,
   ctaLabel: v.ctaLabel.trim(),
   ctaUrl: v.ctaUrl.trim(),
-  status: v.timing === "SCHEDULE" ? "SCHEDULED" : "SENT",
-  sendAt: v.timing === "SCHEDULE" ? safeIso(v.scheduledAt) : new Date().toISOString(),
-  updatedAt: new Date().toISOString(),
+  timing: v.timing,
+  scheduledAt: v.timing === "SCHEDULE" ? scheduleIso(v.scheduledAt) : "",
 });
 
-/** ISO string for a datetime-local value, or null when it's empty/invalid (drafts may have no time yet). */
-const safeIso = (value: string) => {
-  const t = Date.parse(value);
-  return Number.isNaN(t) ? null : new Date(t).toISOString();
-};
-
-/** Mock delivery: everyone receives it instantly; opens arrive later (none yet). */
-function deliver(b: Broadcast): BroadcastDelivery[] {
-  const n = estimateRecipients(b.audience, b.courseIds);
-  const now = new Date().toISOString();
-  return Array.from({ length: n }).flatMap((_, r) =>
-    b.channels.map((channel) => ({
-      id: `${b.id}-${channel}-${r}`,
-      broadcastId: b.id,
-      recipient: { id: `rcp-new-${r}`, name: `Recipient ${r + 1}`, email: `recipient${r + 1}@example.com` },
-      channel,
-      status: "DELIVERED" as const,
-      error: "",
-      deliveredAt: now,
-      openedAt: null,
-      clickedAt: null,
-    }))
-  );
-}
+/** Re-reads the broadcast list + overview (and the inbox: a send may notify the admin too). */
+const afterBroadcastChange = () => void refreshNotifications(["broadcasts", "inbox"]).catch(() => {});
 
 /** Send now, schedule, or save as draft (asDraft). */
-export async function saveBroadcast(v: BroadcastFormValues, opts: { id?: string; asDraft?: boolean } = {}): Promise<Broadcast> {
-  await wait(600);
-  const d = read();
-  const existing = opts.id ? d.broadcasts.find((b) => b.id === opts.id) : undefined;
-  if (opts.id && !existing) throw new Error("This broadcast no longer exists.");
-  if (existing && existing.status === "SENT") throw new Error("Sent broadcasts can't be edited. Duplicate it instead.");
-  const fields = toBroadcast(v);
-  const next: Broadcast = {
-    ...(existing ?? { id: uid("bc"), createdAt: new Date().toISOString(), createdBy: "Admin" }),
-    ...fields,
-    ...(opts.asDraft ? { status: "DRAFT" as const, sendAt: v.timing === "SCHEDULE" ? safeIso(v.scheduledAt) : null } : {}),
-  } as Broadcast;
-  const broadcasts = existing ? d.broadcasts.map((b) => (b.id === next.id ? next : b)) : [next, ...d.broadcasts];
-  write({ ...d, broadcasts, deliveries: next.status === "SENT" ? [...d.deliveries, ...deliver(next)] : d.deliveries });
-  return next;
+export async function saveBroadcast(v: BroadcastFormValues, opts: { id?: string; asDraft?: boolean } = {}): Promise<BroadcastListItem> {
+  const body = { ...toPayload(v), asDraft: !!opts.asDraft };
+  const { data } = opts.id
+    ? await apiClient.patch<BroadcastListItem>(`${BASE}/broadcasts/${enc(opts.id)}`, body)
+    : await apiClient.post<BroadcastListItem>(`${BASE}/broadcasts`, body);
+  afterBroadcastChange();
+  return data;
 }
 
-export async function cancelBroadcast(id: string) {
-  await wait();
-  const d = read();
-  write({ ...d, broadcasts: d.broadcasts.map((b) => (b.id === id && b.status === "SCHEDULED" ? { ...b, status: "CANCELLED", updatedAt: new Date().toISOString() } : b)) });
+export async function cancelBroadcast(id: string): Promise<BroadcastListItem> {
+  const { data } = await apiClient.post<BroadcastListItem>(`${BASE}/broadcasts/${enc(id)}/cancel`);
+  afterBroadcastChange();
+  return data;
 }
 
-export async function duplicateBroadcast(id: string): Promise<Broadcast> {
-  await wait();
-  const d = read();
-  const src = d.broadcasts.find((b) => b.id === id);
-  if (!src) throw new Error("This broadcast no longer exists.");
-  const now = new Date().toISOString();
-  const copy: Broadcast = { ...structuredClone(src), id: uid("bc"), title: `${src.title} (Copy)`.slice(0, 100), status: "DRAFT", sendAt: null, createdAt: now, updatedAt: now };
-  write({ ...d, broadcasts: [copy, ...d.broadcasts] });
-  return copy;
+export async function duplicateBroadcast(id: string): Promise<BroadcastListItem> {
+  const { data } = await apiClient.post<BroadcastListItem>(`${BASE}/broadcasts/${enc(id)}/duplicate`);
+  afterBroadcastChange();
+  return data;
 }
 
 export async function deleteBroadcast(id: string) {
-  await wait();
-  const d = read();
-  const b = d.broadcasts.find((x) => x.id === id);
-  if (b?.status === "SENT") throw new Error("Sent broadcasts are kept for reporting and can't be deleted.");
-  write({ ...d, broadcasts: d.broadcasts.filter((x) => x.id !== id) });
+  await apiClient.delete(`${BASE}/broadcasts/${enc(id)}`);
+  setState({ broadcasts: state.broadcasts.filter((b) => b.id !== id) });
+  afterBroadcastChange();
 }
 
-/** Retry failed deliveries (mock: they succeed). */
+/** Re-sends failed e-mail deliveries; resolves to how many were retried. */
 export async function retryFailedDeliveries(broadcastId: string): Promise<number> {
-  await wait(700);
-  const d = read();
-  let n = 0;
-  const now = new Date().toISOString();
-  write({
-    ...d,
-    deliveries: d.deliveries.map((x) => (x.broadcastId === broadcastId && x.status === "FAILED" ? (n++, { ...x, status: "DELIVERED", error: "", deliveredAt: now }) : x)),
-  });
-  return n;
+  const { data } = await apiClient.post<{ retried: number }>(`${BASE}/broadcasts/${enc(broadcastId)}/retry`);
+  afterBroadcastChange();
+  return data.retried;
 }
 
 // ---------------------------------------------------------------- automated templates
+const putTemplate = (t: NotificationTemplateItem) => setState({ templates: state.templates.map((x) => (x.id === t.id ? t : x)) });
+
 export async function updateTemplateItem(id: string, v: TemplateEditorValues): Promise<NotificationTemplateItem> {
-  await wait();
-  const d = read();
-  const cur = d.templates.find((t) => t.id === id);
-  if (!cur) throw new Error("This template no longer exists.");
-  if (cur.locked && !v.enabled) throw new Error("Security emails can't be turned off.");
-  const next = { ...cur, ...v, enabled: cur.locked ? true : v.enabled, updatedAt: new Date().toISOString() };
-  write({ ...d, templates: d.templates.map((t) => (t.id === id ? next : t)) });
-  return next;
+  const { data } = await apiClient.patch<NotificationTemplateItem>(`${BASE}/templates/${enc(id)}`, v);
+  putTemplate(data);
+  return data;
 }
 
-export async function setTemplateEnabled(id: string, enabled: boolean) {
-  const d = read();
-  const cur = d.templates.find((t) => t.id === id);
-  if (!cur) throw new Error("This template no longer exists.");
-  if (cur.locked && !enabled) throw new Error("Security emails can't be turned off.");
-  await wait(250);
-  write({ ...d, templates: d.templates.map((t) => (t.id === id ? { ...t, enabled, updatedAt: new Date().toISOString() } : t)) });
+export async function setTemplateEnabled(id: string, enabled: boolean): Promise<NotificationTemplateItem> {
+  const { data } = await apiClient.patch<NotificationTemplateItem>(`${BASE}/templates/${enc(id)}/enabled`, { enabled });
+  putTemplate(data);
+  return data;
 }
 
-/** Mock "send test" to the admin. */
-export async function sendTestNotification(): Promise<string> {
-  await wait(700);
-  return "admin@edupro.com";
-}
+export type TestTarget =
+  | { kind: "template"; id: string }
+  | { kind: "broadcast"; values: Pick<BroadcastFormValues, "title" | "messageHtml" | "ctaLabel" | "ctaUrl"> };
 
-export function resetNotificationMockData() {
-  write(buildNotificationSeed());
+/** E-mails a test to the signed-in admin; resolves to the address it went to. */
+export async function sendTestNotification(target: TestTarget): Promise<string> {
+  const { data } =
+    target.kind === "template"
+      ? await apiClient.post<{ email: string }>(`${BASE}/templates/${enc(target.id)}/test`)
+      : await apiClient.post<{ email: string }>(`${BASE}/broadcasts/test`, {
+          title: target.values.title.trim(),
+          messageHtml: target.values.messageHtml,
+          ctaLabel: target.values.ctaLabel.trim(),
+          ctaUrl: target.values.ctaUrl.trim(),
+        });
+  void refreshNotifications(["inbox"]).catch(() => {});
+  return data.email;
 }

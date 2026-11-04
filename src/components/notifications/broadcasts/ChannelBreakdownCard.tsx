@@ -3,12 +3,12 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Radio } from "lucide-react";
-import type { deliveryByChannel } from "@/lib/notificationStats";
+import type { BroadcastDetail } from "@/lib/notificationStorage";
 import { IconSectionCard } from "@/components/ui/IconSectionCard";
 import { ChannelBadges } from "@/components/notifications/shared/ChannelBadges";
 import { RateBar } from "./RateBar";
 
-type ChannelStats = ReturnType<typeof deliveryByChannel>[number];
+type ChannelStats = BroadcastDetail["byChannel"][number];
 
 function Metric({ label, rate, fill }: { label: string; rate: number; fill: string }) {
   return (

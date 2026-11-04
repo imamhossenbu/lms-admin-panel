@@ -3,7 +3,7 @@
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check } from "lucide-react";
-import { COURSE_OPTIONS } from "@/data/mockCourseCatalog";
+import { useCourseCatalog } from "@/lib/courseCatalog";
 import { cn } from "@/lib/cn";
 
 export interface CourseChipMultiSelectProps {
@@ -15,11 +15,14 @@ export interface CourseChipMultiSelectProps {
 
 /** Toggleable course chips (single-line, orange when selected). */
 export function CourseChipMultiSelect({ id, value, onChange, hasError }: CourseChipMultiSelectProps) {
+  const catalog = useCourseCatalog();
   const toggle = (courseId: string) => onChange(value.includes(courseId) ? value.filter((c) => c !== courseId) : [...value, courseId]);
 
   return (
     <div id={id} role="group" aria-label="Courses" className={cn("flex flex-wrap gap-2 rounded-xl", hasError && "border border-red bg-red-14 p-2")}>
-      {COURSE_OPTIONS.map((course) => {
+      {catalog === null && <span className="body-xsm-regular text-primary-300">Loading courses...</span>}
+      {catalog?.length === 0 && <span className="body-xsm-regular text-primary-300">No courses yet. Create a course first.</span>}
+      {(catalog ?? []).map((course) => {
         const selected = value.includes(course.value);
         return (
           <motion.button
