@@ -5,11 +5,11 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Trash2 } from "lucide-react";
 import type { QuizItem, QuizStatus } from "@/types/quiz";
-import { QUIZ_COURSES } from "@/lib/quizStorage";
+import { useQuizCourses } from "@/lib/quizStorage";
 import { useUrlParams } from "@/lib/useUrlParams";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { TablePagination } from "@/components/ui/TablePagination";
-import { countAttempts, filterRows, parseUpdatedSort, toQuizRow, type QuizListFilters } from "./quizListUtils";
+import { filterRows, parseUpdatedSort, toQuizRow, type QuizListFilters } from "./quizListUtils";
 import { useQuizzesData } from "./useQuizzesData";
 import { useQuizListActions } from "./useQuizListActions";
 import { QuizzesHeader } from "./QuizzesHeader";
@@ -31,8 +31,9 @@ const FILTER_KEYS = { q: null, course: null, module: null, status: null, difficu
 export function QuizzesListView() {
   const router = useRouter();
   const { get, getPage, set } = useUrlParams();
-  const courses = QUIZ_COURSES;
-  const { quizzes, attempts, isLoading, loadError, retry } = useQuizzesData();
+  const loadedCourses = useQuizCourses();
+  const courses = useMemo(() => loadedCourses ?? [], [loadedCourses]);
+  const { quizzes, isLoading, loadError, retry } = useQuizzesData();
   const actions = useQuizListActions();
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -58,9 +59,9 @@ export function QuizzesListView() {
   const isFiltered = !!filters.query || filters.courseId !== "All" || filters.moduleId !== "All" || filters.status !== "All" || filters.difficulty !== "All";
 
   const allRows = useMemo(() => {
-    const counts = countAttempts(attempts);
+    const counts = Object.fromEntries(quizzes.map((q) => [q.id, q.attemptSummary.total]));
     return quizzes.map((q) => toQuizRow(q, courses, counts));
-  }, [quizzes, attempts, courses]);
+  }, [quizzes, courses]);
 
   const { query, moduleId, status, difficulty } = filters;
   const filtered = useMemo(

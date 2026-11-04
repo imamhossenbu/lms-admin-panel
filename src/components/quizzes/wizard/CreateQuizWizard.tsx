@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { QUIZ_COURSES } from "@/lib/quizStorage";
+import { useQuizCourses } from "@/lib/quizStorage";
 import { emptyQuizWizard } from "@/lib/quizWizardMapping";
 import type { QuizWizardValues } from "@/validations/quizWizardSchema";
 import { QuizWizardView } from "./QuizWizardView";
@@ -17,6 +17,7 @@ const DRAFT_KEY = quizWizardDraftKey("create");
 
 /** /quizzes/create — restores the sessionStorage draft (client-only) before mounting the form. */
 export function CreateQuizWizard() {
+  const courses = useQuizCourses();
   const [loaded, setLoaded] = useState<Loaded | null>(null);
 
   useEffect(() => {
@@ -24,8 +25,8 @@ export function CreateQuizWizard() {
     setLoaded({ baseValues: emptyQuizWizard(), draft: readQuizWizardDraft(DRAFT_KEY) });
   }, []);
 
-  if (!loaded) return <QuizWizardSkeleton />;
-  return <QuizWizardView mode="create" courses={QUIZ_COURSES} draftKey={DRAFT_KEY} {...loaded} />;
+  if (!loaded || !courses) return <QuizWizardSkeleton />;
+  return <QuizWizardView mode="create" courses={courses} draftKey={DRAFT_KEY} {...loaded} />;
 }
 
 export default CreateQuizWizard;

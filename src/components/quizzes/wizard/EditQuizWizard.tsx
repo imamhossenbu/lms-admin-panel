@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { QUIZ_COURSES, fetchQuiz } from "@/lib/quizStorage";
+import { fetchQuiz, useQuizCourses } from "@/lib/quizStorage";
 import { quizToWizard } from "@/lib/quizWizardMapping";
 import type { QuizItem } from "@/types/quiz";
 import type { QuizWizardValues } from "@/validations/quizWizardSchema";
@@ -18,6 +18,7 @@ type State =
 
 /** /quizzes/[id]/edit — loads the quiz, maps it to wizard values and restores any draft. */
 export function EditQuizWizard({ quizId }: { quizId: string }) {
+  const courses = useQuizCourses();
   const [state, setState] = useState<State>({ status: "loading" });
   const draftKey = quizWizardDraftKey("edit", quizId);
 
@@ -44,7 +45,7 @@ export function EditQuizWizard({ quizId }: { quizId: string }) {
   return (
     <QuizWizardView
       mode="edit"
-      courses={QUIZ_COURSES}
+      courses={courses ?? []}
       draftKey={draftKey}
       baseValues={state.baseValues}
       draft={state.draft}

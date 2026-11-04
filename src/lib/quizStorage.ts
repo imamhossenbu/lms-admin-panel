@@ -1,133 +1,132 @@
-import type { QuizActivity, QuizAttempt, QuizItem, QuizStatus } from "@/types/quiz";
-import { buildQuizSeed, MOCK_QUIZ_COURSES, type QuizSeed } from "@/data/mockQuizData";
+"use client";
+
+import { useMemo } from "react";
+import type { QuizActivity, QuizAttempt, QuizCourseRef, QuizItem, QuizStatus } from "@/types/quiz";
+import { apiClient } from "@/lib/api";
+import { useCourseCatalog, useCourseContexts } from "@/lib/courseCatalog";
 
 /**
- * Mock-first persistence for Quizzes (localStorage, simulated latency). Replace with API calls later.
- * Every write also appends an Activity Log entry so the "Activity Log" tab stays truthful.
+ * Quizzes data layer, backed by the Quizzes API (`/admin/quizzes*`, workspace-scoped). Function names match the
+ * earlier mock store. Reads cache what they fetch so the `get*Snapshot` helpers return the latest data; every
+ * write announces QUIZZES_UPDATED_EVENT. Errors are Axios errors (show them with apiErrorMessage).
  */
 
-const STORAGE_KEY = "edupro_quizzes_v1";
 export const QUIZZES_UPDATED_EVENT = "edupro_quizzes_updated";
-const wait = (ms = 450) => new Promise((r) => setTimeout(r, ms));
-const uid = (p: string) => `${p}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
 
-export const QUIZ_COURSES = MOCK_QUIZ_COURSES;
-export const CURRENT_ADMIN = "Admin";
+export interface QuizAttemptSummary {
+  total: number;
+  passed: number;
+  avgScore: number;
+}
+export type QuizListItem = QuizItem & { attemptSummary: QuizAttemptSummary };
 
-function read(): QuizSeed {
-  if (typeof window === "undefined") return buildQuizSeed();
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw) as QuizSeed;
-      if (Array.isArray(parsed?.quizzes) && Array.isArray(parsed?.attempts) && Array.isArray(parsed?.activity)) return parsed;
-    }
-  } catch {
-    /* re-seed */
-  }
-  const seed = buildQuizSeed();
-  write(seed);
-  return seed;
+interface Page<T> {
+  data: T[];
+  meta: { totalPages: number };
 }
 
-function write(data: QuizSeed) {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  } catch {
-    throw new Error("Your browser storage is full. Remove some data and try again.");
-  }
-  window.dispatchEvent(new Event(QUIZZES_UPDATED_EVENT));
-}
+const enc = encodeURIComponent;
+const announce = () => typeof window !== "undefined" && window.dispatchEvent(new Event(QUIZZES_UPDATED_EVENT));
 
-const log = (data: QuizSeed, quizId: string, kind: QuizActivity["kind"], message: string): QuizSeed => ({
-  ...data,
-  activity: [{ id: uid("act"), quizId, kind, message, actor: CURRENT_ADMIN, at: new Date().toISOString() }, ...data.activity],
-});
+let quizCache: QuizListItem[] = [];
+const attemptCache = new Map<string, QuizAttempt[]>();
+const activityCache = new Map<string, QuizActivity[]>();
+
+async function allPages<T>(url: string, params: Record<string, unknown> = {}): Promise<T[]> {
+  const rows: T[] = [];
+  for (let page = 1; page <= 50; page++) {
+    const { data } = await apiClient.get<Page<T>>(url, { params: { ...params, page, limit: 100 } });
+    rows.push(...data.data);
+    if (page >= data.meta.totalPages) break;
+  }
+  return rows;
+}
 
 // ---------------------------------------------------------------- reads
-export const getQuizzesSnapshot = () => read().quizzes;
-export const getQuizAttemptsSnapshot = (quizId?: string) => read().attempts.filter((a) => !quizId || a.quizId === quizId);
-export const getQuizActivitySnapshot = (quizId: string) => read().activity.filter((a) => a.quizId === quizId);
 
-export async function fetchQuizzes(): Promise<QuizItem[]> {
-  await wait(300);
-  return read().quizzes;
+export const getQuizzesSnapshot = (): QuizItem[] => quizCache;
+export const getQuizAttemptsSnapshot = (quizId?: string): QuizAttempt[] => (quizId ? attemptCache.get(quizId) ?? [] : [...attemptCache.values()].flat());
+export const getQuizActivitySnapshot = (quizId: string): QuizActivity[] => activityCache.get(quizId) ?? [];
+
+/** Every quiz of the workspace, with attempt totals. */
+export async function fetchQuizzes(): Promise<QuizListItem[]> {
+  quizCache = await allPages<QuizListItem>("/admin/quizzes");
+  return quizCache;
 }
+
+/** One quiz, or null when it isn't in this workspace. */
 export async function fetchQuiz(id: string): Promise<QuizItem | null> {
-  await wait(300);
-  return read().quizzes.find((q) => q.id === id) ?? null;
+  try {
+    return (await apiClient.get<QuizItem>(`/admin/quizzes/${enc(id)}`)).data;
+  } catch (err) {
+    if ((err as { response?: { status?: number } }).response?.status === 404) return null;
+    throw err;
+  }
 }
+
 export async function fetchQuizAttempts(quizId: string): Promise<QuizAttempt[]> {
-  await wait(300);
-  return getQuizAttemptsSnapshot(quizId);
+  const rows = await allPages<QuizAttempt>(`/admin/quizzes/${enc(quizId)}/attempts`);
+  attemptCache.set(quizId, rows);
+  return rows;
 }
+
 export async function fetchQuizActivity(quizId: string): Promise<QuizActivity[]> {
-  await wait(250);
-  return getQuizActivitySnapshot(quizId);
+  const rows = await allPages<QuizActivity>(`/admin/quizzes/${enc(quizId)}/activity`);
+  activityCache.set(quizId, rows);
+  return rows;
 }
 
 // ---------------------------------------------------------------- writes
+
 export type QuizFields = Omit<QuizItem, "id" | "status" | "createdBy" | "createdAt" | "updatedAt">;
 
 export async function createQuiz(fields: QuizFields, status: Extract<QuizStatus, "PUBLISHED" | "DRAFT">): Promise<QuizItem> {
-  await wait();
-  const now = new Date().toISOString();
-  const item: QuizItem = { ...fields, id: uid("quiz"), status, createdBy: CURRENT_ADMIN, createdAt: now, updatedAt: now };
-  let data = read();
-  data = { ...data, quizzes: [item, ...data.quizzes] };
-  data = log(data, item.id, "CREATED", `created the quiz "${item.title}" with ${item.questions.length} questions`);
-  if (status === "PUBLISHED") data = log(data, item.id, "PUBLISHED", "published the quiz");
-  write(data);
-  return item;
+  const { data } = await apiClient.post<QuizItem>("/admin/quizzes", { ...fields, status });
+  announce();
+  return data;
 }
 
 export async function updateQuiz(id: string, patch: Partial<QuizFields> & { status?: QuizStatus }): Promise<QuizItem> {
-  await wait();
-  let data = read();
-  const current = data.quizzes.find((q) => q.id === id);
-  if (!current) throw new Error("This quiz no longer exists.");
-  const next: QuizItem = { ...current, ...patch, updatedAt: new Date().toISOString() };
-  data = { ...data, quizzes: data.quizzes.map((q) => (q.id === id ? next : q)) };
-  if (patch.status && patch.status !== current.status) {
-    const kind = patch.status === "PUBLISHED" ? "PUBLISHED" : patch.status === "ARCHIVED" ? "ARCHIVED" : "UNPUBLISHED";
-    data = log(data, id, kind, patch.status === "PUBLISHED" ? "published the quiz" : patch.status === "ARCHIVED" ? "archived the quiz" : "moved the quiz to drafts");
-  }
-  const contentChanged = Object.keys(patch).some((k) => k !== "status");
-  if (contentChanged) {
-    const diff = (patch.questions?.length ?? current.questions.length) - current.questions.length;
-    data = log(data, id, diff !== 0 ? (diff > 0 ? "QUESTION_ADDED" : "QUESTION_REMOVED") : "UPDATED", diff > 0 ? `added ${diff} question${diff === 1 ? "" : "s"}` : diff < 0 ? `removed ${-diff} question${diff === -1 ? "" : "s"}` : "updated the quiz");
-  }
-  write(data);
-  return next;
+  const { data } = await apiClient.patch<QuizItem>(`/admin/quizzes/${enc(id)}`, patch);
+  quizCache = quizCache.map((q) => (q.id === id ? { ...q, ...data } : q));
+  announce();
+  return data;
 }
 
-export async function setQuizStatus(id: string, status: QuizStatus) {
-  return updateQuiz(id, { status });
-}
+export const setQuizStatus = (id: string, status: QuizStatus) => updateQuiz(id, { status });
 
 /** Copy as DRAFT without attempts. */
 export async function duplicateQuiz(id: string): Promise<QuizItem> {
-  await wait();
-  let data = read();
-  const src = data.quizzes.find((q) => q.id === id);
-  if (!src) throw new Error("This quiz no longer exists.");
-  const now = new Date().toISOString();
-  const copy: QuizItem = { ...structuredClone(src), id: uid("quiz"), title: `${src.title} (Copy)`.slice(0, 120), status: "DRAFT", createdBy: CURRENT_ADMIN, createdAt: now, updatedAt: now };
-  const i = data.quizzes.findIndex((q) => q.id === id);
-  const quizzes = [...data.quizzes];
-  quizzes.splice(i + 1, 0, copy);
-  data = log({ ...data, quizzes }, copy.id, "DUPLICATED", `duplicated from "${src.title}"`);
-  write(data);
-  return copy;
+  const { data } = await apiClient.post<QuizItem>(`/admin/quizzes/${enc(id)}/duplicate`);
+  announce();
+  return data;
 }
 
+/** Deletes the quiz with its questions and attempts. */
 export async function deleteQuiz(id: string): Promise<void> {
-  await wait();
-  const data = read();
-  write({ quizzes: data.quizzes.filter((q) => q.id !== id), attempts: data.attempts.filter((a) => a.quizId !== id), activity: data.activity.filter((a) => a.quizId !== id) });
+  await apiClient.delete(`/admin/quizzes/${enc(id)}`);
+  quizCache = quizCache.filter((q) => q.id !== id);
+  attemptCache.delete(id);
+  activityCache.delete(id);
+  announce();
 }
 
-export function resetQuizMockData() {
-  write(buildQuizSeed());
+// ---------------------------------------------------------------- courses
+
+/**
+ * Workspace courses with their modules (QuizCourseRef) for the quiz screens: the list filters, the wizard's
+ * course / module pickers and the details header. null until the course list loads; modules fill in as each
+ * course's curriculum loads.
+ */
+export function useQuizCourses(): QuizCourseRef[] | null {
+  const catalog = useCourseCatalog();
+  const ids = useMemo(() => (catalog ?? []).map((c) => c.value), [catalog]);
+  const contexts = useCourseContexts(ids);
+  const size = contexts.size;
+  return useMemo(
+    () => (catalog ? catalog.map((c) => ({ id: c.value, title: c.label, modules: contexts.get(c.value)?.modules ?? [] })) : null),
+    // contexts is a live cache; `size` changes as curricula load
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [catalog, contexts, size]
+  );
 }

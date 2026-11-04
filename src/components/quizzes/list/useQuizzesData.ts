@@ -1,13 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import type { QuizAttempt, QuizItem } from "@/types/quiz";
-import { QUIZZES_UPDATED_EVENT, fetchQuizzes, getQuizAttemptsSnapshot } from "@/lib/quizStorage";
+import { QUIZZES_UPDATED_EVENT, fetchQuizzes, type QuizListItem } from "@/lib/quizStorage";
+import { apiErrorMessage } from "@/lib/apiError";
 
-/** Loads all quizzes + attempts (mock storage) and re-reads them on every QUIZZES_UPDATED_EVENT. */
+/** Loads every quiz (with attempt totals) from the API and re-reads them on every QUIZZES_UPDATED_EVENT. */
 export function useQuizzesData() {
-  const [quizzes, setQuizzes] = useState<QuizItem[]>([]);
-  const [attempts, setAttempts] = useState<QuizAttempt[]>([]);
+  const [quizzes, setQuizzes] = useState<QuizListItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
@@ -24,13 +23,12 @@ export function useQuizzesData() {
         (list) => {
           if (!alive) return;
           setQuizzes(list);
-          setAttempts(getQuizAttemptsSnapshot());
           setLoadError(null);
           setIsLoading(false);
         },
-        () => {
+        (err) => {
           if (!alive) return;
-          setLoadError("We couldn't read the quizzes. Please try again.");
+          setLoadError(apiErrorMessage(err, "We couldn't load the quizzes. Please try again."));
           setIsLoading(false);
         }
       );
@@ -43,7 +41,7 @@ export function useQuizzesData() {
     };
   }, [attempt]);
 
-  return { quizzes, attempts, isLoading, loadError, retry };
+  return { quizzes, isLoading, loadError, retry };
 }
 
 export default useQuizzesData;

@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Archive, Trash2 } from "lucide-react";
 import type { QuizActivity, QuizAttempt, QuizItem } from "@/types/quiz";
-import { QUIZ_COURSES } from "@/lib/quizStorage";
+import { useQuizCourses } from "@/lib/quizStorage";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { QuizDetailsHeader } from "./QuizDetailsHeader";
 import { QuizDetailTabs } from "./QuizDetailTabs";
@@ -33,7 +33,8 @@ function QuizDetailsLoaded({ quiz, attempts, activity, onQuizChange }: LoadedPro
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const actions = useQuizActions(quiz, onQuizChange);
   const value: QuizActions = { ...actions, openPreview: () => setIsPreviewOpen(true) };
-  const course = QUIZ_COURSES.find((c) => c.id === quiz.courseId);
+  const courses = useQuizCourses();
+  const course = courses?.find((c) => c.id === quiz.courseId);
 
   return (
     <QuizDetailsActionsProvider value={value}>
