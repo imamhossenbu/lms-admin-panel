@@ -13,7 +13,7 @@ import { BILLING_CYCLES, FEATURE_KEYS, INSTITUTION_TYPES, PAYMENT_BRANDS, SAAS_C
  * - `paymentMethodSchema`     update card / wallet (trial conversion, billing page).
  * - `slugSchema`, `isReservedSlug`, `normalizeSlug`, `RESERVED_SLUGS`, `SLUG_REGEX`, `HOSTNAME_REGEX` helpers.
  *
- * Slug availability (uniqueness) is async — check with `isSlugAvailable()` from src/lib/saasStorage.ts;
+ * Slug availability (uniqueness) is async — check with `checkSlugAvailability()` from src/lib/saasStorage.ts (API);
  * storage mutations re-check and throw a friendly Error when a slug is taken.
  */
 

@@ -32,7 +32,9 @@ export function SignupDoneStep({ result, onStartOver }: SignupDoneStepProps) {
       </motion.div>
       <div>
         <h3 className="heading-h5 text-primary-500">{result.institutionName} is ready!</h3>
-        <p className="mt-1 body-sm-regular text-primary-300">Your {result.planName} trial has started. We&apos;ve sent a welcome email with your sign-in details.</p>
+        <p className="mt-1 body-sm-regular text-primary-300">
+          Your {result.planName} trial has started. We&apos;ve emailed a 6-digit code to {result.email} — enter it to activate your account, then sign in.
+        </p>
       </div>
 
       <div className="rounded-xl border border-dash bg-gray-bg p-4 text-left">
@@ -55,9 +57,9 @@ export function SignupDoneStep({ result, onStartOver }: SignupDoneStepProps) {
       </div>
 
       <div className="flex flex-col gap-2.5 sm:flex-row">
-        <Link href="/login" className="flex-1">
+        <Link href={`/verify-email?email=${encodeURIComponent(result.email)}`} className="flex-1">
           <PrimaryButton fullWidth size="lg" leftIcon={<LogIn />}>
-            Go to sign in
+            Verify email
           </PrimaryButton>
         </Link>
         <SecondaryButton size="lg" leftIcon={<RotateCcw />} onClick={onStartOver}>

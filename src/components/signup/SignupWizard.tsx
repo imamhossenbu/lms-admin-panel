@@ -9,7 +9,8 @@ import { toast } from "sonner";
 import { ArrowLeft, ArrowRight, Rocket } from "lucide-react";
 import { sortPlans } from "@/lib/saasStats";
 import { signupSchema, type SignupFormValues } from "@/validations/saasSchema";
-import { getSaasSnapshot, signupInstitution } from "@/lib/saasStorage";
+import { fetchPublicPlans, signupInstitution } from "@/lib/saasStorage";
+import type { Plan } from "@/types/saas";
 import { PrimaryButton } from "@/components/ui/primary-button";
 import { SecondaryButton } from "@/components/ui/secondary-button";
 import { errorMessage } from "@/components/billing/shared/billingFormat";
@@ -52,9 +53,17 @@ export function SignupWizard() {
   const [result, setResult] = useState<SignupResult | null>(initial?.result ?? null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const plans = useMemo(() => {
-    return sortPlans(getSaasSnapshot().plans).filter((p) => p.isPublic && !p.archived && p.priceMonthly > 0);
+  // Public, non-archived paid plans from the API (null while loading).
+  const [allPlans, setAllPlans] = useState<Plan[] | null>(null);
+  useEffect(() => {
+    fetchPublicPlans()
+      .then(setAllPlans)
+      .catch((err) => {
+        setAllPlans([]);
+        toast.error("Couldn't load plans", { description: errorMessage(err, "Please refresh the page to try again.") });
+      });
   }, []);
+  const plans = useMemo(() => sortPlans(allPlans ?? []).filter((p) => p.isPublic && !p.archived && p.priceMonthly > 0), [allPlans]);
 
   const form = useForm<SignupDraft>({
     resolver: zodResolver(signupSchema) as never,
@@ -117,18 +126,18 @@ export function SignupWizard() {
     setIsSubmitting(true);
     const id = toast.loading("Creating your academy...", { description: `Setting up ${data.slug}.edupro.com` });
     try {
-      const created = await signupInstitution(data as SignupFormValues, { switchTo: false });
+      const { institution: created, email } = await signupInstitution(data as SignupFormValues);
       const plan = plans.find((p) => p.id === data.planId);
       const res: SignupResult = {
         institutionName: created.name,
         slug: created.slug,
-        email: created.ownerEmail,
+        email,
         planName: plan?.name ?? data.planId,
         trialEndsAt: created.subscription.trialEndsAt,
       };
       setResult(res);
       goTo(4);
-      toast.success("Your free trial has started", { id, description: `${created.name} is live at ${created.slug}.edupro.com.` });
+      toast.success("Your free trial has started", { id, description: `We emailed a 6-digit code to ${email} — enter it to activate your account.` });
     } catch (err) {
       const msg = errorMessage(err, "We couldn't create your academy. Please try again.");
       if (/slug|subdomain|address/i.test(msg)) {
@@ -177,7 +186,21 @@ export function SignupWizard() {
             <motion.div key={step} initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -12 }} transition={{ duration: 0.2, ease: "easeOut" }}>
               {step === 1 && <AccountStep />}
               {step === 2 && <InstitutionStep slugTouched={slugTouched} onSlugTouched={() => setSlugTouched(true)} slugCheck={slugCheck} />}
-              {step === 3 && <PlanStep plans={plans} />}
+              {step === 3 &&
+                (allPlans === null ? (
+                  <div className="grid gap-3 sm:grid-cols-2 animate-pulse" aria-busy="true">
+                    {Array.from({ length: 4 }, (_, i) => (
+                      <div key={i} className="rounded-xl border border-dash p-4 space-y-3">
+                        <div className="h-4 w-24 rounded bg-slate-200" />
+                        <div className="h-6 w-20 rounded bg-slate-100" />
+                        <div className="h-3 w-full rounded bg-slate-100" />
+                        <div className="h-3 w-3/4 rounded bg-slate-100" />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <PlanStep plans={plans} />
+                ))}
               {showDone && <SignupDoneStep result={result} onStartOver={startOver} />}
               {step === 4 && !result && (
                 <div className="space-y-4">

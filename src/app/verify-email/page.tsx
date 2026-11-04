@@ -41,7 +41,7 @@ function VerifyEmailFormContent() {
   const searchParams = useSearchParams();
 
   const emailParam = searchParams.get("email");
-  const email = emailParam ? decodeURIComponent(emailParam) : "kader.abdul@email.com";
+  const email = emailParam ? decodeURIComponent(emailParam) : "";
   const modeParam = searchParams.get("mode");
   const isResetMode = modeParam === "reset" || modeParam === "reset-password";
 

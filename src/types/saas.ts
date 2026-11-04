@@ -8,7 +8,7 @@ import type { Tone } from "@/components/ui/ToneBadge";
  * - An `Institution` is one tenant (school, coaching centre, company…) reachable at `<slug>.edupro.com` or
  *   its verified `customDomain`. It always carries exactly one `Subscription`.
  * - `SaasInvoice` is a bill for one paid period; `SaasEvent` is the per-institution lifecycle timeline.
- * - `SaasStore` is the whole persisted mock state (see src/lib/saasStorage.ts, localStorage `edupro_saas_v1`).
+ * - `SaasStore`: the workspace subscription from GET /saas/me (see src/lib/workspaceSaas.ts), one institution = the current one.
  * All timestamps are ISO-8601 strings. Money is in USD (whole dollars, may have cents for proration).
  */
 
