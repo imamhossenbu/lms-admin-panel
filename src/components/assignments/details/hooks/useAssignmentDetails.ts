@@ -5,14 +5,14 @@ import { toast } from "sonner";
 import type { AssignmentItem, AssignmentSubmission } from "@/types/assignment";
 import type { LessonEditorContext } from "@/types/lessonEditor";
 import { fetchAssignment, fetchSubmissions } from "@/lib/assignmentStorage";
-import { getLessonEditorContext } from "@/lib/lessonEditorStorage";
+import { emptyCourseContext, loadCourseContext } from "@/lib/courseCatalog";
 
 type State =
   | { status: "loading" }
   | { status: "notFound" }
   | { status: "ready"; assignment: AssignmentItem; submissions: AssignmentSubmission[]; context: LessonEditorContext };
 
-/** Loads an assignment, its submissions and the course context (mock storage). */
+/** Loads an assignment, its submissions and its course's curriculum from the API. */
 export function useAssignmentDetails(id: string) {
   const [state, setState] = useState<State>({ status: "loading" });
 
@@ -23,7 +23,9 @@ export function useAssignmentDetails(id: string) {
         const [assignment, submissions] = await Promise.all([fetchAssignment(id), fetchSubmissions(id)]);
         if (cancelled) return;
         if (!assignment) return setState({ status: "notFound" });
-        setState({ status: "ready", assignment, submissions, context: getLessonEditorContext(assignment.courseId) });
+        const context = (await loadCourseContext(assignment.courseId)) ?? emptyCourseContext(assignment.courseId);
+        if (cancelled) return;
+        setState({ status: "ready", assignment, submissions, context });
       } catch {
         if (cancelled) return;
         toast.error("Couldn't load assignment", { description: "Please refresh the page and try again." });

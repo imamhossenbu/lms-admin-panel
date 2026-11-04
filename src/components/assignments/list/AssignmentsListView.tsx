@@ -6,8 +6,7 @@ import { motion } from "framer-motion";
 import { Trash2 } from "lucide-react";
 import type { AssignmentItem } from "@/types/assignment";
 import { useUrlParams } from "@/lib/useUrlParams";
-import { getLessonEditorContext } from "@/lib/lessonEditorStorage";
-import { isKnownCourse } from "@/data/mockCourseCatalog";
+import { courseTitleOf, emptyCourseContext, useCourseCatalog, useCourseContexts } from "@/lib/courseCatalog";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { TablePagination } from "@/components/ui/TablePagination";
 import { AssignmentsLoadError } from "./AssignmentsLoadError";
@@ -48,16 +47,21 @@ export function AssignmentsListView() {
   const router = useRouter();
   const { get, getPage, set } = useUrlParams();
   const courseParam = get("course");
-  const courseId = isKnownCourse(courseParam) ? courseParam : null;
-  const { assignments, submissions, isLoading, loadError, retry } = useAssignmentsData(courseId ?? undefined);
+  const catalog = useCourseCatalog();
+  // Unknown ids fall back to the all-courses view once the catalogue is known.
+  const courseId = courseParam && (!catalog || catalog.some((c) => c.value === courseParam)) ? courseParam : null;
+  const { assignments, stats, isLoading, loadError, retry } = useAssignmentsData(courseId ?? undefined);
   const actions = useAssignmentListActions();
 
   /** Module / lesson labels come from each assignment's OWN course — one context per course id. */
-  const contexts = useMemo(() => {
-    const ids = new Set(assignments.map((a) => a.courseId));
-    if (courseId) ids.add(courseId);
-    return new Map(Array.from(ids, (id) => [id, getLessonEditorContext(id)] as const));
-  }, [assignments, courseId]);
+  const contextIds = useMemo(() => [...assignments.map((a) => a.courseId), ...(courseId ? [courseId] : [])], [assignments, courseId]);
+  const loadedContexts = useCourseContexts(contextIds);
+  const contexts = useMemo(
+    () => new Map(contextIds.map((id) => [id, loadedContexts.get(id) ?? emptyCourseContext(id, courseTitleOf(id))] as const)),
+    // loadedContexts is a live cache; its size changes as courses load
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [contextIds, loadedContexts, loadedContexts.size]
+  );
   const courseContext = courseId ? (contexts.get(courseId) ?? null) : null;
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -77,7 +81,7 @@ export function AssignmentsListView() {
   const page = getPage();
   const isFiltered = !!courseId || !!query || moduleId !== "All" || status !== "All" || type !== "All";
 
-  const counts = useMemo(() => countSubmissions(submissions), [submissions]);
+  const counts = useMemo(() => countSubmissions(assignments), [assignments]);
 
   const filtered = useMemo<AssignmentRow[]>(() => {
     const q = query.toLowerCase().trim();
@@ -87,12 +91,12 @@ export function AssignmentsListView() {
       if (status !== "All" && a.status !== status) return false;
       if (type !== "All" && a.type !== type) return false;
       if (!q) return true;
-      const ctx = contexts.get(a.courseId) ?? getLessonEditorContext(a.courseId);
+      const ctx = contexts.get(a.courseId) ?? emptyCourseContext(a.courseId);
       const labels = moduleLessonLabels(a, ctx);
       return [a.title, ctx.course.title, labels.module, labels.lesson ?? ""].some((s) => s.toLowerCase().includes(q));
     });
     return sortByDue(list, dueSort).map((a, i) => {
-      const ctx = contexts.get(a.courseId) ?? getLessonEditorContext(a.courseId);
+      const ctx = contexts.get(a.courseId) ?? emptyCourseContext(a.courseId);
       const labels = moduleLessonLabels(a, ctx);
       // All-courses view: prefix the course so rows from different courses are distinguishable.
       const courseLabel = courseId ? null : ctx.course.title;
@@ -164,7 +168,7 @@ export function AssignmentsListView() {
       className="space-y-5 text-left pb-8"
     >
       <AssignmentsHeader course={courseContext?.course ?? null} />
-      <AssignmentStatsRow assignments={assignments} submissions={submissions} />
+      <AssignmentStatsRow stats={stats} />
       <AssignmentTabsBar
         active={tab}
         onChange={(next: AssignmentListTab) => updateParams({ tab: next === "all" ? null : next, page: null })}

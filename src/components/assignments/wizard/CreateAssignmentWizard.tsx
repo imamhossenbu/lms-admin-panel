@@ -2,8 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { isKnownCourse } from "@/data/mockCourseCatalog";
-import { getLessonEditorContext } from "@/lib/lessonEditorStorage";
+import { loadCourseContext } from "@/lib/courseCatalog";
 import { emptyWizardValues } from "@/lib/assignmentWizardMapping";
 import type { AssignmentWizardValues } from "@/validations/assignmentWizardSchema";
 import { AssignmentWizardView } from "./AssignmentWizardView";
@@ -26,11 +25,16 @@ export function CreateAssignmentWizard() {
   const [loaded, setLoaded] = useState<Loaded | null>(null);
 
   useEffect(() => {
-    const courseId = isKnownCourse(courseParam) ? courseParam : "";
-    const firstModuleId = courseId ? (getLessonEditorContext(courseId).modules[0]?.id ?? "") : "";
-    const baseValues = emptyWizardValues(courseId, firstModuleId);
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- sessionStorage is only readable after mount
-    setLoaded({ baseValues, draft: readWizardDraft(DRAFT_KEY) });
+    let alive = true;
+    // ?course must be a course of this workspace; its first module is preselected.
+    void (courseParam ? loadCourseContext(courseParam) : Promise.resolve(null)).then((ctx) => {
+      if (!alive) return;
+      const baseValues = emptyWizardValues(ctx ? courseParam : "", ctx?.modules[0]?.id ?? "");
+      setLoaded({ baseValues, draft: readWizardDraft(DRAFT_KEY) });
+    });
+    return () => {
+      alive = false;
+    };
     // Read once on mount: the wizard rewrites the URL (?step) but the course preselection must not re-run.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

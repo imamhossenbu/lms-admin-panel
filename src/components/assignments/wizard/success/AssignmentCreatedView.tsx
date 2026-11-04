@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { fetchAssignment } from "@/lib/assignmentStorage";
-import { getLessonEditorContext } from "@/lib/lessonEditorStorage";
+import { emptyCourseContext, loadCourseContext } from "@/lib/courseCatalog";
 import type { AssignmentItem } from "@/types/assignment";
 import type { LessonEditorContext } from "@/types/lessonEditor";
 import { AssignmentNotFound } from "@/components/assignments/details/AssignmentNotFound";
@@ -29,9 +29,11 @@ export function AssignmentCreatedView({ assignmentId }: { assignmentId: string }
   useEffect(() => {
     let alive = true;
     fetchAssignment(assignmentId)
-      .then((assignment) => {
+      .then(async (assignment) => {
         if (!alive) return;
-        setState(assignment ? { status: "ready", assignment, context: getLessonEditorContext(assignment.courseId) } : { status: "missing" });
+        const context = assignment ? ((await loadCourseContext(assignment.courseId)) ?? emptyCourseContext(assignment.courseId)) : null;
+        if (!alive) return;
+        setState(assignment && context ? { status: "ready", assignment, context } : { status: "missing" });
       })
       .catch(() => {
         if (!alive) return;

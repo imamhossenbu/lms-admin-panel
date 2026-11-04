@@ -3,7 +3,6 @@
 import React from "react";
 import { Breadcrumb, type BreadcrumbItem } from "@/components/ui/Breadcrumb";
 import { CourseSummaryBanner } from "@/components/courses/lesson-editor/CourseSummaryBanner";
-import { isKnownCourse } from "@/data/mockCourseCatalog";
 import type { LessonEditorCourse } from "@/types/lessonEditor";
 
 export interface AssignmentsHeaderProps {
@@ -11,8 +10,7 @@ export interface AssignmentsHeaderProps {
   course: LessonEditorCourse | null;
 }
 
-/** Mock catalogue courses have no /courses/[id] page yet — link them to the courses list. */
-const courseHref = (courseId: string) => (isKnownCourse(courseId) ? "/courses" : `/courses/${courseId}`);
+const courseHref = (courseId: string) => `/courses/${courseId}`;
 
 /**
  * Breadcrumb + "Assignments" title / subtitle. With a course selected: course trail and the compact

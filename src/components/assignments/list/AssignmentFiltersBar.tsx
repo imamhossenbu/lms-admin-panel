@@ -5,7 +5,8 @@ import { LayoutGrid, List } from "lucide-react";
 import { ListFilters } from "@/components/ui/ListFilters";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import type { AppSelectOption } from "@/components/ui/AppSelect";
-import { COURSE_FILTER_OPTIONS, STATUS_FILTER_OPTIONS, TYPE_FILTER_OPTIONS } from "./assignmentListUtils";
+import { courseFilterOptions, STATUS_FILTER_OPTIONS, TYPE_FILTER_OPTIONS } from "./assignmentListUtils";
+import { useCourseCatalog } from "@/lib/courseCatalog";
 
 export type AssignmentListView = "table" | "grid";
 
@@ -42,6 +43,7 @@ export function AssignmentFiltersBar({
   onReset,
   onViewChange,
 }: AssignmentFiltersBarProps) {
+  const courses = useCourseCatalog();
   const hasCourse = courseId !== "All";
   return (
     <div className="flex flex-col xl:flex-row gap-3">
@@ -51,7 +53,7 @@ export function AssignmentFiltersBar({
           searchPlaceholder="Search assignments..."
           onQueryChange={(q) => onChange({ q })}
           selects={[
-            { key: "course", value: courseId, options: COURSE_FILTER_OPTIONS, onChange: onCourseChange, className: "xl:w-48" },
+            { key: "course", value: courseId, options: courseFilterOptions(courses ?? []), onChange: onCourseChange, className: "xl:w-48" },
             {
               key: "module",
               value: hasCourse ? moduleId : "",

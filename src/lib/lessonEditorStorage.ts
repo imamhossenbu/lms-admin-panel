@@ -7,6 +7,7 @@ import {
   defaultLessonEditorValues,
   seededIntroLessonValues,
 } from "@/data/mockLessonEditorData";
+import { coursesApi } from "@/lib/api";
 
 /**
  * Mock-first persistence for the Edit Lesson page (localStorage, no API yet).
@@ -66,8 +67,10 @@ export async function saveLessonEditorValues(courseId: string, lessonId: string,
 }
 
 /** Simulates an upload: returns a stable fake hosted URL (never a blob: URL). */
-export async function mockUploadFile(file: File): Promise<{ url: string }> {
-  await new Promise((resolve) => setTimeout(resolve, 900));
-  const safeName = file.name.toLowerCase().replace(/[^a-z0-9.]+/g, "-");
-  return { url: `https://res.cloudinary.com/demo/raw/upload/${Date.now().toString(36)}-${safeName}` };
+/** Uploads a file to the media store (POST /courses/upload-media → Cloudinary) and returns its hosted URL. */
+export async function uploadFile(file: File): Promise<{ url: string }> {
+  return coursesApi.uploadMedia(file);
 }
+
+/** @deprecated Kept for existing call sites; uploads for real now (see `uploadFile`). */
+export const mockUploadFile = uploadFile;

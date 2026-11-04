@@ -14,6 +14,7 @@ import { WizardFooter } from "./shell/WizardFooter";
 import { WizardStepContent } from "./shell/WizardStepContent";
 import { useAssignmentWizard } from "./shell/useAssignmentWizard";
 import type { WizardDraft } from "./shell/wizardDraft";
+import { useCourseCatalog, useCourseContext } from "@/lib/courseCatalog";
 
 export interface AssignmentWizardViewProps {
   mode: "create" | "edit";
@@ -32,7 +33,10 @@ export function AssignmentWizardView({ mode, baseValues, draft, draftKey, existi
   const wizard = useAssignmentWizard({ mode, assignmentId: existing?.id, existing, baseValues, draft, draftKey });
   const { form, step } = wizard;
   const [courseId, moduleId] = useWatch({ control: form.control, name: ["courseId", "moduleId"] });
-  const context = useMemo(() => wizardCourseContext(courseId ?? ""), [courseId]);
+  // Loads the course list and the selected course's modules / lessons from the API.
+  useCourseCatalog();
+  const loadedContext = useCourseContext(courseId || null);
+  const context = useMemo(() => loadedContext ?? wizardCourseContext(courseId ?? ""), [loadedContext, courseId]);
   const { errors } = useFormState({ control: form.control });
   const errorSteps = Array.from(new Set(Object.keys(errors).map((k) => stepOfField(k)))) as WizardStep[];
 

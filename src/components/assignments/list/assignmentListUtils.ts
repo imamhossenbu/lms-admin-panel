@@ -1,8 +1,8 @@
-import type { AssignmentItem, AssignmentStatus, AssignmentSubmission, AssignmentType } from "@/types/assignment";
+import type { AssignmentItem, AssignmentStatus, AssignmentType } from "@/types/assignment";
+import type { AssignmentListItem } from "@/lib/assignmentStorage";
 import type { LessonEditorContext } from "@/types/lessonEditor";
 import type { Tone } from "@/components/ui/ToneBadge";
 import { dueAt } from "@/lib/assignmentStats";
-import { COURSE_OPTIONS } from "@/data/mockCourseCatalog";
 
 /** Tabs on the Assignments list (?tab=…). */
 export const ASSIGNMENT_LIST_TABS = [
@@ -51,15 +51,9 @@ export interface SubmissionCounts {
   pending: number;
 }
 
-export function countSubmissions(submissions: AssignmentSubmission[]) {
-  const map = new Map<string, SubmissionCounts>();
-  submissions.forEach((s) => {
-    const entry = map.get(s.assignmentId) ?? { submitted: 0, pending: 0 };
-    entry.submitted += 1;
-    if (s.status === "PENDING") entry.pending += 1;
-    map.set(s.assignmentId, entry);
-  });
-  return map;
+/** Counters per assignment id, from the API list rows. */
+export function countSubmissions(assignments: AssignmentListItem[]) {
+  return new Map<string, SubmissionCounts>(assignments.map((a) => [a.id, { submitted: a.submissionCounts.total, pending: a.submissionCounts.pending }]));
 }
 
 const EMPTY_COUNTS: SubmissionCounts = { submitted: 0, pending: 0 };
@@ -87,7 +81,7 @@ export function moduleLessonLabels(a: Pick<AssignmentItem, "moduleId" | "lessonI
   };
 }
 
-export const COURSE_FILTER_OPTIONS = [{ value: "All", label: "All Courses" }, ...COURSE_OPTIONS];
+export const courseFilterOptions = (courses: { value: string; label: string }[]) => [{ value: "All", label: "All Courses" }, ...courses];
 
 export const moduleFilterOptions = (context: LessonEditorContext) => [
   { value: "All", label: "All Modules" },

@@ -4,7 +4,7 @@ import React from "react";
 import { useFormContext } from "react-hook-form";
 import type { LessonEditorContext } from "@/types/lessonEditor";
 import type { AssignmentWizardValues } from "@/validations/assignmentWizardSchema";
-import { wizardCourseContext } from "../../wizardFormat";
+import { loadCourseContext } from "@/lib/courseCatalog";
 import { SelectController } from "./SelectController";
 import { courseOptions, moduleOptions } from "./basicOptions";
 
@@ -17,10 +17,13 @@ export function CourseModuleFields({ context }: { context: LessonEditorContext }
   const hasCourse = !!context.course.id;
 
   const onCourseChange = (courseId: string) => {
-    const next = wizardCourseContext(courseId);
-    if (next.modules.some((m) => m.id === getValues("moduleId"))) return;
+    // A module id is unique to its course, so switching course always clears module + lesson.
+    const moduleId = getValues("moduleId");
     setValue("moduleId", "", { shouldDirty: true });
     setValue("lessonId", "", { shouldDirty: true });
+    void loadCourseContext(courseId).then((next) => {
+      if (moduleId && next?.modules.some((m) => m.id === moduleId)) setValue("moduleId", moduleId, { shouldDirty: true });
+    });
   };
 
   return (

@@ -3,8 +3,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { CircleCheck, Clock, FileText, UserCheck } from "lucide-react";
-import type { AssignmentItem, AssignmentSubmission } from "@/types/assignment";
-import { courseAssignmentStats } from "@/lib/assignmentStats";
+import type { CourseAssignmentStats } from "@/lib/assignmentStorage";
 import { cn } from "@/lib/cn";
 
 interface StatTileProps {
@@ -35,13 +34,11 @@ function StatTile({ icon, iconClassName, value, label, index }: StatTileProps) {
 }
 
 export interface AssignmentStatsRowProps {
-  assignments: AssignmentItem[];
-  submissions: AssignmentSubmission[];
+  stats: CourseAssignmentStats;
 }
 
-/** Total Assignments / Total Submissions / Pending Review / Graded Submissions — derived from storage. */
-export function AssignmentStatsRow({ assignments, submissions }: AssignmentStatsRowProps) {
-  const stats = courseAssignmentStats(assignments, submissions);
+/** Total Assignments / Total Submissions / Pending Review / Graded Submissions — from GET /admin/assignments/stats. */
+export function AssignmentStatsRow({ stats }: AssignmentStatsRowProps) {
   const tiles = [
     { label: "Total Assignments", value: stats.totalAssignments, icon: <FileText className="w-6 h-6" />, iconClassName: "bg-blue-14 text-blue" },
     { label: "Total Submissions", value: stats.totalSubmissions, icon: <CircleCheck className="w-6 h-6" />, iconClassName: "bg-green-bg text-green" },

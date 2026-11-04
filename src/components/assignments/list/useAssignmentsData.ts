@@ -1,19 +1,26 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import type { AssignmentItem, AssignmentSubmission } from "@/types/assignment";
-import { ASSIGNMENTS_UPDATED_EVENT, fetchAssignments, getSubmissionsSnapshot } from "@/lib/assignmentStorage";
+import {
+  ASSIGNMENTS_UPDATED_EVENT,
+  fetchAssignmentStats,
+  fetchAssignments,
+  type AssignmentListItem,
+  type CourseAssignmentStats,
+} from "@/lib/assignmentStorage";
+import { apiErrorMessage } from "@/lib/apiError";
+
+const EMPTY_STATS: CourseAssignmentStats = { totalAssignments: 0, totalSubmissions: 0, pendingReview: 0, graded: 0 };
 
 /**
- * Loads the course's assignments (every course when `courseId` is omitted) + all submissions (mock storage) and re-reads them whenever
- * the storage emits ASSIGNMENTS_UPDATED_EVENT (create, duplicate, publish, delete …).
+ * Loads the course's assignments (every course when `courseId` is omitted) with their submission counters
+ * + the stat cards, and re-reads them whenever an action announces ASSIGNMENTS_UPDATED_EVENT.
  */
 export function useAssignmentsData(courseId?: string) {
-  const [assignments, setAssignments] = useState<AssignmentItem[]>([]);
-  const [submissions, setSubmissions] = useState<AssignmentSubmission[]>([]);
+  const [assignments, setAssignments] = useState<AssignmentListItem[]>([]);
+  const [stats, setStats] = useState<CourseAssignmentStats>(EMPTY_STATS);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-
   const [attempt, setAttempt] = useState(0);
 
   const retry = useCallback(() => {
@@ -24,17 +31,17 @@ export function useAssignmentsData(courseId?: string) {
   useEffect(() => {
     let alive = true;
     const sync = () =>
-      fetchAssignments(courseId).then(
-        (list) => {
+      Promise.all([fetchAssignments(courseId), fetchAssignmentStats(courseId)]).then(
+        ([list, totals]) => {
           if (!alive) return;
           setAssignments(list);
-          setSubmissions(getSubmissionsSnapshot());
+          setStats(totals);
           setLoadError(null);
           setIsLoading(false);
         },
-        () => {
+        (err) => {
           if (!alive) return;
-          setLoadError("We couldn't read the assignments. Please try again.");
+          setLoadError(apiErrorMessage(err, "We couldn't load the assignments. Please try again."));
           setIsLoading(false);
         }
       );
@@ -47,7 +54,7 @@ export function useAssignmentsData(courseId?: string) {
     };
   }, [courseId, attempt]);
 
-  return { assignments, submissions, isLoading, loadError, retry };
+  return { assignments, stats, isLoading, loadError, retry };
 }
 
 export default useAssignmentsData;
