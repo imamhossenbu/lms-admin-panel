@@ -6,6 +6,7 @@ import { apiClient } from "@/lib/api";
 import { apiErrorMessage } from "@/lib/apiError";
 import type { EnrollmentCourse } from "@/types/enrollmentCourse";
 import { courseIcon } from "./studentView";
+import { coursePrice } from "@/lib/money";
 
 /** Course as returned by GET /courses (only the fields the student screens use). */
 interface ApiCourse {
@@ -21,7 +22,7 @@ interface ApiCourse {
 }
 
 const duration = (min: number | null) => (!min ? "—" : min >= 60 ? `${Math.floor(min / 60)}h${min % 60 ? ` ${min % 60}m` : ""}` : `${min}m`);
-const price = (c: ApiCourse) => (c.isFree || !Number(c.price) ? "Free" : `$${Number(c.price).toLocaleString("en-US", { maximumFractionDigits: 2 })}`);
+const price = (c: ApiCourse) => coursePrice(c.price, c.isFree);
 
 const toOption = (c: ApiCourse, i: number): EnrollmentCourse => ({
   id: c.id,

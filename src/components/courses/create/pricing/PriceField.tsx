@@ -8,8 +8,9 @@ import { InputField } from "@/components/ui/InputField";
 import { COURSE_PRICE_MAX, type CoursePublishInput } from "@/validations/coursePublishSchema";
 import { priceInfoText } from "./pricingLabels";
 import { PricingSectionHeader } from "./PricingSectionHeader";
+import { currencySymbol } from "@/lib/money";
 
-/** "$" price input (locked for free courses) with a contextual info note. */
+/** Workspace-currency (৳) price input (locked for free courses) with a contextual info note. */
 export function PriceField() {
   const { control } = useFormContext<CoursePublishInput>();
   const [priceType, price] = useWatch({ control, name: ["priceType", "price"] });
@@ -39,7 +40,7 @@ export function PriceField() {
               value={Number.isNaN(field.value) ? "" : isFree ? "" : field.value}
               onChange={(e) => field.onChange(e.target.value === "" ? Number.NaN : e.target.valueAsNumber)}
               error={fieldState.error?.message}
-              leftElement={<span className="body-sm-medium text-primary-400">$</span>}
+              leftElement={<span className="body-sm-medium text-primary-400">{currencySymbol()}</span>}
               aria-invalid={!!fieldState.error}
               className="disabled:bg-gray-bg disabled:text-primary-300 disabled:cursor-not-allowed"
             />

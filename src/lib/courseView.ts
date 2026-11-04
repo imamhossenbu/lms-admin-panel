@@ -1,5 +1,6 @@
 import { Tone } from "@/components/ui/ToneBadge";
 import { AdminCourseItem } from "@/lib/types";
+import { coursePrice } from "@/lib/money";
 
 type CourseStatus = AdminCourseItem["status"];
 type CourseLevel = NonNullable<AdminCourseItem["level"]>;
@@ -28,7 +29,7 @@ export const COURSE_LEVEL_OPTIONS = (Object.keys(COURSE_LEVEL_LABEL) as CourseLe
 }));
 
 export const coursePriceLabel = (course: AdminCourseItem) =>
-  course.isFree || !Number(course.price) ? "Free" : `$${Number(course.price).toFixed(2)}`;
+  coursePrice(course.price, course.isFree);
 
 export const courseDurationLabel = (course: AdminCourseItem) => {
   if (course.totalDuration) return course.totalDuration;

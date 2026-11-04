@@ -15,6 +15,7 @@ import {
   Edit3,
 } from "lucide-react";
 import { SVG_FALLBACK } from "../constants";
+import { formatMoney } from "@/lib/money";
 
 interface CourseDetailsHeroProps {
   course: AdminCourseItem;
@@ -122,7 +123,7 @@ export function CourseDetailsHero({
                 Catalog Price
               </span>
               <span className="body-sm-medium text-green mt-0.5 block">
-                {course.isFree ? "Free Access" : `$${course.price}`}
+                {course.isFree ? "Free Access" : formatMoney(course.price)}
               </span>
             </div>
           </div>

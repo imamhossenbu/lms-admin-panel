@@ -5,16 +5,15 @@ import {
   PRICE_TYPE_LABEL,
   type CoursePublishInput,
 } from "@/validations/coursePublishSchema";
+import { formatMoney } from "@/lib/money";
 
-const usd = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
+/** 0 → "৳0.00", 49 → "৳49.00" (workspace currency). */
+export const formatPrice = (price: number) => formatMoney(price, { fixed: true });
 
-/** 0 → "$0.00", 49 → "$49.00" */
-export const formatPrice = (price: number) => usd.format(Number.isFinite(price) ? price : 0);
-
-/** Short price tag for preview chips: "Free", "$49", "$19.99". */
+/** Short price tag for preview chips: "Free", "৳49", "৳19.99". */
 export const priceTagLabel = (values: Pick<CoursePublishInput, "priceType" | "price">) => {
   if (values.priceType === "FREE" || !values.price) return "Free";
-  const tag = Number.isInteger(values.price) ? `$${values.price}` : formatPrice(values.price);
+  const tag = formatMoney(values.price);
   return values.priceType === "SUBSCRIPTION" ? `${tag}/mo` : tag;
 };
 

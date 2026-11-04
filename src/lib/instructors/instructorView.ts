@@ -21,18 +21,18 @@ import type {
   ScheduleEvent,
 } from "@/types/instructorApi";
 import { courseIcon, formatDate } from "@/lib/students/studentView";
+import { coursePrice, formatMoney } from "@/lib/money";
 
 /** Maps Instructors API responses to the view models the instructor screens render. Pure functions. */
 
 const DASH = "—";
 
 /** "$1,234" (or "৳1,234" for BDT); the API sums PAID orders. */
-export const formatMoney = ({ amount, currency }: Revenue) =>
-  `${currency === "BDT" ? "৳" : "$"}${amount.toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
+export const formatRevenue = ({ amount, currency }: Revenue) => formatMoney(amount, { currency });
 
 export const formatMinutes = (min: number) => (min >= 60 ? `${Math.floor(min / 60)}h ${min % 60}m` : `${min}m`);
 
-const priceLabel = (c: InstructorCourseRow) => (c.isFree || !c.price ? "Free" : `$${c.price.toLocaleString("en-US", { maximumFractionDigits: 2 })}`);
+const priceLabel = (c: InstructorCourseRow) => coursePrice(c.price, c.isFree);
 
 // ---------------------------------------------------------------- list / header
 
@@ -47,7 +47,7 @@ export const toInstructorItem = (i: InstructorListItem | InstructorDetails, inde
   avatarUrl: i.avatarUrl ?? undefined,
   coursesCount: i.coursesCount,
   studentsCount: i.studentsCount,
-  totalRevenue: formatMoney(i.totalRevenue),
+  totalRevenue: formatRevenue(i.totalRevenue),
   numericRevenue: i.totalRevenue.amount,
   rating: i.rating,
   reviewsCount: i.reviewsCount,
@@ -62,7 +62,7 @@ export const toInstructorItem = (i: InstructorListItem | InstructorDetails, inde
     studentsCount: c.studentsCount,
     rating: c.rating,
     reviewsCount: c.reviewsCount,
-    revenue: formatMoney(c.revenue),
+    revenue: formatRevenue(c.revenue),
     category: c.category,
     lessonsCount: c.lessonsCount,
   })),
