@@ -6,6 +6,8 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setCredentials, logout, setInitialized } from "@/store/slices/authSlice";
 import { loadSession } from "@/lib/session";
 import { TWO_FACTOR_REQUIRED_EVENT } from "@/lib/api";
+import { consumeImpersonationToken } from "@/lib/impersonation";
+import { toast } from "sonner";
 
 const PUBLIC_AUTH_ROUTES = [
   "/login",
@@ -33,6 +35,20 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   const isAuthRoute = isPublicAuthRoute(pathname);
 
   useEffect(() => {
+    // Opened from the Owner Console: sign in with the impersonation token from the URL fragment.
+    const impersonationToken = consumeImpersonationToken();
+    if (impersonationToken) {
+      const toastId = toast.loading("Opening institution panel...", { description: "Signing in from the Owner Console" });
+      loadSession(dispatch, impersonationToken)
+        .then((profile) => toast.success("Opened as owner", { id: toastId, description: `Signed in as ${profile.name}. Access ends in 1 hour.` }))
+        .catch(() => {
+          dispatch(logout());
+          toast.error("Couldn't open the institution", { id: toastId, description: "The link from the Owner Console has expired. Open it again from the console." });
+          router.replace("/login");
+        })
+        .finally(() => setIsClientReady(true));
+      return;
+    }
     try {
       const storedToken = localStorage.getItem("admin_token");
       const storedUserJson = localStorage.getItem("admin_user");

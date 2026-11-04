@@ -7,7 +7,6 @@ import { AdminNavbar } from "./AdminNavbar";
 import { AuthGuard, isPublicAuthRoute } from "@/components/auth/AuthGuard";
 import { BillingStatusBanner } from "@/components/billing/banner/BillingStatusBanner";
 import { SuspendedAccountGate } from "@/components/billing/banner/SuspendedAccountGate";
-import { ImpersonationHandler } from "@/components/billing/impersonate/ImpersonationHandler";
 
 function AdminShellContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -22,7 +21,6 @@ function AdminShellContent({ children }: { children: React.ReactNode }) {
       <div className="flex min-h-screen bg-gray-bg">
         <AdminSidebar />
         <div className="flex-1 flex flex-col min-w-0 bg-gray-bg">
-          <ImpersonationHandler />
           <BillingStatusBanner />
           <AdminNavbar />
           <main className="p-3 flex-1 max-w-400 w-full mx-auto">
