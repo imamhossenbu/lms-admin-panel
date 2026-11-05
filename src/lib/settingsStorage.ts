@@ -204,3 +204,43 @@ export function fetchClientIp(): Promise<string | null> {
   );
   return clientIpRequest;
 }
+
+// ---------------------------------------------------------------- Maintenance › Backups
+
+export interface BackupItem {
+  id: string;
+  kind: "AUTO" | "MANUAL";
+  sizeBytes: number;
+  rows: number;
+  tables: number;
+  createdByName: string;
+  createdAt: string;
+  expiresAt: string;
+}
+
+export async function fetchBackups(): Promise<BackupItem[]> {
+  return (await apiClient.get<BackupItem[]>("/admin/settings/backups")).data;
+}
+
+/** "Back up now" — resolves with the new backup. */
+export async function createBackup(): Promise<BackupItem> {
+  return (await apiClient.post<BackupItem>("/admin/settings/backups")).data;
+}
+
+export async function deleteBackup(id: string): Promise<void> {
+  await apiClient.delete(`/admin/settings/backups/${encodeURIComponent(id)}`);
+}
+
+/** Downloads the backup file (.json.gz) through the browser. */
+export async function downloadBackup(backup: BackupItem): Promise<void> {
+  const res = await apiClient.get<Blob>(`/admin/settings/backups/${encodeURIComponent(backup.id)}/download`, { responseType: "blob" });
+  const name = /filename="([^"]+)"/.exec(String(res.headers["content-disposition"] ?? ""))?.[1] ?? `edupro-backup-${backup.createdAt.slice(0, 10)}.json.gz`;
+  const url = URL.createObjectURL(res.data);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+}

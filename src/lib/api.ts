@@ -46,6 +46,13 @@ apiClient.interceptors.response.use(
         window.location.assign("/login");
       }
     }
+    // Settings › Maintenance: this account can't use the panel while maintenance mode is on.
+    if (typeof window !== "undefined" && error.response?.status === 503 && error.response?.data?.code === "MAINTENANCE" && !error.config?.url?.includes("/auth/login")) {
+      localStorage.removeItem("admin_token");
+      localStorage.removeItem("admin_user");
+      sessionStorage.setItem(LOGIN_NOTICE_KEY, String(error.response.data.message ?? "We're doing some maintenance."));
+      if (window.location.pathname !== "/login") window.location.assign("/login");
+    }
     // Workspace requires admin 2FA and this account hasn't set it up: AuthGuard sends the user to setup.
     if (typeof window !== "undefined" && error.response?.status === 403 && error.response?.data?.code === "TWO_FACTOR_SETUP_REQUIRED") {
       window.dispatchEvent(new Event(TWO_FACTOR_REQUIRED_EVENT));

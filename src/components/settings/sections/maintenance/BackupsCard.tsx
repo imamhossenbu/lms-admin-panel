@@ -11,6 +11,7 @@ import { SettingsCard } from "@/components/settings/shared/SettingsCard";
 import { SettingsBlockRow, SettingsRow } from "@/components/settings/shared/SettingsRow";
 import { NumberStepper } from "../security/NumberStepper";
 import { nextBackupLabel } from "./maintenanceUtils";
+import { BackupHistory } from "./BackupHistory";
 
 const FREQUENCIES: { value: MaintenanceSettings["backupFrequency"]; label: string }[] = [
   { value: "DAILY", label: "Daily" },
@@ -30,7 +31,7 @@ export function BackupsCard() {
       icon={<DatabaseBackup className="h-5 w-5" />}
       tone="blue"
       title="Backups"
-      description="Schedule and retention for snapshots of your database and uploaded media."
+      description="Schedule and retention for snapshots of this workspace's data."
     >
       <SettingsBlockRow>
         <Controller
@@ -76,6 +77,9 @@ export function BackupsCard() {
         />
       </SettingsRow>
 
+      <SettingsBlockRow>
+        <BackupHistory />
+      </SettingsBlockRow>
     </SettingsCard>
   );
 }
