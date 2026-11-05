@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { WEBSITE_URL } from "@/lib/website";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 import { motion } from "framer-motion";
 import { Check, Gift } from "lucide-react";
@@ -121,7 +122,15 @@ export function PlanStep({ plans }: PlanStepProps) {
         <label className="flex cursor-pointer items-start gap-2.5 select-none">
           <input type="checkbox" className="mt-0.5 h-4 w-4 cursor-pointer rounded border-dash accent-brand-orange" {...register("agreeTerms")} />
           <span className="body-sm-regular text-primary-400">
-            I agree to the <span className="body-sm-medium text-brand-orange">Terms of Service</span> and <span className="body-sm-medium text-brand-orange">Privacy Policy</span>.
+            I agree to the{" "}
+            <a href={`${WEBSITE_URL}/terms`} target="_blank" rel="noopener noreferrer" className="body-sm-medium text-brand-orange hover:underline">
+              Terms of Service
+            </a>{" "}
+            and{" "}
+            <a href={`${WEBSITE_URL}/privacy`} target="_blank" rel="noopener noreferrer" className="body-sm-medium text-brand-orange hover:underline">
+              Privacy Policy
+            </a>
+            .
           </span>
         </label>
         {errors.agreeTerms && <p className="mt-1.5 body-xsm-regular text-red">{errors.agreeTerms.message}</p>}
