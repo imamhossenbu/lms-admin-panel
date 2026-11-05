@@ -2,15 +2,13 @@
 
 import React from "react";
 import { ArrowDown, ArrowUp, Award, CalendarClock, CalendarPlus, ShieldCheck, ShieldX } from "lucide-react";
-import type { IssuedCertificate } from "@/types/certificate";
-import { certificateListStats } from "@/lib/certificateStats";
+import type { CertificateOverview } from "@/lib/certificateStorage";
 import { CertificateStatCard } from "./CertificateStatCard";
 
 const pct = (part: number, total: number) => (total ? Math.round((part / total) * 100) : 0);
 
 /** Issued / Last 30 days (+delta) / Valid / Expiring in 30 days / Revoked + Expired — all from certificateListStats. */
-export function CertificateStatsRow({ certificates }: { certificates: IssuedCertificate[] }) {
-  const s = certificateListStats(certificates);
+export function CertificateStatsRow({ stats: s }: { stats: CertificateOverview }) {
   const delta = s.last30Delta;
   const tiles = [
     { label: "Certificates Issued", value: s.total, icon: <Award className="h-5 w-5" />, iconClassName: "bg-brand-orange-light text-brand-orange", caption: "All time" },

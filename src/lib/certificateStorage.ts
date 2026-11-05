@@ -18,13 +18,44 @@ export type CertificateActivity = CertificateEvent & { code: string; recipientNa
 /** Learner picker row: flagged when they already hold a valid certificate for the course. */
 export type CertificateLearner = CertificateRecipient & { hasCertificate: boolean };
 
-/** Everything the Certificates list page shows. */
+/** Workspace-wide numbers for the Certificates page (GET /admin/certificates/stats). */
+export interface CertificateOverview {
+  total: number;
+  valid: number;
+  revoked: number;
+  expired: number;
+  last30: number;
+  last30Delta: number | null;
+  expiringSoon: number;
+  verifications: number;
+  downloads: number;
+  autoShare: number;
+  monthly: { month: string; label: string; count: number }[];
+  byCourse: { courseId: string; courseTitle: string; count: number }[];
+  templateUsage: { templateId: string; issued: number; lastIssuedAt: string | null }[];
+  counts: { templates: number; eligible: number };
+}
+
+/** Everything the Certificates list page shows besides the Issued table (which loads page by page). */
 export interface CertificateData {
   templates: CertificateTemplate[];
-  certificates: IssuedCertificate[];
+  overview: CertificateOverview;
   /** Latest workspace events (Recent Activity card). */
   events: CertificateActivity[];
   eligible: EligibleLearner[];
+}
+
+/** Issued-tab filters as the API takes them ("All" / "" = no filter). */
+export interface IssuedQuery {
+  q?: string;
+  courseId?: string;
+  templateId?: string;
+  status?: string;
+  method?: string;
+  from?: string;
+  to?: string;
+  page: number;
+  limit: number;
 }
 
 export interface CertificateDetail {
@@ -35,40 +66,58 @@ export interface CertificateDetail {
 
 interface Page<T> {
   data: T[];
-  meta: { totalPages: number };
+  meta: { totalPages: number; total?: number };
 }
 
 const enc = encodeURIComponent;
 const announce = () => typeof window !== "undefined" && window.dispatchEvent(new Event(CERTIFICATES_UPDATED_EVENT));
 const isNotFound = (err: unknown) => (err as { response?: { status?: number } }).response?.status === 404;
 
-let cache: CertificateData = { templates: [], certificates: [], events: [], eligible: [] };
+const EMPTY_OVERVIEW: CertificateOverview = {
+  total: 0,
+  valid: 0,
+  revoked: 0,
+  expired: 0,
+  last30: 0,
+  last30Delta: null,
+  expiringSoon: 0,
+  verifications: 0,
+  downloads: 0,
+  autoShare: 0,
+  monthly: [],
+  byCourse: [],
+  templateUsage: [],
+  counts: { templates: 0, eligible: 0 },
+};
+let cache: CertificateData = { templates: [], overview: EMPTY_OVERVIEW, events: [], eligible: [] };
 let templatesLoaded = false;
 
-async function allPages<T>(url: string, params: Record<string, unknown> = {}): Promise<T[]> {
-  const rows: T[] = [];
-  for (let page = 1; page <= 50; page++) {
-    const { data } = await apiClient.get<Page<T>>(url, { params: { ...params, page, limit: 100 } });
-    rows.push(...data.data);
-    if (page >= data.meta.totalPages) break;
-  }
-  return rows;
-}
 
 // ---------------------------------------------------------------- reads
 
 export const getCertificatesSnapshot = (): CertificateData => cache;
 
-/** Templates, every issued certificate, recent activity and the eligible queue. */
+/** Templates, the workspace stats, recent activity and the eligible queue. */
 export async function fetchCertificates(): Promise<CertificateData> {
-  const [templates, certificates, events, eligible] = await Promise.all([
+  const [templates, overview, events, eligible] = await Promise.all([
     fetchTemplates(),
-    allPages<IssuedCertificate>("/admin/certificates", { sortBy: "issuedAt", sortOrder: "desc" }),
+    apiClient.get<CertificateOverview>("/admin/certificates/stats").then((r) => r.data),
     apiClient.get<CertificateActivity[]>("/admin/certificates/activity", { params: { limit: 20 } }).then((r) => r.data),
     apiClient.get<EligibleLearner[]>("/admin/certificates/eligible").then((r) => r.data),
   ]);
-  cache = { templates, certificates, events, eligible };
+  cache = { templates, overview, events, eligible };
   return cache;
+}
+
+/** One page of issued certificates (newest first) matching the filters. */
+export async function fetchIssuedPage(q: IssuedQuery): Promise<{ rows: IssuedCertificate[]; total: number }> {
+  const params: Record<string, unknown> = { page: q.page, limit: q.limit, sortBy: "issuedAt", sortOrder: "desc" };
+  for (const k of ["q", "courseId", "templateId", "status", "method", "from", "to"] as const) {
+    const v = q[k]?.trim();
+    if (v && v !== "All") params[k] = v;
+  }
+  const { data } = await apiClient.get<Page<IssuedCertificate>>("/admin/certificates", { params });
+  return { rows: data.data, total: data.meta.total ?? data.data.length };
 }
 
 /** Every template of the workspace (cached for the designer's "course already used" warning and the issue modal). */

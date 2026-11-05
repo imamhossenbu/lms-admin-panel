@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -13,16 +13,15 @@ import { TablePagination } from "@/components/ui/TablePagination";
 import { downloadFile, todayStamp } from "@/components/commerce/exportFile";
 import { cn } from "@/lib/cn";
 import { useCommunityData } from "./useCommunityData";
+import { useThreadsPage } from "./useThreadsPage";
+import { fetchAllThreads } from "@/lib/communityStorage";
 import { useCommunityListActions, type ThreadFlag } from "./useCommunityListActions";
 import {
   COMMUNITY_TABS,
-  applyFilters,
   communityCsv,
   isFilteredBy,
   parseSort,
   parseTab,
-  tabAndSort,
-  tabCounts,
   type CommunityFilters,
   type CommunityListView as ListViewMode,
   type CommunityTab,
@@ -47,7 +46,7 @@ const FILTER_KEYS = { q: null, course: null, category: null, from: null, to: nul
 export function CommunityListView() {
   const router = useRouter();
   const { get, getPage, set } = useUrlParams();
-  const { views, overview, queue, isLoading, loadError, retry } = useCommunityData();
+  const { overview, queue, isLoading, loadError, retry } = useCommunityData();
   const actions = useCommunityListActions();
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -65,19 +64,20 @@ export function CommunityListView() {
 
 
   const { q, course, category, from, to } = filters;
-  const filtered = useMemo(() => applyFilters(views, { q, course, category, from, to }), [views, q, course, category, from, to]);
-  const counts = useMemo(() => tabCounts(filtered), [filtered]);
-  const listed = useMemo(() => tabAndSort(filtered, tab, sort), [filtered, tab, sort]);
+  // The list loads one page at a time from the API (tab, filters, sort and page travel as query params).
+  const listQuery = { tab, sort, q, courseId: course, category, from, to };
+  const threads = useThreadsPage({ ...listQuery, page, limit: perPage });
+  const counts = threads.counts;
 
-  if (isLoading) return <CommunityListSkeleton view={view} />;
+  if (isLoading || !threads.loaded) return <CommunityListSkeleton view={view} />;
   if (loadError) return <CommunityLoadError message={loadError} onRetry={retry} />;
 
-  const totalPages = Math.max(1, Math.ceil(listed.length / perPage));
+  const totalPages = Math.max(1, Math.ceil(threads.total / perPage));
   const currentPage = Math.min(page, totalPages);
-  const rows = listed.slice((currentPage - 1) * perPage, currentPage * perPage);
+  const rows = threads.rows;
   const pageIds = new Set(rows.map((r) => r.thread.id));
   const visibleSelected = view === "table" ? selectedIds.filter((id) => pageIds.has(id)) : [];
-  const selectedThreads = views.map((v) => v.thread).filter((t) => visibleSelected.includes(t.id));
+  const selectedThreads = rows.map((v) => v.thread).filter((t) => visibleSelected.includes(t.id));
 
   const updateParams = (updates: Record<string, string | number | null>) => {
     setSelectedIds([]);
@@ -86,14 +86,15 @@ export function CommunityListView() {
   const resetFilters = () => updateParams({ ...FILTER_KEYS });
   const goCreate = () => router.push(course !== "All" ? `/community/new?course=${encodeURIComponent(course)}` : "/community/new");
 
-  const exportCsv = () => {
-    if (!listed.length) return;
-    const toastId = toast.loading("Preparing export...", { description: `${listed.length} discussion${listed.length === 1 ? "" : "s"}` });
+  const exportCsv = async () => {
+    if (!threads.total) return;
+    const toastId = toast.loading("Preparing export...", { description: `${threads.total} discussion${threads.total === 1 ? "" : "s"}` });
     try {
-      downloadFile(communityCsv(listed), `community-${tab}-${todayStamp()}.csv`, "text/csv");
-      toast.success("Export ready", { id: toastId, description: `${listed.length} discussion${listed.length === 1 ? "" : "s"} exported to CSV.` });
+      const all = await fetchAllThreads(listQuery);
+      downloadFile(communityCsv(all), `community-${tab}-${todayStamp()}.csv`, "text/csv");
+      toast.success("Export ready", { id: toastId, description: `${all.length} discussion${all.length === 1 ? "" : "s"} exported to CSV.` });
     } catch {
-      toast.error("Could not export discussions", { id: toastId, description: "Your browser blocked the download. Please try again." });
+      toast.error("Could not export discussions", { id: toastId, description: "We couldn't prepare the file. Please try again." });
     }
   };
 
@@ -116,7 +117,7 @@ export function CommunityListView() {
       variant={view === "table" ? "attached" : "plain"}
       currentPage={currentPage}
       pageSize={perPage}
-      totalCount={listed.length}
+      totalCount={threads.total}
       itemLabel="discussions"
       onPageChange={(next) => updateParams({ page: next })}
       onPageSizeChange={(size) => updateParams({ perPage: size === PAGE_SIZES[0] ? null : size, page: null })}
@@ -128,7 +129,7 @@ export function CommunityListView() {
 
   return (
     <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25, ease: "easeOut" }} className="space-y-5 pb-8 text-left">
-      <CommunityHeader exportCount={listed.length} onExport={exportCsv} onCreate={goCreate} />
+      <CommunityHeader exportCount={threads.total} onExport={() => void exportCsv()} onCreate={goCreate} />
       <CommunityStatsRow stats={overview.stats} />
       <CommunityHealthStrip answerRate={overview.stats.answerRate} medianHours={overview.medianResponseHours} openReports={overview.stats.openReports} />
 
@@ -136,7 +137,7 @@ export function CommunityListView() {
         <section className={cn("dashboard-card shadow-2xs min-w-0 space-y-4 p-5", !isTable && "xl:col-span-8")}>
           <PillTabs<CommunityTab>
             ariaLabel="Discussion status"
-            tabs={COMMUNITY_TABS.map((t) => ({ ...t, count: counts[t.id] }))}
+            tabs={COMMUNITY_TABS.map((t) => ({ ...t, count: counts[t.id] ?? 0 }))}
             activeId={tab}
             onChange={(next) => updateParams({ tab: next === "all" ? null : next, page: null })}
           />
@@ -172,7 +173,7 @@ export function CommunityListView() {
                 onSelectRow={onSelectRow}
                 onSelectAll={onSelectAll}
                 emptyMessage={emptyState}
-                footer={listed.length > 0 ? pagination : undefined}
+                footer={threads.total > 0 ? pagination : undefined}
               />
             </>
           ) : rows.length > 0 ? (

@@ -55,12 +55,26 @@ export interface ModerationQueueItem {
   latest: string;
 }
 
-/** Everything the Community list page shows. */
+/** Everything the Community list page shows besides the discussions (which load page by page). */
 export interface CommunityData {
-  views: ThreadListItem[];
   overview: CommunityOverview;
   queue: ModerationQueueItem[];
 }
+
+/** Discussions list query, mirrored in the panel URL ("All" / "" = no filter). */
+export interface ThreadQuery {
+  tab: string;
+  sort: string;
+  q?: string;
+  courseId?: string;
+  category?: string;
+  from?: string;
+  to?: string;
+  page: number;
+  limit: number;
+}
+
+export type ThreadTabCounts = Partial<Record<"all" | "unanswered" | "moderation" | "pinned" | "resolved" | "hidden", number>>;
 
 export interface ThreadBundle {
   thread: CommunityThread;
@@ -70,7 +84,7 @@ export interface ThreadBundle {
 
 interface Page<T> {
   data: T[];
-  meta: { totalPages: number };
+  meta: { totalPages: number; total?: number };
 }
 
 const enc = encodeURIComponent;
@@ -84,7 +98,7 @@ const EMPTY_OVERVIEW: CommunityOverview = {
   trendingTags: [],
   categoryCounts: { QUESTION: 0, DISCUSSION: 0, ANNOUNCEMENT: 0, SHOWCASE: 0, FEEDBACK: 0 },
 };
-let cache: CommunityData = { views: [], overview: EMPTY_OVERVIEW, queue: [] };
+let cache: CommunityData = { overview: EMPTY_OVERVIEW, queue: [] };
 
 async function allPages<T>(url: string, params: Record<string, unknown> = {}): Promise<T[]> {
   const rows: T[] = [];
@@ -110,15 +124,34 @@ export function useCurrentMember(): CommunityMember {
 
 export const getCommunitySnapshot = (): CommunityData => cache;
 
-/** Every discussion of the workspace (all tabs) + stats / sidebar cards + the moderation queue. */
+/** Stats / sidebar cards + the moderation queue. */
 export async function fetchCommunity(): Promise<CommunityData> {
-  const [views, overview, queue] = await Promise.all([
-    allPages<ThreadListItem>("/admin/community/threads", { tab: "all", sort: "activity" }),
+  const [overview, queue] = await Promise.all([
     apiClient.get<CommunityOverview>("/admin/community/stats").then((r) => r.data),
     apiClient.get<ModerationQueueItem[]>("/admin/community/moderation-queue").then((r) => r.data),
   ]);
-  cache = { views, overview, queue };
+  cache = { overview, queue };
   return cache;
+}
+
+const threadParams = (q: Omit<ThreadQuery, "page" | "limit">) => {
+  const params: Record<string, unknown> = { tab: q.tab, sort: q.sort };
+  for (const k of ["q", "courseId", "category", "from", "to"] as const) {
+    const v = q[k]?.trim();
+    if (v && v !== "All") params[k] = v;
+  }
+  return params;
+};
+
+/** One page of discussions for the tab / filters / sort, plus every tab's count for the same filters. */
+export async function fetchThreadsPage(q: ThreadQuery): Promise<{ rows: ThreadListItem[]; total: number; counts: ThreadTabCounts }> {
+  const { data } = await apiClient.get<Page<ThreadListItem> & { counts?: ThreadTabCounts }>("/admin/community/threads", { params: { ...threadParams(q), page: q.page, limit: q.limit } });
+  return { rows: data.data, total: data.meta.total ?? data.data.length, counts: data.counts ?? {} };
+}
+
+/** Every discussion matching the query (CSV export). */
+export function fetchAllThreads(q: Omit<ThreadQuery, "page" | "limit">): Promise<ThreadListItem[]> {
+  return allPages<ThreadListItem>("/admin/community/threads", threadParams(q));
 }
 
 /** Thread page bundle, or null when it isn't in this workspace. */

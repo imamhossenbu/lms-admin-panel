@@ -4,8 +4,9 @@ import { useCallback, useEffect, useState } from "react";
 import {
   ASSIGNMENTS_UPDATED_EVENT,
   fetchAssignmentStats,
-  fetchAssignments,
+  fetchAssignmentsPage,
   type AssignmentListItem,
+  type AssignmentQuery,
   type CourseAssignmentStats,
 } from "@/lib/assignmentStorage";
 import { apiErrorMessage } from "@/lib/apiError";
@@ -13,11 +14,14 @@ import { apiErrorMessage } from "@/lib/apiError";
 const EMPTY_STATS: CourseAssignmentStats = { totalAssignments: 0, totalSubmissions: 0, pendingReview: 0, graded: 0 };
 
 /**
- * Loads the course's assignments (every course when `courseId` is omitted) with their submission counters
- * + the stat cards, and re-reads them whenever an action announces ASSIGNMENTS_UPDATED_EVENT.
+ * Loads one page of assignments for the list query (submission counters included) + the stat cards for the
+ * course (or the workspace), and re-reads them whenever an action announces ASSIGNMENTS_UPDATED_EVENT.
  */
-export function useAssignmentsData(courseId?: string) {
+export function useAssignmentsData(query: AssignmentQuery) {
+  const courseId = query.courseId;
+  const key = JSON.stringify(query);
   const [assignments, setAssignments] = useState<AssignmentListItem[]>([]);
+  const [total, setTotal] = useState(0);
   const [stats, setStats] = useState<CourseAssignmentStats>(EMPTY_STATS);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -31,10 +35,11 @@ export function useAssignmentsData(courseId?: string) {
   useEffect(() => {
     let alive = true;
     const sync = () =>
-      Promise.all([fetchAssignments(courseId), fetchAssignmentStats(courseId)]).then(
-        ([list, totals]) => {
+      Promise.all([fetchAssignmentsPage(JSON.parse(key) as AssignmentQuery), fetchAssignmentStats(courseId)]).then(
+        ([page, totals]) => {
           if (!alive) return;
-          setAssignments(list);
+          setAssignments(page.rows);
+          setTotal(page.total);
           setStats(totals);
           setLoadError(null);
           setIsLoading(false);
@@ -52,9 +57,9 @@ export function useAssignmentsData(courseId?: string) {
       alive = false;
       window.removeEventListener(ASSIGNMENTS_UPDATED_EVENT, onUpdate);
     };
-  }, [courseId, attempt]);
+  }, [courseId, key, attempt]);
 
-  return { assignments, stats, isLoading, loadError, retry };
+  return { assignments, total, stats, isLoading, loadError, retry };
 }
 
 export default useAssignmentsData;

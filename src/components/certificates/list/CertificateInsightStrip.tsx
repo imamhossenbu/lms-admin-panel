@@ -3,12 +3,10 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Download, ScanLine, Zap } from "lucide-react";
-import type { IssuedCertificate } from "@/types/certificate";
-import { certificateListStats } from "@/lib/certificateStats";
+import type { CertificateOverview } from "@/lib/certificateStorage";
 
 /** Slim strip: "N verifications · N downloads · N% auto-issued". */
-export function CertificateInsightStrip({ certificates }: { certificates: IssuedCertificate[] }) {
-  const s = certificateListStats(certificates);
+export function CertificateInsightStrip({ stats: s }: { stats: CertificateOverview }) {
   const items = [
     { key: "verifications", icon: <ScanLine className="h-4 w-4 text-blue" />, value: s.verifications.toLocaleString(), label: "verifications" },
     { key: "downloads", icon: <Download className="h-4 w-4 text-green" />, value: s.downloads.toLocaleString(), label: "downloads" },

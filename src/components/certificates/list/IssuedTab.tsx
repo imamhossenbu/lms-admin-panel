@@ -14,7 +14,9 @@ import { RevokeCertificateModal } from "./RevokeCertificateModal";
 import { MonthlyIssuedCard } from "./MonthlyIssuedCard";
 import { ByCourseCard } from "./ByCourseCard";
 import { RecentActivityCard } from "./RecentActivityCard";
-import { filterIssued, isIssuedFiltered, toIssuedRows, type IssuedFilters, type IssuedRow } from "./certificateListUtils";
+import { isIssuedFiltered, toIssuedRows, type IssuedFilters, type IssuedRow } from "./certificateListUtils";
+import { useIssuedPage } from "./useIssuedPage";
+import { IssuedTableSkeleton } from "./IssuedTableSkeleton";
 import type { IssuedRowHandlers } from "./IssuedRowActions";
 import type { CertificateListActions } from "./useCertificateListActions";
 
@@ -48,12 +50,12 @@ export function IssuedTab({ data, actions, onIssue }: IssuedTabProps) {
   const perPageParam = Number(get("perPage"));
   const perPage = PAGE_SIZES.includes(perPageParam) ? perPageParam : PAGE_SIZES[0];
 
-  const allRows = useMemo(() => toIssuedRows(data.certificates, data.templates), [data.certificates, data.templates]);
-  const filtered = useMemo(() => filterIssued(allRows, filters), [allRows, filters]);
-
-  const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
-  const currentPage = Math.min(getPage(), totalPages);
-  const rows = filtered.slice((currentPage - 1) * perPage, currentPage * perPage);
+  // The table loads one page at a time from the API (filters, page and size travel as query params).
+  const requestedPage = getPage();
+  const page = useIssuedPage({ q: query, courseId, templateId, status, method, from, to, page: requestedPage, limit: perPage });
+  const rows = useMemo(() => toIssuedRows(page.rows, data.templates), [page.rows, data.templates]);
+  const totalPages = Math.max(1, Math.ceil(page.total / perPage));
+  const currentPage = Math.min(requestedPage, totalPages);
   const pageIds = new Set(rows.map((r) => r.id));
   const selectedRows = rows.filter((r) => selectedIds.includes(r.id) && pageIds.has(r.id));
   const revocable = selectedRows.filter((r) => r.cert.status === "VALID");
@@ -100,6 +102,9 @@ export function IssuedTab({ data, actions, onIssue }: IssuedTabProps) {
           onCsv={() => actions.exportCsv(selectedRows)}
           onClear={() => setSelectedIds([])}
         />
+        {!page.loaded ? (
+          <IssuedTableSkeleton rows={perPage > 10 ? 10 : perPage} />
+        ) : (
         <IssuedTable
           rows={rows}
           handlers={handlers}
@@ -108,11 +113,11 @@ export function IssuedTab({ data, actions, onIssue }: IssuedTabProps) {
           onSelectAll={(checked) => setSelectedIds(checked ? rows.map((r) => r.id) : [])}
           emptyMessage={emptyMessage}
           footer={
-            filtered.length > 0 ? (
+            page.total > 0 ? (
               <TablePagination
                 currentPage={currentPage}
                 pageSize={perPage}
-                totalCount={filtered.length}
+                totalCount={page.total}
                 itemLabel="certificates"
                 onPageChange={(next) => updateParams({ page: next })}
                 onPageSizeChange={(size) => updateParams({ perPage: size === PAGE_SIZES[0] ? null : size, page: null })}
@@ -121,12 +126,13 @@ export function IssuedTab({ data, actions, onIssue }: IssuedTabProps) {
             ) : undefined
           }
         />
+        )}
       </section>
 
       <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-2 2xl:grid-cols-3">
-        <MonthlyIssuedCard certificates={data.certificates} index={0} />
-        <ByCourseCard certificates={data.certificates} activeCourseId={filters.courseId} onSelect={(id) => updateParams({ course: id, page: null })} index={1} />
-        <RecentActivityCard events={data.events} certificates={data.certificates} index={2} className="lg:col-span-2 2xl:col-span-1" />
+        <MonthlyIssuedCard monthly={data.overview.monthly} index={0} />
+        <ByCourseCard byCourse={data.overview.byCourse} activeCourseId={filters.courseId} onSelect={(id) => updateParams({ course: id, page: null })} index={1} />
+        <RecentActivityCard events={data.events} index={2} className="lg:col-span-2 2xl:col-span-1" />
       </div>
 
       <RevokeCertificateModal

@@ -13,13 +13,11 @@ import { AssignmentsLoadError } from "./AssignmentsLoadError";
 import {
   countSubmissions,
   countsFor,
-  matchesTab,
   moduleFilterOptions,
   moduleLessonLabels,
   nextDueSort,
   parseDueSort,
   parseListTab,
-  sortByDue,
   type AssignmentListTab,
 } from "./assignmentListUtils";
 import { useAssignmentsData } from "./useAssignmentsData";
@@ -50,19 +48,8 @@ export function AssignmentsListView() {
   const catalog = useCourseCatalog();
   // Unknown ids fall back to the all-courses view once the catalogue is known.
   const courseId = courseParam && (!catalog || catalog.some((c) => c.value === courseParam)) ? courseParam : null;
-  const { assignments, stats, isLoading, loadError, retry } = useAssignmentsData(courseId ?? undefined);
   const actions = useAssignmentListActions();
 
-  /** Module / lesson labels come from each assignment's OWN course — one context per course id. */
-  const contextIds = useMemo(() => [...assignments.map((a) => a.courseId), ...(courseId ? [courseId] : [])], [assignments, courseId]);
-  const loadedContexts = useCourseContexts(contextIds);
-  const contexts = useMemo(
-    () => new Map(contextIds.map((id) => [id, loadedContexts.get(id) ?? emptyCourseContext(id, courseTitleOf(id))] as const)),
-    // loadedContexts is a live cache; its size changes as courses load
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [contextIds, loadedContexts, loadedContexts.size]
-  );
-  const courseContext = courseId ? (contexts.get(courseId) ?? null) : null;
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [deleting, setDeleting] = useState<AssignmentItem | null>(null);
@@ -81,44 +68,59 @@ export function AssignmentsListView() {
   const page = getPage();
   const isFiltered = !!courseId || !!query || moduleId !== "All" || status !== "All" || type !== "All";
 
+  // One page at a time from the API: tab, filters, due sort, page and size travel as query params.
+  const { assignments, total, stats, isLoading, loadError, retry } = useAssignmentsData({
+    courseId: courseId ?? undefined,
+    tab,
+    q: query,
+    moduleId,
+    status,
+    type,
+    dueSort,
+    page,
+    limit: perPage,
+  });
+
+  /** Module / lesson labels come from each assignment's OWN course — one context per course id. */
+  const contextIds = useMemo(() => [...assignments.map((a) => a.courseId), ...(courseId ? [courseId] : [])], [assignments, courseId]);
+  const loadedContexts = useCourseContexts(contextIds);
+  const contexts = useMemo(
+    () => new Map(contextIds.map((id) => [id, loadedContexts.get(id) ?? emptyCourseContext(id, courseTitleOf(id))] as const)),
+    // loadedContexts is a live cache; its size changes as courses load
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [contextIds, loadedContexts, loadedContexts.size]
+  );
+  const courseContext = courseId ? (contexts.get(courseId) ?? null) : null;
+
   const counts = useMemo(() => countSubmissions(assignments), [assignments]);
 
-  const filtered = useMemo<AssignmentRow[]>(() => {
-    const q = query.toLowerCase().trim();
-    const list = assignments.filter((a) => {
-      if (!matchesTab(a, tab, countsFor(counts, a.id))) return false;
-      if (moduleId !== "All" && a.moduleId !== moduleId) return false;
-      if (status !== "All" && a.status !== status) return false;
-      if (type !== "All" && a.type !== type) return false;
-      if (!q) return true;
-      const ctx = contexts.get(a.courseId) ?? emptyCourseContext(a.courseId);
-      const labels = moduleLessonLabels(a, ctx);
-      return [a.title, ctx.course.title, labels.module, labels.lesson ?? ""].some((s) => s.toLowerCase().includes(q));
-    });
-    return sortByDue(list, dueSort).map((a, i) => {
-      const ctx = contexts.get(a.courseId) ?? emptyCourseContext(a.courseId);
-      const labels = moduleLessonLabels(a, ctx);
-      // All-courses view: prefix the course so rows from different courses are distinguishable.
-      const courseLabel = courseId ? null : ctx.course.title;
-      return {
-        id: a.id,
-        number: i + 1,
-        assignment: a,
-        courseLabel,
-        moduleLabel: labels.module,
-        lessonLabel: labels.lesson,
-        metaLabel: courseLabel ? `${courseLabel} · ${labels.short}` : labels.short,
-        submitted: countsFor(counts, a.id).submitted,
-      };
-    });
-  }, [assignments, counts, contexts, courseId, tab, query, moduleId, status, type, dueSort]);
+  const filtered = useMemo<AssignmentRow[]>(
+    () =>
+      assignments.map((a, i) => {
+        const ctx = contexts.get(a.courseId) ?? emptyCourseContext(a.courseId);
+        const labels = moduleLessonLabels(a, ctx);
+        // All-courses view: prefix the course so rows from different courses are distinguishable.
+        const courseLabel = courseId ? null : ctx.course.title;
+        return {
+          id: a.id,
+          number: (page - 1) * perPage + i + 1,
+          assignment: a,
+          courseLabel,
+          moduleLabel: labels.module,
+          lessonLabel: labels.lesson,
+          metaLabel: courseLabel ? `${courseLabel} · ${labels.short}` : labels.short,
+          submitted: countsFor(counts, a.id).submitted,
+        };
+      }),
+    [assignments, counts, contexts, courseId, page, perPage]
+  );
 
   if (isLoading) return <AssignmentsListSkeleton view={view} withBanner={!!courseId} />;
   if (loadError) return <AssignmentsLoadError message={loadError} onRetry={retry} />;
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
+  const totalPages = Math.max(1, Math.ceil(total / perPage));
   const currentPage = Math.min(page, totalPages);
-  const rows = filtered.slice((currentPage - 1) * perPage, currentPage * perPage);
+  const rows = filtered;
   const pageIds = new Set(rows.map((r) => r.id));
   const visibleSelected = selectedIds.filter((id) => pageIds.has(id));
   const selectedItems = assignments.filter((a) => visibleSelected.includes(a.id));
@@ -152,7 +154,7 @@ export function AssignmentsListView() {
       variant={view === "grid" ? "plain" : "attached"}
       currentPage={currentPage}
       pageSize={perPage}
-      totalCount={filtered.length}
+      totalCount={total}
       itemLabel="assignments"
       onPageChange={(next) => updateParams({ page: next })}
       onPageSizeChange={(size) => updateParams({ perPage: size === pageSizes[0] ? null : size, page: null })}
@@ -210,7 +212,7 @@ export function AssignmentsListView() {
             onSelectRow={onSelectRow}
             onSelectAll={onSelectAll}
             emptyMessage={emptyState}
-            footer={filtered.length > 0 ? pagination : undefined}
+            footer={total > 0 ? pagination : undefined}
           />
         ) : rows.length > 0 ? (
           <>

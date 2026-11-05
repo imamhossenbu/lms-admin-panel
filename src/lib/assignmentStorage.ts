@@ -57,6 +57,32 @@ export async function fetchAssignments(courseId?: string): Promise<AssignmentLis
   return rows;
 }
 
+/** Assignments list query, mirrored in the panel URL ("All" / "" = no filter). */
+export interface AssignmentQuery {
+  courseId?: string;
+  tab?: string;
+  q?: string;
+  moduleId?: string;
+  status?: string;
+  type?: string;
+  /** Due-date sort; null = newest first. */
+  dueSort?: "asc" | "desc" | null;
+  page: number;
+  limit: number;
+}
+
+/** One page of assignments (with submission counters) for the list screen. */
+export async function fetchAssignmentsPage(q: AssignmentQuery): Promise<{ rows: AssignmentListItem[]; total: number }> {
+  const params: Record<string, unknown> = { page: q.page, limit: q.limit, ...(q.dueSort ? { sortBy: "dueDate", sortOrder: q.dueSort } : { sortBy: "createdAt", sortOrder: "desc" }) };
+  for (const k of ["courseId", "tab", "q", "moduleId", "status", "type"] as const) {
+    const v = q[k]?.trim();
+    if (v && v !== "All" && v !== "all") params[k] = v;
+  }
+  const { data } = await apiClient.get<Page<AssignmentListItem>>("/admin/assignments", { params });
+  lastList = [...lastList.filter((a) => !data.data.some((r) => r.id === a.id)), ...data.data];
+  return { rows: data.data, total: data.meta.total };
+}
+
 /** Stat cards (totals across the course's assignments, or all of them). */
 export const fetchAssignmentStats = async (courseId?: string) =>
   (await apiClient.get<CourseAssignmentStats>("/admin/assignments/stats", { params: courseId ? { courseId } : {} })).data;

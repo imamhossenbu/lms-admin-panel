@@ -3,8 +3,7 @@
 import React from "react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { ChartColumnBig } from "lucide-react";
-import type { IssuedCertificate } from "@/types/certificate";
-import { monthlyIssued } from "@/lib/certificateStats";
+import type { CertificateOverview } from "@/lib/certificateStorage";
 import { ChartTooltip } from "@/components/ui/charts/ChartTooltip";
 import { ChartEmpty } from "@/components/ui/charts/ChartEmpty";
 import { AXIS_TICK, CHART } from "@/components/ui/charts/chartTheme";
@@ -12,8 +11,8 @@ import { ToneBadge } from "@/components/ui/ToneBadge";
 import { InsightCard } from "./InsightCard";
 
 /** Orange bar per month (last 6 months) from monthlyIssued. */
-export function MonthlyIssuedCard({ certificates, index }: { certificates: IssuedCertificate[]; index?: number }) {
-  const data = monthlyIssued(certificates, 6);
+export function MonthlyIssuedCard({ monthly, index }: { monthly: CertificateOverview["monthly"]; index?: number }) {
+  const data = monthly;
   const total = data.reduce((s, d) => s + d.count, 0);
   return (
     <InsightCard

@@ -3,25 +3,27 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { BookOpen } from "lucide-react";
-import type { IssuedCertificate } from "@/types/certificate";
+import type { CertificateOverview } from "@/lib/certificateStorage";
 import { useCourseCatalog } from "@/lib/courseCatalog";
 import { cn } from "@/lib/cn";
 import { InsightCard } from "./InsightCard";
 
 export interface ByCourseCardProps {
-  certificates: IssuedCertificate[];
+  /** Issued per course (API stats). */
+  byCourse: CertificateOverview["byCourse"];
   activeCourseId: string;
   onSelect: (courseId: string | null) => void;
   index?: number;
 }
 
 /** Certificates per course (bar + count + share); clicking a course filters the table. */
-export function ByCourseCard({ certificates, activeCourseId, onSelect, index }: ByCourseCardProps) {
+export function ByCourseCard({ byCourse, activeCourseId, onSelect, index }: ByCourseCardProps) {
   const catalog = useCourseCatalog();
   // Workspace courses (0 included) + any course that only appears on certificates (e.g. deleted since).
   const titles = new Map((catalog ?? []).map((c) => [c.value, c.label]));
-  certificates.forEach((c) => !titles.has(c.courseId) && titles.set(c.courseId, c.courseTitle || "Unknown course"));
-  const rows = Array.from(titles, ([value, label]) => ({ value, label, count: certificates.filter((x) => x.courseId === value).length })).sort((a, b) => b.count - a.count);
+  byCourse.forEach((c) => !titles.has(c.courseId) && titles.set(c.courseId, c.courseTitle || "Unknown course"));
+  const counts = new Map(byCourse.map((c) => [c.courseId, c.count]));
+  const rows = Array.from(titles, ([value, label]) => ({ value, label, count: counts.get(value) ?? 0 })).sort((a, b) => b.count - a.count);
   const total = rows.reduce((s, r) => s + r.count, 0);
   const max = Math.max(1, ...rows.map((r) => r.count));
   return (

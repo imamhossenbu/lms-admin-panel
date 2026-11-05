@@ -6,7 +6,6 @@ import { AnimatePresence } from "framer-motion";
 import { Trash2 } from "lucide-react";
 import type { CertificateData } from "@/lib/certificateStorage";
 import type { CertificateTemplate, TemplateStatus } from "@/types/certificate";
-import { templateUsage } from "@/lib/certificateStats";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { TemplateCard } from "./TemplateCard";
 import { NewTemplateCard } from "./NewTemplateCard";
@@ -22,10 +21,13 @@ export function TemplatesTab({ data, actions }: { data: CertificateData; actions
 
   const cards = useMemo(
     () =>
-      templateUsage(data.templates, data.certificates)
-        .sort((a, b) => STATUS_ORDER[a.template.status] - STATUS_ORDER[b.template.status] || b.template.updatedAt.localeCompare(a.template.updatedAt))
-        .map((u) => ({ ...u, sample: data.certificates.filter((c) => c.templateId === u.template.id).sort((a, b) => b.issuedAt.localeCompare(a.issuedAt))[0] ?? null })),
-    [data.templates, data.certificates]
+      data.templates
+        .map((template) => {
+          const u = data.overview.templateUsage.find((x) => x.templateId === template.id);
+          return { template, issued: u?.issued ?? 0, lastIssuedAt: u?.lastIssuedAt ?? null, sample: null };
+        })
+        .sort((a, b) => STATUS_ORDER[a.template.status] - STATUS_ORDER[b.template.status] || b.template.updatedAt.localeCompare(a.template.updatedAt)),
+    [data.templates, data.overview.templateUsage]
   );
 
   const handlers: TemplateHandlers = {

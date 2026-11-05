@@ -1,10 +1,11 @@
 "use client";
 
+import type { CertificateActivity } from "@/lib/certificateStorage";
 import React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Activity, Award, Ban, Download, Mail, RefreshCw, RotateCcw, ScanLine } from "lucide-react";
-import type { CertificateEvent, CertificateEventKind, IssuedCertificate } from "@/types/certificate";
+import type { CertificateEventKind } from "@/types/certificate";
 import { cn } from "@/lib/cn";
 import { InsightCard } from "./InsightCard";
 import { timeAgo } from "./certificateListUtils";
@@ -22,8 +23,7 @@ const EVENT_VIEW: Record<CertificateEventKind, { icon: React.ElementType; classN
 const LIMIT = 6;
 
 /** Latest certificate events (issued, emailed, verified …) linking to the certificate. */
-export function RecentActivityCard({ events, certificates, index, className }: { events: CertificateEvent[]; certificates: IssuedCertificate[]; index?: number; className?: string }) {
-  const byId = new Map(certificates.map((c) => [c.id, c]));
+export function RecentActivityCard({ events, index, className }: { events: CertificateActivity[]; index?: number; className?: string }) {
   const latest = [...events].sort((a, b) => b.at.localeCompare(a.at)).slice(0, LIMIT);
   return (
     <InsightCard index={index} className={className} icon={<Activity className="h-4 w-4" />} iconClassName="bg-green-bg text-green" title="Recent Activity">
@@ -34,7 +34,6 @@ export function RecentActivityCard({ events, certificates, index, className }: {
           {latest.map((e, i) => {
             const view = EVENT_VIEW[e.kind];
             const Icon = view.icon;
-            const cert = byId.get(e.certificateId);
             return (
               <motion.li
                 key={e.id}
@@ -48,7 +47,7 @@ export function RecentActivityCard({ events, certificates, index, className }: {
                     <Icon className="h-3.5 w-3.5" />
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate body-sm-medium text-primary-500">{cert?.recipient.name ?? "Deleted certificate"}</span>
+                    <span className="block truncate body-sm-medium text-primary-500">{e.recipientName || "Deleted certificate"}</span>
                     <span className="block truncate body-xsm-regular text-primary-300" title={e.message}>
                       {e.message}
                     </span>

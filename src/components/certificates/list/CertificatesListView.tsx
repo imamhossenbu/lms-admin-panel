@@ -41,8 +41,8 @@ export function CertificatesListView() {
   return (
     <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25, ease: "easeOut" }} className="space-y-5 pb-8 text-left">
       <CertificatesHeader onVerify={() => setVerifyOpen(true)} onIssue={() => openIssue()} />
-      <CertificateStatsRow certificates={data.certificates} />
-      <CertificateInsightStrip certificates={data.certificates} />
+      <CertificateStatsRow stats={data.overview} />
+      <CertificateInsightStrip stats={data.overview} />
 
       <PillTabs<CertificatesTab>
         ariaLabel="Certificate sections"
@@ -50,7 +50,7 @@ export function CertificatesListView() {
         activeId={tab}
         onChange={changeTab}
         tabs={[
-          { id: "issued", label: "Issued", icon: <Award />, count: data.certificates.length },
+          { id: "issued", label: "Issued", icon: <Award />, count: data.overview.total },
           { id: "templates", label: "Templates", icon: <LayoutTemplate />, count: data.templates.length },
           { id: "eligible", label: "Eligible", icon: <UserCheck />, count: data.eligible.length },
         ]}
