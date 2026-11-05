@@ -2,9 +2,7 @@
 
 import React from "react";
 import { LESSON_EDITOR_TABS, type LessonEditorTab } from "@/validations/lessonEditorSchema";
-import { LOCAL_ONLY_TABS, PARTLY_LOCAL_TABS } from "@/lib/lessonEditorStorage";
 import type { LessonEditorTabProps } from "./tabTypes";
-import { LocalDraftNotice } from "./shared/LocalDraftNotice";
 import { ContentTab } from "./tabs/content/ContentTab";
 import { MediaTab } from "./tabs/media/MediaTab";
 import { SettingsTab } from "./tabs/settings/SettingsTab";
@@ -40,7 +38,6 @@ export function LessonEditorPanels({ activeTab, uploadReporters, ...tabProps }: 
         const Tab = TAB_COMPONENT[tab];
         return (
           <div key={tab} role="tabpanel" id={`lesson-panel-${tab}`} aria-labelledby={`lesson-tab-${tab}`} hidden={tab !== activeTab}>
-            {(LOCAL_ONLY_TABS as readonly string[]).includes(tab) ? <LocalDraftNotice /> : PARTLY_LOCAL_TABS[tab] ? <LocalDraftNotice message={PARTLY_LOCAL_TABS[tab]} /> : null}
             <Tab {...tabProps} onUploadingChange={uploadReporters[tab]} />
           </div>
         );

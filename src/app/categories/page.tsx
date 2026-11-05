@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import type { CategoryDrawerMode, CategoryItem } from "@/types/category";
-import { deleteCategory } from "@/lib/categoryStorage";
+import { deleteCategory, inTreeOrder } from "@/lib/categoryStorage";
 import { apiErrorMessage } from "@/lib/apiError";
 import { useUrlParams } from "@/lib/useUrlParams";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
@@ -45,7 +45,8 @@ function CategoriesContent() {
 
   const filtered = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
-    return categories.filter((cat) => {
+    // Sub-categories sit right under their parent.
+    return inTreeOrder(categories).filter((cat) => {
       const matchesSearch = !q || cat.name.toLowerCase().includes(q) || cat.slug.includes(q) || cat.description.toLowerCase().includes(q);
       const matchesStatus = statusFilter === "All" || cat.status === statusFilter;
       return matchesSearch && matchesStatus;
@@ -93,9 +94,9 @@ function CategoriesContent() {
         />
 
         {viewMode === "table" ? (
-          <CategoryTable categories={paginated} onEdit={(c) => openDrawer(c.id, "edit")} onViewDetails={(c) => openDrawer(c.id)} onDelete={setDeleting} />
+          <CategoryTable categories={paginated} allCategories={categories} onEdit={(c) => openDrawer(c.id, "edit")} onViewDetails={(c) => openDrawer(c.id)} onDelete={setDeleting} />
         ) : (
-          <CategoryGrid categories={paginated} onEdit={(c) => openDrawer(c.id, "edit")} onViewDetails={(c) => openDrawer(c.id)} />
+          <CategoryGrid categories={paginated} allCategories={categories} onEdit={(c) => openDrawer(c.id, "edit")} onViewDetails={(c) => openDrawer(c.id)} />
         )}
 
         <CategoryPagination
@@ -112,6 +113,7 @@ function CategoriesContent() {
         isOpen={isDrawerOpen}
         mode={drawerMode}
         category={drawerCategory}
+        categories={categories}
         onClose={closeDrawer}
         onSaved={closeDrawer}
         onOpenEdit={(c) => openDrawer(c.id, "edit")}

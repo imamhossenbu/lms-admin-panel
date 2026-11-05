@@ -12,6 +12,8 @@ interface CategoryDrawerProps {
   mode: CategoryDrawerMode;
   /** The category for edit / details; null in create mode. */
   category: CategoryItem | null;
+  /** Every category of the workspace (parent picker, parent / sub-category names). */
+  categories: CategoryItem[];
   onClose: () => void;
   onSaved: (item: CategoryItem) => void;
   onOpenEdit: (category: CategoryItem) => void;
@@ -20,12 +22,12 @@ interface CategoryDrawerProps {
 
 const HEADER: Record<CategoryDrawerMode, { title: string; subtitle: string; icon: React.ReactNode }> = {
   create: { title: "Add New Category", subtitle: "Create a category to organize your courses.", icon: <FolderTree className="w-4 h-4 text-brand-orange" /> },
-  edit: { title: "Edit Category", subtitle: "Update the category's name, slug, icon and status.", icon: <Edit2 className="w-4 h-4 text-brand-orange" /> },
+  edit: { title: "Edit Category", subtitle: "Update the category's name, slug, parent, icon and status.", icon: <Edit2 className="w-4 h-4 text-brand-orange" /> },
   details: { title: "Category Details", subtitle: "Overview and course counts.", icon: <BookOpen className="w-4 h-4 text-brand-orange" /> },
 };
 
 /** Slide-over for creating, editing and viewing one category. */
-export function CategoryDrawer({ isOpen, mode, category, onClose, onSaved, onOpenEdit, onDelete }: CategoryDrawerProps) {
+export function CategoryDrawer({ isOpen, mode, category, categories, onClose, onSaved, onOpenEdit, onDelete }: CategoryDrawerProps) {
   const header = HEADER[mode];
 
   return (
@@ -73,9 +75,9 @@ export function CategoryDrawer({ isOpen, mode, category, onClose, onSaved, onOpe
             </div>
 
             {mode === "details" && category ? (
-              <CategoryDetailsPanel category={category} onClose={onClose} onEdit={onOpenEdit} onDelete={onDelete} />
+              <CategoryDetailsPanel category={category} categories={categories} onClose={onClose} onEdit={onOpenEdit} onDelete={onDelete} />
             ) : (
-              <CategoryForm key={`${mode}-${category?.id ?? "new"}`} category={mode === "edit" ? category : null} onCancel={onClose} onSaved={onSaved} />
+              <CategoryForm key={`${mode}-${category?.id ?? "new"}`} category={mode === "edit" ? category : null} categories={categories} onCancel={onClose} onSaved={onSaved} />
             )}
           </motion.div>
         </div>

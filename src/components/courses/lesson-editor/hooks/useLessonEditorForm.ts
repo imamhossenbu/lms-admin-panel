@@ -32,7 +32,7 @@ interface UseLessonEditorFormOptions {
 
 /**
  * The single react-hook-form instance of the Edit Lesson page: loads the course curriculum + the lesson from
- * the API (plus this browser's draft of the fields the API doesn't store yet), validates the WHOLE schema on
+ * the API (lesson row, editor settings and resources), validates the WHOLE schema on
  * save and resets the form to the saved values so it becomes clean.
  */
 export function useLessonEditorForm({ courseId, lessonId, onInvalidTab }: UseLessonEditorFormOptions) {

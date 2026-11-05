@@ -8,30 +8,19 @@ import { apiClient, coursesApi } from "@/lib/api";
 import { defaultLessonEditorValues } from "@/lib/lessonEditorDefaults";
 
 /**
- * Edit Lesson page data layer.
- *
- * Saved on the API (`/courses/:courseId/modules/:moduleId/lessons/:id`, `/lessons/:id/resources`):
- *   content: title, module, type, duration, body, status, order · media: video URL · settings: free preview ·
- *   resources: title, URL / link, type, size.
- * Everything else (access, drip, SEO, quiz, notes, the other settings, video metadata, subtitles, resource
- * descriptions / visibility / order) has no column on the Lesson model yet, so it is kept as a per-lesson draft in
- * this browser (`LOCAL_ONLY_TABS`) until the schema grows. Errors are Axios errors (show them with apiErrorMessage).
+ * Edit Lesson page data layer, fully on the API:
+ *   - the lesson row (`/courses/:courseId/modules/:moduleId/lessons/:id`): title, module, type, duration, body,
+ *     status, order, video URL, free preview, plus `editorSettings` (JSON) for every other editor field
+ *     (access, drip, SEO, quiz, notes, behaviour, video metadata, subtitles, thumbnail…);
+ *   - resources (`/lessons/:id/resources`): title, URL / link, type, size, description, visibility and order.
+ * A draft an older version kept in this browser is used once, when the server has no editor settings yet.
+ * Errors are Axios errors (show them with apiErrorMessage).
  */
 
 export const LESSON_EDITOR_UPDATED_EVENT = "edupro_lesson_editor_updated";
 
-/** Tabs whose settings are kept in this browser only (no API fields yet). */
-export const LOCAL_ONLY_TABS = ["access", "drip", "seo", "quiz", "notes"] as const;
-
-/** Tabs that are only partly saved on the API: what stays on this device. */
-export const PARTLY_LOCAL_TABS: Partial<Record<string, string>> = {
-  content: "Title, module, type, duration, content, status and order are saved on the server; the short description, visibility, publish date and thumbnail stay on this device.",
-  media: "The video link is saved on the server; player options, the poster and subtitles stay on this device.",
-  settings: "Free preview is saved on the server; the other lesson settings stay on this device.",
-  resources: "Titles, files and links are saved on the server; descriptions, visibility and order stay on this device.",
-};
-
-const EXTRAS_KEY = "edupro_lesson_editor_v1";
+/** Where an older version kept per-lesson drafts in this browser (read once as a migration, never written). */
+const LEGACY_EXTRAS_KEY = "edupro_lesson_editor_v1";
 
 interface ApiLessonResource {
   id: string;
@@ -40,6 +29,9 @@ interface ApiLessonResource {
   fileType: string;
   size: string;
   isDownloadable: boolean;
+  description?: string;
+  order?: number;
+  isVisible?: boolean;
 }
 
 interface ApiLesson {
@@ -54,31 +46,40 @@ interface ApiLesson {
   order: number;
   isPreview: boolean;
   status: string;
+  /** Staff-only JSON with the editor fields that have no column (see the header). */
+  editorSettings?: Partial<EditorSettings> | null;
   lessonResources?: ApiLessonResource[];
 }
 
-// ---------------------------------------------------------------- browser-local extras
+/** What `editorSettings` holds: the editor values without the resources (own table) and the body (own column). */
+type EditorSettings = Omit<LessonEditorValues, "resources">;
+
+// ---------------------------------------------------------------- legacy browser drafts (read-only)
 
 type ExtrasStore = Record<string, LessonEditorRecord>;
 const keyOf = (courseId: string, lessonId: string) => `${courseId}::${lessonId}`;
 
-function readExtras(): ExtrasStore {
-  if (typeof window === "undefined") return {};
+function readLegacyDraft(courseId: string, lessonId: string): LessonEditorValues | null {
+  if (typeof window === "undefined") return null;
   try {
-    const parsed: unknown = JSON.parse(localStorage.getItem(EXTRAS_KEY) ?? "{}");
-    return parsed && typeof parsed === "object" ? (parsed as ExtrasStore) : {};
+    const parsed = JSON.parse(localStorage.getItem(LEGACY_EXTRAS_KEY) ?? "{}") as ExtrasStore;
+    return parsed?.[keyOf(courseId, lessonId)]?.values ?? null;
   } catch {
-    return {};
+    return null;
   }
 }
 
-function writeExtras(record: LessonEditorRecord) {
-  const store = readExtras();
-  store[keyOf(record.courseId, record.lessonId)] = record;
+/** Once a lesson's settings are on the server its old browser draft is dropped. */
+function forgetLegacyDraft(courseId: string, lessonId: string) {
+  if (typeof window === "undefined") return;
   try {
-    localStorage.setItem(EXTRAS_KEY, JSON.stringify(store));
+    const parsed = JSON.parse(localStorage.getItem(LEGACY_EXTRAS_KEY) ?? "{}") as ExtrasStore;
+    if (!parsed?.[keyOf(courseId, lessonId)]) return;
+    delete parsed[keyOf(courseId, lessonId)];
+    if (Object.keys(parsed).length) localStorage.setItem(LEGACY_EXTRAS_KEY, JSON.stringify(parsed));
+    else localStorage.removeItem(LEGACY_EXTRAS_KEY);
   } catch {
-    // Storage full: the API part is already saved; the local-only extras just won't survive a reload.
+    // Unreadable storage: nothing to clean up.
   }
 }
 
@@ -121,35 +122,48 @@ function toResource(r: ApiLessonResource, local?: LessonEditorResource): LessonE
     id: r.id,
     kind: isLink ? "LINK" : "FILE",
     title: r.title,
-    description: local?.description ?? "",
+    description: r.description ?? local?.description ?? "",
     url: r.fileUrl,
     fileName: isLink ? "" : local?.url === r.fileUrl && local.fileName ? local.fileName : fileNameOf(r.fileUrl),
     size: isLink ? 0 : parseSize(r.size) || (local?.url === r.fileUrl ? local.size : 0),
     format,
-    visible: local?.visible ?? true,
+    visible: r.isVisible ?? local?.visible ?? true,
   };
 }
 
-const resourceBody = (r: LessonEditorResource) => ({
+const resourceBody = (r: LessonEditorResource, order: number) => ({
   title: r.title.trim(),
   fileUrl: r.url.trim(),
   fileType: r.kind === "LINK" ? "LINK" : r.format || extOf(r.url) || "FILE",
   size: r.kind === "LINK" ? "" : formatSize(r.size),
+  description: r.description.trim(),
+  order,
+  isVisible: r.visible,
 });
 
-/** Server fields win; local extras fill in everything the API doesn't store. */
+/** Section-wise merge of the stored editor settings over the defaults (new fields keep their defaults). */
+function withStoredSettings(base: LessonEditorValues, stored: Partial<EditorSettings>): LessonEditorValues {
+  const out = structuredClone(base) as unknown as Record<string, unknown>;
+  for (const [key, value] of Object.entries(stored)) {
+    const current = out[key];
+    if (key === "resources" || value == null) continue;
+    out[key] = current && typeof current === "object" && !Array.isArray(current) && typeof value === "object" && !Array.isArray(value) ? { ...current, ...value } : value;
+  }
+  return out as unknown as LessonEditorValues;
+}
+
+const toEditorSettings = (values: LessonEditorValues): EditorSettings => {
+  const { resources, ...rest } = structuredClone(values);
+  void resources;
+  return { ...rest, content: { ...rest.content, body: "" } };
+};
+
+/** Lesson columns win over the stored editor settings / defaults. */
 function mergeValues(base: LessonEditorValues, lesson: ApiLesson): LessonEditorValues {
   const videoUrl = lesson.videoUrl ?? "";
   const sameVideo = base.media.video.url === videoUrl;
   const localResources = new Map(base.resources.items.map((r) => [r.id, r]));
-  const localOrder = base.resources.items.map((r) => r.id);
-  const resources = (lesson.lessonResources ?? [])
-    .map((r) => toResource(r, localResources.get(r.id)))
-    .sort((a, b) => {
-      const ia = localOrder.indexOf(a.id);
-      const ib = localOrder.indexOf(b.id);
-      return (ia < 0 ? Infinity : ia) - (ib < 0 ? Infinity : ib);
-    });
+  const resources = [...(lesson.lessonResources ?? [])].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).map((r) => toResource(r, localResources.get(r.id)));
   return {
     ...base,
     content: {
@@ -183,10 +197,10 @@ const loaded = new Map<string, Loaded>();
 
 const announce = () => typeof window !== "undefined" && window.dispatchEvent(new Event(LESSON_EDITOR_UPDATED_EVENT));
 
-/** Defaults → this browser's draft extras, for a lesson ref of the course. */
-function localValues(courseId: string, ref: LessonEditorLessonRef, ctx: LessonEditorContext): LessonEditorValues {
-  const saved = readExtras()[keyOf(courseId, ref.id)]?.values;
-  return saved ? structuredClone(saved) : defaultLessonEditorValues(ref, ctx.course.title);
+/** Defaults for a lesson ref of the course (an older browser draft, if one is left, takes their place). */
+function baseValues(courseId: string, ref: LessonEditorLessonRef, ctx: LessonEditorContext): LessonEditorValues {
+  const legacy = readLegacyDraft(courseId, ref.id);
+  return legacy ? structuredClone(legacy) : defaultLessonEditorValues(ref, ctx.course.title);
 }
 
 // ---------------------------------------------------------------- reads
@@ -196,22 +210,14 @@ export function getLessonEditorContext(courseId: string): LessonEditorContext {
   return cachedCourseContext(courseId) ?? emptyCourseContext(courseId);
 }
 
-/** Latest known values of a lesson (loaded → this browser's draft → defaults). Sync; used for sibling lessons too. */
+/** Latest known values of a lesson (loaded → defaults). Sync. */
 export function getLessonEditorValues(courseId: string, lessonId: string): LessonEditorValues {
   const hit = loaded.get(keyOf(courseId, lessonId));
   if (hit) return structuredClone(hit.values);
   const ctx = getLessonEditorContext(courseId);
   const ref = ctx.lessons.find((l) => l.id === lessonId);
-  if (ref) return localValues(courseId, ref, ctx);
-  const saved = readExtras()[keyOf(courseId, lessonId)]?.values;
-  return saved
-    ? structuredClone(saved)
-    : defaultLessonEditorValues({ id: lessonId, title: "Untitled lesson", type: "TEXT", moduleId: ctx.modules[0]?.id ?? "", moduleTitle: ctx.modules[0]?.title ?? "", order: 1 }, ctx.course.title);
-}
-
-/** ISO time of the last "Update Lesson" from this browser (the API doesn't track it), or null. */
-export function getLessonEditorUpdatedAt(courseId: string, lessonId: string): string | null {
-  return readExtras()[keyOf(courseId, lessonId)]?.updatedAt ?? null;
+  if (ref) return baseValues(courseId, ref, ctx);
+  return defaultLessonEditorValues({ id: lessonId, title: "Untitled lesson", type: "TEXT", moduleId: ctx.modules[0]?.id ?? "", moduleTitle: ctx.modules[0]?.title ?? "", order: 1 }, ctx.course.title);
 }
 
 export class LessonNotFoundError extends Error {
@@ -226,7 +232,8 @@ export async function fetchLessonEditor(courseId: string, lessonId: string): Pro
   const ref = context?.lessons.find((l) => l.id === lessonId);
   if (!context || !ref) throw new LessonNotFoundError();
   const { data } = await apiClient.get<ApiLesson>(`/courses/${encodeURIComponent(courseId)}/modules/${encodeURIComponent(ref.moduleId)}/lessons/${encodeURIComponent(lessonId)}`);
-  const values = mergeValues(localValues(courseId, ref, context), data);
+  const base = data.editorSettings ? withStoredSettings(defaultLessonEditorValues(ref, context.course.title), data.editorSettings) : baseValues(courseId, ref, context);
+  const values = mergeValues(base, data);
   loaded.set(keyOf(courseId, lessonId), { values, moduleId: data.moduleId, resourceIds: new Set((data.lessonResources ?? []).map((r) => r.id)) });
   return { context, values: structuredClone(values) };
 }
@@ -239,12 +246,12 @@ async function syncResources(lessonId: string, items: LessonEditorResource[], se
   const keep = new Set(items.map((r) => r.id));
   for (const id of serverIds) if (!keep.has(id)) await apiClient.delete(`${base}/${encodeURIComponent(id)}`);
   const out: LessonEditorResource[] = [];
-  for (const item of items) {
+  for (const [order, item] of items.entries()) {
     if (serverIds.has(item.id)) {
-      await apiClient.patch(`${base}/${encodeURIComponent(item.id)}`, resourceBody(item));
+      await apiClient.patch(`${base}/${encodeURIComponent(item.id)}`, resourceBody(item, order));
       out.push(item);
     } else {
-      const { data } = await apiClient.post<ApiLessonResource>(base, resourceBody(item));
+      const { data } = await apiClient.post<ApiLessonResource>(base, resourceBody(item, order));
       out.push({ ...item, id: data.id });
     }
   }
@@ -252,7 +259,7 @@ async function syncResources(lessonId: string, items: LessonEditorResource[], se
 }
 
 /**
- * "Update Lesson": saves the API fields (lesson row + resources), keeps the rest as this browser's draft and
+ * "Update Lesson": saves the lesson row (with its editor settings) and the resources, and
  * refreshes the course curriculum. Resolves with the saved record (resource ids replaced by server ids).
  */
 export async function saveLessonEditorValues(courseId: string, lessonId: string, values: LessonEditorValues): Promise<LessonEditorRecord> {
@@ -272,6 +279,7 @@ export async function saveLessonEditorValues(courseId: string, lessonId: string,
     videoUrl: values.media.video.url.trim(),
     isPreview: values.settings.freePreview,
     status: c.status,
+    editorSettings: toEditorSettings(values) as unknown as Record<string, unknown>,
     ...(c.moduleId && c.moduleId !== hit.moduleId ? { moduleId: c.moduleId } : {}),
   });
   const moduleId = c.moduleId || hit.moduleId;
@@ -281,7 +289,7 @@ export async function saveLessonEditorValues(courseId: string, lessonId: string,
   const items = await syncResources(lessonId, values.resources.items, hit.resourceIds);
   const saved: LessonEditorValues = { ...structuredClone(values), resources: { items } };
   const record: LessonEditorRecord = { courseId, lessonId, values: saved, updatedAt: new Date().toISOString() };
-  writeExtras(record);
+  forgetLegacyDraft(courseId, lessonId);
   loaded.set(key, { values: saved, moduleId, resourceIds: new Set(items.map((r) => r.id)) });
   await refreshCourseContext(courseId).catch(() => null);
   announce();

@@ -20,17 +20,20 @@ const STATUS_OPTIONS = [
   { value: "Inactive", label: "Inactive (Draft)" },
 ];
 
-const EMPTY: CategorySchemaValues = { name: "", slug: "", description: "", status: "Active", iconId: "code" };
+const EMPTY: CategorySchemaValues = { name: "", slug: "", description: "", status: "Active", iconId: "code", parentId: "" };
+const TOP_LEVEL = "__top__";
 
 interface CategoryFormProps {
   /** null = create. */
   category: CategoryItem | null;
+  /** Every category of the workspace (for the parent picker). */
+  categories: CategoryItem[];
   onCancel: () => void;
   onSaved: (item: CategoryItem) => void;
 }
 
 /** Create / edit form of the category drawer (zod-validated; slug follows the name until edited). */
-export function CategoryForm({ category, onCancel, onSaved }: CategoryFormProps) {
+export function CategoryForm({ category, categories, onCancel, onSaved }: CategoryFormProps) {
   const isEdit = !!category;
   const {
     register,
@@ -42,10 +45,19 @@ export function CategoryForm({ category, onCancel, onSaved }: CategoryFormProps)
   } = useForm<CategorySchemaValues>({ resolver: zodResolver(categorySchema), mode: "onTouched", defaultValues: EMPTY });
 
   useEffect(() => {
-    reset(category ? { name: category.name, slug: category.slug, description: category.description, status: category.status, iconId: category.iconId } : EMPTY);
+    reset(category ? { name: category.name, slug: category.slug, description: category.description, status: category.status, iconId: category.iconId, parentId: category.parentId ?? "" } : EMPTY);
   }, [category, reset]);
 
   const description = useWatch({ control, name: "description" }) || "";
+  // Parents: top-level categories other than this one. A category with sub-categories stays top level.
+  const hasChildren = !!category && category.subCategoryCount > 0;
+  const parentOptions = [
+    { value: TOP_LEVEL, label: "None (top-level category)" },
+    ...categories
+      .filter((c) => !c.parentId && c.id !== category?.id)
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .map((c) => ({ value: c.id, label: c.name })),
+  ];
   const nameField = register("name");
 
   const onSubmit = async (values: CategorySchemaValues) => {
@@ -97,6 +109,26 @@ export function CategoryForm({ category, onCancel, onSaved }: CategoryFormProps)
         </div>
 
         <Controller name="iconId" control={control} render={({ field }) => <CategoryIconPicker value={field.value} onChange={field.onChange} error={errors.iconId?.message} />} />
+
+        <div>
+          <Controller
+            name="parentId"
+            control={control}
+            render={({ field }) => (
+              <DropdownSelect
+                fieldLabel="Parent Category"
+                options={parentOptions}
+                value={field.value || TOP_LEVEL}
+                onChange={(v) => field.onChange(v === TOP_LEVEL ? "" : v)}
+                disabled={hasChildren}
+                className="w-full"
+              />
+            )}
+          />
+          <p className="mt-1 body-2xsm-regular text-primary-300">
+            {hasChildren ? "This category has sub-categories, so it stays a top-level category." : "Pick a parent to make this a sub-category."}
+          </p>
+        </div>
 
         <Controller
           name="status"

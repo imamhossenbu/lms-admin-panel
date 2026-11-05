@@ -11,6 +11,12 @@ export interface CategoryItem {
   status: CategoryStatus;
   totalCourses: number;
   publishedCourses: number;
+  /** Parent category id (null = top level; sub-categories are one level deep). */
+  parentId: string | null;
+  /** Number of sub-categories under this one. */
+  subCategoryCount: number;
+  /** ISO datetime. */
+  createdAt: string;
 }
 
 export interface CategoryIconOption {
@@ -27,4 +33,6 @@ export interface CategoryFormValues {
   description: string;
   status: CategoryStatus;
   iconId: string;
+  /** "" = top level. */
+  parentId: string;
 }

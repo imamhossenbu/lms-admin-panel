@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { categoriesApi } from "@/lib/api";
+import { categoryPathLabel } from "@/lib/categoryStorage";
 import { apiErrorMessage } from "@/lib/courseView";
 import { instructorsApi } from "@/lib/api/instructors";
 import { toInstructorItem } from "@/lib/instructors/instructorView";
@@ -31,7 +32,12 @@ export function useCreateCourseData() {
       try {
         const fetched = await categoriesApi.getAll();
         const list: CategoryOption[] = (Array.isArray(fetched) ? fetched : []).map(
-          (c: { id: string; name: string; slug: string }) => ({ id: c.id, name: c.name, slug: c.slug })
+          (c: { id: string; name: string; slug: string; parentId?: string | null }, _i: number, all: { id: string; name: string; parentId?: string | null }[]) => ({
+            id: c.id,
+            // Sub-categories read "Parent › Child".
+            name: categoryPathLabel(c, all),
+            slug: c.slug,
+          })
         );
         if (alive) setCategories(list);
       } catch (err) {

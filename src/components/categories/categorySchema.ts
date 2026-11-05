@@ -11,6 +11,8 @@ export const categorySchema = z.object({
   description: z.string().max(300, "Description cannot exceed 300 characters"),
   status: z.enum(["Active", "Inactive"]),
   iconId: z.string().min(1, "Please select an icon"),
+  /** "" = top level. */
+  parentId: z.string(),
 });
 
 export type CategorySchemaValues = z.infer<typeof categorySchema>;

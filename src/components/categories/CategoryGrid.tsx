@@ -9,12 +9,15 @@ import { ToneBadge } from "@/components/ui/ToneBadge";
 
 interface CategoryGridProps {
   categories: CategoryItem[];
+  /** Every category (for parent names). */
+  allCategories: CategoryItem[];
   onEdit: (category: CategoryItem) => void;
   onViewDetails: (category: CategoryItem) => void;
 }
 
 export function CategoryGrid({
   categories,
+  allCategories,
   onEdit,
   onViewDetails,
 }: CategoryGridProps) {
@@ -46,6 +49,9 @@ export function CategoryGrid({
               </div>
 
               <h4 className="heading-h6 text-primary-500 mb-1">{category.name}</h4>
+              {category.parentId && (
+                <p className="body-2xsm-regular text-primary-300 mb-1">Sub-category of {allCategories.find((c) => c.id === category.parentId)?.name ?? "another category"}</p>
+              )}
 
               <p className="body-sm-regular text-primary-400 line-clamp-2">
                 {category.description || "No description yet."}

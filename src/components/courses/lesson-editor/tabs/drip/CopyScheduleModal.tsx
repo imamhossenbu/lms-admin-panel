@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Copy, Search } from "lucide-react";
 import { cn } from "@/lib/cn";
@@ -9,7 +9,7 @@ import { InputField } from "@/components/ui/InputField";
 import { PrimaryButton } from "@/components/ui/primary-button";
 import { SecondaryButton } from "@/components/ui/secondary-button";
 import { ToneBadge } from "@/components/ui/ToneBadge";
-import { getLessonEditorValues } from "@/lib/lessonEditorStorage";
+import { fetchLessonEditor } from "@/lib/lessonEditorStorage";
 import { LessonRow } from "../access/LessonRow";
 import type { LessonOption } from "../access/lessonOptions";
 import { RELEASE_TYPE_LABEL, type DripValues } from "./dripOptions";
@@ -27,9 +27,20 @@ export function CopyScheduleModal({ isOpen, onClose, courseId, lessonOptions, on
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState("");
 
-  const schedules = useMemo(() => {
-    if (!isOpen) return new Map<string, DripValues>();
-    return new Map(lessonOptions.map((o) => [o.id, getLessonEditorValues(courseId, o.id).drip]));
+  // Each lesson's saved schedule, read from the API when the modal opens (rows show their badge as they load).
+  const [schedules, setSchedules] = useState<Map<string, DripValues>>(() => new Map());
+  useEffect(() => {
+    if (!isOpen) return;
+    let alive = true;
+    for (const o of lessonOptions) {
+      void fetchLessonEditor(courseId, o.id).then(
+        ({ values }) => alive && setSchedules((prev) => new Map(prev).set(o.id, values.drip)),
+        () => undefined
+      );
+    }
+    return () => {
+      alive = false;
+    };
   }, [isOpen, courseId, lessonOptions]);
 
   const filtered = useMemo(() => {
@@ -63,7 +74,7 @@ export function CopyScheduleModal({ isOpen, onClose, courseId, lessonOptions, on
           <SecondaryButton type="button" onClick={handleClose}>
             Cancel
           </SecondaryButton>
-          <PrimaryButton type="button" onClick={handleCopy} disabled={!selectedId} leftIcon={<Copy className="h-4 w-4" />}>
+          <PrimaryButton type="button" onClick={handleCopy} disabled={!selectedId || !schedules.has(selectedId)} leftIcon={<Copy className="h-4 w-4" />}>
             Copy Schedule
           </PrimaryButton>
         </>

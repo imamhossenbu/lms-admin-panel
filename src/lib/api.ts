@@ -193,6 +193,8 @@ export const coursesApi = {
       status?: string;
       /** Moves the lesson to another module. */
       moduleId?: string;
+      /** Editor fields without their own column (staff-only JSON; replaces the stored object). */
+      editorSettings?: Record<string, unknown>;
     }
   ) => {
     const res = await apiClient.patch(
