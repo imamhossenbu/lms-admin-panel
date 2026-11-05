@@ -25,10 +25,10 @@ export function NotificationDropdown() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const fitRef = useRef<HTMLDivElement>(null);
   useViewportFit(isOpen, fitRef);
-  const { inbox } = useNotificationsStore(["inbox"]);
+  const { inbox, inboxCounters } = useNotificationsStore(["inbox"]);
 
   const live = useMemo(() => inbox.filter((n) => !n.isArchived), [inbox]);
-  const unreadCount = live.filter((n) => !n.isRead).length;
+  const unreadCount = inboxCounters.unread;
   const latest = useMemo(
     () => [...live].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, LATEST_COUNT),
     [live]

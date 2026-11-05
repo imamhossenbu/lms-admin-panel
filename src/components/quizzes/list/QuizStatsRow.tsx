@@ -2,13 +2,11 @@
 
 import React from "react";
 import { Archive, ArrowUp, FileCheck2, FilePen, FileText } from "lucide-react";
-import type { QuizItem } from "@/types/quiz";
-import { quizListStats } from "@/lib/quizStats";
+import type { QuizListStats } from "@/lib/quizStorage";
 import { QuizStatCard } from "./QuizStatCard";
 
-/** Total / Published / Drafts / Archived — all derived from storage via quizListStats. */
-export function QuizStatsRow({ quizzes }: { quizzes: QuizItem[] }) {
-  const s = quizListStats(quizzes);
+/** Total / Published / Drafts / Archived — workspace totals from GET /admin/quizzes/stats. */
+export function QuizStatsRow({ stats: s }: { stats: QuizListStats }) {
   const tiles = [
     {
       label: "Total Quizzes",

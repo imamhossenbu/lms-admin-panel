@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Trash2 } from "lucide-react";
@@ -9,7 +9,7 @@ import { useQuizCourses } from "@/lib/quizStorage";
 import { useUrlParams } from "@/lib/useUrlParams";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { TablePagination } from "@/components/ui/TablePagination";
-import { filterRows, parseUpdatedSort, toQuizRow, type QuizListFilters } from "./quizListUtils";
+import { parseUpdatedSort, toQuizRow, type QuizListFilters } from "./quizListUtils";
 import { useQuizzesData } from "./useQuizzesData";
 import { useQuizListActions } from "./useQuizListActions";
 import { QuizzesHeader } from "./QuizzesHeader";
@@ -33,7 +33,6 @@ export function QuizzesListView() {
   const { get, getPage, set } = useUrlParams();
   const loadedCourses = useQuizCourses();
   const courses = useMemo(() => loadedCourses ?? [], [loadedCourses]);
-  const { quizzes, isLoading, loadError, retry } = useQuizzesData();
   const actions = useQuizListActions();
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -56,25 +55,35 @@ export function QuizzesListView() {
   const perPageParam = Number(get("perPage"));
   const perPage = pageSizes.includes(perPageParam) ? perPageParam : pageSizes[0];
   const page = getPage();
+  const { quizzes, total, stats, isLoading, loadError, retry } = useQuizzesData({
+    page,
+    limit: perPage,
+    q: filters.query,
+    courseId: filters.courseId !== "All" ? filters.courseId : undefined,
+    moduleId: filters.moduleId !== "All" ? filters.moduleId : undefined,
+    status: filters.status !== "All" ? filters.status : undefined,
+    difficulty: filters.difficulty !== "All" ? filters.difficulty : undefined,
+    sortOrder: sort,
+  });
   const isFiltered = !!filters.query || filters.courseId !== "All" || filters.moduleId !== "All" || filters.status !== "All" || filters.difficulty !== "All";
 
-  const allRows = useMemo(() => {
+  // The API already searched, filtered, sorted and paged.
+  const rows = useMemo(() => {
     const counts = Object.fromEntries(quizzes.map((q) => [q.id, q.attemptSummary.total]));
     return quizzes.map((q) => toQuizRow(q, courses, counts));
   }, [quizzes, courses]);
 
-  const { query, moduleId, status, difficulty } = filters;
-  const filtered = useMemo(
-    () => filterRows(allRows, { query, courseId, moduleId, status, difficulty }, sort),
-    [allRows, query, courseId, moduleId, status, difficulty, sort]
-  );
+  // Past the last page (e.g. after deleting its last quiz): jump back to the last one.
+  const lastPage = Math.max(1, Math.ceil(total / perPage));
+  useEffect(() => {
+    if (!isLoading && page > lastPage) set({ page: lastPage === 1 ? null : lastPage });
+  }, [isLoading, page, lastPage, set]);
 
-  if (isLoading) return <QuizzesListSkeleton view={view} />;
+  if (isLoading || !stats) return <QuizzesListSkeleton view={view} />;
   if (loadError) return <QuizzesLoadError message={loadError} onRetry={retry} />;
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
+  const totalPages = Math.max(1, Math.ceil(total / perPage));
   const currentPage = Math.min(page, totalPages);
-  const rows = filtered.slice((currentPage - 1) * perPage, currentPage * perPage);
   const pageIds = new Set(rows.map((r) => r.id));
   const visibleSelected = selectedIds.filter((id) => pageIds.has(id));
   const selectedItems = quizzes.filter((q) => visibleSelected.includes(q.id));
@@ -107,7 +116,7 @@ export function QuizzesListView() {
       variant={view === "grid" ? "plain" : "attached"}
       currentPage={currentPage}
       pageSize={perPage}
-      totalCount={filtered.length}
+      totalCount={total}
       itemLabel="quizzes"
       onPageChange={(next) => updateParams({ page: next })}
       onPageSizeChange={(size) => updateParams({ perPage: size === pageSizes[0] ? null : size, page: null })}
@@ -118,7 +127,7 @@ export function QuizzesListView() {
   return (
     <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25, ease: "easeOut" }} className="space-y-5 pb-8 text-left">
       <QuizzesHeader onCreate={goCreate} />
-      <QuizStatsRow quizzes={quizzes} />
+      <QuizStatsRow stats={stats} />
 
       <div className="dashboard-card shadow-2xs space-y-4 p-5">
         <QuizFiltersBar
@@ -151,7 +160,7 @@ export function QuizzesListView() {
             onSelectRow={onSelectRow}
             onSelectAll={onSelectAll}
             emptyMessage={emptyState}
-            footer={filtered.length > 0 ? pagination : undefined}
+            footer={total > 0 ? pagination : undefined}
           />
         ) : rows.length > 0 ? (
           <>

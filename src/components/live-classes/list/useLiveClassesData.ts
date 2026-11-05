@@ -1,19 +1,22 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { LIVE_CLASSES_UPDATED_EVENT, fetchLiveClasses, type LiveClassListItem } from "@/lib/liveClassStorage";
+import { LIVE_CLASSES_UPDATED_EVENT, fetchLiveClassPage, fetchLiveStats, type LiveClassListItem, type LiveClassPageQuery, type LiveListStats } from "@/lib/liveClassStorage";
 import { apiErrorMessage } from "@/lib/apiError";
 
 /**
- * Loads every live class (with attendee totals) from the API, re-reads on LIVE_CLASSES_UPDATED_EVENT and
- * ticks `now` every 30s so derived statuses (Upcoming → Live Now → Completed) stay current.
+ * One page of live classes (server-side search / filters / sort) plus the KPI cards; re-read when the query
+ * changes or on LIVE_CLASSES_UPDATED_EVENT. Ticks `now` every 30s so derived statuses stay current.
  */
-export function useLiveClassesData() {
+export function useLiveClassesData(query: LiveClassPageQuery) {
   const [classes, setClasses] = useState<LiveClassListItem[]>([]);
+  const [total, setTotal] = useState(0);
+  const [stats, setStats] = useState<LiveListStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [now, setNow] = useState(() => new Date());
   const [attempt, setAttempt] = useState(0);
+  const key = JSON.stringify(query);
 
   const retry = useCallback(() => {
     setIsLoading(true);
@@ -22,11 +25,14 @@ export function useLiveClassesData() {
 
   useEffect(() => {
     let alive = true;
+    const q = JSON.parse(key) as LiveClassPageQuery;
     const sync = () =>
-      fetchLiveClasses().then(
-        (list) => {
+      Promise.all([fetchLiveClassPage(q), fetchLiveStats()]).then(
+        ([page, s]) => {
           if (!alive) return;
-          setClasses(list);
+          setClasses(page.data);
+          setTotal(page.total);
+          setStats(s);
           setNow(new Date());
           setLoadError(null);
           setIsLoading(false);
@@ -46,9 +52,9 @@ export function useLiveClassesData() {
       window.removeEventListener(LIVE_CLASSES_UPDATED_EVENT, onUpdate);
       window.clearInterval(timer);
     };
-  }, [attempt]);
+  }, [key, attempt]);
 
-  return { classes, now, isLoading, loadError, retry };
+  return { classes, total, stats, now, isLoading, loadError, retry };
 }
 
 export default useLiveClassesData;
