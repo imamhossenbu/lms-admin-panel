@@ -45,6 +45,18 @@ const TITLES: Record<SignupStep, { title: string; subtitle: string }> = {
  * Public self-signup wizard. Resumes on the last step from sessionStorage (the password is never
  * stored), Previous is always allowed, the stepper never skips ahead of the furthest reached step.
  */
+/** `?plan=growth&cycle=YEARLY` from the marketing site's pricing page pre-selects the plan step. */
+function planFromUrl(): Partial<SignupDraft> {
+  if (typeof window === "undefined") return {};
+  const q = new URLSearchParams(window.location.search);
+  const plan = q.get("plan");
+  const cycle = q.get("cycle")?.toUpperCase();
+  return {
+    ...(plan && /^[a-z0-9-]{2,40}$/.test(plan) ? { planId: plan } : {}),
+    ...(cycle === "MONTHLY" || cycle === "YEARLY" ? { cycle } : {}),
+  };
+}
+
 export function SignupWizard() {
   const [initial] = useState<SignupSession | null>(() => loadSignupSession());
   const [step, setStep] = useState<SignupStep>(initial?.step ?? 1);
@@ -68,7 +80,7 @@ export function SignupWizard() {
   const form = useForm<SignupDraft>({
     resolver: zodResolver(signupSchema) as never,
     mode: "onTouched",
-    defaultValues: { ...SIGNUP_DEFAULTS, ...(initial?.values ?? {}), password: "" },
+    defaultValues: { ...SIGNUP_DEFAULTS, ...(initial?.values ?? {}), ...planFromUrl(), password: "" },
   });
   const values = useWatch({ control: form.control });
   const slugCheck = useSlugAvailability(values.slug ?? "");
