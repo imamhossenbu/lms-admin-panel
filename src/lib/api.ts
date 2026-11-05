@@ -25,6 +25,9 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
+/** One-time message the sign-in page shows (e.g. why the session ended). */
+export const LOGIN_NOTICE_KEY = "edupro_login_notice";
+
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -36,6 +39,12 @@ apiClient.interceptors.response.use(
     ) {
       localStorage.removeItem("admin_token");
       localStorage.removeItem("admin_user");
+      // Settings › Security › Session timeout: say why on the sign-in page.
+      const message = String(error.response?.data?.message ?? "");
+      if (/inactivity/i.test(message) && window.location.pathname !== "/login") {
+        sessionStorage.setItem(LOGIN_NOTICE_KEY, message);
+        window.location.assign("/login");
+      }
     }
     // Workspace requires admin 2FA and this account hasn't set it up: AuthGuard sends the user to setup.
     if (typeof window !== "undefined" && error.response?.status === 403 && error.response?.data?.code === "TWO_FACTOR_SETUP_REQUIRED") {

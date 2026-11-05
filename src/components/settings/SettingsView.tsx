@@ -4,11 +4,13 @@ import React, { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Undo2 } from "lucide-react";
 import { useUrlParams } from "@/lib/useUrlParams";
+import { useCan } from "@/lib/usePermission";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { LoadErrorCard } from "@/components/ui/LoadErrorCard";
 import { SettingsHeader } from "./SettingsHeader";
 import { SettingsTabs, parseSettingsSection, type SettingsTabId } from "./SettingsTabs";
 import { SettingsSkeleton } from "./SettingsSkeleton";
+import { PersonalSecurityView } from "./PersonalSecurityView";
 import { SettingsDirtyContext } from "./shared/SettingsDirtyContext";
 import { useSettingsStore } from "./shared/useSettingsStore";
 import { GeneralSection } from "./sections/general/GeneralSection";
@@ -43,6 +45,10 @@ export function SettingsView() {
   const section = parseSettingsSection(get("section"));
   const [isDirty, setIsDirty] = useState(false);
   const [pending, setPending] = useState<SettingsTabId | null>(null);
+  const canView = useCan("settings", "view");
+
+  // No access to workspace settings: only the member's own 2FA (e.g. when the workspace requires it).
+  if (!canView) return <PersonalSecurityView />;
 
   if (loadError && !store) return <LoadErrorCard title="Couldn't load settings" message={loadError} onRetry={retry} />;
   if (!ready || !store) return <SettingsSkeleton />;

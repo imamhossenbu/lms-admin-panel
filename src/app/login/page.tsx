@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, LoginFormData } from "@/validations/authSchema";
-import { authApi } from "@/lib/api";
+import { authApi, LOGIN_NOTICE_KEY } from "@/lib/api";
 import { useAppDispatch } from "@/store/hooks";
 import { loadSession } from "@/lib/session";
 import { apiErrorMessage } from "@/lib/apiError";
@@ -64,6 +64,16 @@ export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   /** Set while the account needs its 6-digit authenticator code (second sign-in step). */
   const [challenge, setChallenge] = useState<{ token: string; email: string } | null>(null);
+
+  // Why the last session ended (idle timeout). Kept a few seconds so a reload right after the redirect still
+  // shows it; the fixed toast id keeps it to one toast.
+  useEffect(() => {
+    const notice = sessionStorage.getItem(LOGIN_NOTICE_KEY);
+    if (!notice) return;
+    toast.error("You were signed out", { id: "login-notice", description: notice });
+    const timer = window.setTimeout(() => sessionStorage.removeItem(LOGIN_NOTICE_KEY), 4000);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   const {
     register,
