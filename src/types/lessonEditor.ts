@@ -43,8 +43,6 @@ export interface LessonEditorContext {
   modules: LessonEditorModuleRef[];
   /** All lessons of the course in curriculum order (for prerequisites, prev/next navigation). */
   lessons: LessonEditorLessonRef[];
-  plans: LessonEditorOption[];
-  groups: LessonEditorOption[];
   countries: LessonEditorOption[];
   subtitleLanguages: LessonEditorOption[];
   /** Name stored on new notes. */

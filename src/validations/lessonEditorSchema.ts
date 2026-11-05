@@ -129,6 +129,7 @@ export const lessonEditorAccessSchema = z
     visibility: z.enum(ACCESS_VISIBILITY),
     accessType: z.enum(ACCESS_TYPES),
     prerequisiteLessonId: z.string(),
+    /** Not editable yet (no student groups / plans in the LMS): always "ALL" / off. */
     groupMode: z.enum(GROUP_MODES),
     groupIds: z.array(z.string()),
     planRestriction: z.object({ enabled: z.boolean(), planIds: z.array(z.string()) }),
@@ -137,8 +138,6 @@ export const lessonEditorAccessSchema = z
   })
   .superRefine((v, ctx) => {
     if (v.accessType === "SPECIFIC_LESSON" && !v.prerequisiteLessonId) ctx.addIssue({ code: "custom", path: ["prerequisiteLessonId"], message: "Select the prerequisite lesson" });
-    if (v.groupMode !== "ALL" && v.groupIds.length === 0) ctx.addIssue({ code: "custom", path: ["groupIds"], message: "Select at least one group" });
-    if (v.planRestriction.enabled && v.planRestriction.planIds.length === 0) ctx.addIssue({ code: "custom", path: ["planRestriction", "planIds"], message: "Select at least one plan" });
     if (v.dateRestriction.enabled) {
       const start = combine(v.dateRestriction.startDate, v.dateRestriction.startTime);
       const end = combine(v.dateRestriction.endDate, v.dateRestriction.endTime);

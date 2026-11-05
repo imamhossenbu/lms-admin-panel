@@ -4,7 +4,7 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import { apiClient } from "@/lib/api";
 import type { LessonEditorContext, LessonEditorLessonRef } from "@/types/lessonEditor";
 import type { AiLessonType } from "@/components/courses/create/aiOutline";
-import { MOCK_LESSON_CONTEXT } from "@/data/mockLessonEditorData";
+import { LESSON_COUNTRY_OPTIONS, SUBTITLE_LANGUAGE_OPTIONS } from "@/lib/lessonEditorOptions";
 
 /**
  * The workspace's course catalogue from the API: the course list (GET /courses) and, per course, its
@@ -66,6 +66,9 @@ export function loadCourses(): Promise<ApiCourse[]> {
 const LESSON_TYPES: AiLessonType[] = ["VIDEO", "TEXT", "CODING"];
 const toLessonType = (t: string): AiLessonType => (LESSON_TYPES.includes(t?.toUpperCase() as AiLessonType) ? (t.toUpperCase() as AiLessonType) : "TEXT");
 
+/** Reference lists every course context carries (currentUser is filled in by the editor from the session). */
+const SHARED_CONTEXT = { countries: LESSON_COUNTRY_OPTIONS, subtitleLanguages: SUBTITLE_LANGUAGE_OPTIONS, currentUser: "" };
+
 function toContext(c: ApiCourse): LessonEditorContext {
   const modules = [...(c.modules ?? [])].sort((a, b) => a.order - b.order);
   const lessons: LessonEditorLessonRef[] = modules.flatMap((m) =>
@@ -75,7 +78,7 @@ function toContext(c: ApiCourse): LessonEditorContext {
   );
   const totalMinutes = modules.reduce((s, m) => s + (m.lessons ?? []).reduce((t, l) => t + (l.durationMinutes ?? 0), 0), 0);
   return {
-    ...MOCK_LESSON_CONTEXT,
+    ...SHARED_CONTEXT,
     course: {
       id: c.id,
       title: c.title,
@@ -119,8 +122,8 @@ export const courseTitleOf = (courseId: string) => list?.find((c) => c.id === co
 export const cachedCourseContext = (courseId: string) => contexts.get(courseId) ?? null;
 /** Empty context (no modules / lessons) while a course's curriculum loads. */
 export const emptyCourseContext = (courseId: string, title = ""): LessonEditorContext => ({
-  ...MOCK_LESSON_CONTEXT,
-  course: { ...MOCK_LESSON_CONTEXT.course, id: courseId, title, thumbnailUrl: "", moduleCount: 0, lessonCount: 0, totalMinutes: 0 },
+  ...SHARED_CONTEXT,
+  course: { id: courseId, title, thumbnailUrl: "", status: "DRAFT", moduleCount: 0, lessonCount: 0, totalMinutes: 0, publicUrl: "" },
   modules: [],
   lessons: [],
 });

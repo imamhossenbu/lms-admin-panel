@@ -152,6 +152,11 @@ function withStoredSettings(base: LessonEditorValues, stored: Partial<EditorSett
   return out as unknown as LessonEditorValues;
 }
 
+/** Group / plan access isn't offered (the LMS has no student groups or plans): clear values older drafts may hold. */
+function withoutGroupOrPlanAccess(values: LessonEditorValues): LessonEditorValues {
+  return { ...values, access: { ...values.access, groupMode: "ALL", groupIds: [], planRestriction: { enabled: false, planIds: [] } } };
+}
+
 const toEditorSettings = (values: LessonEditorValues): EditorSettings => {
   const { resources, ...rest } = structuredClone(values);
   void resources;
@@ -233,7 +238,7 @@ export async function fetchLessonEditor(courseId: string, lessonId: string): Pro
   if (!context || !ref) throw new LessonNotFoundError();
   const { data } = await apiClient.get<ApiLesson>(`/courses/${encodeURIComponent(courseId)}/modules/${encodeURIComponent(ref.moduleId)}/lessons/${encodeURIComponent(lessonId)}`);
   const base = data.editorSettings ? withStoredSettings(defaultLessonEditorValues(ref, context.course.title), data.editorSettings) : baseValues(courseId, ref, context);
-  const values = mergeValues(base, data);
+  const values = withoutGroupOrPlanAccess(mergeValues(base, data));
   loaded.set(keyOf(courseId, lessonId), { values, moduleId: data.moduleId, resourceIds: new Set((data.lessonResources ?? []).map((r) => r.id)) });
   return { context, values: structuredClone(values) };
 }

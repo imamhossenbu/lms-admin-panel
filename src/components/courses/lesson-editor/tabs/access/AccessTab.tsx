@@ -6,11 +6,9 @@ import type { LessonEditorTabProps } from "@/components/courses/lesson-editor/ta
 import { AccessSettingsCard } from "./AccessSettingsCard";
 import { DateRestrictionCard } from "./DateRestrictionCard";
 import { GeoRestrictionCard } from "./GeoRestrictionCard";
-import { PlanAccessCard } from "./PlanAccessCard";
-import { UserGroupsCard } from "./UserGroupsCard";
 import { useLessonOptions } from "./lessonOptions";
 
-/** Edit Lesson → Access tab (form section `access`). */
+/** Edit Lesson → Access tab (form section `access`). Group / plan access will return once the LMS has student groups or plans. */
 export function AccessTab({ context, lessonId }: LessonEditorTabProps) {
   const lessonOptions = useLessonOptions(context, lessonId);
 
@@ -23,10 +21,8 @@ export function AccessTab({ context, lessonId }: LessonEditorTabProps) {
     >
       <div className="min-w-0 space-y-5 lg:col-span-2">
         <AccessSettingsCard lessonOptions={lessonOptions} />
-        <UserGroupsCard groups={context.groups} />
       </div>
       <div className="min-w-0 space-y-5">
-        <PlanAccessCard plans={context.plans} />
         <DateRestrictionCard />
         <GeoRestrictionCard countries={context.countries} />
       </div>
