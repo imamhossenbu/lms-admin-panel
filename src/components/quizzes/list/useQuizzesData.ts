@@ -1,15 +1,22 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { QUIZZES_UPDATED_EVENT, fetchQuizzes, type QuizListItem } from "@/lib/quizStorage";
+import { QUIZZES_UPDATED_EVENT, fetchQuizPage, fetchQuizStats, type QuizListItem, type QuizListStats, type QuizPageQuery } from "@/lib/quizStorage";
 import { apiErrorMessage } from "@/lib/apiError";
 
-/** Loads every quiz (with attempt totals) from the API and re-reads them on every QUIZZES_UPDATED_EVENT. */
-export function useQuizzesData() {
+/**
+ * One page of quizzes (server-side search / filters / sort) plus the stat cards, re-read whenever the query
+ * changes or QUIZZES_UPDATED_EVENT fires. `isLoading` is only true for the first load (later pages keep the
+ * current rows on screen until the next page arrives).
+ */
+export function useQuizzesData(query: QuizPageQuery) {
   const [quizzes, setQuizzes] = useState<QuizListItem[]>([]);
+  const [total, setTotal] = useState(0);
+  const [stats, setStats] = useState<QuizListStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
+  const key = JSON.stringify(query);
 
   const retry = useCallback(() => {
     setIsLoading(true);
@@ -18,11 +25,14 @@ export function useQuizzesData() {
 
   useEffect(() => {
     let alive = true;
+    const q = JSON.parse(key) as QuizPageQuery;
     const sync = () =>
-      fetchQuizzes().then(
-        (list) => {
+      Promise.all([fetchQuizPage(q), fetchQuizStats()]).then(
+        ([page, s]) => {
           if (!alive) return;
-          setQuizzes(list);
+          setQuizzes(page.data);
+          setTotal(page.total);
+          setStats(s);
           setLoadError(null);
           setIsLoading(false);
         },
@@ -39,9 +49,9 @@ export function useQuizzesData() {
       alive = false;
       window.removeEventListener(QUIZZES_UPDATED_EVENT, onUpdate);
     };
-  }, [attempt]);
+  }, [key, attempt]);
 
-  return { quizzes, isLoading, loadError, retry };
+  return { quizzes, total, stats, isLoading, loadError, retry };
 }
 
 export default useQuizzesData;

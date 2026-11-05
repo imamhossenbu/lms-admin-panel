@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -12,7 +12,9 @@ import { TablePagination } from "@/components/ui/TablePagination";
 import { downloadFile, todayStamp } from "@/components/commerce/exportFile";
 import { useLiveClassesData } from "./useLiveClassesData";
 import { useLiveClassListActions } from "./useLiveClassListActions";
-import { filterRows, liveClassesCsv, parseDateSort, toRows, type LiveClassRow } from "./liveListUtils";
+import { STATUS_PARAM, liveClassesCsv, parseDateSort, toRows, type LiveClassRow } from "./liveListUtils";
+import { fetchLiveClassesMatching } from "@/lib/liveClassStorage";
+import { apiErrorMessage } from "@/lib/apiError";
 import { LiveClassesHeader } from "./LiveClassesHeader";
 import { LiveClassStatsRow } from "./LiveClassStatsRow";
 import { LiveClassFiltersBar } from "./LiveClassFiltersBar";
@@ -30,7 +32,6 @@ const FILTER_KEYS = { q: null, status: null, instructor: null, course: null, fro
 export function LiveClassesListView() {
   const router = useRouter();
   const { get, getPage, set } = useUrlParams();
-  const { classes, now, isLoading, loadError, retry } = useLiveClassesData();
   const actions = useLiveClassListActions();
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -50,22 +51,30 @@ export function LiveClassesListView() {
   const perPageParam = Number(get("perPage"));
   const perPage = PAGE_SIZES.includes(perPageParam) ? perPageParam : PAGE_SIZES[0];
   const page = getPage();
+  const apiFilters = {
+    q: filters.q,
+    status: STATUS_PARAM[filters.status],
+    instructorId: filters.instructor !== "All" ? filters.instructor : undefined,
+    courseId: filters.course !== "All" ? filters.course : undefined,
+    from: filters.from || undefined,
+    to: filters.to || undefined,
+    sortOrder: filters.sort,
+  };
+  const { classes, total, stats, now, isLoading, loadError, retry } = useLiveClassesData({ ...apiFilters, page, limit: perPage });
   const isFiltered =
     !!filters.q || filters.status !== "All" || filters.instructor !== "All" || filters.course !== "All" || !!filters.from || !!filters.to;
 
-  const allRows = useMemo(() => toRows(classes, now), [classes, now]);
-  const filtered = useMemo<LiveClassRow[]>(
-    () => filterRows(allRows, filters),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [allRows, filters.q, filters.status, filters.instructor, filters.course, filters.from, filters.to, filters.sort]
-  );
+  // The API already searched, filtered, sorted and paged.
+  const rows = useMemo<LiveClassRow[]>(() => toRows(classes, now), [classes, now]);
+  const lastPage = Math.max(1, Math.ceil(total / perPage));
+  useEffect(() => {
+    if (!isLoading && page > lastPage) set({ page: lastPage === 1 ? null : lastPage });
+  }, [isLoading, page, lastPage, set]);
 
-  if (isLoading) return <LiveClassesListSkeleton />;
+  if (isLoading || !stats) return <LiveClassesListSkeleton />;
   if (loadError) return <LiveClassesLoadError message={loadError} onRetry={retry} />;
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
-  const currentPage = Math.min(page, totalPages);
-  const rows = filtered.slice((currentPage - 1) * perPage, currentPage * perPage);
+  const currentPage = Math.min(page, lastPage);
   const pageIds = new Set(rows.map((r) => r.id));
   const visibleSelected = selectedIds.filter((id) => pageIds.has(id));
   const selectedItems = classes.filter((c) => visibleSelected.includes(c.id));
@@ -81,6 +90,17 @@ export function LiveClassesListView() {
     if (!list.length) return;
     downloadFile(liveClassesCsv(list), `live-classes-${label}-${todayStamp()}.csv`, "text/csv");
     toast.success("Export ready", { description: `${list.length} live class${list.length === 1 ? "" : "es"} exported to CSV.` });
+  };
+  /** Export every class matching the filters (all pages), read from the API. */
+  const exportFiltered = async () => {
+    const id = toast.loading("Preparing export...", { description: "Reading every matching live class." });
+    try {
+      const all = toRows(await fetchLiveClassesMatching(apiFilters), now);
+      toast.dismiss(id);
+      exportRows(all, isFiltered ? "filtered" : "all");
+    } catch (err) {
+      toast.error("Couldn't export live classes", { id, description: apiErrorMessage(err, "Please try again.") });
+    }
   };
 
   const handlers: LiveClassRowHandlers = {
@@ -107,13 +127,13 @@ export function LiveClassesListView() {
       className="space-y-5 text-left pb-8"
     >
       <LiveClassesHeader
-        filteredCount={filtered.length}
+        filteredCount={total}
         selectedCount={visibleSelected.length}
-        onExportFiltered={() => exportRows(filtered, isFiltered ? "filtered" : "all")}
-        onExportSelected={() => exportRows(filtered.filter((r) => visibleSelected.includes(r.id)), "selected")}
+        onExportFiltered={() => void exportFiltered()}
+        onExportSelected={() => exportRows(rows.filter((r) => visibleSelected.includes(r.id)), "selected")}
         onSchedule={goSchedule}
       />
-      <LiveClassStatsRow classes={classes} now={now} />
+      <LiveClassStatsRow stats={stats} />
 
       <div className="dashboard-card shadow-2xs p-5 space-y-4">
         <LiveClassFiltersBar
@@ -146,11 +166,11 @@ export function LiveClassesListView() {
           onSelectAll={onSelectAll}
           emptyMessage={<LiveClassesEmptyState isFiltered={isFiltered} onReset={resetFilters} onSchedule={goSchedule} />}
           footer={
-            filtered.length > 0 ? (
+            total > 0 ? (
               <TablePagination
                 currentPage={currentPage}
                 pageSize={perPage}
-                totalCount={filtered.length}
+                totalCount={total}
                 itemLabel="live classes"
                 onPageChange={(next) => updateParams({ page: next })}
                 onPageSizeChange={(size) => updateParams({ perPage: size === PAGE_SIZES[0] ? null : size, page: null })}

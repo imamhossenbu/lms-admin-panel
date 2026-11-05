@@ -48,6 +48,58 @@ export const getQuizzesSnapshot = (): QuizItem[] => quizCache;
 export const getQuizAttemptsSnapshot = (quizId?: string): QuizAttempt[] => (quizId ? attemptCache.get(quizId) ?? [] : [...attemptCache.values()].flat());
 export const getQuizActivitySnapshot = (quizId: string): QuizActivity[] => activityCache.get(quizId) ?? [];
 
+export interface QuizPageQuery {
+  page: number;
+  limit: number;
+  q?: string;
+  courseId?: string;
+  moduleId?: string;
+  status?: string;
+  difficulty?: string;
+  sortOrder?: "asc" | "desc";
+}
+
+export interface QuizPage {
+  data: QuizListItem[];
+  total: number;
+  totalPages: number;
+}
+
+/** One page of the quiz list (search / filters / sort on the server, newest change first by default). */
+export async function fetchQuizPage(query: QuizPageQuery): Promise<QuizPage> {
+  const { data } = await apiClient.get<{ data: QuizListItem[]; meta: { total: number; totalPages: number } }>("/admin/quizzes", {
+    params: {
+      page: query.page,
+      limit: query.limit,
+      sortBy: "updatedAt",
+      sortOrder: query.sortOrder ?? "desc",
+      ...(query.q?.trim() && { q: query.q.trim() }),
+      ...(query.courseId && { courseId: query.courseId }),
+      ...(query.moduleId && { moduleId: query.moduleId }),
+      ...(query.status && { status: query.status }),
+      ...(query.difficulty && { difficulty: query.difficulty }),
+    },
+  });
+  return { data: data.data, total: data.meta.total, totalPages: data.meta.totalPages };
+}
+
+export interface QuizListStats {
+  total: number;
+  published: number;
+  drafts: number;
+  archived: number;
+  publishedPct: number;
+  draftsPct: number;
+  archivedPct: number;
+  newThisMonth: number;
+  growthPct: number;
+}
+
+/** Stat cards (totals per status, 30-day growth) from the API. */
+export async function fetchQuizStats(): Promise<QuizListStats> {
+  return (await apiClient.get<QuizListStats>("/admin/quizzes/stats")).data;
+}
+
 /** Every quiz of the workspace, with attempt totals. */
 export async function fetchQuizzes(): Promise<QuizListItem[]> {
   quizCache = await allPages<QuizListItem>("/admin/quizzes");

@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useUrlParams } from "@/lib/useUrlParams";
 import { TablePagination } from "@/components/ui/TablePagination";
 import { useNotificationsReady, useNotificationsStore } from "@/components/notifications/shared/useNotificationsStore";
+import { useServerPage } from "@/components/notifications/shared/useServerPage";
+import { fetchBroadcastPage } from "@/lib/notificationStorage";
 import { BroadcastsOverview } from "./BroadcastsOverview";
 import { BroadcastsFiltersBar } from "./BroadcastsFiltersBar";
 import { BroadcastsTable } from "./BroadcastsTable";
@@ -13,7 +15,7 @@ import { BroadcastConfirmDialogs } from "./BroadcastConfirmDialogs";
 import { BroadcastsTabSkeleton } from "./BroadcastSkeletons";
 import { useBroadcastActions } from "./useBroadcastActions";
 import type { BroadcastRowHandlers } from "./BroadcastRowActions";
-import { filterBroadcastRows, isBroadcastFiltered, parsePage, toBroadcastRows, type BroadcastFilters } from "./broadcastFormat";
+import { isBroadcastFiltered, parsePage, toBroadcastRows, type BroadcastFilters } from "./broadcastFormat";
 
 const PAGE_SIZE = 10;
 const FILTER_KEYS = { bq: null, bstatus: null, baudience: null, bchannel: null, bpage: null } as const;
@@ -21,8 +23,8 @@ const FILTER_KEYS = { bq: null, bstatus: null, baudience: null, bchannel: null, 
 /** Overview strip, URL-synced filters (?bq, ?bstatus, ?baudience, ?bchannel, ?bpage) and the broadcast table. */
 function BroadcastsTabContent() {
   const router = useRouter();
-  const ready = useNotificationsReady();
-  const { broadcasts, overview } = useNotificationsStore();
+  const ready = useNotificationsReady(["broadcasts"]);
+  const { overview } = useNotificationsStore(["broadcasts"]);
   const { get, set } = useUrlParams();
   const actions = useBroadcastActions();
 
@@ -32,14 +34,22 @@ function BroadcastsTabContent() {
   const channel = get("bchannel", "All");
   const filters: BroadcastFilters = useMemo(() => ({ query, status, audience, channel }), [query, status, audience, channel]);
 
-  const allRows = useMemo(() => toBroadcastRows(broadcasts), [broadcasts]);
-  const filtered = useMemo(() => filterBroadcastRows(allRows, filters), [allRows, filters]);
+  const currentPage = parsePage(get("bpage"));
+  const page = useServerPage(
+    {
+      page: currentPage,
+      limit: PAGE_SIZE,
+      q: query,
+      status: status !== "All" ? status : undefined,
+      audience: audience !== "All" ? audience : undefined,
+      channel: channel !== "All" ? channel : undefined,
+    },
+    fetchBroadcastPage,
+    "We couldn't load the broadcasts. Please try again."
+  );
+  const rows = useMemo(() => toBroadcastRows(page.rows), [page.rows]);
 
-  if (!ready) return <BroadcastsTabSkeleton />;
-
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const currentPage = Math.min(parsePage(get("bpage")), totalPages);
-  const rows = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  if (!ready || page.isLoading) return <BroadcastsTabSkeleton />;
   const isFiltered = isBroadcastFiltered(filters);
   const goCompose = () => router.push("/notifications/compose");
 
@@ -68,11 +78,11 @@ function BroadcastsTabContent() {
           handlers={handlers}
           emptyMessage={emptyMessage}
           footer={
-            filtered.length > 0 ? (
+            page.total > 0 ? (
               <TablePagination
                 currentPage={currentPage}
                 pageSize={PAGE_SIZE}
-                totalCount={filtered.length}
+                totalCount={page.total}
                 itemLabel="broadcasts"
                 onPageChange={(next) => set({ bpage: next === 1 ? null : next })}
               />

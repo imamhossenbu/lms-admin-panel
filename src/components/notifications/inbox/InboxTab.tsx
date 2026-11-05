@@ -1,19 +1,19 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Trash2 } from "lucide-react";
 import type { AdminNotification } from "@/types/notification";
-import { markRead } from "@/lib/notificationStorage";
-import { inboxStats, unreadByCategory } from "@/lib/notificationStats";
+import { fetchInboxPage, markRead } from "@/lib/notificationStorage";
 import { useUrlParams } from "@/lib/useUrlParams";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { TablePagination } from "@/components/ui/TablePagination";
 import { useNotificationsStore } from "../shared/useNotificationsStore";
+import { useServerPage } from "../shared/useServerPage";
+import { InboxSkeleton } from "./InboxSkeleton";
 import {
   INBOX_FILTER_KEYS,
   INBOX_PAGE_SIZE,
-  applyInboxFilters,
   categoryParam,
   isInboxFiltered,
   parseInboxCategory,
@@ -32,7 +32,8 @@ import type { InboxRowHandlers } from "./InboxRowActions";
 export function InboxTab() {
   const router = useRouter();
   const { get, getPage, set } = useUrlParams();
-  const { inbox } = useNotificationsStore();
+  // Counters for the category rail come from the server (the feed itself is paged below).
+  const { inboxCounters } = useNotificationsStore(["inbox"]);
   const actions = useInboxActions();
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -42,14 +43,16 @@ export function InboxTab() {
   const category = parseInboxCategory(get("category"));
   const status = parseInboxStatus(get("status"));
   const highOnly = get("priority") === "high";
-  const listed = useMemo(() => applyInboxFilters(inbox, { q, category, status, highOnly }), [inbox, q, category, status, highOnly]);
   const filters: InboxFilters = { q, category, status, highOnly };
-  const byCategory = useMemo(() => unreadByCategory(inbox), [inbox]);
-  const unreadTotal = inboxStats(inbox).unread;
+  const byCategory = inboxCounters.unreadByCategory as Parameters<typeof InboxFilterRail>[0]["unreadByCategory"];
+  const unreadTotal = inboxCounters.unread;
 
-  const totalPages = Math.max(1, Math.ceil(listed.length / INBOX_PAGE_SIZE));
-  const page = Math.min(getPage(), totalPages);
-  const rows = listed.slice((page - 1) * INBOX_PAGE_SIZE, page * INBOX_PAGE_SIZE);
+  const page = getPage();
+  const { rows, total, isLoading } = useServerPage(
+    { page, limit: INBOX_PAGE_SIZE, status, category: category === "ALL" ? undefined : category, highOnly, q },
+    fetchInboxPage,
+    "We couldn't load your inbox. Please try again."
+  );
   const rowIds = new Set(rows.map((n) => n.id));
   const selected = rows.filter((n) => selectedIds.includes(n.id));
   const visibleSelectedIds = selectedIds.filter((id) => rowIds.has(id));
@@ -110,7 +113,9 @@ export function InboxTab() {
           onClear={() => setSelectedIds([])}
         />
 
-        {rows.length > 0 ? (
+        {isLoading ? (
+          <InboxSkeleton />
+        ) : rows.length > 0 ? (
           <>
             <InboxFeed
               items={rows}
@@ -120,12 +125,12 @@ export function InboxTab() {
               onOpen={open}
               handlers={handlers}
             />
-            {listed.length > INBOX_PAGE_SIZE && (
+            {total > INBOX_PAGE_SIZE && (
               <TablePagination
                 variant="plain"
                 currentPage={page}
                 pageSize={INBOX_PAGE_SIZE}
-                totalCount={listed.length}
+                totalCount={total}
                 itemLabel="notifications"
                 onPageChange={(next) => update({ page: next })}
               />

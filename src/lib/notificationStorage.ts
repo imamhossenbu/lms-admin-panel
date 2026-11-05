@@ -64,8 +64,22 @@ export interface BroadcastOverview {
 
 export type NotificationsPart = "inbox" | "broadcasts" | "templates";
 
+/** Inbox counters from GET /admin/notifications/inbox/stats (bell, sidebar badge, tab count, filter rail). */
+export interface InboxCounters {
+  total: number;
+  unread: number;
+  highPriority: number;
+  archived: number;
+  unreadByCategory: Partial<Record<string, number>>;
+}
+
+export const EMPTY_INBOX_COUNTERS: InboxCounters = { total: 0, unread: 0, highPriority: 0, archived: 0, unreadByCategory: {} };
+
 export interface NotificationsData {
+  /** The latest notifications (bell dropdown); the Inbox tab reads its own pages. */
   inbox: AdminNotification[];
+  inboxCounters: InboxCounters;
+  /** Unused since the Broadcasts tab pages on the server (kept empty for older callers). */
   broadcasts: BroadcastListItem[];
   templates: NotificationTemplateItem[];
   overview: BroadcastOverview;
@@ -75,7 +89,7 @@ export interface NotificationsData {
 
 interface Page<T> {
   data: T[];
-  meta: { totalPages: number };
+  meta: { totalPages: number; total: number };
 }
 
 const BASE = "/admin/notifications";
@@ -85,6 +99,7 @@ const is404 = (err: unknown) => (err as { response?: { status?: number } }).resp
 const EMPTY_OVERVIEW: BroadcastOverview = { sentLast30: 0, scheduled: 0, drafts: 0, avgOpenRate: 0, avgClickRate: 0, reached: 0 };
 export const EMPTY_NOTIFICATIONS: NotificationsData = {
   inbox: [],
+  inboxCounters: EMPTY_INBOX_COUNTERS,
   broadcasts: [],
   templates: [],
   overview: EMPTY_OVERVIEW,
@@ -123,22 +138,20 @@ async function allPages<T>(url: string, params: Record<string, unknown> = {}, ma
   return rows;
 }
 
+/** How many of the latest notifications the bell dropdown keeps. */
+const RECENT_LIMIT = 10;
+
 const LOADERS: Record<NotificationsPart, () => Promise<Partial<NotificationsData>>> = {
+  // Bell / badge / counters: the latest few + server counters (never the whole inbox).
   inbox: async () => {
-    // Latest 500 live + 500 archived notifications are plenty for the bell and the inbox tab.
-    const [live, archived] = await Promise.all([
-      allPages<AdminNotification>(`${BASE}/inbox`, { status: "all" }, 5),
-      allPages<AdminNotification>(`${BASE}/inbox`, { status: "archived" }, 5),
+    const [recent, counters] = await Promise.all([
+      apiClient.get<Page<AdminNotification>>(`${BASE}/inbox`, { params: { status: "all", page: 1, limit: RECENT_LIMIT } }).then((r) => r.data.data),
+      apiClient.get<InboxCounters>(`${BASE}/inbox/stats`).then((r) => r.data),
     ]);
-    return { inbox: [...live, ...archived] };
+    return { inbox: recent, inboxCounters: counters };
   },
-  broadcasts: async () => {
-    const [broadcasts, overview] = await Promise.all([
-      allPages<BroadcastListItem>(`${BASE}/broadcasts`),
-      apiClient.get<BroadcastOverview>(`${BASE}/broadcasts/overview`).then((r) => r.data),
-    ]);
-    return { broadcasts, overview };
-  },
+  // Overview cards only; the table pages through fetchBroadcastPage.
+  broadcasts: async () => ({ overview: (await apiClient.get<BroadcastOverview>(`${BASE}/broadcasts/overview`)).data }),
   templates: async () => ({ templates: (await apiClient.get<NotificationTemplateItem[]>(`${BASE}/templates`)).data }),
 };
 
@@ -169,7 +182,56 @@ export const ensureNotifications = (parts: NotificationsPart[]) => refreshNotifi
 // ---------------------------------------------------------------- reads
 export const getNotificationsSnapshot = (): NotificationsData => state;
 /** Unread, non-archived inbox count (sidebar badge, navbar dot). */
-export const getUnreadCount = () => state.inbox.filter((n) => !n.isRead && !n.isArchived).length;
+/** Unread (not archived) count from the server counters. */
+export const getUnreadCount = () => state.inboxCounters.unread;
+
+export interface InboxPageQuery {
+  page: number;
+  limit: number;
+  status: "all" | "unread" | "archived";
+  category?: string;
+  highOnly?: boolean;
+  q?: string;
+}
+
+/** One page of the inbox (filters and search on the server, newest first). */
+export async function fetchInboxPage(query: InboxPageQuery): Promise<{ data: AdminNotification[]; total: number }> {
+  const { data } = await apiClient.get<Page<AdminNotification>>(`${BASE}/inbox`, {
+    params: {
+      page: query.page,
+      limit: query.limit,
+      status: query.status,
+      ...(query.category && { category: query.category }),
+      ...(query.highOnly && { priority: "HIGH" }),
+      ...(query.q?.trim() && { q: query.q.trim() }),
+    },
+  });
+  return { data: data.data, total: data.meta.total };
+}
+
+export interface BroadcastPageQuery {
+  page: number;
+  limit: number;
+  q?: string;
+  status?: string;
+  audience?: string;
+  channel?: string;
+}
+
+/** One page of broadcasts (search / status / audience / channel on the server). */
+export async function fetchBroadcastPage(query: BroadcastPageQuery): Promise<{ data: BroadcastListItem[]; total: number }> {
+  const { data } = await apiClient.get<Page<BroadcastListItem>>(`${BASE}/broadcasts`, {
+    params: {
+      page: query.page,
+      limit: query.limit,
+      ...(query.q?.trim() && { q: query.q.trim() }),
+      ...(query.status && { status: query.status }),
+      ...(query.audience && { audience: query.audience }),
+      ...(query.channel && { channel: query.channel }),
+    },
+  });
+  return { data: data.data, total: data.meta.total };
+}
 
 export async function fetchNotifications(): Promise<NotificationsData> {
   await refreshNotifications();
@@ -211,6 +273,8 @@ async function patchInbox(ids: string[] | "all", patch: Partial<AdminNotificatio
     setState({ inbox: before });
     throw err;
   }
+  // Counters (bell, badge, rail) and the latest list come from the server again; the Inbox tab re-reads its page.
+  await refreshNotifications(["inbox"]).catch(() => undefined);
 }
 
 export const markRead = (ids: string[] | "all", isRead = true) =>
@@ -223,6 +287,7 @@ export const archiveNotifications = (ids: string[], isArchived = true) =>
 export async function deleteNotifications(ids: string[]) {
   await apiClient.post(`${BASE}/inbox/delete`, { ids });
   setState({ inbox: state.inbox.filter((n) => !ids.includes(n.id)) });
+  await refreshNotifications(["inbox"]).catch(() => undefined);
 }
 
 // ---------------------------------------------------------------- broadcasts
@@ -307,7 +372,6 @@ export async function duplicateBroadcast(id: string): Promise<BroadcastListItem>
 
 export async function deleteBroadcast(id: string) {
   await apiClient.delete(`${BASE}/broadcasts/${enc(id)}`);
-  setState({ broadcasts: state.broadcasts.filter((b) => b.id !== id) });
   afterBroadcastChange();
 }
 

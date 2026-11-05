@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { markRead } from "@/lib/notificationStorage";
 import { apiErrorMessage } from "@/lib/apiError";
-import { inboxStats } from "@/lib/notificationStats";
 import { useUrlParams } from "@/lib/useUrlParams";
 import { PillTabs } from "@/components/ui/PillTabs";
 import BroadcastsTab from "@/components/notifications/broadcasts/BroadcastsTab";
@@ -22,15 +21,15 @@ export function NotificationsView() {
   const router = useRouter();
   const { get, set } = useUrlParams();
   const ready = useNotificationsReady();
-  const { inbox, broadcasts, templates } = useNotificationsStore();
+  const { inboxCounters, overview, templates } = useNotificationsStore();
   const tab = parseNotificationsTab(get("tab"));
 
   if (!ready) return <NotificationsSkeleton tab={tab} />;
 
-  const unread = inboxStats(inbox).unread;
+  const unread = inboxCounters.unread;
   const counts: Record<NotificationsTab, number> = {
     inbox: unread,
-    broadcasts: broadcasts.filter((b) => b.status === "SCHEDULED").length,
+    broadcasts: overview.scheduled,
     templates: templates.length,
   };
 

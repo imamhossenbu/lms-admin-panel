@@ -36,7 +36,7 @@ export interface LiveClassListItem extends LiveClassItem {
 
 interface Page<T> {
   data: T[];
-  meta: { totalPages: number };
+  meta: { totalPages: number; total: number };
 }
 
 const enc = encodeURIComponent;
@@ -77,6 +77,56 @@ export interface LiveClassBundle {
 }
 
 /** Every live class of the workspace (newest start first), with course / instructor and attendance totals. */
+export interface LiveClassPageQuery {
+  page: number;
+  limit: number;
+  q?: string;
+  /** API display status: LIVE | UPCOMING | SCHEDULED | COMPLETED | CANCELLED. */
+  status?: string;
+  instructorId?: string;
+  courseId?: string;
+  /** "YYYY-MM-DD" class-day range. */
+  from?: string;
+  to?: string;
+  sortOrder?: "asc" | "desc";
+}
+
+const pageParams = (q: Omit<LiveClassPageQuery, "page" | "limit">) => ({
+  sortBy: "startTime",
+  sortOrder: q.sortOrder ?? "desc",
+  ...(q.q?.trim() && { q: q.q.trim() }),
+  ...(q.status && { status: q.status }),
+  ...(q.instructorId && { instructorId: q.instructorId }),
+  ...(q.courseId && { courseId: q.courseId }),
+  ...(q.from && { from: q.from }),
+  ...(q.to && { to: q.to }),
+});
+
+/** One page of the live class list (search / filters / sort on the server). */
+export async function fetchLiveClassPage(query: LiveClassPageQuery): Promise<{ data: LiveClassListItem[]; total: number }> {
+  const { data } = await apiClient.get<Page<LiveClassListItem>>("/admin/live-classes", { params: { ...pageParams(query), page: query.page, limit: query.limit } });
+  return { data: data.data.map(remember), total: data.meta.total };
+}
+
+/** Every class matching the filters (CSV export of a filtered list). */
+export async function fetchLiveClassesMatching(query: Omit<LiveClassPageQuery, "page" | "limit">): Promise<LiveClassListItem[]> {
+  return (await allPages<LiveClassListItem>("/admin/live-classes", pageParams(query))).map(remember);
+}
+
+export interface LiveListStats {
+  total: number;
+  attendees: number;
+  completed: number;
+  upcoming: number;
+  cancelled: number;
+  change: { total: number | null; attendees: number | null; completed: number | null; cancelled: number | null };
+}
+
+/** KPI cards (workspace totals + 30-day change) from the API. */
+export async function fetchLiveStats(): Promise<LiveListStats> {
+  return (await apiClient.get<LiveListStats>("/admin/live-classes/stats")).data;
+}
+
 export async function fetchLiveClasses(): Promise<LiveClassListItem[]> {
   classCache = (await allPages<LiveClassListItem>("/admin/live-classes")).map(remember);
   return classCache;
