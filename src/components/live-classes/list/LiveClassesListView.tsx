@@ -35,6 +35,8 @@ export function LiveClassesListView() {
   const actions = useLiveClassListActions();
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  // Rows picked on any page (kept while paging, so "Export selected" covers them all).
+  const [pickedRows, setPickedRows] = useState<Map<string, LiveClassRow>>(() => new Map());
   const [deleting, setDeleting] = useState<LiveClassItem | null>(null);
   const [cancelling, setCancelling] = useState<LiveClassItem | null>(null);
   const [bulkMode, setBulkMode] = useState<"cancel" | "delete" | null>(null);
@@ -79,8 +81,13 @@ export function LiveClassesListView() {
   const visibleSelected = selectedIds.filter((id) => pageIds.has(id));
   const selectedItems = classes.filter((c) => visibleSelected.includes(c.id));
 
-  const updateParams = (updates: Record<string, string | number | null>) => {
+  const clearSelection = () => {
     setSelectedIds([]);
+    setPickedRows(new Map());
+  };
+  /** Filters / sort / page size reset the selection; moving between pages keeps it. */
+  const updateParams = (updates: Record<string, string | number | null>) => {
+    clearSelection();
     set(updates);
   };
   const resetFilters = () => updateParams({ ...FILTER_KEYS });
@@ -114,9 +121,20 @@ export function LiveClassesListView() {
     onDelete: setDeleting,
   };
 
-  const onSelectRow = (id: string, checked: boolean) =>
-    setSelectedIds((prev) => (checked ? Array.from(new Set([...prev, id])) : prev.filter((x) => x !== id)));
-  const onSelectAll = (checked: boolean) => setSelectedIds(checked ? rows.map((r) => r.id) : []);
+  const pick = (list: LiveClassRow[], checked: boolean) => {
+    setPickedRows((prev) => {
+      const next = new Map(prev);
+      for (const r of list) {
+        if (checked) next.set(r.id, r);
+        else next.delete(r.id);
+      }
+      return next;
+    });
+    const ids = new Set(list.map((r) => r.id));
+    setSelectedIds((prev) => (checked ? Array.from(new Set([...prev, ...ids])) : prev.filter((x) => !ids.has(x))));
+  };
+  const onSelectRow = (id: string, checked: boolean) => pick(rows.filter((r) => r.id === id), checked);
+  const onSelectAll = (checked: boolean) => pick(rows, checked);
   const cancellable = selectedItems.filter((c) => c.status !== "CANCELLED");
 
   return (
@@ -128,9 +146,9 @@ export function LiveClassesListView() {
     >
       <LiveClassesHeader
         filteredCount={total}
-        selectedCount={visibleSelected.length}
+        selectedCount={pickedRows.size}
         onExportFiltered={() => void exportFiltered()}
-        onExportSelected={() => exportRows(rows.filter((r) => visibleSelected.includes(r.id)), "selected")}
+        onExportSelected={() => exportRows([...pickedRows.values()], "selected")}
         onSchedule={goSchedule}
       />
       <LiveClassStatsRow stats={stats} />
@@ -153,7 +171,7 @@ export function LiveClassesListView() {
           busy={actions.isBulkBusy}
           onCancel={() => setBulkMode("cancel")}
           onDelete={() => setBulkMode("delete")}
-          onClear={() => setSelectedIds([])}
+          onClear={clearSelection}
         />
 
         <LiveClassesTable
@@ -172,7 +190,7 @@ export function LiveClassesListView() {
                 pageSize={perPage}
                 totalCount={total}
                 itemLabel="live classes"
-                onPageChange={(next) => updateParams({ page: next })}
+                onPageChange={(next) => set({ page: next })}
                 onPageSizeChange={(size) => updateParams({ perPage: size === PAGE_SIZES[0] ? null : size, page: null })}
                 pageSizeOptions={PAGE_SIZES}
               />
@@ -208,6 +226,11 @@ export function LiveClassesListView() {
           if (!deleting) return;
           await actions.remove(deleting);
           setSelectedIds((prev) => prev.filter((id) => id !== deleting.id));
+          setPickedRows((prev) => {
+            const next = new Map(prev);
+            next.delete(deleting.id);
+            return next;
+          });
         }}
       />
 
@@ -231,7 +254,7 @@ export function LiveClassesListView() {
         onConfirm={async () => {
           if (bulkMode === "delete") await actions.bulkRemove(selectedItems);
           else await actions.bulkCancel(selectedItems);
-          setSelectedIds([]);
+          clearSelection();
         }}
       />
     </motion.div>
