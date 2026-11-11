@@ -20,6 +20,7 @@ import { SettingsCard } from "@/components/settings/shared/SettingsCard";
 import { SettingsRow } from "@/components/settings/shared/SettingsRow";
 import { PageFade } from "../shared/PageFade";
 import { PanelSkeleton } from "../shared/PanelSkeleton";
+import { TeacherAvatarCard } from "./TeacherAvatarCard";
 
 const profileSchema = z.object({
   name: z.string().trim().min(2, "Enter your full name").max(80),
@@ -76,6 +77,7 @@ export function TeacherProfileView() {
   return (
     <PageFade>
       <PageHeader title="Profile" description="Your instructor profile on the academy website, and your password." />
+      <TeacherAvatarCard name={data.name} avatar={data.avatar} />
       <form onSubmit={saveProfile} noValidate>
         <SettingsCard icon={<User className="h-5 w-5" />} title="Instructor profile" description="Shown on your courses and the Instructors page.">
           <SettingsRow label="Full name" htmlFor="t-name" required>
