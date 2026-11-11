@@ -18,7 +18,7 @@ import { LoadErrorCard } from "@/components/ui/LoadErrorCard";
 import { TrendStatCard } from "@/components/ui/TrendStatCard";
 import { ListToolbar } from "../shared/ListToolbar";
 import { TableSkeleton } from "../shared/TableSkeleton";
-import { usePagedList } from "../shared/usePagedList";
+import { usePagedList } from "@/lib/usePagedList";
 import { fmtDate } from "../messages/messageMeta";
 
 const PAGE_SIZES = [10, 20, 50];

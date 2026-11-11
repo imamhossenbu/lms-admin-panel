@@ -16,7 +16,7 @@ import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { LoadErrorCard } from "@/components/ui/LoadErrorCard";
 import { ListToolbar } from "../shared/ListToolbar";
 import { TableSkeleton } from "../shared/TableSkeleton";
-import { usePagedList } from "../shared/usePagedList";
+import { usePagedList } from "@/lib/usePagedList";
 import { MessageModal } from "./MessageModal";
 import { MESSAGE_FILTERS, MESSAGE_STATUS, MESSAGE_TOPIC, fmtDate } from "./messageMeta";
 

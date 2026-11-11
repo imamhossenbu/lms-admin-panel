@@ -108,9 +108,15 @@ export default function LoginPage() {
     localStorage.setItem("admin_token", token);
     const profile = await loadSession(dispatch, token);
     const roleUpper = (profile.role || "").toUpperCase();
+    // Teachers get the teacher mode of the panel (their own courses, students, grading).
+    if (roleUpper === "TEACHER") {
+      toast.success(`Welcome back, ${profile.name || "Teacher"}!`, { id: toastId, description: "Opening your teacher dashboard..." });
+      router.push("/teach");
+      return;
+    }
     if (roleUpper !== "ADMIN" && roleUpper !== "SUPER_ADMIN") {
       dispatch(logout());
-      throw new Error("This portal is only for administrators. Students and instructors sign in from the learning app.");
+      throw new Error("This portal is for administrators and teachers. Students sign in on the academy website.");
     }
     if (twoFactorSetupRequired) {
       toast.warning("Set up two-factor authentication", {

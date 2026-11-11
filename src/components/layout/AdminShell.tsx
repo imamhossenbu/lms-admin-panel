@@ -1,20 +1,40 @@
 "use client";
 
-import React, { Suspense } from "react";
-import { usePathname } from "next/navigation";
+import React, { Suspense, useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useAppSelector } from "@/store/hooks";
+import { TeacherShell } from "@/components/teacher/TeacherShell";
 import { AdminSidebar } from "./AdminSidebar";
 import { AdminNavbar } from "./AdminNavbar";
 import { AuthGuard, isPublicAuthRoute } from "@/components/auth/AuthGuard";
 import { BillingStatusBanner } from "@/components/billing/banner/BillingStatusBanner";
 import { SuspendedAccountGate } from "@/components/billing/banner/SuspendedAccountGate";
 
+const isTeacherRole = (role?: string | null) => (role ?? "").toUpperCase() === "TEACHER";
+
 function AdminShellContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const role = useAppSelector((s) => s.auth.user?.role);
   const isAuthPage = isPublicAuthRoute(pathname);
+  const teacher = isTeacherRole(role);
+  const onTeach = pathname === "/teach" || pathname.startsWith("/teach/");
+
+  // Teachers live in /teach; admins never land there.
+  useEffect(() => {
+    if (isAuthPage || !role) return;
+    if (teacher && !onTeach) router.replace("/teach");
+    if (!teacher && onTeach) router.replace("/");
+  }, [isAuthPage, role, teacher, onTeach, router]);
 
   if (isAuthPage) {
     return <AuthGuard>{children}</AuthGuard>;
   }
+
+  if (teacher) {
+    return <AuthGuard>{onTeach ? <TeacherShell>{children}</TeacherShell> : null}</AuthGuard>;
+  }
+  if (onTeach) return <AuthGuard>{null}</AuthGuard>;
 
   return (
     <AuthGuard>
