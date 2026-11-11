@@ -3,6 +3,9 @@ import type { ApiPage } from "@/types/api";
 
 export interface TeacherLive {
   id: string;
+  courseId: string;
+  /** The teacher teaches it (an admin may schedule a class on their course for someone else → read-only). */
+  mine: boolean;
   title: string;
   startTime: string;
   endTime: string;
@@ -129,3 +132,51 @@ export interface TeacherProfile {
 
 export type SubmissionPage = ApiPage<TeacherSubmission> & { pending: number };
 export type AttemptPage = ApiPage<TeacherAttempt> & { stats: { attempts: number; averagePercentage: number; passRate: number } };
+
+export const TEACHER_LESSON_TYPES = ["VIDEO", "TEXT", "CODING", "QUIZ", "ASSIGNMENT", "LIVE"] as const;
+export type TeacherLessonType = (typeof TEACHER_LESSON_TYPES)[number];
+
+/** A lesson as the teacher edits it (GET /teacher/courses/:id/lessons/:lessonId). */
+export interface TeacherLessonFull {
+  id: string;
+  moduleId: string;
+  title: string;
+  type: string;
+  durationMinutes: number;
+  videoUrl: string | null;
+  content: string | null;
+  isPreview: boolean;
+  status: string;
+  order: number;
+}
+
+export interface TeacherLessonInput {
+  moduleId: string;
+  title: string;
+  type: TeacherLessonType;
+  durationMinutes: number;
+  videoUrl: string;
+  content: string;
+  isPreview: boolean;
+  status: "DRAFT" | "PUBLISHED";
+}
+
+export const LIVE_PLATFORMS = ["ZOOM", "GOOGLE_MEET", "TEAMS", "CUSTOM"] as const;
+
+/** Live class form values (date / time in the workspace's local time). */
+export interface TeacherLiveInput {
+  courseId: string;
+  title: string;
+  description: string;
+  date: string;
+  startTime: string;
+  durationMinutes: number;
+  platform: (typeof LIVE_PLATFORMS)[number];
+  meetingUrl: string;
+}
+
+export interface TeacherLiveFull extends TeacherLiveInput {
+  id: string;
+  recordingUrl: string;
+  status: string;
+}

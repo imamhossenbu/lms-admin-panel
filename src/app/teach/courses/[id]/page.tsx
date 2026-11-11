@@ -1,9 +1,14 @@
 "use client";
 
-import React, { use } from "react";
+import React, { Suspense, use } from "react";
 import { TeacherCourseDetailView } from "@/components/teacher/courses/TeacherCourseDetailView";
+import { PanelSkeleton } from "@/components/teacher/shared/PanelSkeleton";
 
 export default function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  return <TeacherCourseDetailView id={id} />;
+  return (
+    <Suspense fallback={<PanelSkeleton stats={4} />}>
+      <TeacherCourseDetailView id={id} />
+    </Suspense>
+  );
 }
