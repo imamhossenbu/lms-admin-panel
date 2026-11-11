@@ -5,7 +5,7 @@ import type { TeamModule } from "@/types/team";
 import React, { useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
+import { Globe,
   LayoutDashboard,
   BarChart3,
   BookOpen,
@@ -94,6 +94,7 @@ const SIDEBAR_SECTIONS: NavCategory[] = [
       { href: "/certificates", module: "certificates", label: "Certificates", icon: Award, feature: "certificates" },
       { href: "/notifications", module: "notifications", label: "Notifications", icon: Bell },
       { href: "/users", module: "team", label: "Team & Roles", icon: UserCog },
+      { href: "/website", module: "settings", label: "Website", icon: Globe },
       { href: "/billing", label: "Billing & Plan", icon: Receipt },
       { href: "/settings", module: "settings", label: "Settings", icon: Settings },
     ],
