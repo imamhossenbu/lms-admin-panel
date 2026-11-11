@@ -105,10 +105,13 @@ body {
   overflow-x: clip;
 }
 
-*,
-::before,
-::after {
-  border-color: #E2E8F0;
+/* In the base layer so Tailwind border-color utilities (border-brand-orange/50, border-red/30 …) win over it. */
+@layer base {
+  *,
+  ::before,
+  ::after {
+    border-color: #E2E8F0;
+  }
 }
 
 /* ==========================================
